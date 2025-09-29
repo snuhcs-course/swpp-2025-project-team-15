@@ -9,4 +9,7 @@ interface AuthApiService {
     // @Body 어노테이션은 LoginRequest 객체를 JSON 형태로 변환하여 요청 본문에 담아달라는 의미.
     @POST("/api/login")
     fun login(@Body request: LoginRequest): Call<LoginResponse>
+    // ★★★ 회원가입 API 함수 추가 ★★★
+    @POST("api/signup")
+    fun signup(@Body request: SignupRequest): Call<SignupResponse>
 }

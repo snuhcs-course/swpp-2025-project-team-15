@@ -47,5 +47,18 @@
         app:layout_constraintEnd_toEndOf="@+id/passwordInput_EditText"
         app:layout_constraintStart_toStartOf="@+id/passwordInput_EditText"
         app:layout_constraintTop_toBottomOf="@+id/passwordInput_EditText" />
+    <TextView
+        android:id="@+id/signup_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"
+        android:padding="8dp"
+        android:text="Don't have an account? Sign Up"
+        android:textColor="@color/design_default_color_primary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/login_button"
+        app:layout_constraintStart_toStartOf="@+id/login_button"
+        app:layout_constraintTop_toBottomOf="@+id/login_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

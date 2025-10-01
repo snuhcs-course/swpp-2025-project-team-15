@@ -5,30 +5,33 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class DailyWriteActivity : AppCompatActivity() {
     private lateinit var date: String
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var memoAdapter: MemoAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_daily_read)
+        setContentView(R.layout.activity_daily_write)
 
         // CalendarActivity에서 넘어온 날짜 받기
         date = intent.getStringExtra("date") ?: "알 수 없는 날짜"
 
-        val editDiary = findViewById<EditText>(R.id.editDiary)
-        val btnSave = findViewById<Button>(R.id.btnSave)
+        // 가상의 메모 데이터 리스트
+        val dummyMemoList = listOf(
+            Memo("오늘은 소개원실 랩 수업을 들었다.", "21:05"),
+            Memo("점심을 다이어트를 위해 굶었다.", "22:09"),
+            Memo("저녁은 집 가서 먹어야지~", "23:05")
+        )
 
-        // 저장 버튼 클릭
-        btnSave.setOnClickListener {
-            val text = editDiary.text.toString()
-            DiaryRepository.saveDiary(date, text)
+        recyclerView = findViewById(R.id.memo_list_view)
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
-            // 저장 후 보기 화면으로 이동
-            val intent = Intent(this, DailyReadActivity::class.java)
-            intent.putExtra("date", date)
-            startActivity(intent)
-            finish() // 작성 화면 닫기
-        }
+        // 어댑터 생성 및 리사이클러뷰에 연결
+        memoAdapter = MemoAdapter(dummyMemoList)
+        recyclerView.adapter = memoAdapter
     }
 }

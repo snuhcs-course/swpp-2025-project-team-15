@@ -1,12 +1,15 @@
 package com.example.sumdays
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.CalendarView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import java.time.LocalDate
 
 class CalendarActivity : AppCompatActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_calendar)
@@ -23,6 +26,7 @@ class CalendarActivity : AppCompatActivity() {
         setupNavigationBar()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupNavigationBar() {
         val btnCalendar = findViewById<android.widget.Button>(R.id.btnCalendar)
         val btnDaily = findViewById<android.widget.Button>(R.id.btnDaily)

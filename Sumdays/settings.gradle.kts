@@ -16,6 +16,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // material-calendarview 라이브러리 설정
+        maven { url = uri("https://jitpack.io") }
     }
 }
 

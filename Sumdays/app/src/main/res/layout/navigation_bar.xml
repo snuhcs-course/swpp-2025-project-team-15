@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:background="#EEEEEE"
+    android:layout_width="match_parent"
+    android:layout_height="56dp">
+
+    <Button
+        android:id="@+id/btnCalendar"
+        android:text="캘린더"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" />
+
+    <Button
+        android:id="@+id/btnDaily"
+        android:text="오늘"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" />
+
+    <Button
+        android:id="@+id/btnStats"
+        android:text="통계"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" />
+
+    <Button
+        android:id="@+id/btnInfo"
+        android:text="정보"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" />
+</LinearLayout>

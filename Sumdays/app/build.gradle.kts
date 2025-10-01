@@ -17,6 +17,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    buildFeatures {
+        viewBinding = true
+    }
 
     buildTypes {
         release {
@@ -58,4 +61,11 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.security:security-crypto:1.0.0")
+    // Retrofit: 네트워크 통신 라이브러리
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    // Gson Converter: JSON을 Kotlin 데이터 클래스로 변환
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // OkHttp Logging Interceptor (선택사항): 통신 로그를 확인하여 디버깅에 유용
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 }

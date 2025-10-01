@@ -87,6 +87,13 @@ class DailyWriteActivity : AppCompatActivity() {
         val btnDaily = findViewById<android.widget.Button>(R.id.btnDaily)
         val btnStats = findViewById<android.widget.Button>(R.id.btnStats)
         val btnInfo = findViewById<android.widget.Button>(R.id.btnInfo)
+        val sumButton = findViewById<ImageView>(R.id.sum_button)
+
+        sumButton.setOnClickListener {
+            val intent = Intent(this, SumActivity::class.java)
+            intent.putExtra("date", date)
+            startActivity(intent)
+        }
 
         btnCalendar.setOnClickListener {
             val intent = Intent(this, CalendarActivity::class.java)

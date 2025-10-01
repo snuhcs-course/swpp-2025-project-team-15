@@ -21,6 +21,10 @@
             android:name=".DailyReadActivity"
             android:exported="false"
             android:theme="@style/Theme.First" />
+        <!-- Sum 화면 -->
+        <activity
+            android:name=".SumActivity"
+            android:exported="false" />
         <!-- Calendar 화면 (실제 첫 화면) -->
         <activity
             android:name=".CalendarActivity"

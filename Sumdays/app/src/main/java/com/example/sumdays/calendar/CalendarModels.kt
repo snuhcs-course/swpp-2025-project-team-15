@@ -13,3 +13,9 @@ data class MonthData(
     val month: Int,
     val days: List<DateCell>
 )
+
+// 캘린더 언어
+enum class CalendarLanguage {
+    KOREAN,
+    ENGLISH
+}

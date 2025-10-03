@@ -1,13 +1,19 @@
 package com.example.sumdays
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import java.util.Locale
 import androidx.viewpager2.widget.ViewPager2
+import com.example.sumdays.calendar.CalendarLanguage
 import com.example.sumdays.calendar.MonthAdapter
 import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
@@ -26,6 +32,8 @@ class CalendarActivity : AppCompatActivity() {
     // emojiMap: 이모지 데이터를 저장 <날짜, 이모지> -> TODO: 나중에 db에 맞춰 수정 필요
     // ex) "2025-10-10" -> "😊"
     private val emojiMap = mutableMapOf<String, String>()
+    // 캘린더 언어 설정
+    private var currentLanguage: CalendarLanguage = CalendarLanguage.ENGLISH
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,6 +89,39 @@ class CalendarActivity : AppCompatActivity() {
         monthAdapter = MonthAdapter(this)
         calendarViewPager.adapter = monthAdapter
 
+        // 0. 언어에 따른 헤더 설정
+        val headerLayout = findViewById<LinearLayout>(R.id.day_of_week_header)
+        headerLayout.removeAllViews()
+
+        val dayNamesKOR = listOf("일", "월", "화", "수", "목", "금", "토")
+        val dayNamesENG = listOf("SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT")
+
+        val dayNames = if (currentLanguage == CalendarLanguage.KOREAN) dayNamesKOR else dayNamesENG
+
+        for (dayName in dayNames) {
+            val tv = TextView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1.0f
+                )
+                gravity = Gravity.CENTER
+                text = dayName
+
+                // 주말 색상 적용
+                setTextColor(
+                    if (dayName == "일" || dayName == "SUN") {
+                        ContextCompat.getColor(this@CalendarActivity, android.R.color.holo_red_dark)
+                    } else if (dayName == "토" || dayName == "SAT") {
+                        ContextCompat.getColor(this@CalendarActivity, android.R.color.holo_blue_dark)
+                    } else {
+                        Color.BLACK
+                    }
+                )
+            }
+            headerLayout.addView(tv)
+        }
+
         // 1. Scroll로 달 전환
             // ViewPager2의 무한 스크롤 시작 위치를 중앙으로 설정 (START_POSITION = Int.MAX_VALUE / 2)
         val startPosition = Int.MAX_VALUE / 2
@@ -115,7 +156,12 @@ class CalendarActivity : AppCompatActivity() {
         val monthDiff = position - startPosition
         val targetMonth = baseYearMonth.plusMonths(monthDiff.toLong())
 
-        val formatter = DateTimeFormatter.ofPattern(getString(R.string.month_year_format))
+        val (pattern, locale) = when (currentLanguage) {
+            CalendarLanguage.KOREAN -> Pair(R.string.month_year_format, Locale.KOREAN)
+            CalendarLanguage.ENGLISH -> Pair(R.string.month_year_format_english, Locale.US)
+        }
+
+        val formatter = DateTimeFormatter.ofPattern(getString(pattern), locale)
         tvMonthYear.text = targetMonth.format(formatter)
     }
 

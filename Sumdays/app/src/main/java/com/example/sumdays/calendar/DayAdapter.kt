@@ -59,16 +59,6 @@ class DayAdapter(private val days: List<DateCell>, private val activity: Calenda
             }
             tvDayNumber.setTextColor(textColor)
 
-            // 이전/다음 달 날짜 스타일 설정(흐리게 표시)
-            if (!cell.isCurrentMonth) {
-                tvDayNumber.alpha = 0.4f
-                tvCircle.alpha = 0.4f
-                tvDayNumber.setTextColor(Color.GRAY) // TODO: 일단 주말도 회색임. 수정 필요
-            } else {
-                tvDayNumber.alpha = 1.0f
-                tvCircle.alpha = 1.0f
-            }
-
             // 오늘 날짜 스타일 설정
             val isToday = cell.dateString == LocalDate.now().toString()
             if (isToday) {
@@ -86,6 +76,17 @@ class DayAdapter(private val days: List<DateCell>, private val activity: Calenda
                 tvEmoji.visibility = View.VISIBLE
             } else {
                 tvEmoji.visibility = View.GONE
+            }
+
+            // 이전/다음 달 날짜 스타일 설정(흐리게 표시)
+            if (!cell.isCurrentMonth) {
+                tvEmoji.visibility = View.GONE
+                tvDayNumber.alpha = 0.4f
+                tvCircle.alpha = 0.4f
+                tvDayNumber.setTextColor(Color.GRAY) // TODO: 일단 주말도 회색임. 수정 필요
+            } else {
+                tvDayNumber.alpha = 1.0f
+                tvCircle.alpha = 1.0f
             }
 
             // 날짜 클릭 이벤트 설정

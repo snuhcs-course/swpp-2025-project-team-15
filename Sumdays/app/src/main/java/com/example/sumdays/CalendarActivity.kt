@@ -35,6 +35,7 @@ class CalendarActivity : AppCompatActivity() {
     // 캘린더 언어 설정
     private var currentLanguage: CalendarLanguage = CalendarLanguage.ENGLISH
 
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +46,7 @@ class CalendarActivity : AppCompatActivity() {
         btnPrevMonth = findViewById(R.id.btn_prev_month)
         btnNextMonth = findViewById(R.id.btn_next_month)
 
+<<<<<<< HEAD
         setCustomCalendar()
         loadEventData()
         setStatisticBtnListener()
@@ -61,6 +63,25 @@ class CalendarActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setNavigationBar() {
+=======
+        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            // LocalDate를 사용해 날짜 객체 생성 (월은 0부터 시작하므로 +1)
+            val localDate = LocalDate.of(year, month + 1, dayOfMonth)
+
+            // ISO 8601 형식인 "yyyy-MM-dd"로 문자열 변환
+            val date = localDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+            val intent = Intent(this, DailyWriteActivity::class.java)
+            intent.putExtra("date", date)
+            startActivity(intent)
+        }
+
+        setupNavigationBar()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun setupNavigationBar() {
+>>>>>>> main
         val btnCalendar = findViewById<android.widget.Button>(R.id.btnCalendar)
         val btnDaily = findViewById<android.widget.Button>(R.id.btnDaily)
         val btnStats = findViewById<android.widget.Button>(R.id.btnStats)

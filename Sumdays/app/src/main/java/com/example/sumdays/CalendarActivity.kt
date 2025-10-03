@@ -1,12 +1,16 @@
 package com.example.sumdays
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.CalendarView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class CalendarActivity : AppCompatActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_calendar)
@@ -14,7 +18,12 @@ class CalendarActivity : AppCompatActivity() {
         val calendarView = findViewById<CalendarView>(R.id.calendarView)
 
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            val date = "$year-${month + 1}-$dayOfMonth"
+            // LocalDate를 사용해 날짜 객체 생성 (월은 0부터 시작하므로 +1)
+            val localDate = LocalDate.of(year, month + 1, dayOfMonth)
+
+            // ISO 8601 형식인 "yyyy-MM-dd"로 문자열 변환
+            val date = localDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
             val intent = Intent(this, DailyWriteActivity::class.java)
             intent.putExtra("date", date)
             startActivity(intent)
@@ -23,6 +32,7 @@ class CalendarActivity : AppCompatActivity() {
         setupNavigationBar()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupNavigationBar() {
         val btnCalendar = findViewById<android.widget.Button>(R.id.btnCalendar)
         val btnDaily = findViewById<android.widget.Button>(R.id.btnDaily)

@@ -68,7 +68,6 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     // OkHttp Logging Interceptor (선택사항): 통신 로그를 확인하여 디버깅에 유용
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
-    // Material Calendar View: 캘린더를 자유롭게 디자인할 수 있음
-    implementation("com.github.prolificinteractive:material-calendarview:2.0.0")
+    // SDK 26 미만에서 java time과 같은 날짜 및 시간 클래스를 사용할 수 있도록 해줌
     implementation("com.jakewharton.threetenabp:threetenabp:1.1.1")
 }

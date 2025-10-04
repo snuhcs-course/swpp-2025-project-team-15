@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.sumdays.daily.diary.DiaryRepository
 import java.text.SimpleDateFormat // API 24 호환을 위해 SimpleDateFormat 사용
 import java.util.Calendar // API 24 호환을 위해 Calendar 사용
 import java.util.Locale

@@ -1,4 +1,4 @@
-package com.example.sumdays
+package com.example.sumdays.daily.memo
 
 // Memo.kt 파일
 data class Memo(

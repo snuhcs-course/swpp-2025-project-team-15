@@ -57,14 +57,16 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center">
+
+
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnDaily"
-                android:layout_width="82dp"
-                android:layout_height="82dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:fabCustomSize="82dp"
                 android:src="@drawable/ic_edit"
-                android:tint="@android:color/white"
+                app:tint="@android:color/white"
                 app:backgroundTint="#444444"
-                android:scaleType="fitCenter"
                 app:maxImageSize="50dp"
                 android:translationY="-18dp"/>
         </LinearLayout>

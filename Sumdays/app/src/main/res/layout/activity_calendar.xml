@@ -89,7 +89,7 @@
 
     <include
         android:id="@+id/navigation_bar"
-        layout="@layout/navigation_bar_calendar"
+        layout="@layout/include_nav_calendar"
         android:layout_width="0dp"
         android:layout_height="120dp"
         app:layout_constraintBottom_toBottomOf="parent"

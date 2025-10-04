@@ -62,7 +62,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/memo_list_view"
-        app:layout_constraintBottom_toTopOf="@id/sum_button"
+        app:layout_constraintBottom_toTopOf="@id/bottom_buttons_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="48dp"
@@ -115,36 +115,11 @@
             android:contentDescription="사진 입력" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
-        android:id="@+id/sum_button"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@drawable/sum_fox_button"
-        app:layout_constraintTop_toBottomOf="@id/input_area"
-        app:layout_constraintBottom_toTopOf="@id/sum_button_divider"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="SUM 버튼"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp" />
-
-    <View
-        android:id="@+id/sum_button_divider"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="#A0A0A0"
-        app:layout_constraintTop_toBottomOf="@id/sum_button"
-        app:layout_constraintBottom_toTopOf="@id/bottom_buttons_layout"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="16dp" />
-
     <include
         android:id="@+id/bottom_buttons_layout"
-        layout="@layout/navigation_bar"
+        layout="@layout/navigation_bar_daily"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/sum_button_divider"
+        android:layout_height="170dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

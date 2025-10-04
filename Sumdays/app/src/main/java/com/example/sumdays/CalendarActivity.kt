@@ -18,6 +18,8 @@ import com.example.sumdays.calendar.MonthAdapter
 import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
 import org.threeten.bp.format.DateTimeFormatter
+import com.jakewharton.threetenabp.AndroidThreeTen
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
 class CalendarActivity : AppCompatActivity() {
@@ -40,13 +42,11 @@ class CalendarActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_calendar)
-
+        AndroidThreeTen.init(this)
         calendarViewPager = findViewById(R.id.calendarViewPager)
         tvMonthYear = findViewById(R.id.tv_month_year)
         btnPrevMonth = findViewById(R.id.btn_prev_month)
         btnNextMonth = findViewById(R.id.btn_next_month)
-
-<<<<<<< HEAD
         setCustomCalendar()
         loadEventData()
         setStatisticBtnListener()
@@ -63,29 +63,9 @@ class CalendarActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setNavigationBar() {
-=======
-        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            // LocalDate를 사용해 날짜 객체 생성 (월은 0부터 시작하므로 +1)
-            val localDate = LocalDate.of(year, month + 1, dayOfMonth)
-
-            // ISO 8601 형식인 "yyyy-MM-dd"로 문자열 변환
-            val date = localDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-
-            val intent = Intent(this, DailyWriteActivity::class.java)
-            intent.putExtra("date", date)
-            startActivity(intent)
-        }
-
-        setupNavigationBar()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun setupNavigationBar() {
->>>>>>> main
-        val btnCalendar = findViewById<android.widget.Button>(R.id.btnCalendar)
-        val btnDaily = findViewById<android.widget.Button>(R.id.btnDaily)
-        val btnStats = findViewById<android.widget.Button>(R.id.btnStats)
-        val btnInfo = findViewById<android.widget.Button>(R.id.btnInfo)
+        val btnCalendar = findViewById<android.widget.ImageButton>(R.id.btnCalendar)
+        val btnDaily = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnDaily)
+        val btnInfo = findViewById<android.widget.ImageButton>(R.id.btnInfo)
 
         btnCalendar.setOnClickListener {
             // 이미 캘린더 화면 → 아무 일도 안 함
@@ -95,9 +75,6 @@ class CalendarActivity : AppCompatActivity() {
             val intent = Intent(this, DailyWriteActivity::class.java)
             intent.putExtra("date", today)
             startActivity(intent)
-        }
-        btnStats.setOnClickListener {
-            android.widget.Toast.makeText(this, "통계 화면 예정", android.widget.Toast.LENGTH_SHORT).show()
         }
         btnInfo.setOnClickListener {
             android.widget.Toast.makeText(this, "정보 화면 예정", android.widget.Toast.LENGTH_SHORT).show()

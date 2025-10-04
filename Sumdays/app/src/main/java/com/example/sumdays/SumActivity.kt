@@ -61,7 +61,7 @@ class SumActivity : AppCompatActivity() {
         memoAdapter = MemoAdapter(dummyMemoList)
         recyclerView.adapter = memoAdapter
 
-        setupNavigationBar()
+        // setupNavigationBar()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

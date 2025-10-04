@@ -84,9 +84,9 @@ class DailyWriteActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupNavigationBar() {
         val btnCalendar = findViewById<android.widget.ImageButton>(R.id.btnCalendar)
-        val btnDaily = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnDaily)
+        val btnDaily = findViewById<android.widget.ImageButton>(R.id.btnDaily)
         val btnInfo = findViewById<android.widget.ImageButton>(R.id.btnInfo)
-        val sumButton = findViewById<ImageView>(R.id.btnSum)
+        val btnSum = findViewById<android.widget.ImageButton>(R.id.btnSum)
 
         btnSum.setOnClickListener {
             val intent = Intent(this, SumActivity::class.java)

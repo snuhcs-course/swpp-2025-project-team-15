@@ -15,7 +15,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.time.LocalDate
-
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 class DailyWriteActivity : AppCompatActivity() {
 
     private lateinit var date: String
@@ -83,13 +83,12 @@ class DailyWriteActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupNavigationBar() {
-        val btnCalendar = findViewById<android.widget.Button>(R.id.btnCalendar)
-        val btnDaily = findViewById<android.widget.Button>(R.id.btnDaily)
-        val btnStats = findViewById<android.widget.Button>(R.id.btnStats)
-        val btnInfo = findViewById<android.widget.Button>(R.id.btnInfo)
-        val sumButton = findViewById<ImageView>(R.id.sum_button)
+        val btnCalendar = findViewById<android.widget.ImageButton>(R.id.btnCalendar)
+        val btnDaily = findViewById<android.widget.ImageButton>(R.id.btnDaily)
+        val btnInfo = findViewById<android.widget.ImageButton>(R.id.btnInfo)
+        val btnSum = findViewById<android.widget.ImageButton>(R.id.btnSum)
 
-        sumButton.setOnClickListener {
+        btnSum.setOnClickListener {
             val intent = Intent(this, SumActivity::class.java)
             intent.putExtra("date", date)
             startActivity(intent)
@@ -114,9 +113,6 @@ class DailyWriteActivity : AppCompatActivity() {
             }
         }
 
-        btnStats.setOnClickListener {
-            Toast.makeText(this, "통계 화면 예정", Toast.LENGTH_SHORT).show()
-        }
         btnInfo.setOnClickListener {
             Toast.makeText(this, "정보 화면 예정", Toast.LENGTH_SHORT).show()
         }

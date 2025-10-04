@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".CalendarActivity">
 
     <Button
@@ -88,9 +89,9 @@
 
     <include
         android:id="@+id/navigation_bar"
-        layout="@layout/navigation_bar"
+        layout="@layout/navigation_bar_calendar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="120dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

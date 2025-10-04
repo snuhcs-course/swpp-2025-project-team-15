@@ -66,10 +66,9 @@ class SumActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupNavigationBar() {
-        val btnCalendar = findViewById<android.widget.Button>(R.id.btnCalendar)
-        val btnDaily = findViewById<android.widget.Button>(R.id.btnDaily)
-        val btnStats = findViewById<android.widget.Button>(R.id.btnStats)
-        val btnInfo = findViewById<android.widget.Button>(R.id.btnInfo)
+        val btnCalendar = findViewById<android.widget.ImageButton>(R.id.btnCalendar)
+        val btnDaily = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnDaily)
+        val btnInfo = findViewById<android.widget.ImageButton>(R.id.btnInfo)
 
         btnCalendar.setOnClickListener {
             val intent = Intent(this, CalendarActivity::class.java)
@@ -80,9 +79,6 @@ class SumActivity : AppCompatActivity() {
             val intent = Intent(this, DailyWriteActivity::class.java)
             intent.putExtra("date", today)
             startActivity(intent)
-        }
-        btnStats.setOnClickListener {
-            android.widget.Toast.makeText(this, "통계 화면 예정", android.widget.Toast.LENGTH_SHORT).show()
         }
         btnInfo.setOnClickListener {
             android.widget.Toast.makeText(this, "정보 화면 예정", android.widget.Toast.LENGTH_SHORT).show()

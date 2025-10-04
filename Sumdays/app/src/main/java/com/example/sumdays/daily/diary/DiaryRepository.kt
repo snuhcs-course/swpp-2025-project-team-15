@@ -1,4 +1,4 @@
-package com.example.sumdays
+package com.example.sumdays.daily.diary
 
 object DiaryRepository {
     private val diaryMap = mutableMapOf<String, String>()

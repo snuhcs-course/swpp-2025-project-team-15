@@ -1,11 +1,11 @@
-package com.example.sumdays
+package com.example.sumdays.daily.memo
 
-// MemoAdapter.kt 파일
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sumdays.R
 
 class MemoAdapter(private val memoList: List<Memo>) :
     RecyclerView.Adapter<MemoAdapter.MemoViewHolder>() {

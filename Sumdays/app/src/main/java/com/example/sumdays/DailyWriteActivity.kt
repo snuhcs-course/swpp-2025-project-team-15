@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -14,8 +13,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sumdays.daily.memo.Memo
+import com.example.sumdays.daily.memo.MemoAdapter
 import java.time.LocalDate
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+
 class DailyWriteActivity : AppCompatActivity() {
 
     private lateinit var date: String
@@ -89,7 +90,7 @@ class DailyWriteActivity : AppCompatActivity() {
         val btnSum = findViewById<android.widget.ImageButton>(R.id.btnSum)
 
         btnSum.setOnClickListener {
-            val intent = Intent(this, SumActivity::class.java)
+            val intent = Intent(this, DailySumActivity::class.java)
             intent.putExtra("date", date)
             startActivity(intent)
         }

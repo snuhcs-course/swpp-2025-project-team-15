@@ -9,9 +9,11 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sumdays.daily.memo.Memo
+import com.example.sumdays.daily.memo.MemoAdapter
 import java.time.LocalDate
 
-class SumActivity : AppCompatActivity() {
+class DailySumActivity : AppCompatActivity() {
 
     private lateinit var date: String
     private lateinit var recyclerView: RecyclerView

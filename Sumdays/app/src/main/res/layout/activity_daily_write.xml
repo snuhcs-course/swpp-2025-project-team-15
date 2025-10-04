@@ -117,7 +117,7 @@
 
     <include
         android:id="@+id/bottom_buttons_layout"
-        layout="@layout/navigation_bar_daily"
+        layout="@layout/include_nav_daily"
         android:layout_width="0dp"
         android:layout_height="170dp"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -1,28 +1,20 @@
-# SNU-SWPP-Template
+### Sumdays Demo Guide
 
-You can use the README file to showcase and promote your mobile app. The template provided below is just a starting point. Feel free to craft your README as you see fit. 
+You can run the demo by opening the `sumdays` folder in **Android Studio** and running it on an emulator or a connected device. The registration and login features will work from anywhere as long as the server is running. If the server is not running, a network error will occur. Even when the server is offline, you can use the **"skip login"** feature to access all functionalities except for registration and login.
 
-Please note that the README doesn't affect your grade and is not included in documentation(Wiki).
+### Features Implemented in Iteration 1
 
-# [Your Application Name]
+1.  **Login Feature**
+    - You can log in by entering an ID and password.
 
-[Short application description here]
+2.  **Registration Feature**
+    - You can create an account by entering a nickname, ID, and password.
 
-![Application Screenshot](path_to_screenshot.png)
+3.  **Calendar**
+    - You can navigate through the calendar to open and view the saved diary for a selected date.
 
-## Features
+4.  **Read Saved Diary**
+    - The diary saving function is not yet implemented, but the UI is complete. You can navigate to the previous and next dates.
 
-- Feature 1: Brief description
-- Feature 2: Brief description
-- ...
-
-## Getting Started
-
-### Prerequisites
-
-- Android Studio [version, e.g., 4.2.1]
-- Minimum Android SDK Version [e.g., 21]
-
-### Installation
-
-[Installation link here]
+5.  **Memo Input Feature**
+    - The UI for the screen where you can input memos about your day has been implemented.

@@ -5,16 +5,20 @@ You can run the demo by opening the `sumdays` folder in **Android Studio** and r
 ### Features Implemented in Iteration 1
 
 1.  **Login Feature**
-    - You can log in by entering an ID and password.
+    - User can log in by entering an ID and password.
 
 2.  **Registration Feature**
-    - You can create an account by entering a nickname, ID, and password.
+    - User can create an account by entering a nickname, ID, and password.
 
 3.  **Calendar**
-    - You can navigate through the calendar to open and view the saved diary for a selected date.
+    - User can navigate through the calendar to open and view the saved diary for a selected          date.
 
 4.  **Read Saved Diary**
-    - The diary saving function is not yet implemented, but the UI is complete. You can navigate to the previous and next dates.
+    - The diary saving function is not yet implemented, but the UI is complete. User can              navigate to the previous and next dates.
 
 5.  **Memo Input Feature**
-    - The UI for the screen where you can input memos about your day has been implemented.
+    - The UI for the screen where you can input memos about user's day has been implemented.
+
+6.  **Navigation & Screen Transition**
+    - The UI for navigating between different screens has been implemented.
+      Users can move between main widgets using the navigation bar and buttons

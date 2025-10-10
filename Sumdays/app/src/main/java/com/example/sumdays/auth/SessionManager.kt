@@ -18,7 +18,6 @@ import javax.crypto.spec.GCMParameterSpec
  * 이 방식은 androidx.security:security-crypto 라이브러리에 대한 의존성이 없습니다.
  */
 object SessionManager {
-
     private const val PREFS_NAME = "sumdays_keystore_prefs"
     private const val KEY_USER_ID = "user_id"
 

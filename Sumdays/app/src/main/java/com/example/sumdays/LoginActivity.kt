@@ -68,7 +68,7 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        // 2. 서버에 보낼 요청 데이터 객체를 생성합니다.
+        // 2. 서버에 보낼 요청 성데이터 객체를 생합니다.
         val loginRequest = LoginRequest(email, password)
 
         // 3. Retrofit을 사용하여 서버에 로그인 요청을 보냅니다.

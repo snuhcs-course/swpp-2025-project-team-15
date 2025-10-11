@@ -3,6 +3,7 @@ package com.example.sumdays.daily.memo
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 // Room의 DAO(Data Access Object) 인터페이스
@@ -20,4 +21,8 @@ interface MemoDao {
     // 모든 메모를 삭제
     @Query("DELETE FROM memo_table")
     suspend fun deleteAllMemos()
+
+    // 메모를 수정
+    @Update
+    suspend fun update(memo: Memo)
 }

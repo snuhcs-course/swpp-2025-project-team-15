@@ -19,4 +19,9 @@ class MemoRepository(private val memoDao: MemoDao) {
     suspend fun deleteAllMemos() {
         memoDao.deleteAllMemos()
     }
+
+    // 메모를 수정하는 함수
+    suspend fun update(memo: Memo) {
+        memoDao.update(memo)
+    }
 }

@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -27,7 +28,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-// 일기 작성 화면을 담당하는 액티비티
+// 일기 작성 및 수정 화면을 담당하는 액티비티
 class DailyWriteActivity : AppCompatActivity() {
 
     // 오늘 날짜를 저장하는 변수
@@ -38,8 +39,11 @@ class DailyWriteActivity : AppCompatActivity() {
     // UI 뷰 변수들
     private lateinit var dateTextView: TextView
     private lateinit var memoListView: RecyclerView
+    private lateinit var memoInputEditText: EditText
+    private lateinit var sendIcon: ImageView
+    private lateinit var readDiaryButton: Button
 
-    // ViewModel 초기화 (by viewModels 확장 함수 사용)
+    // ViewModel 초기화 (앱의 싱글톤 저장소를 사용)
     private val memoViewModel: MemoViewModel by viewModels {
         MemoViewModelFactory(
             (application as MyApplication).repository
@@ -57,16 +61,13 @@ class DailyWriteActivity : AppCompatActivity() {
             insets
         }
 
-        // 뷰 초기화
+        // 모든 뷰 초기화
         initViews()
 
-        // 다른 화면에서 전달된 날짜를 처리
+        // 인텐트 데이터 처리 및 데이터 관찰 시작
         handleIntent(intent)
 
-        // Room 데이터베이스의 데이터를 관찰하고 RecyclerView에 업데이트
-        observeMemos()
-
-        // 버튼 클릭 리스너 설정
+        // UI 요소에 클릭 리스너 설정
         setupClickListeners()
 
         // 하단 네비게이션 바 설정
@@ -85,15 +86,29 @@ class DailyWriteActivity : AppCompatActivity() {
     private fun initViews() {
         dateTextView = findViewById(R.id.date_text_view)
         memoListView = findViewById(R.id.memo_list_view)
+        memoInputEditText = findViewById(R.id.memo_input_edittext)
+        sendIcon = findViewById(R.id.send_icon)
+        readDiaryButton = findViewById(R.id.read_diary_button)
+
         memoListView.layoutManager = LinearLayoutManager(this)
+        memoAdapter = MemoAdapter()
+        memoListView.adapter = memoAdapter
+
+        // 메모 아이템 클릭 시 수정 다이얼로그 표시
+        memoAdapter.setOnItemClickListener(object : MemoAdapter.OnItemClickListener {
+            override fun onItemClick(memo: Memo) {
+                showEditMemoDialog(memo)
+            }
+        })
     }
 
-    // 인텐트에서 날짜 데이터를 가져와 화면에 표시
+    // 인텐트에서 날짜 데이터를 가져와 화면에 표시하고, 해당 날짜의 메모를 관찰
     @RequiresApi(Build.VERSION_CODES.O)
     private fun handleIntent(intent: Intent?) {
         date = intent?.getStringExtra("date") ?: LocalDate.now().toString()
         dateTextView.text = date
-        // 날짜 변경 시 ViewModel의 관찰 대상 업데이트
+
+        // ViewModel의 데이터를 관찰하고 RecyclerView 업데이트
         memoViewModel.getMemosForDate(date).observe(this) { memos ->
             memos?.let {
                 memoAdapter.submitList(it)
@@ -101,18 +116,31 @@ class DailyWriteActivity : AppCompatActivity() {
         }
     }
 
-    // Room 데이터베이스에서 데이터를 가져와 어댑터에 전달
-    private fun observeMemos() {
-        // ListAdapter를 사용하므로 초기 데이터 없이 어댑터 생성
-        memoAdapter = MemoAdapter()
-        memoListView.adapter = memoAdapter
+    // 메모 수정 다이얼로그를 보여주는 함수
+    private fun showEditMemoDialog(memo: Memo) {
+        val builder = AlertDialog.Builder(this)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_memo, null)
+        val editText = dialogView.findViewById<EditText>(R.id.edit_text_memo_content)
+        editText.setText(memo.content)
+
+        builder.setView(dialogView)
+            .setPositiveButton("수정") { dialog, id ->
+                val newContent = editText.text.toString()
+                if (newContent.isNotEmpty()) {
+                    val updatedMemo = memo.copy(content = newContent)
+                    memoViewModel.update(updatedMemo)
+                }
+            }
+            .setNegativeButton("취소") { dialog, id ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
-    // "일기 보기" 버튼과 새로운 메모 추가 버튼 클릭 리스너 설정
+    // 주요 UI 요소에 클릭 리스너를 설정하는 함수
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupClickListeners() {
-        // "일기 보기" 버튼
-        val readDiaryButton: Button = findViewById(R.id.read_diary_button)
         readDiaryButton.setOnClickListener {
             // DailyReadActivity로 이동
             val intent = Intent(this, DailyReadActivity::class.java)
@@ -120,11 +148,6 @@ class DailyWriteActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // 메모 입력 필드와 전송 버튼
-        val memoInputEditText: EditText = findViewById(R.id.memo_input_edittext)
-        val sendIcon: ImageView = findViewById(R.id.send_icon)
-
-        // 전송 버튼 클릭 리스너
         sendIcon.setOnClickListener {
             // 입력된 메모 내용 가져오기
             val memoContent = memoInputEditText.text.toString()
@@ -147,7 +170,7 @@ class DailyWriteActivity : AppCompatActivity() {
                 // 입력 필드 초기화 및 키보드 숨기기
                 memoInputEditText.text.clear()
                 val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(sendIcon.windowToken, 0)
+                imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
             } else {
                 // 메모 내용이 비어있으면 토스트 메시지 표시
                 Toast.makeText(this, "메모 내용을 입력해 주세요.", Toast.LENGTH_SHORT).show()
@@ -155,7 +178,7 @@ class DailyWriteActivity : AppCompatActivity() {
         }
     }
 
-    // 하단 내비게이션 바의 버튼들 클릭 이벤트 처리
+    // 하단 네비게이션 바의 버튼들 클릭 이벤트를 처리
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupNavigationBar() {
         val btnCalendar: ImageButton = findViewById(R.id.btnCalendar)

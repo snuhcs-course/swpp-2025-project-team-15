@@ -25,11 +25,26 @@ class MemoAdapter : ListAdapter<Memo, MemoAdapter.MemoViewHolder>(MemoDiffCallba
         return MemoViewHolder(view)
     }
 
+    interface OnItemClickListener {
+        fun onItemClick(memo: Memo)
+    }
+
+    private var onItemClickListener: OnItemClickListener? = null
+
+    fun setOnItemClickListener(listener: OnItemClickListener) {
+        this.onItemClickListener = listener
+    }
+
     // 데이터와 뷰를 연결하는 함수
     override fun onBindViewHolder(holder: MemoViewHolder, position: Int) {
         val currentMemo = getItem(position)
         holder.timestamp.text = currentMemo.timestamp
         holder.content.text = currentMemo.content
+
+        // 아이템 클릭 리스너 설정
+        holder.itemView.setOnClickListener {
+            onItemClickListener?.onItemClick(currentMemo)
+        }
     }
 }
 

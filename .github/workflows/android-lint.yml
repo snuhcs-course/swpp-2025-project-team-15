@@ -14,7 +14,10 @@ jobs:
       java-version: '17'
    - name: Grant execute permission for gradlew
      run: chmod +x ./gradlew
+     working-directory: './Sumdays'
    - name: Android Lint (debug)
      run: ./gradlew lintDebug
+     working-directory: './Sumdays'
    - name: ktlint check
      run: ./gradlew :app:ktlintMainSourceSetCheck
+     working-directory: './Sumdays'

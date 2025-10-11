@@ -3,6 +3,7 @@ package com.example.sumdays
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.widget.ImageButton
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -17,12 +18,17 @@ import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.daily.memo.MemoAdapter
 import java.time.LocalDate
 
+// 일기 작성 화면을 담당하는 액티비티
 class DailyWriteActivity : AppCompatActivity() {
 
+    // 오늘 날짜를 저장하는 변수
     private lateinit var date: String
-    private lateinit var recyclerView: RecyclerView
+    // 메모 목록을 표시하는 어댑터
     private lateinit var memoAdapter: MemoAdapter
-    private lateinit var dateTextView: TextView // 날짜 텍스트뷰 추가
+
+    // UI 뷰 변수들
+    private lateinit var dateTextView: TextView
+    private lateinit var memoListView: RecyclerView
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,45 +42,37 @@ class DailyWriteActivity : AppCompatActivity() {
         }
 
         // 뷰 초기화
-        dateTextView = findViewById(R.id.date_text_view)
-        recyclerView = findViewById(R.id.memo_list_view)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        initViews()
 
-        // 초기 데이터 설정 (onCreate에서만 호출)
+        // 다른 화면에서 전달된 날짜를 처리
         handleIntent(intent)
 
-        // 가상의 메모 데이터 리스트
-        val dummyMemoList = listOf(
-            Memo("오늘은 소개원실 랩 수업을 들었다.", "21:05"),
-            Memo("점심을 다이어트를 위해 굶었다.", "22:09"),
-            Memo("저녁은 집 가서 먹어야지~", "23:05")
-        )
+        // 가상의 메모 데이터를 설정
+        setupDummyData()
 
-        // 어댑터 생성 및 리사이클러뷰에 연결
-        memoAdapter = MemoAdapter(dummyMemoList)
-        recyclerView.adapter = memoAdapter
+        // 버튼 클릭 리스너 설정
+        setupClickListeners()
 
-        // "일기 보기" 버튼 기능 설정
-        val readDiaryButton = findViewById<Button>(R.id.read_diary_button)
-        readDiaryButton.setOnClickListener {
-            // DailyReadActivity로 이동
-            val intent = Intent(this, DailyReadActivity::class.java)
-            intent.putExtra("date", date)
-            startActivity(intent)
-        }
-
-        // 네비게이션 바 기능 설정
+        // 하단 네비게이션 바 설정
         setupNavigationBar()
     }
 
-    // onNewIntent() 메서드 추가
+    // 액티비티가 재사용될 때 새로운 인텐트 처리
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        setIntent(intent) // 새로운 인텐트를 현재 액티비티의 인텐트로 설정
+        setIntent(intent)
         handleIntent(intent)
     }
 
+    // UI 뷰 변수들을 레이아웃 ID와 연결
+    private fun initViews() {
+        dateTextView = findViewById(R.id.date_text_view)
+        memoListView = findViewById(R.id.memo_list_view)
+        memoListView.layoutManager = LinearLayoutManager(this)
+    }
+
+    // 인텐트에서 날짜 데이터를 가져와 화면에 표시
     @RequiresApi(Build.VERSION_CODES.O)
     private fun handleIntent(intent: Intent?) {
         date = intent?.getStringExtra("date") ?: LocalDate.now().toString()
@@ -82,12 +80,36 @@ class DailyWriteActivity : AppCompatActivity() {
         // TODO: 받은 날짜에 따라 리사이클러뷰 데이터를 업데이트하는 로직 추가
     }
 
+    // 더미 데이터를 생성하고 어댑터를 리사이클러뷰에 연결
+    private fun setupDummyData() {
+        val dummyMemoList = listOf(
+            Memo("오늘은 소개원실 랩 수업을 들었다.", "21:05"),
+            Memo("점심을 다이어트를 위해 굶었다.", "22:09"),
+            Memo("저녁은 집 가서 먹어야지~", "23:05")
+        )
+
+        memoAdapter = MemoAdapter(dummyMemoList)
+        memoListView.adapter = memoAdapter
+    }
+
+    // "일기 보기" 버튼 클릭 시 다른 화면으로 이동
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun setupClickListeners() {
+        val readDiaryButton: Button = findViewById(R.id.read_diary_button)
+        readDiaryButton.setOnClickListener {
+            val intent = Intent(this, DailyReadActivity::class.java)
+            intent.putExtra("date", date)
+            startActivity(intent)
+        }
+    }
+
+    // 하단 내비게이션 바의 버튼들 클릭 이벤트 처리
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupNavigationBar() {
-        val btnCalendar = findViewById<android.widget.ImageButton>(R.id.btnCalendar)
-        val btnDaily = findViewById<android.widget.ImageButton>(R.id.btnDaily)
-        val btnInfo = findViewById<android.widget.ImageButton>(R.id.btnInfo)
-        val btnSum = findViewById<android.widget.ImageButton>(R.id.btnSum)
+        val btnCalendar: ImageButton = findViewById(R.id.btnCalendar)
+        val btnDaily: ImageButton = findViewById(R.id.btnDaily)
+        val btnInfo: ImageButton = findViewById(R.id.btnInfo)
+        val btnSum: ImageButton = findViewById(R.id.btnSum)
 
         btnSum.setOnClickListener {
             val intent = Intent(this, DailySumActivity::class.java)
@@ -102,7 +124,7 @@ class DailyWriteActivity : AppCompatActivity() {
 
         btnDaily.setOnClickListener {
             val today = LocalDate.now().toString()
-            val currentLoadedDate = this.date // 여기서 this.date를 사용
+            val currentLoadedDate = this.date
 
             if (today != currentLoadedDate) {
                 val intent = Intent(this, DailyWriteActivity::class.java)

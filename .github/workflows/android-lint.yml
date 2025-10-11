@@ -13,8 +13,8 @@ jobs:
       distribution: 'temurin'
       java-version: '17'
    - name: Grant execute permission for gradlew
-     run: chmod +x ./gradlew
+     run: chmod +x ./Sumdays/gradlew
    - name: Android Lint (debug)
-     run: ./gradlew lintDebug
+     run: ./Sumdays/gradlew lintDebug
    - name: ktlint check
-     run: ./gradlew :app:ktlintMainSourceSetCheck
+     run: ./Sumdays/gradlew :app:ktlintMainSourceSetCheck

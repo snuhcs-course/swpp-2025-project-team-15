@@ -81,4 +81,8 @@ dependencies {
     kapt("androidx.room:room-compiler:$roomVersion")
     // 선택 사항: 코루틴 지원
     implementation("androidx.room:room-ktx:$roomVersion")
+    // ViewModel 확장 함수 by viewModels() 사용을 위한 의존성
+    implementation("androidx.activity:activity-ktx:1.8.0")
+    // LiveData와 Flow를 LiveData로 변환하는 asLiveData()를 위한 의존성
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
 }

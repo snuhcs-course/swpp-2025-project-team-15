@@ -1,13 +1,18 @@
 package com.example.sumdays
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.widget.ImageButton
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -16,7 +21,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.daily.memo.MemoAdapter
+import com.example.sumdays.daily.memo.MemoViewModel
+import com.example.sumdays.daily.memo.MemoViewModelFactory
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 // 일기 작성 화면을 담당하는 액티비티
 class DailyWriteActivity : AppCompatActivity() {
@@ -29,6 +38,13 @@ class DailyWriteActivity : AppCompatActivity() {
     // UI 뷰 변수들
     private lateinit var dateTextView: TextView
     private lateinit var memoListView: RecyclerView
+
+    // ViewModel 초기화 (by viewModels 확장 함수 사용)
+    private val memoViewModel: MemoViewModel by viewModels {
+        MemoViewModelFactory(
+            (application as MyApplication).repository
+        )
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,8 +63,8 @@ class DailyWriteActivity : AppCompatActivity() {
         // 다른 화면에서 전달된 날짜를 처리
         handleIntent(intent)
 
-        // 가상의 메모 데이터를 설정
-        setupDummyData()
+        // Room 데이터베이스의 데이터를 관찰하고 RecyclerView에 업데이트
+        observeMemos()
 
         // 버튼 클릭 리스너 설정
         setupClickListeners()
@@ -77,29 +93,65 @@ class DailyWriteActivity : AppCompatActivity() {
     private fun handleIntent(intent: Intent?) {
         date = intent?.getStringExtra("date") ?: LocalDate.now().toString()
         dateTextView.text = date
-        // TODO: 받은 날짜에 따라 리사이클러뷰 데이터를 업데이트하는 로직 추가
+        // 날짜 변경 시 ViewModel의 관찰 대상 업데이트
+        memoViewModel.getMemosForDate(date).observe(this) { memos ->
+            memos?.let {
+                memoAdapter.submitList(it)
+            }
+        }
     }
 
-    // 더미 데이터를 생성하고 어댑터를 리사이클러뷰에 연결
-    private fun setupDummyData() {
-        val dummyMemoList = listOf(
-            Memo("오늘은 소개원실 랩 수업을 들었다.", "21:05"),
-            Memo("점심을 다이어트를 위해 굶었다.", "22:09"),
-            Memo("저녁은 집 가서 먹어야지~", "23:05")
-        )
-
-        memoAdapter = MemoAdapter(dummyMemoList)
+    // Room 데이터베이스에서 데이터를 가져와 어댑터에 전달
+    private fun observeMemos() {
+        // ListAdapter를 사용하므로 초기 데이터 없이 어댑터 생성
+        memoAdapter = MemoAdapter()
         memoListView.adapter = memoAdapter
     }
 
-    // "일기 보기" 버튼 클릭 시 다른 화면으로 이동
+    // "일기 보기" 버튼과 새로운 메모 추가 버튼 클릭 리스너 설정
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupClickListeners() {
+        // "일기 보기" 버튼
         val readDiaryButton: Button = findViewById(R.id.read_diary_button)
         readDiaryButton.setOnClickListener {
+            // DailyReadActivity로 이동
             val intent = Intent(this, DailyReadActivity::class.java)
             intent.putExtra("date", date)
             startActivity(intent)
+        }
+
+        // 메모 입력 필드와 전송 버튼
+        val memoInputEditText: EditText = findViewById(R.id.memo_input_edittext)
+        val sendIcon: ImageView = findViewById(R.id.send_icon)
+
+        // 전송 버튼 클릭 리스너
+        sendIcon.setOnClickListener {
+            // 입력된 메모 내용 가져오기
+            val memoContent = memoInputEditText.text.toString()
+
+            // 메모 내용이 비어있지 않은 경우에만 저장
+            if (memoContent.isNotEmpty()) {
+                // 현재 시간을 "HH:mm" 형식으로 포맷
+                val currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+
+                // Room에 저장할 Memo 객체 생성
+                val newMemo = Memo(
+                    content = memoContent,
+                    timestamp = currentTime,
+                    date = date
+                )
+
+                // ViewModel을 통해 메모를 데이터베이스에 삽입
+                memoViewModel.insert(newMemo)
+
+                // 입력 필드 초기화 및 키보드 숨기기
+                memoInputEditText.text.clear()
+                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(sendIcon.windowToken, 0)
+            } else {
+                // 메모 내용이 비어있으면 토스트 메시지 표시
+                Toast.makeText(this, "메모 내용을 입력해 주세요.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

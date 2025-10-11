@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 // Room 데이터베이스 추상 클래스
-@Database(entities = [Memo::class], version = 1, exportSchema = false)
+@Database(entities = [Memo::class], version = 2, exportSchema = false)
 abstract class MemoDatabase : RoomDatabase() {
 
     // MemoDao를 사용하여 데이터베이스에 접근

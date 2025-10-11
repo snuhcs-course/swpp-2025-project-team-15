@@ -15,13 +15,18 @@ class MemoRepository(private val memoDao: MemoDao) {
         return memoDao.getMemosForDate(date)
     }
 
-    // 모든 메모를 삭제하는 함수
-    suspend fun deleteAllMemos() {
-        memoDao.deleteAllMemos()
-    }
-
     // 메모를 수정하는 함수
     suspend fun update(memo: Memo) {
         memoDao.update(memo)
+    }
+
+    // 메모 목록을 업데이트
+    suspend fun updateAll(memos: List<Memo>) {
+        memoDao.updateAll(memos)
+    }
+
+    // 메모를 삭제
+    suspend fun delete(memo: Memo) {
+        memoDao.delete(memo)
     }
 }

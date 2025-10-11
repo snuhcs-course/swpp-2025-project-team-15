@@ -27,6 +27,9 @@ import com.example.sumdays.daily.memo.MemoViewModelFactory
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import androidx.recyclerview.widget.ItemTouchHelper
+import com.example.sumdays.daily.memo.MemoDragAndDropCallback
+import android.view.View
 
 // 일기 작성 및 수정 화면을 담당하는 액티비티
 class DailyWriteActivity : AppCompatActivity() {
@@ -100,6 +103,32 @@ class DailyWriteActivity : AppCompatActivity() {
                 showEditMemoDialog(memo)
             }
         })
+
+        // 드래그 앤 드롭 및 스와이프 콜백 정의
+        val dragAndDropCallback = MemoDragAndDropCallback(
+            adapter = memoAdapter,
+            onMove = { fromPosition, toPosition ->
+                // 이 부분은 뷰의 시각적인 이동을 처리하므로, 여기서는 아무것도 하지 않음
+            },
+            onDelete = { position ->
+                // 스와이프 후 데이터 삭제 로직
+                val memoToDelete = memoAdapter.currentList[position]
+                memoViewModel.delete(memoToDelete)
+            },
+            onDragStart = { }, // <-- 드래그 시작 시 쓰레기통 표시
+            onDragEnd = {
+                // 드래그가 끝났을 때 최종 순서를 데이터베이스에 반영
+                val updatedList = memoAdapter.currentList.toMutableList()
+                for (i in updatedList.indices) {
+                    updatedList[i] = updatedList[i].copy(order = i)
+                }
+                memoViewModel.updateAll(updatedList)
+            }
+        )
+
+        // ItemTouchHelper를 생성하고 RecyclerView에 연결
+        val itemTouchHelper = ItemTouchHelper(dragAndDropCallback)
+        itemTouchHelper.attachToRecyclerView(memoListView)
     }
 
     // 인텐트에서 날짜 데이터를 가져와 화면에 표시하고, 해당 날짜의 메모를 관찰
@@ -161,7 +190,8 @@ class DailyWriteActivity : AppCompatActivity() {
                 val newMemo = Memo(
                     content = memoContent,
                     timestamp = currentTime,
-                    date = date
+                    date = date,
+                    order = memoAdapter.itemCount
                 )
 
                 // ViewModel을 통해 메모를 데이터베이스에 삽입

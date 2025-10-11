@@ -46,6 +46,14 @@ class MemoAdapter : ListAdapter<Memo, MemoAdapter.MemoViewHolder>(MemoDiffCallba
             onItemClickListener?.onItemClick(currentMemo)
         }
     }
+
+    // 아이템 위치를 직접 변경하는 함수
+    fun moveItem(fromPosition: Int, toPosition: Int) {
+        val newList = currentList.toMutableList()
+        val movedItem = newList.removeAt(fromPosition)
+        newList.add(toPosition, movedItem)
+        submitList(newList)
+    }
 }
 
 // 두 리스트의 차이를 계산하여 효율적으로 업데이트

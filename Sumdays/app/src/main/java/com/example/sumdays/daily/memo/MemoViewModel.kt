@@ -24,6 +24,16 @@ class MemoViewModel(private val repository: MemoRepository) : ViewModel() {
     fun update(memo: Memo) = viewModelScope.launch {
         repository.update(memo)
     }
+
+    // 메모 순서 업데이트
+    fun updateAll(memos: List<Memo>) = viewModelScope.launch {
+        repository.updateAll(memos)
+    }
+
+    // 메모 삭제
+    fun delete(memo: Memo) = viewModelScope.launch {
+        repository.delete(memo)
+    }
 }
 
 // ViewModel을 인스턴스화하기 위한 팩토리 클래스

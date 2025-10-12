@@ -1,0 +1,4 @@
+# .gitignore
+
+# Node.js dependencies
+/sumdays-backend/node_modules

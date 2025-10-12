@@ -1,16 +1,5 @@
-// 1. 필요한 라이브러리들을 가져옵니다.
-const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const mysql = require('mysql2/promise'); // MySQL 데이터베이스와 비동기 통신을 위한 라이브러리
-
-// 2. Express 애플리케이션을 생성합니다.
-const app = express();
-const port = 3000; // 안드로이드 앱의 RetrofitClient와 동일한 포트 번호
-
-// 3. Middlewares 설정
-// express.json()은 들어오는 요청의 본문(body)을 JSON으로 파싱해줍니다.
-app.use(express.json());
 
 // =================================================================
 // ★★★ 중요: 이 비밀 키와 DB 정보는 절대로 코드에 하드코딩하면 안 됩니다. ★★★
@@ -18,24 +7,9 @@ app.use(express.json());
 // =================================================================
 const JWT_SECRET = 'Sumdays_Project_Super_Secret_Key_!@#$%^&*()';
 
-const dbConfig = {
-    host: 'sumdays-database.c502cecwedjd.ap-northeast-2.rds.amazonaws.com',      // 예: sumdays-db.abcdefg12345.ap-northeast-2.rds.amazonaws.com
-    user: 'swpp_team15',       // 예: admin
-    password: 'aoij*i9!jUjkm',   // RDS 생성 시 설정한 마스터 암호
-    database: 'login',         // 연결할 데이터베이스 이름
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-};
+const pool = require('../db/db');
 
-// 데이터베이스 커넥션 풀(Pool) 생성. 여러 요청을 효율적으로 처리합니다.
-const pool = mysql.createPool(dbConfig);
-// =================================================================
-
-
-// 4. API 라우트(Route) 정의
-// POST /api/login: 로그인 요청을 처리하는 엔드포인트
-app.post('/api/login', async (req, res) => {
+exports.login = async (req, res) => {
     // 클라이언트가 보낸 email과 password를 요청 본문(body)에서 추출합니다.
     const { email, password } = req.body;
 
@@ -118,10 +92,10 @@ app.post('/api/login', async (req, res) => {
             connection.release();
         }
     }
-});
+};
 
 // ★★★ POST /api/signup: 회원가입 요청을 처리하는 엔드포인트 추가 ★★★
-app.post('/api/signup', async (req, res) => {
+exports.signup = async (req, res) => {
     const { nickname, email, password } = req.body;
     console.log(`[회원가입 시도] 이메일: ${email}`);
 
@@ -157,11 +131,4 @@ app.post('/api/signup', async (req, res) => {
     } finally {
         if (connection) connection.release(); // 사용한 커넥션 반환
     }
-});
-
-
-// 5. 서버 실행
-app.listen(port, () => {
-    console.log(`Sumdays 백엔드 서버가 포트 ${port}번에서 실행 중입니다.`);
-    console.log('안드로이드 앱의 요청을 기다리고 있습니다...');
-});
+};

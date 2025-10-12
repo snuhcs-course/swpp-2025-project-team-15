@@ -12,8 +12,8 @@ class MemoAdapter(private val memoList: List<Memo>) :
 
     // 뷰 홀더(ViewHolder) 클래스 정의: 아이템 뷰의 각 요소를 담는 역할
     class MemoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val timestamp: TextView = view.findViewById(R.id.memo_timestamp)
-        val content: TextView = view.findViewById(R.id.memo_content)
+        val timestamp: TextView = view.findViewById(R.id.memo_time)
+        val content: TextView = view.findViewById(R.id.memo_text)
     }
 
     // 뷰 홀더를 생성하는 함수 (아이템 레이아웃을 인플레이트)

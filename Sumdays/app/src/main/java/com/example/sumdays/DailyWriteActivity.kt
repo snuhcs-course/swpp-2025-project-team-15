@@ -44,7 +44,7 @@ class DailyWriteActivity : AppCompatActivity() {
         handleIntent(intent)
 
         // 가상의 메모 데이터 리스트
-        val dummyMemoList = listOf(
+        val dummyMemoList = mutableListOf(
             Memo("오늘은 소개원실 랩 수업을 들었다.", "21:05"),
             Memo("점심을 다이어트를 위해 굶었다.", "22:09"),
             Memo("저녁은 집 가서 먹어야지~", "23:05")

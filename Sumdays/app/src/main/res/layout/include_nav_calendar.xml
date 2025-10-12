@@ -48,7 +48,7 @@
                 android:scaleType="fitCenter"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_calendar"
-                android:tint="#777777" />
+                app:tint="#777777" />
         </LinearLayout>
 
         <!-- 가운데 버튼 (살짝 위로 띄움) -->
@@ -87,7 +87,7 @@
                 android:scaleType="fitCenter"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_profile"
-                android:tint="#777777"/>
+                app:tint="#777777"/>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.kotlin.kapt) apply false
 
     // ktlint 플러그인 선언만 (하위 모듈에서 apply)
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1" apply false

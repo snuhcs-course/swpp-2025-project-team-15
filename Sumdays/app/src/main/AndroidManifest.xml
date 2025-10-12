@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -18,26 +19,22 @@
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
-        <!-- Daily 화면 (일기 작성/보기) -->
         <activity
             android:name=".DailyWriteActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.First" />
         <activity
             android:name=".DailyReadActivity"
             android:exported="false"
             android:theme="@style/Theme.First" />
-        <!-- Sum 화면 -->
         <activity
             android:name=".DailySumActivity"
             android:exported="false" />
-        <!-- Calendar 화면 (실제 첫 화면) -->
         <activity
             android:name=".CalendarActivity"
             android:exported="false"
             android:theme="@style/Theme.First" />
 
-        <!-- MainActivity (앱의 진입점 / Launcher) -->
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -28,15 +28,39 @@ ConstraintLayout을 최상위 레이아웃으로 사용하며, 오류 해결을 
         auto:layout_constraintTop_toTopOf="parent"
         tools:text="&lt; 09-27 &gt;" />
 
-    <!-- 수정 버튼 (펜 아이콘) -->
-    <!-- 중요: 빌드 오류를 해결하려면 'res/drawable' 폴더에 'ic_edit.xml' 벡터 아이콘을 추가해야 합니다. -->
-    <!-- 관계: 'date_text'의 오른쪽 옆에, 수직으로는 중앙에 정렬됩니다. -->
+    <!-- ★★★ 1번 버튼: 일기 수정 버튼 (펜 아이콘) ★★★ -->
     <ImageView
-        android:id="@+id/edit_button"
+        android:id="@+id/edit_inplace_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/ic_edit"
+        auto:layout_constraintBottom_toBottomOf="@+id/date_text"
+        auto:layout_constraintEnd_toStartOf="@+id/date_text"
+        auto:layout_constraintTop_toTopOf="@+id/date_text"
+        auto:tint="@android:color/white" />
+
+    <!-- 저장 버튼 (체크 아이콘), '일기 수정' 버튼을 누르면 나타남 -->
+    <ImageView
+        android:id="@+id/save_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/ic_save"
+        android:visibility="gone"
+        auto:layout_constraintBottom_toBottomOf="@+id/date_text"
+        auto:layout_constraintEnd_toStartOf="@+id/date_text"
+        auto:layout_constraintTop_toTopOf="@+id/date_text"
+        auto:tint="@android:color/white"
+        tools:visibility="visible"/>
+
+    <!-- ★★★ 2번 버튼: 메모 편집 버튼 (노트 아이콘) ★★★ -->
+    <ImageView
+        android:id="@+id/edit_memos_button"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginStart="16dp"
-        android:src="@drawable/ic_edit"
+        android:src="@drawable/ic_notes"
         auto:layout_constraintBottom_toBottomOf="@+id/date_text"
         auto:layout_constraintStart_toEndOf="@+id/date_text"
         auto:layout_constraintTop_toTopOf="@+id/date_text"
@@ -125,16 +149,35 @@ ConstraintLayout을 최상위 레이아웃으로 사용하며, 오류 해결을 
         auto:layout_constraintStart_toStartOf="parent"
         auto:layout_constraintTop_toBottomOf="@+id/date_text">
 
-        <!-- 일기 내용이 들어갈 텍스트뷰 -->
-        <TextView
-            android:id="@+id/diary_content_text"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:lineSpacingExtra="8sp"
-            android:text="오늘은 소개원실 랩 수업을 들었다. 점심은 다이어트를 결심하고 굶었지만, 저녁은 집에서 맛있게 챙겨 먹을 생각을 하니 괜히 기대가 된다. 긴 텍스트를 테스트하기 위해 내용을 추가합니다. 스크롤이 잘 동작하는지 확인하기 위한 문장입니다. 오늘도 힘든 하루였지만 내일은 더 나은 하루가 되기를 바란다. 스크롤 뷰는 내용이 화면을 넘어갈 때 스크롤 기능을 제공합니다. 오늘은 소개원실 랩 수업을 들었다. 점심은 다이어트를 결심하고 굶었지만, 저녁은 집에서 맛있게 챙겨 먹을 생각을 하니 괜히 기대가 된다. 긴 텍스트를 테스트하기 위해 내용을 추가합니다. 스크롤이 잘 동작하는지 확인하기 위한 문장입니다. 오늘도 힘든 하루였지만 내일은 더 나은 하루가 되기를 바란다. 스크롤 뷰는 내용이 화면을 넘어갈 때 스크롤 기능을 제공합니다. 오늘은 소개원실 랩 수업을 들었다. 점심은 다이어트를 결심하고 굶었지만, 저녁은 집에서 맛있게 챙겨 먹을 생각을 하니 괜히 기대가 된다. 긴 텍스트를 테스트하기 위해 내용을 추가합니다. 스크롤이 잘 동작하는지 확인하기 위한 문장입니다. 오늘도 힘든 하루였지만 내일은 더 나은 하루가 되기를 바란다. 스크롤 뷰는 내용이 화면을 넘어갈 때 스크롤 기능을 제공합니다."
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            tools:text="오늘은 소개원실 랩 수업을 들었다. 점심은 다이어트를 결심하고 굶었지만, 저녁은 집에서 맛있게 챙겨 먹을 생각을 하니 괜히 기대가 된다. 긴 텍스트를 테스트하기 위해 내용을 추가합니다. 스크롤이 잘 동작하는지 확인하기 위한 문장입니다. 오늘도 힘든 하루였지만 내일은 더 나은 하루가 되기를 바란다. 스크롤 뷰는 내용이 화면을 넘어갈 때 스크롤 기능을 제공합니다." />
+            android:layout_height="wrap_content">
+
+            <!-- 읽기 모드일 때 보여줄 TextView -->
+            <TextView
+                android:id="@+id/diary_content_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="8sp"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:visibility="visible"
+                tools:text="오늘은 소개원실 랩 수업을 들었다..." />
+
+            <!-- 수정 모드일 때 보여줄 EditText -->
+            <EditText
+                android:id="@+id/diary_content_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:gravity="top"
+                android:lineSpacingExtra="8sp"
+                android:textColor="@android:color/white"
+                android:textColorHint="#AFAFAF"
+                android:textSize="16sp"
+                android:visibility="gone"
+                tools:text="수정 모드 텍스트..." />
+        </FrameLayout>
 
     </ScrollView>
 

@@ -95,6 +95,7 @@ class DailyReadActivity : AppCompatActivity() {
             binding.editInplaceButton.visibility = View.GONE
             binding.saveButton.visibility = View.VISIBLE
         } else {
+            saveDiaryContent()
             // 1. EditText의 내용을 TextView로 업데이트
             binding.diaryContentTextView.text = binding.diaryContentEditText.text
 

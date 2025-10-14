@@ -62,10 +62,10 @@ class DayAdapter(private val days: List<DateCell>, private val activity: Calenda
             // 오늘 날짜 스타일 설정
             val isToday = cell.dateString == LocalDate.now().toString()
             if (isToday) {
-                tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_circle_today)
+                tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_fox_today)
                 tvDayNumber.setTypeface(null, Typeface.BOLD) // 오늘은 볼드체로
             } else {
-                tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_circle_date)
+                tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_fox_date)
                 tvDayNumber.setTypeface(null, Typeface.NORMAL)
             }
 

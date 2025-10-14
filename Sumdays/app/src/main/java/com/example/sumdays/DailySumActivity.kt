@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -40,11 +41,11 @@ class DailySumActivity : AppCompatActivity() {
             memoMergeAdapter.undoLastMerge()
         }
 
-        // ✅ MutableList 로 변경
-        val dummyMemoList = mutableListOf(
-            Memo("오늘은 소개원실 랩 수업을 들었다.", "21:05"),
-            Memo("점심을 다이어트를 위해 굶었다.", "22:09"),
-            Memo("저녁은 집 가서 먹어야지~", "23:05"),
+        // Room과 연결되지 않았으므로 더미 데이터로 임시 설정
+        val dummyMemoList = listOf(
+            Memo(0, "오늘은 소개원실 랩 수업을 들었다.", "21:05", "2025-10-12", 0),
+            Memo(1, "점심을 다이어트를 위해 굶었다.", "22:09",  "2025-10-12", 1),
+            Memo(2, "저녁은 집 가서 먹어야지~", "23:05", "2025-10-13", 0)
         )
 
         recyclerView = findViewById(R.id.memo_list_view)
@@ -57,6 +58,7 @@ class DailySumActivity : AppCompatActivity() {
         setupNavigationBar()
     }
 
+    // 하단 네비게이션 바의 버튼들 클릭 이벤트 처리
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupNavigationBar() {
         val btnCalendar = findViewById<ImageButton>(R.id.btnCalendar)
@@ -74,7 +76,7 @@ class DailySumActivity : AppCompatActivity() {
             startActivity(intent)
         }
         btnInfo.setOnClickListener {
-            android.widget.Toast.makeText(this, "정보 화면 예정", android.widget.Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "정보 화면 예정", Toast.LENGTH_SHORT).show()
         }
     }
 }

@@ -42,7 +42,7 @@ class DailySumActivity : AppCompatActivity() {
         }
 
         // Room과 연결되지 않았으므로 더미 데이터로 임시 설정
-        val dummyMemoList = listOf(
+        val dummyMemoList = mutableListOf(
             Memo(0, "오늘은 소개원실 랩 수업을 들었다.", "21:05", "2025-10-12", 0),
             Memo(1, "점심을 다이어트를 위해 굶었다.", "22:09",  "2025-10-12", 1),
             Memo(2, "저녁은 집 가서 먹어야지~", "23:05", "2025-10-13", 0)

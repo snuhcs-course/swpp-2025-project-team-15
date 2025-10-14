@@ -39,6 +39,23 @@ app.js -> routes/index.js -> routes/ai.js -> controllers/ai/{feature_group}Contr
 
 다음의 순서대로 코드 확인하시면 어떻게 작동하는지 알 수 있습니다. analyzeController.js  의 analyze 부분 확인하시면 두 서버를 어떻게 연결하는지 알 수 있습니다.
 
+### ai api
+```
+// api list - prefix: api/ai
+router.post('/merge', mergeController.merge); // merge two memos
+router.post('/merge-batch', mergeController.mergeBatch); // merge whole memos
+
+router.post('/analyze', analyzeController.analyze); // analyze a diary: summary, emotion-score, emoji, feedback
+router.post('/summarize-week', analyzeController.summarizeWeek); // summarize week
+router.post('/summarize-month', analyzeController.summarizeMonth); // summarize month
+
+router.post('/ocr/memo', ocrController.memo); // image memo to text
+router.post('/ocr/diary', ocrController.diary); // image diary to text(must extract date)
+router.post('/stt/memo', sttController.memo); // voice memo to text
+
+router.post('/extract-style', extractController.extractStyle); // extract diary style from image/db diaries
+```
+
 ### ai 관련 TODO list  
 - [ ] 텍스트 메모 합치기(-> 메모)
 - [ ] 텍스트 메모 한 번에 합치기(-> 일기)

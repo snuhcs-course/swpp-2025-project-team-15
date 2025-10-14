@@ -14,8 +14,8 @@ class MemoAdapter : ListAdapter<Memo, MemoAdapter.MemoViewHolder>(MemoDiffCallba
 
     // 뷰 홀더(ViewHolder) 클래스 정의
     class MemoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val timestamp: TextView = view.findViewById(R.id.memo_timestamp)
-        val content: TextView = view.findViewById(R.id.memo_content)
+        val timestamp: TextView = view.findViewById(R.id.memo_time)
+        val content: TextView = view.findViewById(R.id.memo_text)
     }
 
     // 뷰 홀더를 생성하는 함수

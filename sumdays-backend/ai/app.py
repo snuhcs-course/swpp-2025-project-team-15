@@ -1,13 +1,13 @@
+from dotenv import load_dotenv
+import os
+load_dotenv(dotenv_path="../.env")
+
 from flask import Flask, jsonify
 from services.analysis.routes import analysis_bp
 from services.extract.routes import extract_bp
 from services.merge.routes import merge_bp
 from services.ocr.routes import ocr_bp
 from services.stt.routes import stt_bp
-from dotenv import load_dotenv
-import os
-
-load_dotenv(dotenv_path="../.env")
 
 # api ex) http://localhost:5001/{feature_group}/{feature_name}
 app = Flask(__name__)

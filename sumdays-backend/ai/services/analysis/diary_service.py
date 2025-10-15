@@ -2,6 +2,7 @@ from typing import Dict, Any
 from pydantic import BaseModel, Field
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
+import os
 
 class DiaryAnalysisResult(BaseModel):
     """ Represents the result of the diary analysis """
@@ -14,7 +15,8 @@ class DiaryAnalysisResult(BaseModel):
 class DiaryAnalyzer:
     """ Service that analyzes a diary """
     def __init__(self):
-        """ Initialize the VLM service. """
+        """ Initialize the Diary analyzing service. """
+        self.model = os.getenv("GPT_MODEL", "gpt-5-nano")
 
     def analyze(self, diary: str) -> Dict[str, Any]:
         """ Analyze diary(text) and return  """
@@ -36,7 +38,7 @@ class DiaryAnalyzer:
             """
 
             prompt = PromptTemplate.from_template(promt_text)
-            llm = ChatOpenAI(model="gpt-5-nano").with_structured_output(DiaryAnalysisResult)
+            llm = ChatOpenAI(model=self.model).with_structured_output(DiaryAnalysisResult)
 
             chain = prompt | llm
             result = chain.invoke({"diary": diary})

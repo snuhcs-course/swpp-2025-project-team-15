@@ -54,7 +54,7 @@ class CalendarActivity : AppCompatActivity() {
     }
 
     private fun setStatisticBtnListener() {
-        val btnStats = findViewById<android.widget.Button>(R.id.statistic_btn)
+        val btnStats = findViewById<ImageButton>(R.id.statistic_btn)
 
         btnStats.setOnClickListener {
             android.widget.Toast.makeText(this, "통계 화면 예정", android.widget.Toast.LENGTH_SHORT).show()
@@ -113,7 +113,7 @@ class CalendarActivity : AppCompatActivity() {
                     } else if (dayName == "토" || dayName == "SAT") {
                         ContextCompat.getColor(this@CalendarActivity, android.R.color.holo_blue_dark)
                     } else {
-                        Color.BLACK
+                        Color.WHITE
                     }
                 )
             }

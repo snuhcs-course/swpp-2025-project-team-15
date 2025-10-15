@@ -53,8 +53,8 @@ class DayAdapter(private val days: List<DateCell>, private val activity: Calenda
             val dayOfWeek = LocalDate.parse(cell.dateString).dayOfWeek
             val textColor = when {
                 dayOfWeek == DayOfWeek.SUNDAY -> Color.RED
-                dayOfWeek == DayOfWeek.SATURDAY -> Color.BLUE
-                else -> Color.BLACK
+                dayOfWeek == DayOfWeek.SATURDAY -> Color.parseColor("#0095FF") // blue
+                else -> Color.WHITE
             }
             tvDayNumber.setTextColor(textColor)
 
@@ -64,7 +64,7 @@ class DayAdapter(private val days: List<DateCell>, private val activity: Calenda
                 tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_fox_today)
                 tvDayNumber.setTypeface(null, Typeface.BOLD) // 오늘은 볼드체로
             } else {
-                tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_fox_date)
+                tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_fox_date_gray)
                 tvDayNumber.setTypeface(null, Typeface.NORMAL)
             }
 

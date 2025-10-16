@@ -20,6 +20,10 @@ const analyzeController = {
     },
 
     // Controller method for general analysis (Example: POST /api/ai/analyze)
+    /* POST http://localhost:3000/api/ai/analyze
+    POSTMAN raw json
+    {"diary":"오늘은 산책하면서 생각이 많았던 하루였다."}
+    */
     analyze: async (req, res) => {
         try {
             const { diary } = req.body;

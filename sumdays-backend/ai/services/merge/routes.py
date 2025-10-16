@@ -27,7 +27,3 @@ def merge_memo():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
-@merge_bp.route("/batch", methods=["POST"])
-def merge_batch():
-    """TODO: merge-batch 구현"""

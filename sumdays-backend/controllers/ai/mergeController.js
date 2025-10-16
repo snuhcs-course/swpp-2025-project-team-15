@@ -1,17 +1,45 @@
-// mergeController.js (CommonJS Syntax)
+const axios = require("axios");
+const PYTHON_SERVER_URL = process.env.PYTHON_AI_URL;
 
-// Temporary placeholder controller logic for merge operations
 const mergeController = {
-    // Controller method for a single merge request (Example: POST /api/diary/merge)
-    merge: (req, res) => {
-        // This is where you'd handle the logic for merging records
-        res.status(200).json({ 
-            success: true, 
-            message: 'merge endpoint working' 
-        });
+    // Controller method for a single merge request (Example: POST /api/ai/merge)
+    merge: async (req, res) => {
+        try {
+            const { memos } = req.body;
+
+            if (!memos || !Array.isArray(memos) || memos.length < 2) {
+                return res.status(400).json({
+                    success: false,
+                    message: "At least two memos are required for merging.",
+                });
+            }
+
+            memos.sort((a, b) => a.order - b.order);
+
+            const response = await axios.post(`${PYTHON_SERVER_URL}/merge/`, { memos });
+
+            if (!response.data || !response.data.merged_content) {
+                return res.status(500).json({
+                    success: false,
+                    message: "Invalid response from AI server.",
+                    raw: response.data,
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                merged_content: response.data.merged_content,
+            });
+        } catch (err) {
+            console.error("[mergeController.merge] Error:", err.message);
+            return res.status(500).json({
+                success: false,
+                error: err.message,
+            });
+        }
     },
 
-    // Controller method for batch merging (Example: POST /api/diary/merge/batch)
+    // Controller method for batch merging (Example: POST /api/ai/merge-batch)
     mergeBatch: (req, res) => {
         // Logic for handling multiple merges at once
         res.status(200).json({ 

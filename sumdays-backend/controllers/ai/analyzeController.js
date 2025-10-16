@@ -23,25 +23,33 @@ const analyzeController = {
     analyze: async (req, res) => {
         try {
             const { diary } = req.body;
-            if (!PYTHON_SERVER_URL) {
-                throw new Error("PYTHON_AI_URL is not set in .env file");
+
+            if (!diary) {
+                return res.status(400).json({
+                    success: false,
+                    message: "No diary input."
+                })
             }
 
-            const response = await axios.post(`${PYTHON_SERVER_URL}/analysis/diary`, {
-                diary,
-            });
-
+            const response = await axios.post(`${PYTHON_SERVER_URL}/analysis/diary`, { diary });
+            
+            if (!response.data) {
+                return res.status(500).json({
+                    success: false,
+                    message: "Invalid response from AI server.",
+                    raw: response.data,
+                });
+            }
+            
             return res.status(200).json({
                 success: true,
-                from: "python",
                 result: response.data,
             });
         } catch (error) {
-            console.error("Error calling Flask AI server:", error.message);
+            console.error("[analyzeController.analyze] Error:", err.message);
             return res.status(500).json({
                 success: false,
-                message: "Failed to analyze diary via AI server.",
-                error: error.message,
+                error: err.message,
             });
         }
     },

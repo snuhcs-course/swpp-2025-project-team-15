@@ -15,7 +15,7 @@ const mergeController = {
      */
     merge: async (req, res) => {
         try {
-            const { memos } = req.body;
+            const { memos, end_flag } = req.body;
 
             if (!memos || !Array.isArray(memos) || memos.length < 2) {
                 return res.status(400).json({
@@ -26,20 +26,38 @@ const mergeController = {
 
             memos.sort((a, b) => a.order - b.order);
 
-            const response = await axios.post(`${PYTHON_SERVER_URL}/merge/`, { memos });
+            const response = await axios.post(`${PYTHON_SERVER_URL}/merge/`, { memos, end_flag });
+            
+            if (!end_flag) {
+                if (!response.data || !response.data.merged_content) {
+                    return res.status(500).json({
+                        success: false,
+                        message: "Invalid response from AI server.",
+                        raw: response.data,
+                    });
+                }
 
-            if (!response.data || !response.data.merged_content) {
-                return res.status(500).json({
-                    success: false,
-                    message: "Invalid response from AI server.",
-                    raw: response.data,
+                return res.status(200).json({
+                    success: true,
+                    merged_content: response.data.merged_content,
+                });
+            } else {
+                // TODO: db 저장
+
+                if (!response.data) {
+                    return res.status(500).json({
+                        success: false,
+                        message: "Invalid response from AI server.",
+                        raw: response.data,
+                    });
+                }
+                
+                return res.status(200).json({
+                    success: true,
+                    result: response.data,
                 });
             }
-
-            return res.status(200).json({
-                success: true,
-                merged_content: response.data.merged_content,
-            });
+            
         } catch (err) {
             console.error("[mergeController.merge] Error:", err.message);
             return res.status(500).json({
@@ -48,17 +66,6 @@ const mergeController = {
             });
         }
     },
-
-    // // Controller method for batch merging (Example: POST /api/ai/merge-batch)
-    // mergeBatch: (req, res) => {
-    //     // Logic for handling multiple merges at once
-    //     res.status(200).json({ 
-    //         success: true, 
-    //         message: 'merge-batch endpoint working' 
-    //     });
-    // },
 };
 
-// Export the controller object using CommonJS syntax
-// This allows other files (like routes/diary.js) to import it using require()
 module.exports = mergeController;

@@ -1,5 +1,6 @@
 ### 서버 실행 방법
 ```$ npm install``` 을 실행하면 패키지 자동 설치됩니다  
+```$ conda install conda-forge::ffmpeg``` ffmpeg 설치해야합니다. stt에 필요함.  
 ```$ pip install -r requirements.txt``` 를 ai 폴더에서 실행하면 필요한 라이브러리가 설치됩니다. 저는 실습 때 사용한 django 용 conda 가상환경에서 필요할 때마다 설치해서 리스트를 직접 작성했다보니 누락이 있을 수 있습니다.
 ```$ node app.js``` 로 중앙 nodejs 서버 실행합니다.(sumdays-backend 폴더에서, port 3000)  
 ```$ python app.py``` 로 python ai 서버 실행합니다.(sumdays-backend/ai폴더에서, port 5001)  

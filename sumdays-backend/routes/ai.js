@@ -8,8 +8,7 @@ const sttController = require('../controllers/ai/sttController');
 const extractController = require('../controllers/ai/extractController');
 
 // api list
-router.post('/merge', mergeController.merge); // merge two memos
-// router.post('/merge-batch', mergeController.mergeBatch); // merge whole memos
+router.post('/merge', mergeController.merge); // merge memos
 
 router.post('/analyze', analyzeController.analyze); // analyze a diary: summary, emotion-score, emoji, feedback
 router.post('/summarize-week', analyzeController.summarizeWeek); // summarize week

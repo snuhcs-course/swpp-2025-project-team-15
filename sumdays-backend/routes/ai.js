@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' }); // 임시 저장 폴더
 
 const mergeController = require('../controllers/ai/mergeController');
 const analyzeController = require('../controllers/ai/analyzeController');
@@ -16,7 +18,7 @@ router.post('/summarize-month', analyzeController.summarizeMonth); // summarize 
 
 router.post('/ocr/memo', ocrController.memo); // image memo to text
 router.post('/ocr/diary', ocrController.diary); // image diary to text(must extract date)
-router.post('/stt/memo', sttController.memo); // voice memo to text
+router.post('/stt/memo', upload.single('audio'), sttController.memo);
 
 router.post('/extract-style', extractController.extractStyle); // extract diary style from image/db diaries
 

@@ -1,18 +1,42 @@
-// sttController.js (Recommended file name, using CommonJS Syntax)
-// Assuming this controller is intended for Speech-to-Text (STT) functionality
+const axios = require("axios");
+const FormData = require("form-data");
+const fs = require("fs");
+const PYTHON_SERVER_URL = process.env.PYTHON_AI_URL;
 
-// Temporary placeholder controller logic for STT operations
 const sttController = {
     // Controller method for STT on a memo (Example: POST /api/ai/stt/memo)
-    memo: (req, res) => {
-        // This is where you'd handle receiving the audio file and sending it to the AI server for STT
-        res.status(200).json({ 
-            success: true, 
-            message: 'stt/memo endpoint working' 
-        });
+    memo: async (req, res) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ error: "No audio file uploaded." });
+            }
+
+            const formData = new FormData();
+            formData.append("audio", fs.createReadStream(req.file.path));
+
+            const response = await axios.post(`${PYTHON_SERVER_URL}/stt/memo`, formData, {
+                headers: {
+                    ...formData.getHeaders(),
+                },
+            });
+
+            // 업로드된 임시 파일 삭제 (선택사항)
+            fs.unlink(req.file.path, (err) => {
+                if (err) console.error("Temp file deletion error:", err);
+            });
+
+            res.status(200).json({
+                success: true,
+                transcribed_text: response.data.transcribed_text,
+            });
+        } catch (error) {
+            console.error("[sttController.merge] Error:", error.message);
+            res.status(500).json({
+                success: false,
+                error: error.message,
+            });
+        }
     },
 };
 
-// Export the controller object using CommonJS syntax
-// Note: If the file name is 'ocrController.js', the object name should ideally match the file name.
 module.exports = sttController;

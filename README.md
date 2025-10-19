@@ -1,34 +1,40 @@
-### 서버 실행 방법
+### How to Run the Server
 
 #### 1-1
-```$ npm install``` 을 실행하면 패키지 자동 설치됩니다   
-```$ pip install -r requirements.txt``` 를 ai 폴더에서 실행하면 필요한 라이브러리가 설치됩니다.  
+```$ npm install``` automatically installs the packages.
+Run ```$ pip install -r requirements.txt``` in the `ai` folder to install the required libraries.
 
 #### 1-2
-.env.example 파일의 내용을 복사해서 .env 파일을 sumdays-backend폴더에 만들어주세요. Openai api key의 값을 바꿔서 사용해주시면 됩니다.
+Please copy the contents of the `.env.example` file to create a `.env` file in the `sumdays-backend` folder. You need to change the value of the `Openai api key` to use it.
 
 #### 1-3
-```$ node app.js``` 로 중앙 nodejs 서버 실행합니다.(sumdays-backend 폴더에서, port 3000)  
-```$ python app.py``` 로 python ai 서버 실행합니다.(sumdays-backend/ai폴더에서, port 5001)  
+Run the central Node.js server with ```$ node app.js``` (in the `sumdays-backend` folder, port 3000).
+Run the Python AI server with ```$ python app.py``` (in the `sumdays-backend/ai` folder, port 5001).
 
 #### 1-4
-lang version이 1.0.0이면 안 되고 하위버전이어야 합니다.
+`lang version` cannot be 1.0.0; it must be a lower version.
 
 #### 2-1
-현 시점에서 로그인 기능은 다르게 node.js와 ec2로 구현되어있는데, ec2-15-164-103-159.ap-northeast-2.compute.amazonaws.com이 DNS 주소입니다. 서버를 열기 위해서는 key 파일이 필요한데, 문의하면 드릴 수 있지만 사실 현재는 로그인 기능 없이도 주요기능을 모두 사용할 수 있습니다.
+Currently, the login feature is implemented separately using Node.js and EC2, and `ec2-15-164-103-159.ap-northeast-2.compute.proxmox.com` is the DNS address. A key file is required to start the server, which we can provide upon request. However, all main features are currently usable without the login function.
 
-### 앱 사용 방법
+---
 
-먼저 앱을 실행하면 로그인 화면이 나오고, 로그인 화면에서 로그인을 하거나 로그인 스킵 기능을 사용할 수 있습니다. 접속하면 달력이 나와서 각 날짜의 작성된 일기를 확인할 수 있고, 중앙 하단의 연필 버튼을 누르면 오늘 있었던 일에 대한 메모를 작성할 수 있습니다. 그 날의 내용을 다 작성하고 sum 버튼을 누르면 메모들을 합치는 화면으로 넘어갈 수 있습니다. 메모들을 잘 합치고 우측 상단의 넘어가기 버튼을 누르면 그 날의 일기가 저장됩니다. 이후에도 일기를 수정할 수 있습니다.
+### How to Use the App
 
-### iteration 2에서 구현한 feature
+When you first launch the app, a login screen appears. You can either log in or use the "skip login" feature. After accessing the app, a calendar is displayed where you can check diaries written for each date. By pressing the pencil button at the bottom center, you can write memos about your day.
 
-iteration 2에서 구현한 feature:
+After you finish writing the content for the day, pressing the 'sum' button will take you to a screen to combine the memos. Once the memos are combined well, pressing the proceed button (넘어가기 버튼) in the upper right corner saves the diary for that day. You can still edit the diary afterward.
 
-1. write memo: 하루에 있었던 일을 메모로 입력할 수 있습니다.
-2. change, delete memo: 메모의 내용을 수정하거나 삭제하거나 순서를 변경할 수 있습니다.
-3. drag and drop to sum: sum 화면에서 드래그 앤 드롭으로 메모를 합치고, 합쳐진 ai 결과물을 얻을 수 있습니다.
-4. ai backend : 메모를 합쳤을 때의 ai 생성된 결과물을 얻을 수 있는 backend api를 구현했습니다.
-5. read diary: 달력에서 각 날짜의 일기들을 읽을 수 있고, 생성된 결과물이 마음에 들지 않으면 직접 수정할 수 있습니다.
-6. undo sum: 실수로 합쳤을 때를 대비해서 sum한 내용을 되돌릴 수 있습니다.
-7. others: 이외에 db를 구축하고 ai 분석을 제공하는 api를 제공하는 등 여러 기능을 구현했습니다.
+---
+
+### Features Implemented in Iteration 2
+
+Features implemented in Iteration 2:
+
+1.  **write memo**: You can input the day's events as memos.
+2.  **change, delete memo**: You can edit, delete, or change the order of memos.
+3.  **drag and drop to sum**: On the 'sum' screen, you can combine memos using drag and drop and receive an AI-generated result from the combination.
+4.  **ai backend**: Implemented a backend API that provides AI-generated results when memos are combined.
+5.  **read diary**: You can read diaries for each date on the calendar, and if you are not satisfied with the generated result, you can edit it directly.
+6.  **undo sum**: You can undo a 'sum' operation in case it was done by mistake.
+7.  **others**: In addition, other features were implemented, such as building a DB and providing an API for AI analysis.

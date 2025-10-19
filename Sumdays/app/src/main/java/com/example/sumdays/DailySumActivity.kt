@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.daily.memo.MemoMergeAdapter
 import java.time.LocalDate
+import com.example.sumdays.daily.diary.DiaryRepository
+import android.util.Log
 
 class DailySumActivity : AppCompatActivity() {
 
@@ -36,8 +38,17 @@ class DailySumActivity : AppCompatActivity() {
             finish()
         }
         findViewById<ImageView>(R.id.skip_icon).setOnClickListener {
-            startActivity(Intent(this, DailyReadActivity::class.java).putExtra("date", date))
-            finish()
+            // 2. 어댑터에서 최종 메모의 내용을 직접 가져옵니다.
+            // (참고: 이 코드가 동작하려면 MemoMergeAdapter의 memoList가 public val이어야 합니다.)
+            val finalMemoContent = memoMergeAdapter.memoList.first().content
+
+            // 3. DiaryRepository에 현재 날짜를 key로 하여 일기 내용을 저장합니다.
+            DiaryRepository.saveDiary(date, finalMemoContent)
+            Log.d("memo","$finalMemoContent")
+            Log.d("date","$date")
+            Toast.makeText(this, "일기가 저장되었습니다.", Toast.LENGTH_SHORT).show()
+
+            moveToReadActivity()
         }
         findViewById<ImageButton>(R.id.undo_button).setOnClickListener {
             memoMergeAdapter.undoLastMerge()
@@ -60,12 +71,16 @@ class DailySumActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // ✅ 드래그-머지 지원 어댑터로 교체
-        memoMergeAdapter = MemoMergeAdapter(initialMemoList, lifeCycleScope)
+        memoMergeAdapter = MemoMergeAdapter(initialMemoList, lifecycleScope)
         recyclerView.adapter = memoMergeAdapter
 
         setupNavigationBar()
     }
-
+    private fun moveToReadActivity() {
+        val intent = Intent(this, DailyReadActivity::class.java).putExtra("date", date)
+        startActivity(intent)
+        finish()
+    }
     // 하단 네비게이션 바의 버튼들 클릭 이벤트 처리
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupNavigationBar() {

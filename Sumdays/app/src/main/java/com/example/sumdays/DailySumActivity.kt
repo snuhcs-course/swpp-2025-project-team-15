@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.daily.memo.Memo
@@ -59,7 +60,7 @@ class DailySumActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // ✅ 드래그-머지 지원 어댑터로 교체
-        memoMergeAdapter = MemoMergeAdapter(initialMemoList)
+        memoMergeAdapter = MemoMergeAdapter(initialMemoList, lifeCycleScope)
         recyclerView.adapter = memoMergeAdapter
 
         setupNavigationBar()

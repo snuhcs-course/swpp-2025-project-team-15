@@ -217,8 +217,13 @@ class DailyWriteActivity : AppCompatActivity() {
         val btnSum: ImageButton = findViewById(R.id.btnSum)
 
         btnSum.setOnClickListener {
+            // 현재 LiveData에 있는 메모 리스트를 가져옵니다.
+            val currentMemos = memoAdapter.currentList // ListAdapter의 현재 리스트
             val intent = Intent(this, DailySumActivity::class.java)
             intent.putExtra("date", date)
+
+            // 메모 리스트를 Intent에 담아 전달합니다.
+            intent.putParcelableArrayListExtra("memo_list", ArrayList(currentMemos))
             startActivity(intent)
         }
 

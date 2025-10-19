@@ -1,0 +1,13 @@
+# .gitignore
+
+# Node.js dependencies
+/sumdays-backend/node_modules
+
+# Byte-compiled / optimal files
+**/__pycache__/
+*.pyc
+*.pyd
+*.pyo
+
+# env
+**/.env

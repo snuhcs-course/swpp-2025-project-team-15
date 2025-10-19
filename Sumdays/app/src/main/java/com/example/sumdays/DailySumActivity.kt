@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.daily.memo.Memo
@@ -45,14 +46,15 @@ class DailySumActivity : AppCompatActivity() {
         val dummyMemoList = mutableListOf(
             Memo(0, "오늘은 소개원실 랩 수업을 들었다.", "21:05", "2025-10-12", 0),
             Memo(1, "점심을 다이어트를 위해 굶었다.", "22:09",  "2025-10-12", 1),
-            Memo(2, "저녁은 집 가서 먹어야지~", "23:05", "2025-10-13", 0)
+            Memo(2, "저녁은 집 가서 먹어야겠다.", "23:05", "2025-10-13", 2),
+            Memo(3, "피곤해서 빨리 자야겠다.", "24:05", "2025-10-13", 3)
         )
 
         recyclerView = findViewById(R.id.memo_list_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // ✅ 드래그-머지 지원 어댑터로 교체
-        memoMergeAdapter = MemoMergeAdapter(dummyMemoList)
+        memoMergeAdapter = MemoMergeAdapter(dummyMemoList, lifecycleScope)
         recyclerView.adapter = memoMergeAdapter
 
         setupNavigationBar()

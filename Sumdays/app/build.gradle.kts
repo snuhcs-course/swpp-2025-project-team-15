@@ -72,7 +72,8 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
     // SDK 26 미만에서 java time과 같은 날짜 및 시간 클래스를 사용할 수 있도록 해줌
     implementation("com.jakewharton.threetenabp:threetenabp:1.1.1")
-
+    // 코루틴 사용할 수 있게 해줌
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     // Room 관련 의존성 추가
     val roomVersion = "2.6.1" // Room의 최신 안정화 버전으로 교체
     // Room 라이브러리

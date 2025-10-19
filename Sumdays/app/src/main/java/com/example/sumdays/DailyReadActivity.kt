@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import com.example.sumdays.daily.diary.DiaryRepository
-
+import android.util.Log
 class DailyReadActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDailyReadBinding
@@ -74,8 +74,10 @@ class DailyReadActivity : AppCompatActivity() {
 
     private fun updateUI() {
         binding.dateText.text = "< ${displayFormatter.format(currentDate.time)} >"
+        val got=repoKeyFormatter.format(currentDate.time)
         val diary = DiaryRepository.getDiary(repoKeyFormatter.format(currentDate.time))
         binding.diaryContentEditText.setText(diary ?: "")
+        binding.diaryContentTextView.setText(diary ?: "")
     }
 
     private fun toggleEditMode(isEditing: Boolean) {

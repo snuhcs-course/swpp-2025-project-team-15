@@ -21,7 +21,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.merge
 
 class MemoMergeAdapter(
-    private val memoList: MutableList<Memo>,
+    public val memoList: MutableList<Memo>,
     private val scope: CoroutineScope
 ) : RecyclerView.Adapter<MemoMergeAdapter.VH>() {
 

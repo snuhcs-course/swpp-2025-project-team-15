@@ -18,6 +18,8 @@
 #### 1-4
 postman을 사용해서 테스트. 주석을 확인하면 endpoint와 request 형식을 어떻게 해야할 지 확인할 수 있습니다.
   
+핸드폰으로 테스트시 ```$ ipconfig```로 컴퓨터의 ip주소 확인 후 frontend에서 그 주소로 요청보내도록 수정해주세요.
+  
 ### 2. 테스트 db 환경(**일단 무시!!**)
 ```$ docker run --name my-mysql -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_DATABASE=diarydb -p 3306:3306 -d mysql:8``` 로 로컬에서 db 테스트  db 내용 확인은 아래와 같이 하면 됨.  
 ```docker exec -it my-mysql mysql -u root -p(1234 입력)SHOW DATABASES;USE diarydb;SHOW TABLES;```  

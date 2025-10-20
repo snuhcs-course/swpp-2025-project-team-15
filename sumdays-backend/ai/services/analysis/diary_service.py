@@ -32,7 +32,7 @@ class DiaryAnalyzer:
             3. emotional score, criteria: Happiness (-1.0 ~ 1.0)
             4. one-line feedback
 
-            Return JSON matching the DiaryAnalysis schema.
+            Return JSON matching the DiaryAnalysis schema. Respond **in the same language** as the user's input.
             ---
             Make diaryAnalysis for diary: {diary}
             """

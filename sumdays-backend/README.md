@@ -2,6 +2,9 @@
 
 ### 1. 서버 실행 방법
 
+#### 1-0
+gpt-4.1-nano 가 빠르고 싸서 좋네요.
+
 #### 1-1
 ```$ npm install``` 을 실행하면 패키지 자동 설치됩니다   
 ```$ pip install -r requirements.txt``` 를 ai 폴더에서 실행하면 필요한 라이브러리가 설치됩니다.  
@@ -16,9 +19,9 @@
 ```$ python app.py``` 로 python ai 서버 실행합니다.(sumdays-backend/ai폴더에서, port 5001)  
 
 #### 1-4
-postman을 사용해서 테스트. 주석을 확인하면 endpoint와 request 형식을 어떻게 해야할 지 확인할 수 있습니다.
+postman을 사용해서 테스트. 주석을 확인하면 endpoint와 request 형식을 어떻게 해야할 지 확인할 수 있습니다. header에 content-Type application/json 추가해야 합니다.
   
-핸드폰으로 테스트시 ```$ ipconfig```로 컴퓨터의 ip주소 확인 후 frontend에서 그 주소로 요청보내도록 수정해주세요.
+핸드폰으로 테스트시 ```$ ipconfig```로 컴퓨터의 ip주소 확인 후 frontend에서 그 주소로 요청보내도록 수정해주세요. 핸드폰과 컴퓨터가 같은 와이파이(혹은 공유기 혹은 네트워크)이어야 합니다.
   
 ### 2. 테스트 db 환경(**일단 무시!!**)
 ```$ docker run --name my-mysql -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_DATABASE=diarydb -p 3306:3306 -d mysql:8``` 로 로컬에서 db 테스트  db 내용 확인은 아래와 같이 하면 됨.  

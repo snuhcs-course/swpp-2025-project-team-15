@@ -48,9 +48,11 @@ def analyze_week():
                 "overview": result["overview"],
                 "emerging_topics": result["emerging_topics"]
             },
-            "emotion_anaysis": {
+            "emotion_analysis": {
                 "trend": result["trend"],
-                "dominant_emoji": result["dominant_emoji"]
+                "dominant_emoji": result["dominant_emoji"],
+                "distribution": { "positive": 0, "neutral": 0, "negative": 0 },
+                "emotion_score": 0
             },
             "highlights": result["highlights"],
             "insights": {
@@ -78,12 +80,15 @@ def analyze_month():
                 "title": result["title"],
                 "overview": result["overview"],
                 "dominant_emoji": result["dominant_emoji"],
-                "emerging_topics": result["emerging_topics"]
+                "emerging_topics": result["emerging_topics"],
+                "emotion_statistics": { "positive": 0, "neutral": 0, "negative": 0 },
+                "emotion_score": 0
             },
             "insights": {
                 "emotion_cycle": result["emotion_cycle"],
                 "advice": result["advice"]
-            }
+            },
+            "weeks": data.get("weeks")
         }
         return jsonify(response), 200
 

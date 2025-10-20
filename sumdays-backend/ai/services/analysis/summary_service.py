@@ -15,8 +15,8 @@ class Highlight(BaseModel):
 class SummaryWeekResult(BaseModel):
     """ Represents the result of the weekly summary """
     title           : str               = Field(description= "A concise title summarizing the week's emotional or thematic essence.")
-    overview        : str               = Field(description= "A paragraph summarizing the emotional and behavioral trend of the month, capturing how the user's mood evolved.")
-    emerging_topics : list[str]         = Field(description= "A paragraph summarizing the emotional and behavioral trend of the week, capturing how the user's mood evolved.")
+    overview        : str               = Field(description= "A paragraph of 2-3 sentences summarizing the emotional and behavioral trend of the week, capturing how the user's mood evolved.")
+    emerging_topics : list[str]         = Field(description= "A list of 2–5 recurring or emerging themes or keywords observed throughout the week.")
     trend           : str               = Field(description= "Sentiment score trend (increasing, stable, decreasing)")
     dominant_emoji  : str               = Field(description= "An emoji that best represents the overall emotional tone of the week (e.g., 😌, 😊, 😔).")
     highlights      : list[Highlight]   = Field(description= "A list (1–3 items) of significant daily highlights that capture key emotional or thematic moments of the week.")
@@ -26,7 +26,7 @@ class SummaryWeekResult(BaseModel):
 class SummaryMonthResult(BaseModel):
     """ Represents the result of the monthly summary """
     title           : str       = Field(description= "A concise title summarizing the month's emotional or thematic essence.")
-    overview        : str       = Field(description= "A paragraph summarizing the emotional and behavioral trend of the month, capturing how the user's mood evolved.")
+    overview        : str       = Field(description= "A paragraph of 2-5 sentences summarizing the emotional and behavioral trend of the month, capturing how the user's mood evolved.")
     dominant_emoji  : str       = Field(description= "An emoji that best represents the overall emotional tone of the month (e.g., 😌, 😊, 😔).")
     emerging_topics : list[str] = Field(description= "A list of 2–5 recurring or emerging themes or keywords observed throughout the month.")
     emotion_cycle   : str       = Field(description= "A short description summarizing the emotional flow across the month (e.g., 'Early stress → Mid adaptation → Late recovery'). Maximum 5 stages.")
@@ -48,10 +48,10 @@ class SummaryService:
 
             Analyze the following diaries written by a user over a week.
             Summarize emotional and thematic trends, identify emerging topics,
-            and extract 1–3 key highlights (meaningful days).
+            and extract 1–3 key highlights (meaningful days). Answer 
 
             Return ONLY a JSON object strictly matching the `SummaryWeekResult` schema.
-            Do not include extra text or explanations.
+            Do not include extra text or explanations. Respond **in the same language** as the user's input.
             
             ---
             Diaries:
@@ -78,7 +78,7 @@ class SummaryService:
             Extract emerging topics, summarize emotional cycles, and offer reflective advice.
 
             Return ONLY a JSON object strictly matching the `SummaryMonthResult` schema.
-            Do not include extra text or explanations.
+            Do not include extra text or explanations. Respond **in the same language** as the user's input.
             
             ---
             Week summaries:

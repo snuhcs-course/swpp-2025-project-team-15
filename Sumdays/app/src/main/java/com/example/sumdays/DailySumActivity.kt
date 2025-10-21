@@ -18,6 +18,7 @@ import com.example.sumdays.daily.memo.MemoMergeAdapter
 import java.time.LocalDate
 import com.example.sumdays.daily.diary.DiaryRepository
 import android.util.Log
+import kotlinx.coroutines.launch
 
 class DailySumActivity : AppCompatActivity() {
 
@@ -31,27 +32,25 @@ class DailySumActivity : AppCompatActivity() {
         setContentView(R.layout.activity_sum)
 
         date = intent.getStringExtra("date") ?: "알 수 없는 날짜"
+
         findViewById<TextView>(R.id.date_text_view).text = date
 
         findViewById<ImageView>(R.id.back_icon).setOnClickListener {
             startActivity(Intent(this, DailyWriteActivity::class.java).putExtra("date", date))
             finish()
         }
-        findViewById<ImageView>(R.id.skip_icon).setOnClickListener {
-            // 2. 어댑터에서 최종 메모의 내용을 직접 가져옵니다.
-            // (참고: 이 코드가 동작하려면 MemoMergeAdapter의 memoList가 public val이어야 합니다.)
-            val finalMemoContent = memoMergeAdapter.memoList.first().content
 
-            // 3. DiaryRepository에 현재 날짜를 key로 하여 일기 내용을 저장합니다.
-            DiaryRepository.saveDiary(date, finalMemoContent)
-            Log.d("memo","$finalMemoContent")
-            Log.d("date","$date")
-            Toast.makeText(this, "일기가 저장되었습니다.", Toast.LENGTH_SHORT).show()
-
-            moveToReadActivity()
-        }
         findViewById<ImageButton>(R.id.undo_button).setOnClickListener {
             memoMergeAdapter.undoLastMerge()
+        }
+
+        findViewById<ImageButton>(R.id.skip_icon).setOnClickListener {
+            lifecycleScope.launch {
+                val mergedResult = memoMergeAdapter.skipMerge()
+
+                DiaryRepository.saveDiary(date, mergedResult)
+                moveToReadActivity()
+            }
         }
 
         // 1. Intent에서 메모 리스트를 받습니다.

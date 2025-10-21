@@ -18,10 +18,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
 import com.example.sumdays.network.ApiClient
 import com.google.gson.JsonObject
-import kotlinx.coroutines.flow.merge
 
 class MemoMergeAdapter(
-    public val memoList: MutableList<Memo>,
+    private val memoList: MutableList<Memo>,
     private val scope: CoroutineScope
 ) : RecyclerView.Adapter<MemoMergeAdapter.VH>() {
 
@@ -136,7 +135,7 @@ class MemoMergeAdapter(
 
         scope.launch(Dispatchers.IO) {
             try {
-                val mergedText = mergeText(mergedIds)
+                val mergedText = mergeTextByIds(mergedIds)
                 mergedIds.forEach {
                     updateIdMap(it, mergedIds)
                 }
@@ -166,8 +165,8 @@ class MemoMergeAdapter(
         idToMergedIds[targetId] = mergedIds.toMutableList()
     }
 
-    /** 두 텍스트를 OpenAI를 이용해 하나로 합친다. 합쳐진 문장 반환 */
-    suspend fun mergeText(mergedIds: List<Int>): String {
+    /** 주어진 Memo Id들에 해당하는 Memo text들을 OpenAI를 이용해 하나로 합친다. 합쳐진 문장 반환 */
+    suspend fun mergeTextByIds(mergedIds: List<Int>): String {
 
         // 1️. 서버에 보낼 Memo 리스트 구성
         val memos = mutableListOf<MemoPayload>()
@@ -237,4 +236,15 @@ class MemoMergeAdapter(
         return true
     }
 
+
+    suspend fun skipMerge(): String{
+        val idMutableList = mutableListOf<Int>()
+        for (memo in memoList) {
+            idMutableList.add(memo.id)
+        }
+        val idList = idMutableList.toList()
+
+        return mergeTextByIds(idList)
+    }
 }
+

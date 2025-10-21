@@ -42,11 +42,12 @@
             app:layout_constraintStart_toEndOf="@id/back_icon"
             app:layout_constraintEnd_toStartOf="@id/skip_icon" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/skip_icon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:src="@drawable/ic_skip"
+            android:background="@android:color/transparent"
             android:contentDescription="건너뛰기"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"

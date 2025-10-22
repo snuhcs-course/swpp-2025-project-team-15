@@ -1,4 +1,3 @@
-# image_service.py
 from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage
 import os
@@ -22,8 +21,15 @@ class ImageService:
             """
         elif analysis_type == "describe":
             prompt = """
-            You are describing a diary image for an app. 
-            Describe what is visually shown in the image in 1~2 sentences.
+            You are helping an app that analyzes a single diary image input.
+            Your task is to describe what kind of moment or situation the image represents,
+            as if it were a short diary note.
+
+            Guidelines:
+            - Write in a sinle sentence.
+            - Focus on the *context or emotion* implied by the image rather than listing visible objects.
+            (e.g., “listening to music” instead of “an audio player on a desk”)
+            - Avoid excessive imagination or details not clearly implied by the image.
             """
         else:
             raise ValueError(f"Unsupported analysis type: {analysis_type}")
@@ -31,6 +37,7 @@ class ImageService:
         image_bytes = image_file.read()
         image_b64 = base64.b64encode(image_bytes).decode("utf-8")
         data_uri = f"data:image/jpeg;base64,{image_b64}"
+
         response = self.model.invoke([
             HumanMessage(content=[
                 {"type": "text", "text": prompt},

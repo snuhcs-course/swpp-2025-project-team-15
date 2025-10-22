@@ -36,7 +36,10 @@ class SummaryService:
     """ Service that summarize diaries weekly/monthly """
     def __init__(self):
         """ Initialize the summary service. """
-        self.model = os.getenv("GPT_MODEL", "gpt-4.1-nano")
+        self.model = ChatOpenAI(
+            model=os.getenv("GPT_MODEL", "gpt-4.1-nano"),
+            temperature=0.5
+        )
 
     def summarize_week(self, diaries: list[Dict]) -> Dict[str, Any]:
         """ Summarize diaries of the week """
@@ -59,7 +62,7 @@ class SummaryService:
             """
 
             prompt = PromptTemplate.from_template(promt_text)
-            llm = ChatOpenAI(model=self.model).with_structured_output(SummaryWeekResult)
+            llm = self.model.with_structured_output(SummaryWeekResult)
 
             chain = prompt | llm
             result = chain.invoke({"diaries": diaries})
@@ -86,7 +89,7 @@ class SummaryService:
             """
 
             prompt = PromptTemplate.from_template(promt_text)
-            llm = ChatOpenAI(model=self.model).with_structured_output(SummaryMonthResult)
+            llm = self.model.with_structured_output(SummaryMonthResult)
 
             chain = prompt | llm
             result = chain.invoke({"weeks": weeks})

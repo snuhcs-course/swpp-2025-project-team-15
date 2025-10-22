@@ -1,6 +1,4 @@
-// extractController.js (CommonJS Syntax)
 
-// Temporary placeholder controller logic
 const extractController = {
     // Controller method for style extraction (Example: POST /api/ai/extract/style)
     extractStyle: (req, res) => {

@@ -20,7 +20,6 @@ const sttController = {
                 },
             });
 
-            // 업로드된 임시 파일 삭제 (선택사항)
             fs.unlink(req.file.path, (err) => {
                 if (err) console.error("Temp file deletion error:", err);
             });

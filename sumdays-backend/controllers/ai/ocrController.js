@@ -1,14 +1,45 @@
-// ocrController.js (CommonJS Syntax)
+const axios = require("axios");
+const FormData = require("form-data");
+const fs = require("fs");
+const PYTHON_SERVER_URL = process.env.PYTHON_AI_URL;
 
-// Temporary placeholder controller logic for OCR operations
 const ocrController = {
     // Controller method for OCR on a memo image (Example: POST /api/ai/ocr/memo)
-    memo: (req, res) => {
-        // This is where you'd handle the logic for sending image data to the AI server for OCR
-        res.status(200).json({ 
-            success: true, 
-            message: 'ocr/memo endpoint working' 
-        });
+    memo: async (req, res) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ error: "No image file uploaded." });
+            }
+
+            const analysisType = req.body.type;
+            if (!["extract", "describe"].includes(analysisType)) {
+                return res.status(400).json({ error: "Invalid analysis type." });
+            }
+
+            const formData = new FormData();
+            formData.append("image", fs.createReadStream(req.file.path));
+            formData.append("type", analysisType);
+
+            const response = await axios.post(`${PYTHON_SERVER_URL}/image/memo`, formData, {
+                headers: {
+                    ...formData.getHeaders(),
+                },
+            });
+
+            fs.unlink(req.file.path, (err) => {
+                if (err) console.error("Temp file deletion error:", err);
+            });
+
+            res.status(200).json({
+                success: true,
+                result: response.data,
+            });
+        } catch (error) {
+            console.error("[imageController.analyze] Error:", error.message);
+            res.status(500).json({
+                error: error.message,
+            });
+        }
     },
 
     // Controller method for OCR on a diary image (Example: POST /api/ai/ocr/diary)
@@ -21,6 +52,4 @@ const ocrController = {
     },
 };
 
-// Export the controller object using CommonJS syntax
-// This allows other files (like routes/ai.js or routes/ocr.js) to import it using require()
 module.exports = ocrController;

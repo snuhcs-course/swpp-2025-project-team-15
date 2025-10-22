@@ -6,7 +6,7 @@ from flask import Flask, jsonify
 from services.analysis.routes import analysis_bp
 from services.extract.routes import extract_bp
 from services.merge.routes import merge_bp
-from services.ocr.routes import ocr_bp
+from services.image.routes import image_bp
 from services.stt.routes import stt_bp
 
 # api ex) http://localhost:5001/{feature_group}/{feature_name}
@@ -14,7 +14,7 @@ app = Flask(__name__)
 app.register_blueprint(analysis_bp)
 app.register_blueprint(extract_bp)
 app.register_blueprint(merge_bp)
-app.register_blueprint(ocr_bp)
+app.register_blueprint(image_bp)
 app.register_blueprint(stt_bp)
 
 # test: GET http://localhost:5001/

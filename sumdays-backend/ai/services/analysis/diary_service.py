@@ -15,8 +15,10 @@ class DiaryAnalysisResult(BaseModel):
 class DiaryAnalyzer:
     """ Service that analyzes a diary """
     def __init__(self):
-        """ Initialize the Diary analyzing service. """
-        self.model = os.getenv("GPT_MODEL", "gpt-5-nano")
+        self.model = ChatOpenAI(
+            model=os.getenv("GPT_MODEL", "gpt-4.1-nano"),
+            temperature=0.5
+        )
 
     def analyze(self, diary: str) -> Dict[str, Any]:
         """ Analyze diary(text) and return  """
@@ -38,7 +40,7 @@ class DiaryAnalyzer:
             """
 
             prompt = PromptTemplate.from_template(promt_text)
-            llm = ChatOpenAI(model=self.model).with_structured_output(DiaryAnalysisResult)
+            llm = self.model.with_structured_output(DiaryAnalysisResult)
 
             chain = prompt | llm
             result = chain.invoke({"diary": diary})

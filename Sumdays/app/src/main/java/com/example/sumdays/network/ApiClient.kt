@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
     private const val BASE_URL = "http://10.0.2.2:5001/"  // Flask 서버 주소
+    //서버를 돌리는 컴퓨터의 IP를 여기 적어야 함
 
     // OkHttp 로깅 + 타임아웃 설정
     private val logging = HttpLoggingInterceptor().apply {

@@ -30,6 +30,9 @@ import java.time.format.DateTimeFormatter
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.sumdays.daily.memo.MemoDragAndDropCallback
 import android.view.View
+import com.example.sumdays.audio.AudioRecorderHelper
+import android.util.Log
+import androidx.core.content.ContextCompat
 
 // 일기 작성 및 수정 화면을 담당하는 액티비티
 class DailyWriteActivity : AppCompatActivity() {
@@ -44,6 +47,11 @@ class DailyWriteActivity : AppCompatActivity() {
     private lateinit var memoListView: RecyclerView
     private lateinit var memoInputEditText: EditText
     private lateinit var sendIcon: ImageView
+
+    private lateinit var micIcon: ImageView
+
+    //  AudioRecorderHelper 인스턴스 생성 (lazy 초기화)
+    private lateinit var audioRecorderHelper: AudioRecorderHelper
     private lateinit var readDiaryButton: Button
 
     // ViewModel 초기화 (앱의 싱글톤 저장소를 사용)
@@ -63,6 +71,50 @@ class DailyWriteActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        audioRecorderHelper = AudioRecorderHelper(
+            activity = this,
+            onRecordingStarted = {
+                runOnUiThread {
+                    Toast.makeText(this, "녹음 시작...", Toast.LENGTH_SHORT).show()
+                    micIcon.setColorFilter(ContextCompat.getColor(this, R.color.green_light))
+                }
+            },
+            onRecordingStopped = {
+                runOnUiThread {
+                    Toast.makeText(this, "녹음 완료. 텍스트 변환 중...", Toast.LENGTH_SHORT).show()
+                    micIcon.clearColorFilter()
+                }
+            },
+            onRecordingComplete = { filePath, transcribedText ->
+                Log.d("DailyWriteActivity", "녹음 완료, 파일 경로: $filePath")
+                Log.d("DailyWriteActivity", "변환된 텍스트: $transcribedText")
+                runOnUiThread {
+                    if (transcribedText != null) {
+                        memoInputEditText.append("$transcribedText \n")
+                        Toast.makeText(this, "텍스트 변환 완료.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "텍스트 변환 실패. 오디오 파일만 저장됨.", Toast.LENGTH_SHORT).show()
+                        memoInputEditText.append("[오디오 파일: $filePath] \n")
+                    }
+                }
+                // sendAudioToAI(filePath, transcribedText)
+            },
+            onRecordingFailed = { errorMessage ->
+                runOnUiThread {
+                    Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+                }
+            },
+            onPermissionDenied = {
+                runOnUiThread {
+                    Toast.makeText(this, "음성 녹음을 사용하려면 마이크 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onShowPermissionRationale = {
+                runOnUiThread {
+                    Toast.makeText(this, "메모를 음성으로 녹음하려면 마이크 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
 
         // 모든 뷰 초기화
         initViews()
@@ -91,6 +143,7 @@ class DailyWriteActivity : AppCompatActivity() {
         memoListView = findViewById(R.id.memo_list_view)
         memoInputEditText = findViewById(R.id.memo_input_edittext)
         sendIcon = findViewById(R.id.send_icon)
+        micIcon = findViewById(R.id.mic_icon)
         readDiaryButton = findViewById(R.id.read_diary_button)
 
         memoListView.layoutManager = LinearLayoutManager(this)
@@ -206,6 +259,10 @@ class DailyWriteActivity : AppCompatActivity() {
                 Toast.makeText(this, "메모 내용을 입력해 주세요.", Toast.LENGTH_SHORT).show()
             }
         }
+        micIcon.setOnClickListener {
+            // 버튼 클릭 시 Helper의 함수 호출
+            audioRecorderHelper.checkPermissionAndToggleRecording()
+        }
     }
 
     // 하단 네비게이션 바의 버튼들 클릭 이벤트를 처리
@@ -249,5 +306,20 @@ class DailyWriteActivity : AppCompatActivity() {
         btnInfo.setOnClickListener {
             Toast.makeText(this, "정보 화면 예정", Toast.LENGTH_SHORT).show()
         }
+    }
+    private fun sendAudioToAI(filePath: String) {
+        Log.d("DailyWriteActivity", "AI로 전송할 WAV 파일 경로: $filePath")
+        // TODO: Retrofit 등을 사용하여 이 filePath의 파일을 AI 서버로 전송(업로드)하는 로직 구현
+
+        // 지금은 임시로 EditText에 파일 경로를 표시합니다.
+        runOnUiThread { // UI 스레드에서 EditText 업데이트
+            memoInputEditText.append("[오디오 파일: $filePath] \n")
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Activity 종료 시 Helper의 리소스 정리
+        audioRecorderHelper.release()
     }
 }

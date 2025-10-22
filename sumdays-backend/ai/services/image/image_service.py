@@ -42,5 +42,5 @@ class ImageService:
 
         return {
             "type": analysis_type,
-            "text" if analysis_type == "extract" else "description": result_text
+            "text": result_text
         }

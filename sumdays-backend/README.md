@@ -160,12 +160,13 @@ merged_memo.merged_memo_id = base_memo.merged_memo_id + dragged_memo.merged_memo
 - [x] 텍스트 메모 합치기
 - [x] 일기에서 이모지, 감정 점수, 피드백, 요약 분석
 - [ ] merge api: 일기 db 저장하도록 하기.
-- [ ] 일주일 일기로 주간 요약/분석
-- [ ] 한 달 일기로 월간 요약/분석
+- [x] 일주일 일기로 주간 요약/분석
+- [x] 한 달 일기로 월간 요약/분석
 - [ ] prompt 다듬기
 
 #### 6-2. db 확장 후 할 일
-- [ ] 사진-> text (ocr)/ 일기 입력 관련이므로 날짜 추출까지.
+- [x] 사진-> text (ocr) memo 
+- [ ] 일기 입력 관련이므로 날짜 추출까지.
 - [x] 음성-> text (stt)
 - [ ] 사진에서 데이터 얻기(e.g. 강변에서 산책하는 사진이다)
 - [ ] 추측 강도에 따른 merge로 확장

@@ -32,7 +32,8 @@ const ocrController = {
 
             res.status(200).json({
                 success: true,
-                result: response.data,
+                type: response.data.type,
+                result: response.data.text,
             });
         } catch (error) {
             console.error("[imageController.analyze] Error:", error.message);

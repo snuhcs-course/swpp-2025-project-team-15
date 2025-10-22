@@ -178,6 +178,7 @@ class MemoMergeAdapter(
         // 2️. 요청 객체 생성
         val request = MergeRequest(memos = memos, endFlag = false)
 
+        Log.d("test", "test: " + request.toString())
         // 3️. API 호출
         val response = ApiClient.api.mergeMemos(request)
 
@@ -239,8 +240,8 @@ class MemoMergeAdapter(
 
     suspend fun skipMerge(): String{
         val idMutableList = mutableListOf<Int>()
-        for (memo in memoList) {
-            idMutableList.add(memo.id)
+        for (memo in originalMemoMap) {
+            idMutableList.add(memo.value.id)
         }
         val idList = idMutableList.toList()
 

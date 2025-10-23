@@ -62,13 +62,14 @@ class StatisticsMonthAdapter(private val monthList: List<MonthStatistics>) :
         // 블록을 쌓을 때 사용되는 카운터
         var blockCount = 0
         val blockHeightPx = holder.itemView.context.resources.getDimensionPixelSize(R.dimen.week_summary_block_height)
+        val blockWidthPx = holder.itemView.context.resources.getDimensionPixelSize(R.dimen.week_summary_block_width)
 
         for (weekSummary in monthStats.weekSummaries) {
             val blockView = LayoutInflater.from(holder.itemView.context)
                 .inflate(R.layout.item_week_summary_block, holder.treeStemLayout, false)
 
             val layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
+                blockWidthPx,
                 blockHeightPx
             )
 
@@ -89,10 +90,15 @@ class StatisticsMonthAdapter(private val monthList: List<MonthStatistics>) :
             blockView.layoutParams = layoutParams
 
             val summaryText: TextView = blockView.findViewById(R.id.week_summary_text)
-            summaryText.text = weekSummary.summaryText
+            // ⭐ 텍스트 대신 주간 요약의 대표 이모지를 표시하도록 수정
+            summaryText.text = weekSummary.emotionAnalysis.dominantEmoji // <-- API 구조에 맞춰 수정
 
+            // ⭐ 텍스트가 아닌 이모지를 크게 표시하기 위해 텍스트 크기를 키웁니다.
+            summaryText.textSize = 28f
+
+            // 블록 클릭 시 주간 요약 내용을 Toast 또는 Dialog로 표시
             blockView.setOnClickListener {
-                Toast.makeText(holder.itemView.context, "주간 요약: ${weekSummary.summaryText}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(holder.itemView.context, "주간 요약: ${weekSummary.summary.title}", Toast.LENGTH_SHORT).show()
             }
 
             holder.treeStemLayout.addView(blockView)

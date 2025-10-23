@@ -9,10 +9,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.widget.ImageButton
+import com.example.sumdays.statistics.EmotionAnalysis
+import com.example.sumdays.statistics.Highlight
+import com.example.sumdays.statistics.Insights
 import com.example.sumdays.statistics.MonthStatistics
 import com.example.sumdays.statistics.MonthSummary
 import com.example.sumdays.statistics.StatisticsMonthAdapter
+import com.example.sumdays.statistics.SummaryDetails
 import com.example.sumdays.statistics.WeekSummary
+import com.example.sumdays.statistics.WeekSummaryForMonth
 import java.time.LocalDate
 
 class StatisticsActivity : AppCompatActivity() {
@@ -21,29 +26,77 @@ class StatisticsActivity : AppCompatActivity() {
 
     // ⭐ 더미 데이터 생성 함수
     private fun createDummyData(): List<MonthStatistics> {
-        val week1 = WeekSummary("이번 주 테스팅 계획을 수립함.", "2025-09-01", "2025-09-07", 5)
-        val week2 = WeekSummary("프론트/백엔드 아키텍처 정리 완료.", "2025-09-08", "2025-09-14", 3)
-        val week3 = WeekSummary("새로운 통계 화면 UI/UX 논의 완료.", "2025-09-15", "2025-09-21", 7)
 
-        // Month Summary (포도) 생성 조건: Week Summary가 2개 이상일 때
-        val monthSummary9 = MonthSummary("9월은 아키텍처 확립과 테스팅 계획을 수립하며 개발의 기틀을 다진 달.", "2025-09-30")
+        // ==============================================
+        // 1. 2025년 9월 데이터 (Week 2개 이상, MonthSummary 존재)
+        // ==============================================
+
+        // --- 주간 요약 Helper 객체들 ---
+        val weekInsights9_1 = Insights("작은 성취를 기록하세요.", "단조로운 흐름")
+        val weekSummaryDetails9_1 =
+            SummaryDetails(listOf("개발", "테스팅"), "테스팅 환경 구축의 일주일", "테스팅 환경 구축 완료")
+        val emotionAnalysis9_1 = EmotionAnalysis(
+            mapOf("positive" to 3, "neutral" to 2, "negative" to 0),
+            "😊",
+            0.6f,
+            "stable"
+        )
+
+        val weekInsights9_2 = Insights("협업 포인트를 명확히 하세요.", "긴장 -> 해소")
+        val weekSummaryDetails9_2 = SummaryDetails(listOf("아키텍처", "DB연동"), "백엔드 통합 논의 완료", "아키텍처 확립")
+        val emotionAnalysis9_2 = EmotionAnalysis(mapOf("positive" to 5, "neutral" to 1, "negative" to 1), "😄", 0.7f, "increasing")
+
+        // --- WeekSummary 객체들 (나무 기둥 블록) ---
+        val weekStatistics9_1 = WeekSummary(emotionAnalysis9_1, listOf(
+            Highlight(
+                "2025-09-03",
+                "JUnit 4 설정 완료"
+            )
+        ), weekInsights9_1, weekSummaryDetails9_1)
+        val weekStatistics9_2 = WeekSummary(emotionAnalysis9_2, listOf(Highlight("2025-09-10", "MVVM 구조 확정")), weekInsights9_2, weekSummaryDetails9_2)
+
+        // Month Summary 객체들
+        val monthInsights9 = Insights("9월의 안정감을 10월에도 유지하세요.", "긴장 -> 안정 -> 자신감")
+        val monthSummaryDetails9 = SummaryDetails(listOf("안정", "계획", "테스팅"), "9월은 개발 기반을 다진 달", "개발 기반 확립의 9월")
+        val monthWeeksForMonth9 = listOf(
+            WeekSummaryForMonth(
+                0.6f,
+                "😊",
+                listOf("개발", "계획"),
+                "주간 요약 1",
+                "안정적인 시작",
+                "2025-09-01~2025-09-07"
+            ),
+            WeekSummaryForMonth(0.7f, "😄", listOf("통합", "구조"), "주간 요약 2", "구조 확정 주", "2025-09-08~2025-09-14")
+        )
+
+        val monthSummary9 = MonthSummary(monthInsights9, monthSummaryDetails9, monthWeeksForMonth9)
+
 
         val monthStatisticsSeptember = MonthStatistics(
             year = 2025,
             month = 9,
             monthTitle = "2025년 9월",
-            weekSummaries = listOf(week1, week2, week3),
-            monthSummary = monthSummary9 // 3개이므로 포도 존재
+            weekSummaries = listOf(weekStatistics9_1, weekStatistics9_2), // 주간 블록
+            monthSummary = monthSummary9 // 월간 요약 (포도)
         )
 
-        // Week Summary가 2개 미만인 달 (포도 없음)
-        val week4 = WeekSummary("8월 프로젝트 아이디어 구상 완료.", "2025-08-01", "2025-08-07", 2)
+        // ==============================================
+        // 2. 2025년 8월 데이터 (Week 2개 미만, MonthSummary 없음)
+        // ==============================================
+
+        val weekInsights8_1 = Insights("계속 아이디어를 구체화하세요.", "혼란")
+        val weekSummaryDetails8_1 = SummaryDetails(listOf("아이디어", "회의"), "아이디어 구상의 일주일", "초기 아이디어 구상")
+        val emotionAnalysis8_1 = EmotionAnalysis(mapOf("positive" to 1, "neutral" to 3, "negative" to 1), "🤔", 0.1f, "stable")
+
+        val weekStatistics8_1 = WeekSummary(emotionAnalysis8_1, listOf(Highlight("2025-08-15", "프로젝트 주제 결정")), weekInsights8_1, weekSummaryDetails8_1)
+
         val monthStatisticsAugust = MonthStatistics(
             year = 2025,
             month = 8,
             monthTitle = "2025년 8월",
-            weekSummaries = listOf(week4),
-            monthSummary = null // 1개이므로 포도 없음
+            weekSummaries = listOf(weekStatistics8_1), // 주간 블록 1개만
+            monthSummary = null // 포도 없음
         )
 
         return listOf(monthStatisticsSeptember, monthStatisticsAugust) // 9월(최근)이 앞에 위치

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="250dp"
+    android:layout_height="match_parent"
+    android:paddingTop="32dp"
+    android:paddingBottom="32dp"
+    android:layout_marginHorizontal="8dp">
+
+    <ImageView
+        android:id="@+id/tree_background_image"
+        android:layout_width="60dp"
+        android:layout_height="0dp"
+        android:src="@drawable/shape_tree_stem" app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/month_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="20dp"
+        android:scaleType="fitXY"
+        android:contentDescription="나무 기둥" />
+
+    <LinearLayout
+        android:id="@+id/tree_stem_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:gravity="bottom|center_horizontal"
+        app:layout_constraintTop_toBottomOf="@id/grape_icon"
+        app:layout_constraintBottom_toTopOf="@+id/month_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:paddingBottom="10dp"
+        android:clipChildren="false">
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/grape_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_grape_cluster"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="-10dp"
+        android:contentDescription="월간 요약 포도" />
+
+    <TextView
+        android:id="@+id/month_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2025년 9월"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp" />
+
+    <ImageView
+        android:id="@+id/fox_icon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/fox_login_logo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginLeft="16dp"
+        android:visibility="gone"
+        android:contentDescription="여우 로고" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -148,16 +148,11 @@ class MonthStatsDetailActivity : AppCompatActivity() {
             // X축 라벨은 주차 정보로 설정
             labels.add(week.dateRange)
 
-            // TODO: 이모지를 마커로 표시하는 로직은 MPAndroidChart의 Custom Marker 기능을 사용해야 합니다.
         }
 
         val dataSet = LineDataSet(entries, "주간 감정 변화")
         dataSet.color = getColor(R.color.colorPrimary)
         dataSet.setDrawCircles(true)
-
-        // ⭐ 이모지를 마커로 활용하는 경우, 아래처럼 Custom Icon Setter를 사용해야 합니다.
-        // dataSet.setCircleColor(Color.TRANSPARENT) // 점 색상을 투명하게
-        // dataSet.setCircleHoleColor(Color.TRANSPARENT)
 
         // X축 설정
         val xAxis = lineChart.xAxis

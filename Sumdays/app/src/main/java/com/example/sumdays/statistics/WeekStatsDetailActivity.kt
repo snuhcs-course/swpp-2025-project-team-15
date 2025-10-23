@@ -61,7 +61,10 @@ class WeekStatsDetailActivity : AppCompatActivity() {
 
         // 2. 섹션별 데이터 바인딩 및 시각화
 
-        // 2.1. 감정 분석 섹션
+        // 2.1. 요약 개요 섹션
+        binding.overviewTextView.text = weekSummary.summary.overview
+
+        // 2.2. 감정 분석 섹션
         displayEmotionAnalysis(binding.emotionAnalysisBarChart, weekSummary.emotionAnalysis)
         binding.dominantEmojiTextView.text = "대표 감정: ${weekSummary.emotionAnalysis.dominantEmoji}"
         binding.emotionScoreTextView.text = String.format("감정 점수: %.2f", weekSummary.emotionAnalysis.emotionScore)
@@ -74,16 +77,14 @@ class WeekStatsDetailActivity : AppCompatActivity() {
         }
         binding.emotionTrendTextView.text = "감정 추세: $trendValue"
 
-        // 2.2. 하이라이트 섹션 (목록으로 표시)
+        // 2.3. 하이라이트 섹션 (목록으로 표시)
         binding.highlightsTextView.text = weekSummary.highlights
             .joinToString("\n\n") { "${it.date}: ${it.summary}" }
 
-        // 2.3. 통찰/조언 섹션
+        // 2.4. 통찰/조언 섹션
         binding.adviceTextView.text = weekSummary.insights.advice
         binding.emotionCycleTextView.text = weekSummary.insights.emotionCycle
 
-        // 2.4. 요약 개요 섹션
-        binding.overviewTextView.text = weekSummary.summary.overview
     }
 
     // 막대 그래프(Bar Chart)를 이용한 감정 분포 시각화

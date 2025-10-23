@@ -78,10 +78,32 @@ class StatisticsActivity : AppCompatActivity() {
                 "안정적인 시작",
                 "2025-09-01~2025-09-07"
             ),
-            WeekSummaryForMonth(0.7f, "😄", listOf("통합", "구조"), "주간 요약 2", "구조 확정 주", "2025-09-08~2025-09-14")
+            WeekSummaryForMonth(
+                0.7f,
+                "😄",
+                listOf("통합", "구조"),
+                "주간 요약 2",
+                "구조 확정 주",
+                "2025-09-08~2025-09-14")
         )
 
-        val monthSummary9 = MonthSummary(monthInsights9, monthSummaryDetails9, monthWeeksForMonth9)
+        // ⭐ 월간 API의 Summary 내부에 있던 Emotion Statistics를 분리하여 생성
+        val monthEmotionAnalysis9 = EmotionAnalysis(
+            distribution = mapOf("positive" to 10, "neutral" to 5, "negative" to 3),
+            dominantEmoji = "🌟",
+            emotionScore = 0.55f,
+            trend = null // trend는 주간 분석에만 사용되므로 null
+        )
+
+        val monthSummary9 = MonthSummary(
+            startDate = "2025-09-01",
+            endDate = "2025-09-30",
+            diaryCount = 20,
+            insights = monthInsights9,
+            summary = monthSummaryDetails9,
+            emotionAnalysis = monthEmotionAnalysis9, // ⭐ 분리된 객체 주입
+            weeksForMonth = monthWeeksForMonth9
+        )
 
 
         val monthStatisticsSeptember = MonthStatistics(

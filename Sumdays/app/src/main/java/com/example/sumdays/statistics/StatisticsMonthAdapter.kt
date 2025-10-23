@@ -46,7 +46,10 @@ class StatisticsMonthAdapter(private val monthList: List<MonthStatistics>) :
             // 포도 아이콘 클릭 시 월간 요약 표시
             holder.grapeIcon.setOnClickListener {
                 if (monthStats.monthSummary != null) {
-                    Toast.makeText(holder.itemView.context, "월간 요약: ${monthStats.monthSummary.summary.title}", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(holder.itemView.context, MonthStatsDetailActivity::class.java)
+                    // ⭐ MonthSummary 객체를 Parcelable로 담아 전달
+                    intent.putExtra("month_summary", monthStats.monthSummary)
+                    holder.itemView.context.startActivity(intent)
                 } else {
                     Toast.makeText(holder.itemView.context, "월간 요약이 아직 없습니다.", Toast.LENGTH_SHORT).show()
                 }

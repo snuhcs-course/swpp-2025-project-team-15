@@ -35,6 +35,9 @@
             android:name=".CalendarActivity"
             android:exported="false"
             android:theme="@style/Theme.First" />
+        <activity
+            android:name=".StatisticsActivity"
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"

@@ -57,7 +57,9 @@ class CalendarActivity : AppCompatActivity() {
         val btnStats = findViewById<ImageButton>(R.id.statistic_btn)
 
         btnStats.setOnClickListener {
-            android.widget.Toast.makeText(this, "통계 화면 예정", android.widget.Toast.LENGTH_SHORT).show()
+            // ⭐ 통계 화면(StatisticsActivity)으로 이동하는 Intent 추가
+            val intent = Intent(this, StatisticsActivity::class.java)
+            startActivity(intent)
         }
     }
 

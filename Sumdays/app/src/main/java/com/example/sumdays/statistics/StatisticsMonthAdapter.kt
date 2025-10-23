@@ -17,6 +17,7 @@ class MonthViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val grapeIcon: ImageView = itemView.findViewById(R.id.grape_icon) // 월간 요약 포도
     val treeStemLayout: LinearLayout = itemView.findViewById(R.id.tree_stem_layout) // 주간 블록을 쌓을 레이아웃
     val foxIcon: ImageView = itemView.findViewById(R.id.fox_icon)
+    val grapeGlowBackground: ImageView = itemView.findViewById(R.id.grape_glow_background)
 
     // 이외에 배경 나무 이미지, 여우 등의 뷰가 XML에 정의되어 있어야 함
 }
@@ -37,12 +38,25 @@ class StatisticsMonthAdapter(private val monthList: List<MonthStatistics>) :
         // 1. 월 제목 설정
         holder.monthTitle.text = monthStats.monthTitle
 
-        // 2-1. 월간 요약 (포도 아이콘) 표시/숨김
-        if (monthStats.monthSummary != null && monthStats.weekSummaries.size >= 2) {
-            holder.grapeIcon.visibility = View.VISIBLE
-            // TODO: 포도 아이콘 클릭 시 월간 요약 텍스트를 Toast 또는 Dialog로 표시
+        // 2-1. 월간 요약 (포도 아이콘) 표시/숨김 로직 변경:
+        // 포도 아이콘 자체는 항상 보이고, 이제는 '빛'의 가시성을 조절합니다.
+        if (monthStats.weekSummaries.size >= 2) {
+            // 주간 요약 블록이 2개 이상일 때 노란색 빛 표시
+            holder.grapeGlowBackground.visibility = View.VISIBLE
+            // 포도 아이콘 클릭 시 월간 요약 표시
+            holder.grapeIcon.setOnClickListener {
+                if (monthStats.monthSummary != null) {
+                    Toast.makeText(holder.itemView.context, "월간 요약: ${monthStats.monthSummary.summary.title}", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(holder.itemView.context, "월간 요약이 아직 없습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
         } else {
-            holder.grapeIcon.visibility = View.GONE
+            // 2개 미만일 때는 노란색 빛 숨김
+            holder.grapeGlowBackground.visibility = View.GONE
+            holder.grapeIcon.setOnClickListener {
+                Toast.makeText(holder.itemView.context, "주간 기록이 부족하여 월간 요약이 없습니다.", Toast.LENGTH_SHORT).show()
+            }
         }
         // ⭐ 2-2. 여우 아이콘 가시성 설정 로직 추가 ⭐
         if (position == 0) {

@@ -38,11 +38,23 @@
     </LinearLayout>
 
     <ImageView
+        android:id="@+id/grape_glow_background"
+        android:layout_width="80dp"  android:layout_height="80dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="13dp"
+        android:src="@drawable/shape_yellow_circle_glow"
+        app:layout_constraintTop_toTopOf="@id/grape_icon"
+        app:layout_constraintBottom_toBottomOf="@id/grape_icon"
+        app:layout_constraintStart_toStartOf="@id/grape_icon"
+        app:layout_constraintEnd_toEndOf="@id/grape_icon"
+        android:visibility="gone"
+        android:contentDescription="포도 빛 효과" />
+
+    <ImageView
         android:id="@+id/grape_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_grape_cluster"
-        android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

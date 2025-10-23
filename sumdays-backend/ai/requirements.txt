@@ -7,3 +7,4 @@ python-dotenv
 pydantic
 requests
 flask
+google-cloud-vision

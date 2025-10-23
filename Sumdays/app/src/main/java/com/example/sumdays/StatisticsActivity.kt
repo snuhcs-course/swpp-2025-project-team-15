@@ -47,14 +47,25 @@ class StatisticsActivity : AppCompatActivity() {
         val emotionAnalysis9_2 = EmotionAnalysis(mapOf("positive" to 5, "neutral" to 1, "negative" to 1), "😄", 0.7f, "increasing")
 
         // --- WeekSummary 객체들 (나무 기둥 블록) ---
-        val weekStatistics9_1 = WeekSummary(emotionAnalysis9_1, listOf(
-            Highlight(
-                "2025-09-03",
-                "JUnit 4 설정 완료"
-            )
-        ), weekInsights9_1, weekSummaryDetails9_1)
-        val weekStatistics9_2 = WeekSummary(emotionAnalysis9_2, listOf(Highlight("2025-09-10", "MVVM 구조 확정")), weekInsights9_2, weekSummaryDetails9_2)
+        val weekStatistics9_1 = WeekSummary(
+            startDate = "2025-09-01",  // ⭐ 시작일 추가
+            endDate = "2025-09-07",    // ⭐ 종료일 추가
+            diaryCount = 5,            // ⭐ 일기 카운트 추가 (5/7)
+            emotionAnalysis = emotionAnalysis9_1,
+            highlights = listOf(Highlight("2025-09-03", "JUnit 4 설정 완료")),
+            insights = weekInsights9_1,
+            summary = weekSummaryDetails9_1
+        )
 
+        val weekStatistics9_2 = WeekSummary(
+            startDate = "2025-09-08",
+            endDate = "2025-09-14",
+            diaryCount = 7,             // ⭐ 일기 카운트 추가 (7/7)
+            emotionAnalysis = emotionAnalysis9_2,
+            highlights = listOf(Highlight("2025-09-10", "MVVM 구조 확정")),
+            insights = weekInsights9_2,
+            summary = weekSummaryDetails9_2
+        )
         // Month Summary 객체들
         val monthInsights9 = Insights("9월의 안정감을 10월에도 유지하세요.", "긴장 -> 안정 -> 자신감")
         val monthSummaryDetails9 = SummaryDetails(listOf("안정", "계획", "테스팅"), "9월은 개발 기반을 다진 달", "개발 기반 확립의 9월")
@@ -89,8 +100,15 @@ class StatisticsActivity : AppCompatActivity() {
         val weekSummaryDetails8_1 = SummaryDetails(listOf("아이디어", "회의"), "아이디어 구상의 일주일", "초기 아이디어 구상")
         val emotionAnalysis8_1 = EmotionAnalysis(mapOf("positive" to 1, "neutral" to 3, "negative" to 1), "🤔", 0.1f, "stable")
 
-        val weekStatistics8_1 = WeekSummary(emotionAnalysis8_1, listOf(Highlight("2025-08-15", "프로젝트 주제 결정")), weekInsights8_1, weekSummaryDetails8_1)
-
+        val weekStatistics8_1 = WeekSummary(
+            startDate = "2025-08-01",
+            endDate = "2025-08-07",
+            diaryCount = 3,            // ⭐ 일기 카운트 추가 (3/7)
+            emotionAnalysis = emotionAnalysis8_1,
+            highlights = listOf(Highlight("2025-08-15", "프로젝트 주제 결정")),
+            insights = weekInsights8_1,
+            summary = weekSummaryDetails8_1
+        )
         val monthStatisticsAugust = MonthStatistics(
             year = 2025,
             month = 8,
@@ -129,7 +147,7 @@ class StatisticsActivity : AppCompatActivity() {
     private fun setupNavigationBar() {
         // include_nav_daily 레이아웃에서 뷰들을 찾습니다.
         val btnCalendar = findViewById<ImageButton>(R.id.btnCalendar)
-        val btnDaily = findViewById<ImageButton>(R.id.btnDaily) // FloatingActionButton이라면 타입 수정 필요
+        val btnDaily = findViewById<ImageButton>(R.id.btnDaily)
         val btnInfo = findViewById<ImageButton>(R.id.btnInfo)
 
         // Calendar로 이동

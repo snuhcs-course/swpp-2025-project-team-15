@@ -38,6 +38,9 @@
         <activity
             android:name=".StatisticsActivity"
             android:exported="false" />
+        <activity
+            android:name=".statistics.WeekStatsDetailActivity"
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"

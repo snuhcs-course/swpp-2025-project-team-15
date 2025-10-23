@@ -1,5 +1,6 @@
 package com.example.sumdays.statistics
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -98,7 +99,13 @@ class StatisticsMonthAdapter(private val monthList: List<MonthStatistics>) :
 
             // 블록 클릭 시 주간 요약 내용을 Toast 또는 Dialog로 표시
             blockView.setOnClickListener {
-                Toast.makeText(holder.itemView.context, "주간 요약: ${weekSummary.summary.title}", Toast.LENGTH_SHORT).show()
+                // ⭐ 주간 통계 상세 페이지로 이동
+                val intent = Intent(holder.itemView.context, WeekStatsDetailActivity::class.java)
+
+                // ⭐ WeekSummary 객체를 Intent에 Parcelable로 담아 전달
+                intent.putExtra("week_summary", weekSummary)
+
+                holder.itemView.context.startActivity(intent)
             }
 
             holder.treeStemLayout.addView(blockView)

@@ -16,7 +16,6 @@ class MonthViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val monthTitle: TextView = itemView.findViewById(R.id.month_title)
     val grapeIcon: ImageView = itemView.findViewById(R.id.grape_icon) // 월간 요약 포도
     val treeStemLayout: LinearLayout = itemView.findViewById(R.id.tree_stem_layout) // 주간 블록을 쌓을 레이아웃
-    val foxIcon: ImageView = itemView.findViewById(R.id.fox_icon)
     val grapeGlowBackground: ImageView = itemView.findViewById(R.id.grape_glow_background)
 
     // 이외에 배경 나무 이미지, 여우 등의 뷰가 XML에 정의되어 있어야 함
@@ -60,14 +59,6 @@ class StatisticsMonthAdapter(private val monthList: List<MonthStatistics>) :
             holder.grapeIcon.setOnClickListener {
                 Toast.makeText(holder.itemView.context, "주간 기록이 부족하여 월간 요약이 없습니다.", Toast.LENGTH_SHORT).show()
             }
-        }
-        // ⭐ 2-2. 여우 아이콘 가시성 설정 로직 추가 ⭐
-        if (position == 0) {
-            // position이 0일 때 (가장 최근 월일 때)만 여우를 표시합니다.
-            holder.foxIcon.visibility = View.VISIBLE
-        } else {
-            // 0이 아닐 때는 여우를 숨깁니다.
-            holder.foxIcon.visibility = View.GONE
         }
 
         // 3. 주간 요약 블록 (초록색 블록) 동적 생성 및 배치

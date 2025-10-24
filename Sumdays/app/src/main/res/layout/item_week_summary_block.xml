@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="120dp"
-    android:layout_height="60dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center"
-    android:background="#90EE90"  android:padding="8dp">
+    android:background="@drawable/tree_leaf"  android:padding="8dp">
 
     <TextView
         android:id="@+id/week_summary_text"

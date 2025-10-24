@@ -1,4 +1,4 @@
-package com.example.sumdays.daily.memo
+package com.example.sumdays.daily.diary
 
 import com.google.gson.annotations.SerializedName
 

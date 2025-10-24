@@ -11,6 +11,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import com.example.sumdays.daily.diary.DiaryRepository
+import com.example.sumdays.daily.diary.AnalysisRepository
+import com.example.sumdays.daily.diary.AnalysisResponse
 import android.util.Log
 class DailyReadActivity : AppCompatActivity() {
 
@@ -74,10 +76,13 @@ class DailyReadActivity : AppCompatActivity() {
 
     private fun updateUI() {
         binding.dateText.text = "< ${displayFormatter.format(currentDate.time)} >"
-        val got=repoKeyFormatter.format(currentDate.time)
-        val diary = DiaryRepository.getDiary(repoKeyFormatter.format(currentDate.time))
+        val date = repoKeyFormatter.format(currentDate.time)
+        val diary = DiaryRepository.getDiary(date)
+        val analysis = AnalysisRepository.getAnalysis(date)
+        val aiComment: String = analysis?.aiComment ?: ""
         binding.diaryContentEditText.setText(diary ?: "")
         binding.diaryContentTextView.setText(diary ?: "")
+        binding.commentText.setText(aiComment ?: "")
     }
 
     private fun toggleEditMode(isEditing: Boolean) {

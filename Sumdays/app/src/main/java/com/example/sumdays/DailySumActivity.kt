@@ -18,6 +18,7 @@ import com.example.sumdays.daily.memo.MemoMergeAdapter
 import java.time.LocalDate
 import com.example.sumdays.daily.diary.DiaryRepository
 import android.util.Log
+import com.example.sumdays.daily.diary.AnalysisRepository
 import kotlinx.coroutines.launch
 
 class DailySumActivity : AppCompatActivity() {
@@ -49,6 +50,7 @@ class DailySumActivity : AppCompatActivity() {
                 val mergedResult = memoMergeAdapter.skipMerge()
 
                 DiaryRepository.saveDiary(date, mergedResult)
+                AnalysisRepository.requestAnalysis(date)
                 moveToReadActivity()
             }
         }

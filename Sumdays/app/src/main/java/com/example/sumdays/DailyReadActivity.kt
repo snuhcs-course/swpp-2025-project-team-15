@@ -88,6 +88,8 @@ class DailyReadActivity : AppCompatActivity() {
         val keywords: List<String> = analysis?.analysis?.keywords ?: emptyList()
         val keywordsText = keywords.joinToString(", ")
         binding.keywords.setText("키워드: "+"$keywordsText")
+        val icon : String = analysis?.icon ?: "\uD83E\uDD14"
+        binding.commentIcon.setText("$icon")
     }
 
     private fun toggleEditMode(isEditing: Boolean) {

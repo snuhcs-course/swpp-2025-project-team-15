@@ -125,6 +125,30 @@ ConstraintLayout을 최상위 레이아웃으로 사용하며, 오류 해결을 
                 auto:layout_constraintStart_toEndOf="@+id/comment_icon"
                 auto:layout_constraintTop_toTopOf="@+id/comment_icon"
                 tools:text="저녁은 맛있게 드셨나요?" />
+            <!-- AI 평점 -->
+            <TextView
+                android:id="@+id/emotion_score"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text=""
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                auto:layout_constraintTop_toBottomOf="@+id/comment_text"
+                auto:layout_constraintStart_toStartOf="parent"
+                tools:text="감정 점수: unknown" />
+            <!-- 키워드 -->
+            <TextView
+                android:id="@+id/keywords"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text=""
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                auto:layout_constraintTop_toBottomOf="@+id/emotion_score"
+                auto:layout_constraintStart_toStartOf="parent"
+                tools:text="오늘의 키워드: ..." />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

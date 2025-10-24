@@ -83,6 +83,11 @@ class DailyReadActivity : AppCompatActivity() {
         binding.diaryContentEditText.setText(diary ?: "")
         binding.diaryContentTextView.setText(diary ?: "")
         binding.commentText.setText(aiComment ?: "")
+        val emotionScore: Double = analysis?.analysis?.emotionScore ?: 0.0
+        binding.emotionScore.setText("감정 점수: "+"$emotionScore")
+        val keywords: List<String> = analysis?.analysis?.keywords ?: emptyList()
+        val keywordsText = keywords.joinToString(", ")
+        binding.keywords.setText("키워드: "+"$keywordsText")
     }
 
     private fun toggleEditMode(isEditing: Boolean) {

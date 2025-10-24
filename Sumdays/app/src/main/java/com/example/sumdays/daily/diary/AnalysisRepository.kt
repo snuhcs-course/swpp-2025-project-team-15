@@ -1,9 +1,6 @@
 package com.example.sumdays.daily.diary
 
 import android.util.Log
-import com.example.sumdays.daily.memo.MergeRequest
-import com.example.sumdays.network.ApiService
-import com.example.sumdays.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.example.sumdays.network.ApiClient
@@ -20,13 +17,6 @@ object AnalysisRepository {
 
     //요청 후 캐시에 저장
     suspend fun requestAnalysis(date: String): AnalysisResponse? {
-        // 1. 캐시 확인
-        if (analysisCache.containsKey(date)) {
-            Log.d("AnalysisRepository", "캐시에서 '$date' 분석 결과 반환")
-            return analysisCache[date]
-        }
-
-        // 2. 캐시에 없으면 서버에 요청 (백그라운드 스레드에서 실행)
         return withContext(Dispatchers.IO) {
             try {
                 Log.d("AnalysisRepository", "서버에 '$date' 분석 결과 요청...")

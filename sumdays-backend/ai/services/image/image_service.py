@@ -59,6 +59,10 @@ class ImageService:
 
             Task:
             1. Detect the diary's date written in the text (e.g., "2025년 10월 25일").
+                - If a date-like expression is present, extract it and normalize it into the format "YYYY-MM-DD".
+                - If some parts of the date are missing:
+                    * replace unknown year/month/day with "X".
+                    * e.g., "10월 6일" → "XXXX-10-06", "2023년 5월" → "2023-05-XX"
             2. Remove irrelevant template sections entirely — do not leave placeholders or explanations.
             Examples of such sections:
             - "오늘 할 일", "내일 할 일", "쓰기 연습", checklists, teacher comments, titles, or prompts.

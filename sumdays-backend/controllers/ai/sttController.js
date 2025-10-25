@@ -5,6 +5,9 @@ const PYTHON_SERVER_URL = process.env.PYTHON_AI_URL;
 
 const sttController = {
     // Controller method for STT on a memo (Example: POST /api/ai/stt/memo)
+    /* POST http://localhost:3000/api/ai/stt/memo
+    POSTMAN form-data
+    */
     memo: async (req, res) => {
         try {
             if (!req.file) {

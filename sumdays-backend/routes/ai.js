@@ -17,7 +17,7 @@ router.post('/summarize-week', analyzeController.summarizeWeek); // summarize we
 router.post('/summarize-month', analyzeController.summarizeMonth); // summarize month
 
 router.post('/ocr/memo', upload.single('image'), ocrController.memo); // image memo to text
-router.post('/ocr/diary', ocrController.diary); // image diary to text(must extract date)
+router.post('/ocr/diary', upload.array('image'), ocrController.diary); // image diary to text(must extract date)
 router.post('/stt/memo', upload.single('audio'), sttController.memo);
 
 router.post('/extract-style', extractController.extractStyle); // extract diary style from image/db diaries

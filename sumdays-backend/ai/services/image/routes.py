@@ -30,7 +30,7 @@ def image_memo():
 def image_diary():
     """POST http://localhost:5001/image/diary
     multipart/form-data
-    - image: file
+    - image: multiple files
     """
     try:
         image_files = request.files.getlist("image")

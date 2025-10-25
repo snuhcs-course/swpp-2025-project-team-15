@@ -44,4 +44,6 @@
     <color name="brown">#795548</color>
     <color name="blue_gray">#607D8B</color>
 
+    <color name="colorPrimary">#6200EE</color>
+
 </resources>

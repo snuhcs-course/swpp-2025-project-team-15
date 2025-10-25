@@ -68,7 +68,7 @@ exports.getDailyEntry = async (req, res) => {
       diary: entry.diary,
       ai_comment: entry.ai_comment,
       memos: memos,
-      photos: photoDatas
+      photos: photoData
     };
 
     // include / exclude 필드 처리

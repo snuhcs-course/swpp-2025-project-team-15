@@ -9,13 +9,13 @@ const dailyRoutes = require('./db/daily');
 const memosRoutes = require('./db/memos');
 const photosRoutes = require('./db/photos');
 
-// 각각의 경로에 연결
+
 router.use('/auth', authRoutes);   // /api/auth/...
 router.use('/ai', aiRoutes);       // /api/ai/...
 
 router.use('/db', verifyToken);
 router.use('/db/daily', dailyRoutes);        
-router.use('/db/memos', memosRoutes);       
-router.use('/db/photos', photosRoutes);  
+router.use('/db/daily/memos', memosRoutes);       
+router.use('/db/daily/photos', photosRoutes);  
 
 module.exports = router;

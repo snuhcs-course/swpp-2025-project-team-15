@@ -11,6 +11,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import com.example.sumdays.daily.diary.DiaryRepository
+import com.example.sumdays.daily.diary.AnalysisRepository
+import com.example.sumdays.daily.diary.AnalysisResponse
 import android.util.Log
 class DailyReadActivity : AppCompatActivity() {
 
@@ -74,10 +76,20 @@ class DailyReadActivity : AppCompatActivity() {
 
     private fun updateUI() {
         binding.dateText.text = "< ${displayFormatter.format(currentDate.time)} >"
-        val got=repoKeyFormatter.format(currentDate.time)
-        val diary = DiaryRepository.getDiary(repoKeyFormatter.format(currentDate.time))
+        val date = repoKeyFormatter.format(currentDate.time)
+        val diary = DiaryRepository.getDiary(date)
+        val analysis = AnalysisRepository.getAnalysis(date)
+        val aiComment: String = analysis?.aiComment ?: ""
         binding.diaryContentEditText.setText(diary ?: "")
         binding.diaryContentTextView.setText(diary ?: "")
+        binding.commentText.setText(aiComment ?: "")
+        val emotionScore: Double = analysis?.analysis?.emotionScore ?: 0.0
+        binding.emotionScore.setText("감정 점수: "+"$emotionScore")
+        val keywords: List<String> = analysis?.analysis?.keywords ?: emptyList()
+        val keywordsText = keywords.joinToString(", ")
+        binding.keywords.setText("키워드: "+"$keywordsText")
+        val icon : String = analysis?.icon ?: "\uD83E\uDD14"
+        binding.commentIcon.setText("$icon")
     }
 
     private fun toggleEditMode(isEditing: Boolean) {

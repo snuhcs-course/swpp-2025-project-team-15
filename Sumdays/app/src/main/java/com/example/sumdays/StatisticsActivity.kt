@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.widget.ImageButton
+import androidx.viewpager2.widget.ViewPager2
 import com.example.sumdays.statistics.EmotionAnalysis
 import com.example.sumdays.statistics.Highlight
 import com.example.sumdays.statistics.Insights
@@ -22,7 +23,8 @@ import java.time.LocalDate
 
 class StatisticsActivity : AppCompatActivity() {
 
-    private lateinit var monthRecyclerView: RecyclerView
+    private lateinit var monthViewPager: ViewPager2
+    private lateinit var statisticsAdapter: StatisticsMonthAdapter
 
     // ⭐ 더미 데이터 생성 함수
     private fun createDummyData(): List<MonthStatistics> {
@@ -240,16 +242,13 @@ class StatisticsActivity : AppCompatActivity() {
         setupNavigationBar()
     }
     private fun setupStatisticsRecyclerView() {
-        monthRecyclerView = findViewById(R.id.month_statistics_recycler_view)
+        // 1. ViewPager2 참조
+        monthViewPager = findViewById(R.id.month_statistics_recycler_view)
 
-        // 1. 수평 LayoutManager를 코드로 설정
-        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        monthRecyclerView.layoutManager = layoutManager
-
-        // ⭐ 더미 데이터를 어댑터에 넘겨 초기화
+        // 2. 어댑터 연결
         val dummyData = createDummyData()
-        val adapter = StatisticsMonthAdapter(dummyData)
-        monthRecyclerView.adapter = adapter
+        statisticsAdapter = StatisticsMonthAdapter(dummyData)
+        monthViewPager.adapter = statisticsAdapter
     }
     // ⭐ 하단 네비게이션 바의 버튼들 클릭 이벤트 처리 함수 추가
     @RequiresApi(Build.VERSION_CODES.O)

@@ -6,13 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".StatisticsActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/month_statistics_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:clipChildren="false"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/navigation_bar" />
 

@@ -25,7 +25,7 @@ class DiaryAnalyzer:
         if not diary.strip():
             raise ValueError("Diary text is required.")
         else: 
-            promt_text = """
+            prompt_text = """
             You are helping an app service that analyzes the diary. 
             Here is the user daily diary. Please analyze this to create the following information:
 
@@ -39,7 +39,7 @@ class DiaryAnalyzer:
             Make diaryAnalysis for diary: {diary}
             """
 
-            prompt = PromptTemplate.from_template(promt_text)
+            prompt = PromptTemplate.from_template(prompt_text)
             llm = self.model.with_structured_output(DiaryAnalysisResult)
 
             chain = prompt | llm

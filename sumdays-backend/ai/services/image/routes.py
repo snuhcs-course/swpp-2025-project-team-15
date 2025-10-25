@@ -28,4 +28,17 @@ def image_memo():
 
 @image_bp.route("/diary", methods=["POST"])
 def image_diary():
-    """TODO: image-diary 구현"""
+    """POST http://localhost:5001/image/diary
+    multipart/form-data
+    - image: file
+    """
+    try:
+        image_files = request.files.getlist("image")
+        if not image_files:
+            return jsonify({"error": "No image files uploaded."}), 400
+        
+        response = image_service.detect_texts_from_diaries(image_files)
+        
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400

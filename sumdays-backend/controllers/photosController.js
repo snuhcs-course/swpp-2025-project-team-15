@@ -1,23 +1,50 @@
 const db = require('../db/db');
+const fs = require("fs");
+const path = require("path");
 
 /* -------------------------------------------------------------------------- */
 /*  1️⃣ POST /api/db/photos/:date/photos — 사진 생성                            */
 /* -------------------------------------------------------------------------- */
 exports.createPhoto = async (req, res) => {
   const { date } = req.params;
-  const { base64Image, inner_id, order } = req.body;
+  const { base64Image, inner_id, photo_order } = req.body;
 
   try {
+    1. 사진 저장하고
+    2. DB에 경로 저장하고 
+
+
+    // 1. daily_entry_id 
     const [entries] = await db.query('SELECT id FROM daily_entries WHERE entry_date = ?', [date]);
     if (entries.length === 0) {
       return res.status(404).json({ message: 'Daily entry not found' });
     }
-
     const daily_entry_id = entries[0].id;
 
+
+    // 2. store server - data 
+    const uploadDir = path.join(process.cwd(), "uploads", user_id.toString(), date);
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+    const matches = base64Image.match(/^data:(.+);base64,(.+)$/);
+    if (!matches) return res.status(400).json({ error: "Invalid base64 format" });
+
+    const mimeType = matches[1];
+    const imageData = matches[2];
+    const extension = mimeType.split("/")[1];
+    const filePath = path.join(uploadDir, `${inner_id}.${extension}`);
+
+    fs.writeFileSync(filePath, Buffer.from(imageData, "base64"));
+
+
+
+
+
+    s
+    // 3. store db - path 
     await db.query(
-      'INSERT INTO photos (daily_entry_id, inner_id, `order`, base64Image, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())',
-      [daily_entry_id, inner_id, order, base64Image]
+      'INSERT INTO photos (daily_entry_id, inner_id, memo_order, extension) VALUES (?, ?, ?, ?)',
+      [daily_entry_id, inner_id, photo_order, extension]
     );
 
     res.status(201).json({ message: 'Photo created successfully' });

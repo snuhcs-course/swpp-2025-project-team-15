@@ -1,18 +1,20 @@
 const db = require('../db/db');
 const path = require("path");
 const process = require("process");
+const fs = require("fs");
 /* -------------------------------------------------------------------------- */
 /*  GET /api/db/daily/:date (Total / include / exclude) */
 /* -------------------------------------------------------------------------- */
 exports.getDailyEntry = async (req, res) => {
   const { date } = req.params;
   const { include, exclude } = req.query;
+  const userId = req.user.userId
 
   try {
     // 1. 기본 entries 
     const [entries] = await db.query(
-      'SELECT * FROM daily_entries WHERE entry_date = ?',
-      [date]
+      'SELECT * FROM daily_entries WHERE user_id = ? AND entry_date = ?',
+      [userId,date]
     );
 
     if (entries.length === 0) {
@@ -66,7 +68,7 @@ exports.getDailyEntry = async (req, res) => {
       diary: entry.diary,
       ai_comment: entry.ai_comment,
       memos: memos,
-      photos: photos
+      photos: photoDatas
     };
 
     // include / exclude 필드 처리
@@ -96,19 +98,20 @@ exports.getDailyEntry = async (req, res) => {
 /* -------------------------------------------------------------------------- */
 exports.createDailyEntry = async (req, res) => {
   const { date } = req.body;
+  const userId = req.user.userId
 
   try {
     const [exists] = await db.query(
-      'SELECT id FROM daily_entries WHERE entry_date = ?',
-      [date]
+      'SELECT id FROM daily_entries WHERE user_id = ? AND entry_date = ?',
+      [userId, date]
     );
     if (exists.length > 0) {
       return res.status(409).json({ message: 'Entry already exists for this date' });
     }
 
     await db.query(
-      'INSERT INTO daily_entries (entry_date) VALUES (?)',
-      [date]
+      'INSERT INTO daily_entries (user_id, entry_date) VALUES (?, ?)',
+      [userId, date]
     );
 
     res.status(201).json({ message: 'Daily entry created successfully' });
@@ -125,12 +128,13 @@ exports.createDailyEntry = async (req, res) => {
 exports.updateDailyEntry = async (req, res) => {
   const { date } = req.params;
   const { icon_name, diary, ai_comment } = req.body;
+  const userId = req.user.userId
 
   try {
     // 1. find dailyEntry
     const [entries] = await db.query(
-      'SELECT id FROM daily_entries WHERE entry_date = ?',
-      [date]
+      'SELECT id FROM daily_entries WHERE user_id = ? AND entry_date = ?',
+      [userId, date]
     );
     if (entries.length === 0) {
       return res.status(404).json({ message: 'Daily entry not found' });
@@ -157,8 +161,8 @@ exports.updateDailyEntry = async (req, res) => {
       return res.status(400).json({ message: 'No valid fields provided for update' });
     }
 
-    values.push(date);
-    const sql = `UPDATE daily_entries SET ${updates.join(', ')} WHERE entry_date = ?`;
+    values.push(userId, date);
+    const sql = `UPDATE daily_entries SET ${updates.join(', ')} WHERE user_id = ? AND entry_date = ?`;
     await db.query(sql, values);
 
     res.status(200).json({ message: 'Daily entry updated successfully' });
@@ -174,9 +178,10 @@ exports.updateDailyEntry = async (req, res) => {
 /* -------------------------------------------------------------------------- */
 exports.deleteDailyEntry = async (req, res) => {
   const { date } = req.params;
-
+  const userId = req.user.userId 
+  
   try {
-    await db.query('DELETE FROM daily_entries WHERE entry_date = ?', [date]);
+    await db.query('DELETE FROM daily_entries WHERE user_id = ? AND entry_date = ?', [userId,date]);
 
     res.status(200).json({ message: 'Daily entry deleted successfully' });
   } catch (error) {

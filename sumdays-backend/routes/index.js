@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const verifyToken = require('../middlewares/authMiddleware');
 
 // 세부 라우터 import
 const authRoutes = require('./auth');
@@ -11,6 +12,8 @@ const photosRoutes = require('./db/photos');
 // 각각의 경로에 연결
 router.use('/auth', authRoutes);   // /api/auth/...
 router.use('/ai', aiRoutes);       // /api/ai/...
+
+router.use('/db', verifyToken);
 router.use('/db/daily', dailyRoutes);        
 router.use('/db/memos', memosRoutes);       
 router.use('/db/photos', photosRoutes);  

@@ -1,13 +1,15 @@
 const db = require('../db/db');
-
+const path = require("path");
+const process = require("process");
 /* -------------------------------------------------------------------------- */
-/*  1️⃣ GET /api/db/daily/:date — 일기 조회 (전체 / include / exclude 지원)   */
+/*  GET /api/db/daily/:date (Total / include / exclude) */
 /* -------------------------------------------------------------------------- */
 exports.getDailyEntry = async (req, res) => {
   const { date } = req.params;
   const { include, exclude } = req.query;
 
   try {
+    // 1. 기본 entries 
     const [entries] = await db.query(
       'SELECT * FROM daily_entries WHERE entry_date = ?',
       [date]
@@ -16,26 +18,55 @@ exports.getDailyEntry = async (req, res) => {
     if (entries.length === 0) {
       return res.status(404).json({ message: 'Daily entry not found' });
     }
-
     const entry = entries[0];
 
-    const [memos] = await db.query(
-      'SELECT inner_id, `order`, content, memo_time FROM memos WHERE daily_entry_id = ? ORDER BY `order` ASC',
-      [entry.id]
-    );
 
-    const [photos] = await db.query(
-      'SELECT inner_id, `order`, base64Image FROM photos WHERE daily_entry_id = ? ORDER BY `order` ASC',
+    // 2. Memos + Photos
+    const [memos] = await db.query(
+      'SELECT inner_id, memo_order, content, memo_time FROM memos WHERE daily_entry_id = ? ORDER BY memo_order ASC',
       [entry.id]
     );
+    const [photos] = await db.query(
+      'SELECT inner_id, photo_order, extension FROM photos WHERE daily_entry_id = ? ORDER BY photo_order ASC',
+      [entry.id]
+    )
+    const photoData = photos.map((photo) => {    
+      const filePath = path.join(
+        process.cwd(),
+        "uploads",
+        entry.user_id.toString(),
+        entry.entry_date,
+        `${photo.inner_id}.${photo.extension}`
+      );
+
+      // 존재 x => null
+      if (!fs.existsSync(filePath)) {
+        return {
+          inner_id: photo.inner_id,
+          order: photo.photo_order,
+          base64: null
+        };
+      }
+
+      // 파일을 base64로 변환
+      const imageBuffer = fs.readFileSync(filePath);
+      const base64String = imageBuffer.toString("base64");
+      // 변환된 데이터 반환
+      return {
+        inner_id: photo.inner_id,
+        order: photo.photo_order,
+        base64: `data:image/${photo.extension};base64,${base64String}`
+      };
+    });
+
 
     let data = {
       date: entry.entry_date,
-      icon_name: entry.icon_name || "",
-      diary: entry.diary || "",
-      ai_comment: entry.ai_comment || "",
-      memos: memos || [],
-      photos: photos || []
+      icon_name: entry.icon_name,
+      diary: entry.diary,
+      ai_comment: entry.ai_comment,
+      memos: memos,
+      photos: photos
     };
 
     // include / exclude 필드 처리
@@ -61,7 +92,7 @@ exports.getDailyEntry = async (req, res) => {
 
 
 /* -------------------------------------------------------------------------- */
-/*  2️⃣ POST /api/db/daily — 새 일기 생성                                      */
+/*  POST /api/db/daily — new daily entry */                                     
 /* -------------------------------------------------------------------------- */
 exports.createDailyEntry = async (req, res) => {
   const { date } = req.body;
@@ -76,7 +107,7 @@ exports.createDailyEntry = async (req, res) => {
     }
 
     await db.query(
-      'INSERT INTO daily_entries (entry_date, created_at, updated_at) VALUES (?, NOW(), NOW())',
+      'INSERT INTO daily_entries (entry_date) VALUES (?)',
       [date]
     );
 
@@ -96,6 +127,7 @@ exports.updateDailyEntry = async (req, res) => {
   const { icon_name, diary, ai_comment } = req.body;
 
   try {
+    // 1. find dailyEntry
     const [entries] = await db.query(
       'SELECT id FROM daily_entries WHERE entry_date = ?',
       [date]
@@ -104,6 +136,7 @@ exports.updateDailyEntry = async (req, res) => {
       return res.status(404).json({ message: 'Daily entry not found' });
     }
 
+    // 2. make query (icon_name, diary, ai_comment)
     const updates = [];
     const values = [];
 
@@ -125,7 +158,7 @@ exports.updateDailyEntry = async (req, res) => {
     }
 
     values.push(date);
-    const sql = `UPDATE daily_entries SET ${updates.join(', ')}, updated_at = NOW() WHERE entry_date = ?`;
+    const sql = `UPDATE daily_entries SET ${updates.join(', ')} WHERE entry_date = ?`;
     await db.query(sql, values);
 
     res.status(200).json({ message: 'Daily entry updated successfully' });
@@ -143,19 +176,7 @@ exports.deleteDailyEntry = async (req, res) => {
   const { date } = req.params;
 
   try {
-    const [entries] = await db.query(
-      'SELECT id FROM daily_entries WHERE entry_date = ?',
-      [date]
-    );
-    if (entries.length === 0) {
-      return res.status(404).json({ message: 'Daily entry not found' });
-    }
-
-    const entryId = entries[0].id;
-
-    await db.query('DELETE FROM memos WHERE daily_entry_id = ?', [entryId]);
-    await db.query('DELETE FROM photos WHERE daily_entry_id = ?', [entryId]);
-    await db.query('DELETE FROM daily_entries WHERE id = ?', [entryId]);
+    await db.query('DELETE FROM daily_entries WHERE entry_date = ?', [date]);
 
     res.status(200).json({ message: 'Daily entry deleted successfully' });
   } catch (error) {

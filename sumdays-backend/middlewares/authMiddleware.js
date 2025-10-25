@@ -1,9 +1,11 @@
 // middlewares/authMiddleware.js
-const jwt = require('jsonwebtoken');
-const db = require('../db/db'); 
-const JWT_SECRET = process.env.JWT_SECRET || 'Sumdays_Project_Super_Secret_Key_!@#$%^&*()';
 
 module.exports = async function verifyToken(req, res, next) {
+  const jwt = require('jsonwebtoken');
+  const db = require('../db/db'); 
+  const JWT_SECRET = process.env.JWT_SECRET || 'Sumdays_Project_Super_Secret_Key_!@#$%^&*()';
+
+
   const authHeader = req.headers['authorization'];
 
   // 헤더가 없으면 401

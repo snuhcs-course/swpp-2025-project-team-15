@@ -8,6 +8,7 @@ const port = 3000; // 안드로이드 앱의 RetrofitClient와 동일한 포트 
 // 3. Middlewares 설정
 // express.json()은 들어오는 요청의 본문(body)을 JSON으로 파싱해줍니다.
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // 4. API 라우트(Route) 정의
 const routes = require('./routes');
@@ -19,3 +20,4 @@ app.listen(port, () => {
     console.log(`Sumdays 백엔드 서버가 포트 ${port}번에서 실행 중입니다.`);
     console.log('안드로이드 앱의 요청을 기다리고 있습니다...');
 });
+

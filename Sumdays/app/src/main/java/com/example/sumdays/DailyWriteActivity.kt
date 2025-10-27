@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.sumdays.daily.memo.MemoDragAndDropCallback
 import android.view.View
 import com.example.sumdays.audio.AudioRecorderHelper
+import com.example.sumdays.image.ImageOcrHelper
 import android.util.Log
 import androidx.core.content.ContextCompat
 
@@ -49,9 +50,11 @@ class DailyWriteActivity : AppCompatActivity() {
     private lateinit var sendIcon: ImageView
 
     private lateinit var micIcon: ImageView
+    private lateinit var photoIcon: ImageView
 
     //  AudioRecorderHelper 인스턴스 생성 (lazy 초기화)
     private lateinit var audioRecorderHelper: AudioRecorderHelper
+    private lateinit var imageOcrHelper: ImageOcrHelper
     private lateinit var readDiaryButton: Button
 
     // ViewModel 초기화 (앱의 싱글톤 저장소를 사용)
@@ -97,7 +100,6 @@ class DailyWriteActivity : AppCompatActivity() {
                         memoInputEditText.append("[오디오 파일: $filePath] \n")
                     }
                 }
-                // sendAudioToAI(filePath, transcribedText)
             },
             onRecordingFailed = { errorMessage ->
                 runOnUiThread {
@@ -115,6 +117,7 @@ class DailyWriteActivity : AppCompatActivity() {
                 }
             }
         )
+        imageOcrHelper =createImageOcrHelper()
 
         // 모든 뷰 초기화
         initViews()
@@ -128,7 +131,31 @@ class DailyWriteActivity : AppCompatActivity() {
         // 하단 네비게이션 바 설정
         setupNavigationBar()
     }
-
+    /**
+     * ImageOcrHelper 인스턴스를 생성하고 콜백을 정의하는 함수
+     */
+    private fun createImageOcrHelper(): ImageOcrHelper {
+        return ImageOcrHelper(
+            activity = this,
+            onOcrSuccess = { extractedText ->
+                runOnUiThread {
+                    // Activity의 함수를 직접 호출하여 메모 추가
+                    memoInputEditText.append(extractedText)
+                    Toast.makeText(this, "텍스트 추출 성공!", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onOcrFailed = { errorMessage ->
+                runOnUiThread {
+                    Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+                }
+            },
+            onImageSelected = { uri ->
+                runOnUiThread {
+                    Toast.makeText(this, "이미지 분석 중...", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
     // 액티비티가 재사용될 때 새로운 인텐트 처리
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onNewIntent(intent: Intent) {
@@ -144,8 +171,8 @@ class DailyWriteActivity : AppCompatActivity() {
         memoInputEditText = findViewById(R.id.memo_input_edittext)
         sendIcon = findViewById(R.id.send_icon)
         micIcon = findViewById(R.id.mic_icon)
+        photoIcon = findViewById(R.id.photo_icon)
         readDiaryButton = findViewById(R.id.read_diary_button)
-
         memoListView.layoutManager = LinearLayoutManager(this)
         memoAdapter = MemoAdapter()
         memoListView.adapter = memoAdapter
@@ -263,6 +290,10 @@ class DailyWriteActivity : AppCompatActivity() {
             // 버튼 클릭 시 Helper의 함수 호출
             audioRecorderHelper.checkPermissionAndToggleRecording()
         }
+        photoIcon.setOnClickListener {
+            // ImageOcrHelper의 이미지 선택 함수 호출
+            imageOcrHelper.selectImage()
+        }
     }
 
     // 하단 네비게이션 바의 버튼들 클릭 이벤트를 처리
@@ -305,15 +336,6 @@ class DailyWriteActivity : AppCompatActivity() {
 
         btnInfo.setOnClickListener {
             Toast.makeText(this, "정보 화면 예정", Toast.LENGTH_SHORT).show()
-        }
-    }
-    private fun sendAudioToAI(filePath: String) {
-        Log.d("DailyWriteActivity", "AI로 전송할 WAV 파일 경로: $filePath")
-        // TODO: Retrofit 등을 사용하여 이 filePath의 파일을 AI 서버로 전송(업로드)하는 로직 구현
-
-        // 지금은 임시로 EditText에 파일 경로를 표시합니다.
-        runOnUiThread { // UI 스레드에서 EditText 업데이트
-            memoInputEditText.append("[오디오 파일: $filePath] \n")
         }
     }
 

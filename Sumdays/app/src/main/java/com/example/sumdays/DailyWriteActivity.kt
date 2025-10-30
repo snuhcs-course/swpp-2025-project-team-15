@@ -292,8 +292,32 @@ class DailyWriteActivity : AppCompatActivity() {
         }
         photoIcon.setOnClickListener {
             // ImageOcrHelper의 이미지 선택 함수 호출
-            imageOcrHelper.selectImage()
+            showImageAnalysisOptions()
         }
+    }
+
+    private fun showImageAnalysisOptions() {
+        val options = arrayOf("사진에서 글자 추출하기 (Extract)", "사진 내용으로 글 생성하기 (Describe)")
+
+        AlertDialog.Builder(this)
+            .setTitle("사진으로 무엇을 할까요?")
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> {
+                        // "글자 추출" 선택 -> type: "extract"
+                        imageOcrHelper.selectImage("extract")
+                    }
+                    1 -> {
+                        // "글 생성" 선택 -> type: "describe"
+                        imageOcrHelper.selectImage("describe")
+                    }
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("취소") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     // 하단 네비게이션 바의 버튼들 클릭 이벤트를 처리

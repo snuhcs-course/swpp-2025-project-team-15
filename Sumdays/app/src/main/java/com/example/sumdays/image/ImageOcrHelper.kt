@@ -27,6 +27,7 @@ class ImageOcrHelper(
     private val onOcrFailed: (errorMessage: String) -> Unit,
     private val onImageSelected: (uri: Uri) -> Unit = {} // 이미지 선택 시 호출 (선택적)
 ) {
+    private var analysisType: String = "extract" // 기본값
     // --- 이미지 선택 런처 ---
     // ActivityResultLauncher는 Activity/Fragment 내에서 초기화되어야 하므로,
     // Activity로부터 registerForActivityResult 결과를 받아옵니다.
@@ -45,7 +46,8 @@ class ImageOcrHelper(
     /**
      * 이미지 선택기를 실행합니다. Activity의 버튼 클릭 리스너에서 호출됩니다.
      */
-    fun selectImage() {
+    fun selectImage(type: String) {
+        this.analysisType = type
         // 이미지 타입만 선택하도록 제한
         pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
@@ -65,7 +67,7 @@ class ImageOcrHelper(
                     "upload_image.${getImageExtension(imageUri, contentResolver)}",
                     requestBody
                 )
-                val typeValue = "describe" // 또는 "describe" 등 API 요구사항에 맞게 설정
+                val typeValue = analysisType // 또는 "describe" 등 API 요구사항에 맞게 설정
 // 문자열을 RequestBody로 변환 (미디어 타입은 "text/plain")
                 val typePart = typeValue.toRequestBody("text/plain".toMediaTypeOrNull())
                 // API 호출

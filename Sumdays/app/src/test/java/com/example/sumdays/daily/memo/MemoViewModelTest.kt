@@ -1,9 +1,7 @@
 package com.example.sumdays.daily.memo
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
-import com.example.sumdays.statistics.EmotionAnalysis
-import com.example.sumdays.statistics.Insights
-import com.example.sumdays.statistics.SummaryDetails
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -12,12 +10,13 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
+import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
-import org.mockito.kotlin.*
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule // ⭐ 임포트 추가
-import org.junit.Rule // ⭐ Rule 임포트 추가
-import org.junit.Assert.*
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @ExperimentalCoroutinesApi
 class MemoViewModelTest {
@@ -73,8 +72,8 @@ class MemoViewModelTest {
 
         testDispatcher.scheduler.advanceUntilIdle() // 비동기 작업 완료 대기
 
-        assertNotNull(result)
-        assertEquals(1, result?.size)
+        Assert.assertNotNull(result)
+        Assert.assertEquals(1, result?.size)
 
         liveData.removeObserver(observer)
     }

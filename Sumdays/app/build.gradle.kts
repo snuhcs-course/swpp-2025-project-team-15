@@ -15,7 +15,7 @@ android {
             isReturnDefaultValues = true
         }
         unitTests.all {
-            it.jvmArgs("-noverify")
+            it.jvmArgs("-noverify", "-Xmx2048m")
         }
     }
     defaultConfig {

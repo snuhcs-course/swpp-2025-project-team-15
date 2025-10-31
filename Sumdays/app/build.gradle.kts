@@ -6,6 +6,12 @@ plugins {
     id("kotlin-parcelize")
 }
 
+configurations.all {
+    exclude(group = "org.junit.jupiter")
+    exclude(group = "org.junit.platform")
+}
+
+
 android {
     namespace = "com.example.sumdays"
     compileSdk = 36
@@ -55,16 +61,39 @@ android {
 }
 
 dependencies {
+    // ---- unit test (JVM) ----
     testImplementation("junit:junit:4.13.2")
-    testImplementation("androidx.test.ext:junit:1.1.5")
     testImplementation("org.robolectric:robolectric:4.12.2")
     testImplementation("androidx.test:core:1.5.0")
     testImplementation("io.mockk:mockk:1.13.12")
-    testImplementation("io.mockk:mockk-agent:1.13.11")  // final 클래스 목킹용
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") // 코루틴 테스트용
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+    // ---- instrumented test (Espresso) ----
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test:rules:1.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.6.1")
+    androidTestImplementation("io.mockk:mockk-android:1.13.12")
+
+    // ---- app ----
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
-    testImplementation("com.google.code.gson:gson:2.9.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.security:security-crypto:1.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+    implementation("com.jakewharton.threetenabp:threetenabp:1.1.1")
+
+    // Room
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+
+    // Compose (네가 쓰는 버전카탈로그 유지)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -74,37 +103,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.text)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.security:security-crypto:1.0.0")
-    // Retrofit: 네트워크 통신 라이브러리
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    // Gson Converter: JSON을 Kotlin 데이터 클래스로 변환
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    // OkHttp Logging Interceptor (선택사항): 통신 로그를 확인하여 디버깅에 유용
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
-    // SDK 26 미만에서 java time과 같은 날짜 및 시간 클래스를 사용할 수 있도록 해줌
-    implementation("com.jakewharton.threetenabp:threetenabp:1.1.1")
-    // 코루틴 사용할 수 있게 해줌
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-    // Room 관련 의존성 추가
-    val roomVersion = "2.6.1" // Room의 최신 안정화 버전으로 교체
-    // Room 라이브러리
-    implementation("androidx.room:room-runtime:$roomVersion")
-    // Kotlin용 Kapt 어노테이션 프로세서
-    kapt("androidx.room:room-compiler:$roomVersion")
-    // 선택 사항: 코루틴 지원
-    implementation("androidx.room:room-ktx:$roomVersion")
-    // ViewModel 확장 함수 by viewModels() 사용을 위한 의존성
-    implementation("androidx.activity:activity-ktx:1.8.0")
-    // LiveData와 Flow를 LiveData로 변환하는 asLiveData()를 위한 의존성
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
-    // ⭐ MPAndroidChart 의존성 추가
+
+    // Charts
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

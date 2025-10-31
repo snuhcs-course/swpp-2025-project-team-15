@@ -8,6 +8,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.Multipart
 import retrofit2.http.Part
+import okhttp3.RequestBody
 
 interface ApiService {
     @POST("/api/ai/merge/")
@@ -18,6 +19,13 @@ interface ApiService {
         // 'audio'는 서버에서 파일을 받을 때 사용할 필드 이름
         @Part audio: MultipartBody.Part
     ): Call<STTResponse>
+    @Multipart
+    @POST("api/ai/ocr/memo")
+    fun extractTextFromImage(
+        @Part image: MultipartBody.Part,
+        // ★★★ 'type' 필드 추가 (RequestBody 형태) ★★★
+        @Part("type") type: RequestBody
+    ): Call<OcrResponse>
     @POST("/api/ai/analyze/")
     suspend fun diaryAnalyze(@Body req: AnalysisRequest): retrofit2.Response<com.google.gson.JsonObject>
 }

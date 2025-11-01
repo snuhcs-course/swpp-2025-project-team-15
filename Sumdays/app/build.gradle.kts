@@ -55,6 +55,8 @@ android {
 }
 
 dependencies {
+    testImplementation("org.mockito:mockito-inline:5.2.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.test.ext:junit:1.1.5")
     testImplementation("org.robolectric:robolectric:4.12.2")
@@ -62,6 +64,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("io.mockk:mockk-agent:1.13.11")  // final 클래스 목킹용
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") // 코루틴 테스트용
+    testImplementation("org.jetbrains.kotlin:kotlin-test:2.0.21")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
     testImplementation("com.google.code.gson:gson:2.9.0")
@@ -77,6 +80,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.6.1")
+
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
@@ -118,4 +125,10 @@ dependencies {
     // ⭐ 3. AndroidX 아키텍처 컴포넌트 테스트 (LiveData 테스트를 위해 필수)
     // InstantTaskExecutorRule과 같은 유틸리티 포함
     testImplementation("androidx.arch.core:core-testing:2.2.0")
+}
+}
+
+configurations.all {
+    exclude(group = "org.junit.jupiter")
+    exclude(group = "org.junit.platform")
 }

@@ -15,7 +15,7 @@ android {
             isReturnDefaultValues = true
         }
         unitTests.all {
-            it.jvmArgs("-noverify")
+            it.jvmArgs("-noverify", "-Xmx2048m")
         }
     }
     defaultConfig {
@@ -114,6 +114,17 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
     // ⭐ MPAndroidChart 의존성 추가
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    // ⭐ 1. Mockito 코루틴 지원 라이브러리 (필수)
+    // Kotlin에서 Mockito를 더 쉽게 사용하기 위한 확장 라이브러리
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1") // 최신 버전 사용 권장
+
+    // ⭐ 2. 코루틴 테스트 유틸리티 (필수)
+    // Dispatchers.setMain, runTest, TestCoroutineScheduler 등을 사용하기 위함
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1") // Coroutine 버전과 일치
+
+    // ⭐ 3. AndroidX 아키텍처 컴포넌트 테스트 (LiveData 테스트를 위해 필수)
+    // InstantTaskExecutorRule과 같은 유틸리티 포함
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
 }
 
 configurations.all {

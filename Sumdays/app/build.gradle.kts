@@ -126,7 +126,6 @@ dependencies {
     // InstantTaskExecutorRule과 같은 유틸리티 포함
     testImplementation("androidx.arch.core:core-testing:2.2.0")
 }
-}
 
 configurations.all {
     exclude(group = "org.junit.jupiter")

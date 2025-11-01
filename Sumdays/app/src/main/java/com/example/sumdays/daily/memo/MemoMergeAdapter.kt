@@ -21,10 +21,11 @@ import com.google.gson.JsonObject
 
 class MemoMergeAdapter(
     private val memoList: MutableList<Memo>,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    private val useStableIds: Boolean = true
 ) : RecyclerView.Adapter<MemoMergeAdapter.VH>() {
 
-    private data class MergeRecord(
+    data class MergeRecord(
         val fromIndexBefore: Int,
         val toIndexBefore: Int,
         val fromMemo: Memo,
@@ -40,6 +41,12 @@ class MemoMergeAdapter(
 
     init {
         memoList.forEach { idToMergedIds[it.id] = mutableListOf<Int>(it.id) }
+    }
+
+    init {
+        if (useStableIds) {
+            try { setHasStableIds(true) } catch (_: Throwable) { /* 테스트 환경에서는 NPE 방지 */ }
+        }
     }
 
     /**

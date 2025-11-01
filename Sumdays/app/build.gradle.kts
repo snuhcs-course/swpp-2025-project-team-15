@@ -64,6 +64,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("io.mockk:mockk-agent:1.13.11")  // final 클래스 목킹용
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") // 코루틴 테스트용
+    testImplementation("org.jetbrains.kotlin:kotlin-test:2.0.21")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
     testImplementation("com.google.code.gson:gson:2.9.0")

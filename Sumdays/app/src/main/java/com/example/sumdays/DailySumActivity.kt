@@ -36,12 +36,12 @@ class DailySumActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.date_text_view).text = date
 
-        findViewById<ImageView>(R.id.back_icon).setOnClickListener {
-            startActivity(Intent(this, DailyWriteActivity::class.java).putExtra("date", date))
-            finish()
-        }
+//        findViewById<ImageView>(R.id.back_icon).setOnClickListener {
+//            startActivity(Intent(this, DailyWriteActivity::class.java).putExtra("date", date))
+//            finish()
+//        }
 
-        findViewById<ImageButton>(R.id.undo_button).setOnClickListener {
+        findViewById<ImageView>(R.id.undo_icon).setOnClickListener {
             memoMergeAdapter.undoLastMerge()
         }
 

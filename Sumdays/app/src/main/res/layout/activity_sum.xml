@@ -7,6 +7,25 @@
     android:id="@+id/sum_layout"
     tools:context=".DailySumActivity">
 
+    <!-- ← 전체 배경 -->
+    <View
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#282d35" />
+
+    <ImageView
+        android:id="@+id/sumdays_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/sumdays_logo"
+        android:contentDescription="앱 로고"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:translationY="-100dp"/>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/header_layout"
         android:layout_width="match_parent"
@@ -20,11 +39,11 @@
         android:layout_marginBottom="16dp">
 
         <ImageView
-            android:id="@+id/back_icon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_back"
-            android:contentDescription="뒤로가기"
+            android:id="@+id/undo_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_undo"
+            android:contentDescription="undo"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -35,11 +54,11 @@
             android:layout_height="wrap_content"
             android:text="2025-10-02"
             android:textSize="18sp"
-            android:textColor="#000000"
+            android:textColor="#FFFFFF"
             android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/back_icon"
+            app:layout_constraintStart_toEndOf="@id/undo_icon"
             app:layout_constraintEnd_toStartOf="@id/skip_icon" />
 
         <ImageButton
@@ -67,7 +86,6 @@
         android:layout_marginEnd="32dp"
         android:layout_marginTop="16dp"
         android:padding="8dp"
-        android:background="@drawable/border_dark_grey"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     <View
@@ -101,14 +119,5 @@
         android:clipChildren="false"
         android:clipToPadding="false"
         android:padding="16dp" />
-
-    <ImageButton
-        android:id="@+id/undo_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_undo"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

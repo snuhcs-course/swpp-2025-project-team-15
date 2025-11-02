@@ -46,7 +46,7 @@ exports.createPhoto = async (req, res) => {
 
     res.status(201).json({ message: 'Photo created successfully' });
   } catch (error) {
-    console.error('❌ [createPhoto] Error:', error);
+    // console.error('❌ [createPhoto] Error:', error);
     res.status(500).json({ error: 'Database insert failed' });
   }
 };
@@ -72,7 +72,7 @@ exports.deletePhoto = async (req, res) => {
     res.status(200).json({ message: 'Photo deleted successfully' });
 
   } catch (error) {
-    console.error('❌ [deletePhoto] Error:', error);
+    // console.error('❌ [deletePhoto] Error:', error);
     res.status(500).json({ error: 'Database delete failed' });
   }
 };
@@ -99,7 +99,7 @@ exports.reorderPhotos = async (req, res) => {
     await Promise.all(updatePromises);
     res.status(200).json({ message: 'Photo order updated successfully' });
   } catch (error) {
-    console.error('❌ [reorderPhotos] Error:', error);
+    // console.error('❌ [reorderPhotos] Error:', error);
     res.status(500).json({ error: 'Database update failed' });
   }
 };

@@ -87,7 +87,7 @@ exports.getDailyEntry = async (req, res) => {
 
     res.status(200).json(data);
   } catch (error) {
-    console.error('❌ [getDailyEntry] Error:', error);
+    // console.error('❌ [getDailyEntry] Error:', error);
     res.status(500).json({ error: 'Database query failed' });
   }
 };
@@ -116,7 +116,7 @@ exports.createDailyEntry = async (req, res) => {
 
     res.status(201).json({ message: 'Daily entry created successfully' });
   } catch (error) {
-    console.error('❌ [createDailyEntry] Error:', error);
+    // console.error('❌ [createDailyEntry] Error:', error);
     res.status(500).json({ error: 'Database insert failed' });
   }
 };
@@ -167,7 +167,7 @@ exports.updateDailyEntry = async (req, res) => {
 
     res.status(200).json({ message: 'Daily entry updated successfully' });
   } catch (error) {
-    console.error('❌ [updateDailyEntry] Error:', error);
+    // console.error('❌ [updateDailyEntry] Error:', error);
     res.status(500).json({ error: 'Database update failed' });
   }
 };
@@ -185,7 +185,7 @@ exports.deleteDailyEntry = async (req, res) => {
 
     res.status(200).json({ message: 'Daily entry deleted successfully' });
   } catch (error) {
-    console.error('❌ [deleteDailyEntry] Error:', error);
+    // console.error('❌ [deleteDailyEntry] Error:', error);
     res.status(500).json({ error: 'Database delete failed' });
   }
 };

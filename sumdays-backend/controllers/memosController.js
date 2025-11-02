@@ -31,7 +31,7 @@ exports.createMemo = async (req, res) => {
 
     res.status(201).json({ message: 'memo created successfully' });
   } catch (error) {
-    console.error('❌ [creatememo] Error:', error);
+    // console.error('❌ [creatememo] Error:', error);
     res.status(500).json({ error: 'Database insert failed' });
   }
 };
@@ -75,7 +75,7 @@ exports.updateMemo = async (req, res) => {
 
     res.status(200).json({ message: 'Daily entry updated successfully' });
     } catch (error) {
-    console.error('❌ [updatememo] Error:', error);
+    // console.error('❌ [updatememo] Error:', error);
     res.status(500).json({ error: 'Database delete failed' });
   }
 };
@@ -96,7 +96,7 @@ exports.deleteMemo = async (req, res) => {
     await db.query('DELETE FROM memos WHERE daily_entry_id = ? AND inner_id = ?', [daily_entry_id, inner_id]);
     res.status(200).json({ message: 'Memo deleted successfully' });
   } catch (error) {
-    console.error('❌ [deletememo] Error:', error);
+    // console.error('❌ [deletememo] Error:', error);
     res.status(500).json({ error: 'Database delete failed' });
   }
 };
@@ -123,7 +123,7 @@ exports.reorderMemos = async (req, res) => {
     await Promise.all(updatePromises);
     res.status(200).json({ message: 'memo order updated successfully' });
   } catch (error) {
-    console.error('❌ [reordermemos] Error:', error);
+    // console.error('❌ [reordermemos] Error:', error);
     res.status(500).json({ error: 'Database update failed' });
   }
 };

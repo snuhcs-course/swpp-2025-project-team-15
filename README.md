@@ -30,3 +30,9 @@ After you finish writing the content for the day, pressing the 'sum' button will
 ### Features Implemented in Iteration 3
 
 Features implemented in Iteration 3:
+1. **skip feature**: You can skip the memo-merge process.
+2. **diary feedback**: You can receive feedback on your completed diary. You can get emotion scoring, diary summary, and advice from AI.
+3. **image to memo**: You can convert photos into memos.
+4. **voice to memo**: You can use voice input to create memos.
+5. **statistics**: You can view statistics about your written diaries. Weekly/monthly summaries are provided.
+6. **others**: UI, DB, etc.

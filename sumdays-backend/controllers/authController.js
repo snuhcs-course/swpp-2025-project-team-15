@@ -7,10 +7,9 @@ const jwt = require('jsonwebtoken');
 // =================================================================
 const JWT_SECRET = 'Sumdays_Project_Super_Secret_Key_!@#$%^&*()';
 
-const pool = require('../db/db');
+const db = require('../db/db');
 
 exports.login = async (req, res) => {
-    // 클라이언트가 보낸 email과 password를 요청 본문(body)에서 추출합니다.
     const { email, password } = req.body;
 
     console.log(`[로그인 시도] 이메일: ${email}`);
@@ -22,21 +21,13 @@ exports.login = async (req, res) => {
             message: '이메일과 비밀번호를 모두 입력해주세요.'
         });
     }
-
-    let connection;
+    
     try {
-        // 커넥션 풀에서 연결을 하나 가져옵니다.
-        connection = await pool.getConnection();
+        const sql = 'SELECT id, email, password_hash FROM users WHERE email = ?';
+        const [rows] = await db.query(sql, [email]);
+        const user = rows[0]; 
 
-        // ★★★★★★★★★★★ 실제 로그인 쿼리를 실행하는 부분 ★★★★★★★★★★★
-        // 1. DB에서 이메일로 사용자 정보 조회
-        // SQL Injection 공격을 방지하기 위해 `?`를 사용한 파라미터 바인딩은 필수입니다.
-        const sql = 'SELECT user_id, email, password_hash FROM users WHERE email = ?';
-        const [rows] = await connection.execute(sql, [email]);
-        // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-
-        const user = rows[0]; // 쿼리 결과는 배열이므로 첫 번째 요소를 가져옵니다.
-
+        // no exist 
         if (!user) {
             // 사용자가 존재하지 않는 경우
             console.log(`[로그인 실패] 존재하지 않는 이메일: ${email}`);
@@ -52,11 +43,11 @@ exports.login = async (req, res) => {
 
         if (isPasswordMatch) {
             // 비밀번호 일치 (로그인 성공)
-            console.log(`[로그인 성공] 사용자 ID: ${user.user_id}`);
+            console.log(`[로그인 성공] 사용자 ID: ${user.id}`);
 
             // JWT 페이로드(Payload) 생성
             const payload = {
-                userId: user.user_id,
+                userId: user.id,
                 email: user.email
             };
 
@@ -67,7 +58,7 @@ exports.login = async (req, res) => {
             res.status(200).json({
                 success: true,
                 message: '로그인 성공',
-                userId: user.user_id,
+                userId: user.id,
                 token: token
             });
 
@@ -86,11 +77,6 @@ exports.login = async (req, res) => {
             success: false,
             message: '서버 내부 오류가 발생했습니다.'
         });
-    } finally {
-        // 사용한 데이터베이스 연결을 반드시 풀에 반환해야 합니다.
-        if (connection) {
-            connection.release();
-        }
     }
 };
 
@@ -103,24 +89,20 @@ exports.signup = async (req, res) => {
     if (!nickname || !email || !password) {
         return res.status(400).json({ success: false, message: '모든 정보를 입력해주세요.' });
     }
-
-    let connection;
     try {
-        connection = await pool.getConnection();
-
-        // 2. 이메일 중복 확인
-        const [existingUsers] = await connection.execute('SELECT email FROM users WHERE email = ?', [email]);
+        // 1. 이메일 중복 확인
+        const [existingUsers] = await db.query('SELECT email FROM users WHERE email = ?', [email]);
         if (existingUsers.length > 0) {
             return res.status(409).json({ success: false, message: '이미 사용 중인 이메일입니다.' });
         }
 
-        // 3. 비밀번호 해시 생성
+        // 2. 비밀번호 해시 생성
         const saltRounds = 10; // 해시 복잡도
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // 4. 새로운 사용자 정보를 DB에 저장
+        // 3. 새로운 사용자 정보를 DB에 저장
         const sql = 'INSERT INTO users (nickname, email, password_hash) VALUES (?, ?, ?)';
-        await connection.execute(sql, [nickname, email, hashedPassword]);
+        await db.query(sql, [nickname, email, hashedPassword]);
 
         console.log(`[회원가입 성공] 이메일: ${email}`);
         res.status(201).json({ success: true, message: '회원가입이 성공적으로 완료되었습니다.' });
@@ -128,7 +110,5 @@ exports.signup = async (req, res) => {
     } catch (error) {
         console.error('[서버 오류] 회원가입 처리 중 에러 발생:', error);
         res.status(500).json({ success: false, message: '서버 내부 오류가 발생했습니다.' });
-    } finally {
-        if (connection) connection.release(); // 사용한 커넥션 반환
-    }
+    } 
 };

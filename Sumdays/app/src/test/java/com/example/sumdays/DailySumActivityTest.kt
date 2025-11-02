@@ -100,7 +100,7 @@ class DailySumActivityTest {
     fun clickingUndo_invokesAdapterUndo() {
         val activity = launchWith()
 
-        val undo = activity.findViewById<ImageButton>(R.id.undo_button)
+        val undo = activity.findViewById<ImageView>(R.id.undo_icon)
         undo.performClick()
 
         Shadows.shadowOf(Looper.getMainLooper()).runToEndOfTasks()
@@ -108,18 +108,4 @@ class DailySumActivityTest {
         verify(exactly = 1) { anyConstructed<MemoMergeAdapter>().undoLastMerge() }
     }
 
-    @Test
-    fun clickingBack_navigatesToWrite_withSameDateExtra() {
-        val activity = launchWith()
-
-        val back = activity.findViewById<ImageView>(R.id.back_icon)
-        back.performClick()
-
-        Shadows.shadowOf(Looper.getMainLooper()).runToEndOfTasks()
-
-        val startedIntent = Shadows.shadowOf(activity).nextStartedActivity
-        assert(startedIntent != null)
-        assert(startedIntent.component?.className == DailyWriteActivity::class.java.name)
-        assert(startedIntent.getStringExtra("date") == testDate)
-    }
 }

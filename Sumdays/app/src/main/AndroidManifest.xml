@@ -50,6 +50,24 @@
             android:name=".statistics.MonthStatsDetailActivity"
             android:exported="false" />
 
+        <!--  settings  -->
+        <activity android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity android:name=".settings.BackupSettingsActivity"
+            android:exported="false" />
+        <activity android:name=".settings.AccountSettingsActivity"
+            android:exported="false" />
+        <activity android:name=".settings.DiaryStyleSettingsActivity"
+            android:exported="false" />
+        <activity android:name=".settings.NotificationSettingsActivity"
+            android:exported="false" />
+        <activity android:name=".settings.ScreenLockSettingsActivity"
+            android:exported="false" />
+        <activity android:name=".settings.ThemeSettingsActivity"
+            android:exported="false" />
+        <!-- -->
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

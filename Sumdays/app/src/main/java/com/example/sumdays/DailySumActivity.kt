@@ -3,11 +3,9 @@ package com.example.sumdays
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -17,7 +15,6 @@ import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.daily.memo.MemoMergeAdapter
 import java.time.LocalDate
 import com.example.sumdays.daily.diary.DiaryRepository
-import android.util.Log
 import com.example.sumdays.daily.diary.AnalysisRepository
 import kotlinx.coroutines.launch
 
@@ -100,7 +97,8 @@ class DailySumActivity : AppCompatActivity() {
             startActivity(intent)
         }
         btnInfo.setOnClickListener {
-            Toast.makeText(this, "정보 화면 예정", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
         }
     }
 }

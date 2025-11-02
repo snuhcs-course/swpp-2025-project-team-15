@@ -19,7 +19,6 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
 import org.threeten.bp.format.DateTimeFormatter
 import com.jakewharton.threetenabp.AndroidThreeTen
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
 class CalendarActivity : AppCompatActivity() {
@@ -79,7 +78,8 @@ class CalendarActivity : AppCompatActivity() {
             startActivity(intent)
         }
         btnInfo.setOnClickListener {
-            android.widget.Toast.makeText(this, "정보 화면 예정", android.widget.Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
         }
     }
 

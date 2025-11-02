@@ -3,11 +3,8 @@ package com.example.sumdays
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.widget.ImageButton
 import androidx.viewpager2.widget.ViewPager2
 import com.example.sumdays.statistics.EmotionAnalysis
@@ -275,7 +272,8 @@ class StatisticsActivity : AppCompatActivity() {
 
         // Info 화면 (정보/설정)
         btnInfo.setOnClickListener {
-            Toast.makeText(this, "정보 화면 예정", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
         }
     }
 }

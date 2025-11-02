@@ -42,18 +42,6 @@ class DailySumActivityTest {
         ActivityScenario.launch<DailySumActivity>(intent)
     }
 
-//    @Test
-//    fun clickingBackIcon_navigatesToDailyWriteWithSameDate() {
-//        launchWith()
-//
-//        onView(withId(R.id.back_icon)).perform(click())
-//
-//        intended(allOf(
-//            hasComponent(DailyWriteActivity::class.java.name),
-//            hasExtra("date", testDate)
-//        ))
-//    }
-
     @Test
     fun clickingCalendarButton_navigatesToCalendarActivity() {
         launchWith()

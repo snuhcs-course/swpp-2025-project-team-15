@@ -1,14 +1,21 @@
 const express = require('express');
 const router = express.Router();
+const verifyToken = require('../middlewares/authMiddleware');
 
-// Import feature-specific routers
+// 세부 라우터 import
 const authRoutes = require('./auth');
-const diaryRoutes = require('./diary');
 const aiRoutes = require('./ai');
+const dailyRoutes = require('./db/daily');
+const memosRoutes = require('./db/memos');
+const photosRoutes = require('./db/photos');
 
-// Route all requests to their respective routers
-router.use('/auth', authRoutes);   // Endpoint: /api/auth/...
-// router.use('/diary', diaryRoutes); // Endpoint: /api/diary/...
-router.use('/ai', aiRoutes);       // Endpoint: /api/ai/...
+
+router.use('/auth', authRoutes);   // /api/auth/...
+router.use('/ai', aiRoutes);       // /api/ai/...
+
+router.use('/db', verifyToken);
+router.use('/db/daily', dailyRoutes);        
+router.use('/db/daily/memos', memosRoutes);       
+router.use('/db/daily/photos', photosRoutes);  
 
 module.exports = router;

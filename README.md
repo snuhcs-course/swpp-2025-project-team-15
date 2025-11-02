@@ -8,7 +8,7 @@ Run ```$ pip install -r requirements.txt``` in the `ai` folder to install the re
 Please copy the contents of the `.env.example` file to create a `.env` file in the `sumdays-backend` folder. You need to change the value of the `Openai api key` to use it.
 
 #### 1-3
-Run the central Node.js server with ```$ node app.js``` (in the `sumdays-backend` folder, port 3000).
+Run the central Node.js server with ```$ node server.js``` (in the `sumdays-backend` folder, port 3000).
 Run the Python AI server with ```$ python app.py``` (in the `sumdays-backend/ai` folder, port 5001).
 
 #### 1-4

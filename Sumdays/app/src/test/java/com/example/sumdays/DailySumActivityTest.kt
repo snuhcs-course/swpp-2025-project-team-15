@@ -7,7 +7,6 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.test.core.app.ApplicationProvider
 import com.example.sumdays.daily.diary.AnalysisRepository
-import com.example.sumdays.daily.diary.AnalysisResponse
 import com.example.sumdays.daily.diary.DiaryRepository
 import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.daily.memo.MemoMergeAdapter
@@ -15,9 +14,7 @@ import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before

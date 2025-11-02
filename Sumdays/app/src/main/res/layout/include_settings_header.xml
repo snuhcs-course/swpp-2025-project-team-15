@@ -12,7 +12,7 @@
         android:id="@+id/headerBackIcon"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:src="@drawable/ic_arrow_back"
+        android:src="@drawable/ic_arrow_back_white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:text="제목"
         style="@style/TextAppearance.App.Title"
+        android:textColor="#FFFFFF"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

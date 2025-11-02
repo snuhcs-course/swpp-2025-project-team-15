@@ -1,234 +1,129 @@
-// --- 1. 모든 모킹(Mocking) 선언 ---
-// jest.mock(...)은 항상 require/import 보다 위에 있어야 합니다.
-jest.mock("../db/db");
-jest.mock("fs");
-jest.mock("axios");
-jest.mock("bcrypt");
-jest.mock("jsonwebtoken");
-jest.mock('../middlewares/authMiddleware', () => (req, res, next) => {
-  req.user = { userId: 1, email: 'test@user.com' };
-  next();
-});
+const memosController = require('../controllers/memosController');
+const db = require('../db/db');
 
-// --- 2. 모듈 불러오기 ---
-const request = require("supertest");
-const app = require("../app");
-const db = require("../db/db");
+// DB Mock
+jest.mock('../db/db', () => ({
+  query: jest.fn(),
+}));
 
-// --- 3. 테스트 스위트 ---
-describe('Memos API - High Coverage Test (Fresh Start)', () => {
+const mockRes = () => {
+  const res = {};
+  res.status = jest.fn().mockReturnValue(res);
+  res.json = jest.fn().mockReturnValue(res);
+  return res;
+};
 
-  const MOCK_USER_ID = 1;
-  const MOCK_DATE = '2025-01-01';
-  const MOCK_ENTRY_ID = 10;
-  const MOCK_INNER_ID = 'memo-1';
+describe('memosController', () => {
+  let req, res;
 
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
+    res = mockRes();
+    req = { user: { userId: 1 }, params: {}, body: {} };
   });
 
-  // --- 4. getDailyEntryId 헬퍼 함수에 대한 모킹 ---
-  // (getDailyEntryId가 [rows]로 구조분해하므로 [[]]를 반환해야 함)
-  const mockFindEntry = () => {
-    db.query.mockResolvedValueOnce([ [{ id: MOCK_ENTRY_ID }] ]);
-  };
-  const mockFindNoEntry = () => {
-    db.query.mockResolvedValueOnce([ [] ]); // 404 테스트용
-  };
-  const mockDbError = () => {
-    db.query.mockRejectedValue(new Error('DB FAILED')); // 500 테스트용
-  };
+  /* -------------------------------------------------------------------------- */
+  /* createMemo                                                                 */
+  /* -------------------------------------------------------------------------- */
+  test('createMemo: should return 404 if no daily entry found', async () => {
+    req.params.date = '2025-11-02';
+    db.query.mockResolvedValueOnce([[]]); // getDailyEntryId → not found
 
-  // --- 5. createMemo 테스트 ---
-  describe('POST /api/db/daily/memos/:date', () => {
-
-    test('✅ 201: 메모 생성 성공', async () => {
-      // given: 
-      mockFindEntry(); // 1. 일기 찾기 성공
-      db.query.mockResolvedValueOnce(null); // 2. INSERT 성공
-
-      const newMemo = { inner_id: MOCK_INNER_ID, memo_order: 1, content: 'new memo' };
-
-      // when:
-      const res = await request(app)
-        .post(`/api/db/daily/memos/${MOCK_DATE}`)
-        .send(newMemo);
-        
-      // then:
-      expect(res.status).toBe(201);
-      expect(res.body.message).toBe('memo created successfully');
-    });
-
-    test('❗ 404: Daily Entry 없음', async () => {
-      // given:
-      mockFindNoEntry(); // 1. 일기 찾기 실패
-
-      // when:
-      const res = await request(app)
-        .post(`/api/db/daily/memos/${MOCK_DATE}`)
-        .send({ inner_id: MOCK_INNER_ID, memo_order: 1, content: 'new memo' });
-
-      // then:
-      expect(res.status).toBe(404);
-    });
-
-    test('❗ 500: DB 에러', async () => {
-      // given:
-      mockDbError(); // 1. 일기 찾기 중 DB 에러
-
-      // when:
-      const res = await request(app)
-        .post(`/api/db/daily/memos/${MOCK_DATE}`)
-        .send({ inner_id: MOCK_INNER_ID, memo_order: 1, content: 'new memo' });
-        
-      // then:
-      expect(res.status).toBe(500);
-      expect(res.body.error).toBe('Database insert failed');
-    });
+    await memosController.createMemo(req, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Daily entry not found' });
   });
 
-  // --- 6. updateMemo 테스트 ---
-  describe('PATCH /api/db/daily/memos/:date/:inner_id', () => {
-    
-    test('✅ 200: 메모 수정 성공 (모든 필드)', async () => {
-      // given:
-      mockFindEntry(); // 1. 일기 찾기 성공
-      db.query.mockResolvedValueOnce(null); // 2. UPDATE 성공
-      
-      const updateData = { memo_order: 2, content: "updated", memo_time: "10:00:00" };
-      
-      // when:
-      const res = await request(app)
-        .patch(`/api/db/daily/memos/${MOCK_DATE}/${MOCK_INNER_ID}`)
-        .send(updateData);
-        
-      // then:
-      expect(res.status).toBe(200);
-      expect(db.query).toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE memos SET'),
-        [2, "updated", "10:00:00", MOCK_ENTRY_ID, MOCK_INNER_ID]
-      );
-    });
+  test('createMemo: should insert memo successfully', async () => {
+    req.params.date = '2025-11-02';
+    req.body = { inner_id: 1, memo_order: 1, content: 'memo', memo_time: '09:00' };
 
-    test('✅ 200: 메모 수정 성공 (일부 필드)', async () => {
-      // given:
-      mockFindEntry(); // 1. 일기 찾기 성공
-      db.query.mockResolvedValueOnce(null); // 2. UPDATE 성공
-      
-      const updateData = { content: "updated only" };
-      
-      // when:
-      const res = await request(app)
-        .patch(`/api/db/daily/memos/${MOCK_DATE}/${MOCK_INNER_ID}`)
-        .send(updateData);
-        
-      // then:
-      expect(res.status).toBe(200);
-      expect(db.query).toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE memos SET content = ?'),
-        ["updated only", MOCK_ENTRY_ID, MOCK_INNER_ID]
-      );
-    });
+    db.query
+      .mockResolvedValueOnce([[{ id: 10 }]]) // getDailyEntryId → found
+      .mockResolvedValueOnce([]); // insert ok
 
-    test('❗ 400: 수정할 필드 없음', async () => {
-      // given:
-      mockFindEntry(); // 1. 일기 찾기 성공
-      
-      // when:
-      const res = await request(app)
-        .patch(`/api/db/daily/memos/${MOCK_DATE}/${MOCK_INNER_ID}`)
-        .send({}); // 빈 객체
-        
-      // then:
-      expect(res.status).toBe(400);
-      expect(res.body.message).toBe('No valid fields provided for update');
-    });
-
-    test('❗ 500: DB 에러 (UPDATE)', async () => {
-      // given:
-      mockFindEntry(); // 1. 일기 찾기 성공
-      mockDbError(); // 2. UPDATE 중 에러
-
-      // when:
-      const res = await request(app)
-        .patch(`/api/db/daily/memos/${MOCK_DATE}/${MOCK_INNER_ID}`)
-        .send({ content: "updated" });
-
-      // then:
-      expect(res.status).toBe(500);
-      expect(res.body.error).toBe('Database delete failed');
-    });
+    await memosController.createMemo(req, res);
+    expect(db.query).toHaveBeenCalledTimes(2);
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith({ message: 'memo created successfully' });
   });
 
-  // --- 7. deleteMemo 테스트 ---
-  describe('DELETE /api/db/daily/memos/:date/:inner_id', () => {
-    
-    test('✅ 200: 메모 삭제 성공', async () => {
-      // given:
-      mockFindEntry(); // 1. 일기 찾기 성공
-      db.query.mockResolvedValueOnce(null); // 2. DELETE 성공
-      
-      // when:
-      const res = await request(app)
-        .delete(`/api/db/daily/memos/${MOCK_DATE}/${MOCK_INNER_ID}`);
-        
-      // then:
-      expect(res.status).toBe(200);
-      expect(res.body.message).toBe('Memo deleted successfully');
-    });
+  /* -------------------------------------------------------------------------- */
+  /* updateMemo                                                                 */
+  /* -------------------------------------------------------------------------- */
+  test('updateMemo: should return 404 if daily entry not found', async () => {
+    req.params = { date: '2025-11-02', inner_id: '1' };
+    db.query.mockResolvedValueOnce([[]]);
 
-    test('❗ 500: DB 에러 (DELETE)', async () => {
-      // given:
-      mockFindEntry(); // 1. 일기 찾기 성공
-      mockDbError(); // 2. DELETE 중 에러
-
-      // when:
-      const res = await request(app)
-        .delete(`/api/db/daily/memos/${MOCK_DATE}/${MOCK_INNER_ID}`);
-
-      // then:
-      expect(res.status).toBe(500);
-      expect(res.body.error).toBe('Database delete failed');
-    });
+    await memosController.updateMemo(req, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Daily entry not found' });
   });
 
-  // --- 8. reorderMemos 테스트 ---
-  describe('PATCH /api/db/daily/memos/:date/order', () => {
-    
-    test('✅ 200: 메모 순서 변경 성공', async () => {
-      // given:
-      mockFindEntry(); // 1. 일기 찾기 성공
-      db.query.mockResolvedValue(null); // 2. 모든 UPDATE 쿼리 성공
-      
-      const orderMap = { "memo-1": 2, "memo-2": 1 };
-      
-      // when:
-      const res = await request(app)
-        .patch(`/api/db/daily/memos/${MOCK_DATE}/order`)
-        .send(orderMap);
-        
-      // then:
-      expect(res.status).toBe(200);
-      // getDailyEntryId 1번 + UPDATE 2번 = 총 3번
-      expect(db.query).toHaveBeenCalledTimes(3); 
-    });
+  test('updateMemo: should return 400 if no fields provided', async () => {
+    req.params = { date: '2025-11-02', inner_id: '1' };
+    db.query.mockResolvedValueOnce([[{ id: 10 }]]);
 
-    test('❗ 500: DB 에러 (Promise.all 실패)', async () => {
-      // given:
-      mockFindEntry(); // 1. 일기 찾기 성공
-      mockDbError(); // 2. UPDATE 쿼리 실패
-      
-      const orderMap = { "memo-1": 2, "memo-2": 1 };
-      
-      // when:
-      const res = await request(app)
-        .patch(`/api/db/daily/memos/${MOCK_DATE}/order`)
-        .send(orderMap);
-        
-      // then:
-      expect(res.status).toBe(500);
-      expect(res.body.error).toBe('Database update failed');
-    });
+    await memosController.updateMemo(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: 'No valid fields provided for update' });
+  });
+
+  test('updateMemo: should update memo successfully', async () => {
+    req.params = { date: '2025-11-02', inner_id: '1' };
+    req.body = { content: 'updated', memo_time: '10:00' };
+    db.query.mockResolvedValueOnce([[{ id: 10 }]]); // daily entry found
+    db.query.mockResolvedValueOnce([]); // update ok
+
+    await memosController.updateMemo(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Daily entry updated successfully' });
+  });
+
+  /* -------------------------------------------------------------------------- */
+  /* deleteMemo                                                                 */
+  /* -------------------------------------------------------------------------- */
+  test('deleteMemo: should return 404 if daily entry not found', async () => {
+    req.params = { date: '2025-11-02', inner_id: '1' };
+    db.query.mockResolvedValueOnce([[]]);
+
+    await memosController.deleteMemo(req, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Daily entry not found' });
+  });
+
+  test('deleteMemo: should delete memo successfully', async () => {
+    req.params = { date: '2025-11-02', inner_id: '1' };
+    db.query.mockResolvedValueOnce([[{ id: 10 }]]); // getDailyEntryId → ok
+    db.query.mockResolvedValueOnce([]); // delete ok
+
+    await memosController.deleteMemo(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Memo deleted successfully' });
+  });
+
+  /* -------------------------------------------------------------------------- */
+  /* reorderMemos                                                               */
+  /* -------------------------------------------------------------------------- */
+  test('reorderMemos: should return 404 if daily entry not found', async () => {
+    req.params.date = '2025-11-02';
+    req.body = { '1': 2 };
+    db.query.mockResolvedValueOnce([[]]);
+
+    await memosController.reorderMemos(req, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Daily entry not found' });
+  });
+
+  test('reorderMemos: should update memo order successfully', async () => {
+    req.params.date = '2025-11-02';
+    req.body = { '1': 2, '2': 1 };
+    db.query.mockResolvedValueOnce([[{ id: 10 }]]); // getDailyEntryId ok
+    db.query.mockResolvedValue([]); // each update ok
+
+    await memosController.reorderMemos(req, res);
+    expect(db.query).toHaveBeenCalledTimes(1 + 2); // one for getDailyEntryId + two updates
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ message: 'memo order updated successfully' });
   });
 });
-

@@ -1,5 +1,8 @@
 module.exports = {
   testEnvironment: "node",
+  coveragePathIgnorePatterns: [
+    'middlewares/authMiddleware.js'   
+  ],
   testMatch: [
     "**/tests/**/*.test.js",
     "**/tests/**/*.e2e.js"

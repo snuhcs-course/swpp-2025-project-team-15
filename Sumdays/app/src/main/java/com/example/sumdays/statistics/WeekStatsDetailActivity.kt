@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.sumdays.CalendarActivity
 import com.example.sumdays.DailyWriteActivity
 import com.example.sumdays.R
+import com.example.sumdays.SettingsActivity
 import com.example.sumdays.databinding.ActivityWeekStatsDetailBinding // View Binding 사용 가정
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
@@ -161,7 +162,8 @@ class WeekStatsDetailActivity : AppCompatActivity() {
 
         // Info 화면 (정보/설정)
         btnInfo.setOnClickListener {
-            Toast.makeText(this, "정보 화면 예정", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
         }
     }
 }

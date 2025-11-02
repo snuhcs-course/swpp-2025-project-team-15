@@ -106,17 +106,20 @@ class StatisticsActivityTest {
     }
 
     @Test
-    fun `testBtnInfoClick_showsToastMessage`() {
+    fun `testBtnInfoClick_startsSettingsActivity`() {
         // GIVEN
         val btnInfo: ImageButton = activity.findViewById(R.id.btnInfo)
-        val expectedMessage = "정보 화면 예정"
 
         // WHEN
         btnInfo.performClick()
 
-        // THEN: Toast 메시지 검증 (Robolectric ShadowToast 사용)
-        val latestToast = ShadowToast.getTextOfLatestToast()
-        assertNotNull(latestToast)
-        assertEquals(expectedMessage, latestToast)
+        // THEN: Intent 검증
+        val actual = shadowApplication.nextStartedActivity
+
+        // 1. 액티비티가 시작되었는지 확인
+        assertNotNull(actual)
+
+        // 2. 시작된 액티비티가 SettingsActivity인지 확인
+        assertEquals(SettingsActivity::class.java.name, actual.component?.className)
     }
 }

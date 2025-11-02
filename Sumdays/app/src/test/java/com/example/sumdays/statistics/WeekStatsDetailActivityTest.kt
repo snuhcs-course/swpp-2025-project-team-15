@@ -20,32 +20,6 @@ import java.time.LocalDate
 import kotlinx.parcelize.Parcelize
 
 // --- DUMMY DATA CLASS DEFINITIONS (실제 앱 코드와 완벽히 일치하도록 수정) ---
-@Parcelize
-data class SummaryDetails(
-    val emergingTopics: List<String>,
-    val overview: String,
-    val title: String
-) : android.os.Parcelable // 수동 구현 코드를 제거했습니다.
-
-@Parcelize
-data class Highlight(
-    val date: String,
-    val summary: String
-) : android.os.Parcelable // 수동 구현 코드를 제거했습니다.
-
-@Parcelize
-data class EmotionAnalysis(
-    val distribution: Map<String, Int>,
-    val dominantEmoji: String,
-    val emotionScore: Float,
-    val trend: String? = null
-) : android.os.Parcelable // 수동 구현 코드를 제거했습니다.
-
-@Parcelize
-data class Insights(
-    val advice: String,
-    val emotionCycle: String
-) : android.os.Parcelable // 수동 구현 코드를 제거했습니다.
 
 @Parcelize
 data class WeekSummary(

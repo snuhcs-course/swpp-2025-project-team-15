@@ -24,6 +24,7 @@
         <activity
             android:name=".DailyWriteActivity"
             android:exported="true"
+            android:windowSoftInputMode="adjustPan"
             android:theme="@style/Theme.First" />
         <activity
             android:name=".DailyReadActivity"

@@ -226,7 +226,7 @@ class DailyWriteActivity : AppCompatActivity() {
     }
 
     // 메모 수정 다이얼로그를 보여주는 함수
-    private fun showEditMemoDialog(memo: Memo) {
+    fun showEditMemoDialog(memo: Memo) {
         val builder = AlertDialog.Builder(this)
         val dialogView = layoutInflater.inflate(R.layout.dialog_edit_memo, null)
         val editText = dialogView.findViewById<EditText>(R.id.edit_text_memo_content)

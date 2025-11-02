@@ -1,28 +1,32 @@
-# SNU-SWPP-Template
+### How to Run the Server
 
-You can use the README file to showcase and promote your mobile app. The template provided below is just a starting point. Feel free to craft your README as you see fit. 
+#### 1-1
+```$ npm install``` automatically installs the packages.
+Run ```$ pip install -r requirements.txt``` in the `ai` folder to install the required libraries.
 
-Please note that the README doesn't affect your grade and is not included in documentation(Wiki).
+#### 1-2
+Please copy the contents of the `.env.example` file to create a `.env` file in the `sumdays-backend` folder. You need to change the value of the `Openai api key` to use it.
 
-# [Your Application Name]
+#### 1-3
+Run the central Node.js server with ```$ node app.js``` (in the `sumdays-backend` folder, port 3000).
+Run the Python AI server with ```$ python app.py``` (in the `sumdays-backend/ai` folder, port 5001).
 
-[Short application description here]
+#### 1-4
+`lang version` cannot be 1.0.0; it must be a lower version.
 
-![Application Screenshot](path_to_screenshot.png)
+#### 2-1
+Currently, the login feature is implemented separately using Node.js and EC2, and `ec2-15-164-103-159.ap-northeast-2.compute.proxmox.com` is the DNS address. A key file is required to start the server, which we can provide upon request. However, all main features are currently usable without the login function.
 
-## Features
+---
 
-- Feature 1: Brief description
-- Feature 2: Brief description
-- ...
+### How to Use the App
 
-## Getting Started
+When you first launch the app, a login screen appears. You can either log in or use the "skip login" feature. After accessing the app, a calendar is displayed where you can check diaries written for each date. By pressing the pencil button at the bottom center, you can write memos about your day.
 
-### Prerequisites
+After you finish writing the content for the day, pressing the 'sum' button will take you to a screen to combine the memos. Once the memos are combined well, pressing the proceed button (넘어가기 버튼) in the upper right corner saves the diary for that day. You can still edit the diary afterward.
 
-- Android Studio [version, e.g., 4.2.1]
-- Minimum Android SDK Version [e.g., 21]
+---
 
-### Installation
+### Features Implemented in Iteration 3
 
-[Installation link here]
+Features implemented in Iteration 3:

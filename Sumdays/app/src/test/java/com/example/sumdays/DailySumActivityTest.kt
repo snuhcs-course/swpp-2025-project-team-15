@@ -5,18 +5,22 @@ import android.os.Build
 import android.os.Looper
 import android.widget.ImageButton
 import android.widget.ImageView
+import org.hamcrest.CoreMatchers.`is`
 import androidx.test.core.app.ApplicationProvider
 import com.example.sumdays.daily.diary.AnalysisRepository
 import com.example.sumdays.daily.diary.DiaryRepository
 import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.daily.memo.MemoMergeAdapter
 import io.mockk.*
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -105,4 +109,22 @@ class DailySumActivityTest {
         verify(exactly = 1) { anyConstructed<MemoMergeAdapter>().undoLastMerge() }
     }
 
+    @Test
+    fun clickingCalendar_opensCalendarActivity() {
+        val activity = launchWith()
+        activity.findViewById<ImageButton>(R.id.btnCalendar).performClick()
+
+        val next = Shadows.shadowOf(activity).nextStartedActivity
+        assertThat(next.component?.className, `is`(CalendarActivity::class.java.name))
+    }
+
+    @Test
+    fun clickingDaily_opensDailyWriteActivity_withTodayDate() {
+        val activity = launchWith()
+        activity.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnDaily).performClick()
+
+        val next = Shadows.shadowOf(activity).nextStartedActivity
+        assertThat(next.component?.className, `is`(DailyWriteActivity::class.java.name))
+        assertTrue(next.hasExtra("date"))
+    }
 }

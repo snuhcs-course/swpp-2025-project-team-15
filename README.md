@@ -23,7 +23,7 @@ Currently, the login feature is implemented separately using Node.js and EC2, an
 
 When you first launch the app, a login screen appears. You can either log in or use the "skip login" feature. After accessing the app, a calendar is displayed where you can check diaries written for each date. By pressing the pencil button at the bottom center, you can write memos about your day.
 
-After you finish writing the content for the day, pressing the 'sum' button will take you to a screen to combine the memos. Once the memos are combined well, pressing the proceed button (넘어가기 버튼) in the upper right corner saves the diary for that day. You can still edit the diary afterward. However, you can also convert images or voices inputs into memos by pressing the buttons beside the input area.
+After you finish writing the content for the day, pressing the 'sum' button will take you to a screen to combine the memos. Once the memos are combined well, pressing the proceed button (넘어가기 버튼) in the upper right corner saves the diary for that day. You can still edit the diary afterward. However, you can also convert images or voice inputs into memos by pressing the buttons beside the input area.
 
 ---
 

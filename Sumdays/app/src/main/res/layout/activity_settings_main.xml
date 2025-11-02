@@ -7,6 +7,13 @@
     android:fitsSystemWindows="true"
     tools:context=".CalendarActivity">
 
+    <!-- 배경색 추가 -->
+    <View
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#282d35" />
+
     <ScrollView
         android:padding="20dp"
         android:layout_width="match_parent"
@@ -29,6 +36,7 @@
                 <TextView
                     android:id="@+id/nickname"
                     android:text="닉네임"
+                    android:textColor="#FFFFFF"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
@@ -38,6 +46,7 @@
                     android:id="@+id/userStats"
                     android:text="🔥 Strike: 12   🧱 Blocks: 34   🍇 Grapes: 150"
                     android:textSize="14sp"
+                    android:textColor="#FFFFFF"
                     android:layout_marginTop="4dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -55,7 +64,10 @@
             <LinearLayout
                 android:id="@+id/themeBlock"
                 style="@style/SettingsItemStyle" >
-                <TextView android:text="테마 설정" style="@style/TextAppearance.App.Normal"
+                <TextView
+                    android:text="테마 설정"
+                    style="@style/TextAppearance.App.Normal"
+                    android:textColor="#FFFFFF"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -63,7 +75,10 @@
             <LinearLayout
                 android:id="@+id/notificationBlock"
                 style="@style/SettingsItemStyle" >
-                <TextView android:text="알림 설정" style="@style/TextAppearance.App.Normal"
+                <TextView
+                    android:text="알림 설정"
+                    style="@style/TextAppearance.App.Normal"
+                    android:textColor="#FFFFFF"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -71,7 +86,10 @@
             <LinearLayout
                 android:id="@+id/lockBlock"
                 style="@style/SettingsItemStyle" >
-                <TextView android:text="화면 잠금" style="@style/TextAppearance.App.Normal"
+                <TextView
+                    android:text="화면 잠금"
+                    style="@style/TextAppearance.App.Normal"
+                    android:textColor="#FFFFFF"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -79,7 +97,10 @@
             <LinearLayout
                 android:id="@+id/diaryStyleBlock"
                 style="@style/SettingsItemStyle" >
-                <TextView android:text="일기 스타일" style="@style/TextAppearance.App.Normal"
+                <TextView
+                    android:text="일기 스타일"
+                    style="@style/TextAppearance.App.Normal"
+                    android:textColor="#FFFFFF"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -87,7 +108,10 @@
             <LinearLayout
                 android:id="@+id/accountBlock"
                 style="@style/SettingsItemStyle" >
-                <TextView android:text="계정 설정" style="@style/TextAppearance.App.Normal"
+                <TextView
+                    android:text="계정 설정"
+                    style="@style/TextAppearance.App.Normal"
+                    android:textColor="#FFFFFF"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -95,7 +119,10 @@
             <LinearLayout
                 android:id="@+id/backupBlock"
                 style="@style/SettingsItemStyle">
-                <TextView android:text="데이터 백업" style="@style/TextAppearance.App.Normal"
+                <TextView
+                    android:text="데이터 백업"
+                    style="@style/TextAppearance.App.Normal"
+                    android:textColor="#FFFFFF"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>

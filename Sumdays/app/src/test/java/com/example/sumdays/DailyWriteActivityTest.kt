@@ -323,15 +323,21 @@ class DailyWriteActivityTest {
     }
 
     @Test
-    fun `testBtnInfoClick_showsToast`() {
+    fun `testBtnInfoClick_startsSettingsActivity`() {
         // GIVEN
         val btnInfo: ImageButton = activity.findViewById(R.id.btnInfo)
 
         // WHEN
         btnInfo.performClick()
 
-        // THEN
-        assertEquals("정보 화면 예정", ShadowToast.getTextOfLatestToast())
+        // THEN: Intent 검증
+        val actual = shadowApplication.nextStartedActivity
+
+        // 1. 액티비티가 시작되었는지 확인
+        assertNotNull(actual)
+
+        // 2. 시작된 액티비티가 SettingsActivity인지 확인
+        assertEquals(SettingsActivity::class.java.name, actual.component?.className)
     }
 
     @Test

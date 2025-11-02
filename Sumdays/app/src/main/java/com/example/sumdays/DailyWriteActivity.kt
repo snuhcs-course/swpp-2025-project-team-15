@@ -29,7 +29,6 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.sumdays.daily.memo.MemoDragAndDropCallback
-import android.view.View
 import com.example.sumdays.audio.AudioRecorderHelper
 import com.example.sumdays.image.ImageOcrHelper
 import android.util.Log
@@ -359,7 +358,8 @@ class DailyWriteActivity : AppCompatActivity() {
         }
 
         btnInfo.setOnClickListener {
-            Toast.makeText(this, "정보 화면 예정", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
         }
     }
 

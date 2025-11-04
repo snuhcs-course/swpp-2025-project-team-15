@@ -47,10 +47,11 @@ class DailySumActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.skip_icon).setOnClickListener {
                 lifecycleScope.launch {
-                val mergedResult = memoMergeAdapter.skipMerge()
-                viewModel.updateEntry(date = date, diary = mergedResult)
-                AnalysisRepository.requestAnalysis(date, mergedResult, viewModel)
-                moveToReadActivity()
+                    val mergedResult = memoMergeAdapter.skipMerge()
+                    viewModel.updateEntry(date = date, diary = mergedResult)
+
+                    AnalysisRepository.requestAnalysis(date, mergedResult, viewModel)
+                    moveToReadActivity()
                 }
         }
 

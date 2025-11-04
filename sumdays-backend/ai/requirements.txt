@@ -12,3 +12,7 @@ pytest
 coverage
 pytest-cov
 sentence-transformers
+accelerate
+bitsandbytes
+sentencepiece
+transformers

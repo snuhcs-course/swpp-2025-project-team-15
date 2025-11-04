@@ -1,48 +1,97 @@
-from typing import Dict, Any
-from pydantic import BaseModel, Field
-from langchain_openai import ChatOpenAI
-from langchain.prompts import PromptTemplate
-import os
+import torch
+import torch.nn.functional as F
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
-class MergedContentResult(BaseModel):
-    """ Represents the result of the memo-mergence """
-    merged_content  : str   = Field(description="result of the memo-mergence")
+_MODEL = "EleutherAI/polyglot-ko-1.3b"
+tokenizer = AutoTokenizer.from_pretrained(_MODEL)
+model = AutoModelForCausalLM.from_pretrained(
+    _MODEL,
+    dtype=torch.bfloat16,
+    device_map="auto"
+).eval()
+
+def steer_hidden(h_t, S, alpha):
+    h_n = F.normalize(h_t, dim=-1)
+    S_n = F.normalize(S, dim=-1)
+    proj = (h_n * S_n).sum(dim=-1, keepdim=True) * h_n
+    ortho = F.normalize(S_n - proj, dim=-1)
+    return h_t + alpha * ortho
 
 
-class MemoMerger:
-    """ Service that analyzes a diary """
-    def __init__(self):
-        """ Initialize the Diary analyzing service. """
-        self.model = ChatOpenAI(
-            model=os.getenv("GPT_MODEL", "gpt-4.1-nano"),
-            temperature=0.5
+def build_prompt(style_prompt, style_examples, memos):
+    """
+    스타일 설명 + 대표 문장 + 메모 → 하나의 프롬프트로 구성
+    """
+    prompt = (
+        "당신은 글쓰기 보조 AI입니다. 아래의 스타일을 반드시 따르세요.\n\n"
+        "=== 스타일 요약 ===\n"
+        f"{style_prompt}\n\n"
+        "=== 스타일 예문 ===\n"
+    )
+
+    for ex in style_examples:
+        prompt += f"- {ex}\n"
+
+    prompt += "\n=== 메모 목록 ===\n"
+    for m in memos:
+        prompt += f"- {m}\n"
+
+    prompt += (
+        "\n=== 지침 ===\n"
+        "위 메모들을 자연스럽고 일관된 흐름으로 이어진 '하루 일기'로 작성하세요.\n"
+        "목록형 금지.\n"
+        "문장 간의 연결이 자연스러워야 합니다.\n"
+        "감정은 과도하게 부풀리지 말고 담담하게 유지하세요.\n"
+    )
+
+    return prompt
+
+
+def generate_diary_stream(memos, style_hidden, style_prompt, style_examples):
+    """
+    Streaming + Hidden Steering + Memo 길이 제한(1.5x)
+    """
+    S = torch.tensor(style_hidden, dtype=torch.bfloat16).to(model.device)
+    S = S / (S.norm() + 1e-12)
+
+    prompt = build_prompt(style_prompt, style_examples, memos)
+
+    target_lengths = [int(len(m) * 1.5) for m in memos]
+    memo_idx = 0
+    lengths = [0] * len(memos)
+
+    inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512).to(model.device)
+    inputs.pop("token_type_ids", None)
+    input_ids = inputs["input_ids"]
+    past = None
+
+    for _ in range(1500):  # 안전한 최대 길이
+        out = model(
+            input_ids=input_ids[:, -1:] if past else input_ids,
+            past_key_values=past,
+            output_hidden_states=True,
+            use_cache=True
         )
+        past = out.past_key_values
 
-    def merge(self, contents: list[str]) -> Dict[str, Any]:
-        """ Merge two memos  """
-        if len(contents) < 2:
-            raise ValueError("At least two memos are required.")
-        else: 
-            promt_text = """
-            You are helping an app service that completes a single diary by combining memos written during the day. 
-            The notes below are arranged in the order that the user wants to put them together. 
-            Please combine the notes into a diary naturally. Keep in mind that you are not just concatenating strings.
+        h = out.hidden_states[-1][:, -1, :]
+        h_adj = steer_hidden(h, S, alpha=0.18)
 
-            Return JSON matching the MergedContentResult schema.
+        logits = model.embed_out(h_adj)
+        probs = torch.softmax(logits, dim=-1)
 
-            Additional instructions:
-            - Respond in the same language as the memos or the user’s input.
-            - Avoid excessive imagination or adding information that is not clearly implied by the memos.
-            - Focus on maintaining a coherent, natural, and concise diary tone without inventing new events.
-            - Keep the tone natural and personal, suitable for a diary entry. Preserve the original tone, style, and sentence endings of the memos
-            ---
-            Make merged diary memo for memos: {memos}
-            """
+        # 메모 길이 초과 시 문장 종료 유도
+        if lengths[memo_idx] >= target_lengths[memo_idx]:
+            eos = tokenizer.encode(".", add_special_tokens=False)[0]
+            probs[0, eos] += 4.0
 
-            prompt = PromptTemplate.from_template(promt_text)
-            llm = self.model.with_structured_output(MergedContentResult)
+        next_token = torch.multinomial(probs, 1)
+        input_ids = torch.cat([input_ids, next_token], dim=-1)
 
-            chain = prompt | llm
-            result = chain.invoke({"memos": "\n".join(f"- {c}" for c in contents)})
-            return {"merged_content": result.merged_content}
+        t = tokenizer.decode(next_token[0])
+        yield t
 
+        lengths[memo_idx] += len(t)
+
+        if t in [".", "다", "요", "\n"]:
+            memo_idx = min(memo_idx + 1, len(memos) - 1)

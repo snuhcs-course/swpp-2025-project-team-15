@@ -65,7 +65,6 @@ class DailyWriteActivity : AppCompatActivity() {
 
     //  AudioRecorderHelper 인스턴스 생성 (lazy 초기화)
     private lateinit var audioRecorderHelper: AudioRecorderHelper
-    private lateinit var imageOcrHelper: ImageOcrHelper
     private lateinit var readDiaryButton: Button
 
     // ViewModel 초기화 (앱의 싱글톤 저장소를 사용)
@@ -100,7 +99,6 @@ class DailyWriteActivity : AppCompatActivity() {
 
         // 헬퍼 초기화 (initViews 이후 호출)
         audioRecorderHelper = createAudioRecorderHelper()
-        imageOcrHelper = createImageOcrHelper()
 
         // 인텐트 데이터 처리 및 데이터 관찰 시작
         handleIntent(intent)
@@ -110,31 +108,6 @@ class DailyWriteActivity : AppCompatActivity() {
 
         // 하단 네비게이션 바 설정
         setupNavigationBar()
-    }
-
-    /**
-     * ImageOcrHelper 인스턴스를 생성하고 콜백을 정의하는 함수 (수정 없음)
-     */
-    private fun createImageOcrHelper(): ImageOcrHelper {
-        return ImageOcrHelper(
-            activity = this,
-            onOcrSuccess = { extractedText ->
-                runOnUiThread {
-                    memoInputEditText.append("$extractedText \n")
-                    Toast.makeText(this, "텍스트 추출 성공!", Toast.LENGTH_SHORT).show()
-                }
-            },
-            onOcrFailed = { errorMessage ->
-                runOnUiThread {
-                    Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
-                }
-            },
-            onImageSelected = { uri ->
-                runOnUiThread {
-                    Toast.makeText(this, "이미지 분석 중...", Toast.LENGTH_SHORT).show()
-                }
-            }
-        )
     }
 
     /**
@@ -354,23 +327,6 @@ class DailyWriteActivity : AppCompatActivity() {
                 }*/
             }
         }
-    }
-
-    // 이미지 분석 옵션 대화상자 (변경 없음)
-    private fun showImageAnalysisOptions() {
-        val options = arrayOf("사진에서 글자 추출하기 (Extract)", "사진 내용으로 글 생성하기 (Describe)")
-
-        AlertDialog.Builder(this)
-            .setTitle("사진으로 무엇을 할까요?")
-            .setItems(options) { dialog, which ->
-                when (which) {
-                    0 -> imageOcrHelper.selectImage("extract")
-                    1 -> imageOcrHelper.selectImage("describe")
-                }
-                dialog.dismiss()
-            }
-            .setNegativeButton("취소") { dialog, _ -> dialog.dismiss() }
-            .show()
     }
 
     // 하단 네비게이션 바의 버튼들 클릭 이벤트를 처리 (변경 없음)

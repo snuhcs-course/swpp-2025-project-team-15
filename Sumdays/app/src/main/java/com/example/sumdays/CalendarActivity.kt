@@ -33,6 +33,19 @@ class CalendarActivity : AppCompatActivity() {
     // emojiMap: 이모지 데이터를 저장 <날짜, 이모지> -> TODO: 나중에 db에 맞춰 수정 필요
     // ex) "2025-10-10" -> "😊"
     private val emojiMap = mutableMapOf<String, String>()
+
+    companion object {
+        private val isDiaryCompletedMap = mutableMapOf<String, Boolean>()
+
+        fun getIfDiaryCompleted(date: String): Boolean {
+            return isDiaryCompletedMap[date] ?: false
+        }
+
+        fun setIfDiaryCompleted(date: String, value: Boolean) {
+            isDiaryCompletedMap[date] = value
+        }
+    }
+
     // 캘린더 언어 설정
     private var currentLanguage: CalendarLanguage = CalendarLanguage.ENGLISH
 
@@ -173,6 +186,7 @@ class CalendarActivity : AppCompatActivity() {
         emojiMap[today] = "⭐"
         emojiMap[nextWeek] = "💻"
         emojiMap["2025-10-25"] = "🥳"
+        setIfDiaryCompleted("2025-10-25", true)
     }
 
     /** dayAdapter에서 호출하는 함수. 이모지 존재 유무에 따른 원 배경 설정을 위함 */

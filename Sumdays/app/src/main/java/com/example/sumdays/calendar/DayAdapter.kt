@@ -63,7 +63,13 @@ class DayAdapter(private val days: List<DateCell>, private val activity: Calenda
             if (isToday) {
                 tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_fox_today)
                 tvDayNumber.setTypeface(null, Typeface.BOLD) // 오늘은 볼드체로
-            } else {
+            }
+            else if (CalendarActivity.getIfDiaryCompleted(cell.dateString))
+            {
+                tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_fox_date_gray_completed)
+                tvDayNumber.setTypeface(null, Typeface.NORMAL)
+            }
+            else{
                 tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_fox_date_gray)
                 tvDayNumber.setTypeface(null, Typeface.NORMAL)
             }

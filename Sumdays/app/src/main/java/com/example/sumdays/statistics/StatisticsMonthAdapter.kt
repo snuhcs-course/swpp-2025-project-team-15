@@ -85,15 +85,19 @@ class StatisticsMonthAdapter(private val monthList: List<MonthStatistics>) :
             // ⭐ 블록 사이의 간격 추가 (marginBottom)
             layoutParams.bottomMargin = holder.itemView.context.resources.getDimensionPixelSize(R.dimen.spacing_between_week_blocks)
 
+            val statisticsTreeLeaf: LinearLayout = blockView.findViewById<LinearLayout>(R.id.statistics_tree_leaf)
+
             // ⭐ 홀수/짝수 번째에 따른 마진(정렬) 조정 로직
             // 리스트의 인덱스(0, 1, 2...)가 아닌, 생성되는 블록의 순서(1, 2, 3...)를 기준으로 합니다.
             if (blockCount % 2 == 0) { // 0, 2, 4... 번째 (첫 번째, 세 번째...) -> 왼쪽에 치우치게 (오른쪽에 마진)
-                layoutParams.marginEnd = 60
                 layoutParams.marginStart = 0
+                layoutParams.marginEnd = 0
+                statisticsTreeLeaf.setBackgroundResource(R.drawable.statistics_tree_leaf_left)
                 // 텍스트는 블록 내에서 가운데 정렬이 유지되지만, 블록 자체가 나무 기둥의 왼쪽으로 이동합니다.
             } else { // 1, 3, 5... 번째 (두 번째, 네 번째...) -> 오른쪽에 치우치게 (왼쪽에 마진)
                 layoutParams.marginStart = 60
                 layoutParams.marginEnd = 0
+                statisticsTreeLeaf.setBackgroundResource(R.drawable.statistics_tree_leaf_right)
             }
 
             blockView.layoutParams = layoutParams
@@ -103,7 +107,7 @@ class StatisticsMonthAdapter(private val monthList: List<MonthStatistics>) :
             summaryText.text = weekSummary.emotionAnalysis.dominantEmoji // <-- API 구조에 맞춰 수정
 
             // ⭐ 텍스트가 아닌 이모지를 크게 표시하기 위해 텍스트 크기를 키웁니다.
-            summaryText.textSize = 28f
+            summaryText.textSize = 20f
 
             // 블록 클릭 시 주간 요약 내용을 Toast 또는 Dialog로 표시
             blockView.setOnClickListener {

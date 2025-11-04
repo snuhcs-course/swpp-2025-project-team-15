@@ -31,6 +31,16 @@ import android.content.DialogInterface
 import androidx.appcompat.app.AlertDialog
 import androidx.test.core.app.ApplicationProvider
 import org.robolectric.shadows.ShadowDialog
+import com.example.sumdays.image.ImageOcrHelper
+import android.view.View
+import android.widget.LinearLayout
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
+import androidx.recyclerview.widget.ItemTouchHelper
+import android.util.Log
+import androidx.core.content.ContextCompat
+import org.robolectric.android.controller.ActivityController
 
 @RunWith(RobolectricTestRunner::class)
 @Config(
@@ -402,34 +412,109 @@ class DailyWriteActivityTest {
     fun `testShowEditMemoDialog_negativeButton_cancels`() {
         // GIVEN
         val originalMemo = Memo(id = 1, content = "수정 전", timestamp = "09:00", date = LocalDate.now().toString(), order = 0)
-
-        // 1. 라이프사이클: @Before에서 create()만 호출했다면, 여기서 start().resume() 호출
-        //    (performRestore 오류 방지)
         controller.start().resume()
 
         // WHEN: 다이얼로그 함수 호출
         activity.showEditMemoDialog(originalMemo)
         Shadows.shadowOf(Looper.getMainLooper()).idle()
-
-        // ⭐️ Deprecated된 ShadowApplication.getLatestAlertDialog() 대신 ShadowDialog 사용
-        // 이 방식이 현재 ActivityController 환경에서 가장 현실적인 우회책입니다.
         val dialog = ShadowDialog.getLatestDialog()
-
-        // 2. 널 체크: 다이얼로그가 열리지 않았다면 여기서 실패 (리소스 문제 확인 필요)
         assertNotNull("다이얼로그가 성공적으로 열리지 않았습니다. (DailyWriteActivity.kt에서 테마 명시 필수)", dialog)
-
-        // 이제 안전하게 형변환 (AppCompat 다이얼로그로)
         val alertDialog = dialog as AlertDialog
 
         // WHEN: "취소" 버튼 클릭 (NEGATIVE)
-        // 버튼 클릭 시에는 AlertDialog 클래스의 getButton 메서드를 사용합니다.
         alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE).performClick()
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
         // THEN: ViewModel의 update는 호출되지 않았는지 검증
         verify(exactly = 0) { mockMemoViewModel.update(any()) }
-
-        // 3. isShowing 검증 (ShadowDialog 필드 접근 오류를 피하기 위해 공식 메서드 사용)
         assertFalse(alertDialog.isShowing)
     }
+    @Test
+    fun `onNewIntent_updatesDate_and_reobserves`() {
+        val today = LocalDate.now().toString()
+        val newIntent = Intent(Intent.ACTION_MAIN).apply { putExtra("date", today) }
+        controller.newIntent(newIntent)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        val dateText: TextView = activity.findViewById(R.id.date_text_view)
+        assertEquals(today, dateText.text.toString())
+        verify(atLeast = 1) { mockMemoViewModel.getMemosForDate(today) }
+    }
+
+
+    @Test
+    fun `waveAnimation_start_and_stop_resetScale_and_clearAnimator`() {
+        // private 메서드 리플렉션
+        val start = DailyWriteActivity::class.java.getDeclaredMethod("startWaveAnimation").apply { isAccessible = true }
+        val stop  = DailyWriteActivity::class.java.getDeclaredMethod("stopWaveAnimation").apply { isAccessible = true }
+
+        val bar1: View = activity.findViewById(R.id.wave_bar_1)
+        val bar2: View = activity.findViewById(R.id.wave_bar_2)
+        val bar3: View = activity.findViewById(R.id.wave_bar_3)
+        start.invoke(activity)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // AnimatorSet 필드가 살아있는지 확인
+        val field = DailyWriteActivity::class.java.getDeclaredField("waveAnimatorSet").apply { isAccessible = true }
+        assertNotNull(field.get(activity))
+
+        // 중지 -> 스케일 복구 + AnimatorSet 제거
+        stop.invoke(activity)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(1.0f, bar1.scaleY)
+        assertEquals(1.0f, bar2.scaleY)
+        assertEquals(1.0f, bar3.scaleY)
+        assertNull(field.get(activity))
+    }
+
+    @Test
+    fun `removeDummyMemoAndAddFinal_replacesDummy_and_insertsFinal`() {
+        val pendingId = 777
+        // pendingAudioMemoId 세팅
+        val pendingField = DailyWriteActivity::class.java.getDeclaredField("pendingAudioMemoId").apply { isAccessible = true }
+        pendingField.set(activity, pendingId)
+
+        // 어댑터에 임시 메모 주입
+        val adapter = activity.findViewById<RecyclerView>(R.id.memo_list_view).adapter as MemoAdapter
+        val dummy = Memo(id = pendingId, content = "음성 인식 중...", timestamp = "11:11", date = LocalDate.now().toString(), order = 0)
+        adapter.submitList(listOf(dummy))
+        assertEquals(1, adapter.itemCount)
+
+        // private removeDummyMemoAndAddFinal 호출
+        val method = DailyWriteActivity::class.java.getDeclaredMethod("removeDummyMemoAndAddFinal", String::class.java).apply { isAccessible = true }
+        val finalText = "최종 변환 텍스트"
+        method.invoke(activity, finalText)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // dummy 제거됐고 insert 호출되었는지 확인
+        assertTrue(adapter.currentList.none { it.id == pendingId })
+        verify(exactly = 1) { mockMemoViewModel.insert(match { it.content == finalText }) }
+        // pendingAudioMemoId 초기화 확인
+        assertNull(pendingField.get(activity))
+    }
+
+    @Test
+    fun `handleIntent_keepsAdapterList_when_pending_not_in_livedata`() {
+        val pendingId = 999
+        val pendingField = DailyWriteActivity::class.java.getDeclaredField("pendingAudioMemoId").apply { isAccessible = true }
+        pendingField.set(activity, pendingId)
+
+        val adapter = activity.findViewById<RecyclerView>(R.id.memo_list_view).adapter as MemoAdapter
+        val dummy = Memo(id = pendingId, content = "임시", timestamp = "12:34", date = LocalDate.now().toString(), order = 0)
+        adapter.submitList(listOf(dummy))
+        assertEquals(1, adapter.itemCount)
+
+        // LiveData에 '펜딩 id가 포함되지 않은' 리스트를 주입
+        val liveDataList = listOf(
+            Memo(id = 1, content = "DB의 메모", timestamp = "13:00", date = LocalDate.now().toString(), order = 0)
+        )
+        mockMemoListLiveData.postValue(liveDataList)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // 어댑터가 기존 리스트(펜딩 포함)를 유지했는지 확인
+        assertEquals(1, adapter.itemCount)
+        assertEquals(pendingId, adapter.currentList.first().id)
+    }
+
+
 }

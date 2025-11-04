@@ -10,14 +10,17 @@ import com.example.sumdays.databinding.ActivityDailyReadBinding
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import com.example.sumdays.daily.diary.DiaryRepository
-import com.example.sumdays.daily.diary.AnalysisRepository
-import com.example.sumdays.daily.diary.AnalysisResponse
-import android.util.Log
+import androidx.activity.viewModels
+import com.example.sumdays.daily.diary.DailyEntryViewModel
+import androidx.lifecycle.LiveData
+import com.example.sumdays.data.DailyEntry
+
 class DailyReadActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDailyReadBinding
     private lateinit var currentDate: Calendar
+    private val viewModel: DailyEntryViewModel by viewModels()
+    private var currentLiveData: LiveData<DailyEntry?>? = null
 
     private val repoKeyFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private val displayFormatter = SimpleDateFormat("MM-dd", Locale.getDefault())
@@ -29,7 +32,31 @@ class DailyReadActivity : AppCompatActivity() {
 
         initializeDate()
         setupClickListeners()
-        updateUI()
+        observeEntry()
+    }
+
+
+    private fun observeEntry() {
+        val dateKey = repoKeyFormatter.format(currentDate.time)
+
+        // ✅ 기존 옵저버 해제
+        currentLiveData?.removeObservers(this)
+
+        // ✅ 새로운 LiveData 구독 시작
+        currentLiveData = viewModel.getEntry(dateKey)
+        currentLiveData?.observe(this) { entry ->
+            updateUI(entry)
+        }
+    }
+
+    private fun updateUI(entry: DailyEntry?) {
+        binding.dateText.text = "< ${displayFormatter.format(currentDate.time)} >"
+        binding.diaryContentEditText.setText(entry?.diary ?: "")
+        binding.diaryContentTextView.text = entry?.diary ?: ""
+        binding.commentText.text = entry?.aiComment ?: ""
+        binding.emotionScore.text = "감정 점수: ${entry?.emotionScore ?: 0.0}"
+        binding.keywords.text = "키워드: ${entry?.keywords ?: ""}"
+        binding.commentIcon.text = entry?.emotionIcon ?: "🤔"
     }
 
     private fun initializeDate() {
@@ -71,25 +98,7 @@ class DailyReadActivity : AppCompatActivity() {
 
     private fun changeDate(amount: Int) {
         currentDate.add(Calendar.DAY_OF_MONTH, amount)
-        updateUI()
-    }
-
-    private fun updateUI() {
-        binding.dateText.text = "< ${displayFormatter.format(currentDate.time)} >"
-        val date = repoKeyFormatter.format(currentDate.time)
-        val diary = DiaryRepository.getDiary(date)
-        val analysis = AnalysisRepository.getAnalysis(date)
-        val aiComment: String = analysis?.aiComment ?: ""
-        binding.diaryContentEditText.setText(diary ?: "")
-        binding.diaryContentTextView.setText(diary ?: "")
-        binding.commentText.setText(aiComment ?: "")
-        val emotionScore: Double = analysis?.analysis?.emotionScore ?: 0.0
-        binding.emotionScore.setText("감정 점수: "+"$emotionScore")
-        val keywords: List<String> = analysis?.analysis?.keywords ?: emptyList()
-        val keywordsText = keywords.joinToString(", ")
-        binding.keywords.setText("키워드: "+"$keywordsText")
-        val icon : String = analysis?.icon ?: "\uD83E\uDD14"
-        binding.commentIcon.setText("$icon")
+        observeEntry()
     }
 
     private fun toggleEditMode(isEditing: Boolean) {
@@ -109,9 +118,9 @@ class DailyReadActivity : AppCompatActivity() {
             binding.editInplaceButton.visibility = View.GONE
             binding.saveButton.visibility = View.VISIBLE
         } else {
-            saveDiaryContent()
             // 1. EditText의 내용을 TextView로 업데이트
             binding.diaryContentTextView.text = binding.diaryContentEditText.text
+            saveDiaryContent()
 
             // 2. 뷰 전환
             binding.diaryContentTextView.visibility = View.VISIBLE
@@ -128,7 +137,7 @@ class DailyReadActivity : AppCompatActivity() {
     private fun saveDiaryContent() {
         val updatedContent = binding.diaryContentEditText.text.toString()
         val dateKey = repoKeyFormatter.format(currentDate.time)
-        DiaryRepository.saveDiary(dateKey, updatedContent)
+        viewModel.updateEntry(date = dateKey, diary = updatedContent)
     }
 
     private fun showKeyboard(view: View) {

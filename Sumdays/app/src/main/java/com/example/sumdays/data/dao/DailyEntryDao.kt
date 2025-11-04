@@ -11,6 +11,16 @@ interface DailyEntryDao {
     @Query("SELECT * FROM daily_entry WHERE date = :date")
     fun getEntry(date: String): Flow<DailyEntry?>
 
+    /////////// update
+    // 1. (비공개) 날짜가 없으면 초기값으로 삽입하는 함수
+    @Query("""
+    INSERT OR IGNORE INTO daily_entry 
+    (date, diary, keywords, aiComment, emotionScore, emotionIcon, themeIcon)
+    VALUES (:date, NULL, NULL, NULL, NULL, NULL, NULL)
+    """)
+    suspend fun _insertInitialEntry(date: String) // internal 또는 private
+
+    // 2. (비공개) 항목을 업데이트하는 함수
     @Query("""
     UPDATE daily_entry
     SET 
@@ -22,7 +32,7 @@ interface DailyEntryDao {
         themeIcon = COALESCE(:themeIcon, themeIcon)
     WHERE date = :date
     """)
-    suspend fun updateEntry(
+    suspend fun _updateEntryDetails( // internal 또는 private
         date: String,
         diary: String? = null,
         keywords: String? = null,
@@ -31,6 +41,21 @@ interface DailyEntryDao {
         emotionIcon: String? = null,
         themeIcon: String? = null
     )
+
+    // 3. (공개) 두 함수를 트랜잭션으로 묶어 호출
+    @Transaction
+    suspend fun updateEntry(
+        date: String,
+        diary: String? = null,
+        keywords: String? = null,
+        aiComment: String? = null,
+        emotionScore: Double? = null,
+        emotionIcon: String? = null,
+        themeIcon: String? = null
+    ) {
+        _insertInitialEntry(date) // 1. 먼저 삽입 시도 (무시될 수 있음)
+        _updateEntryDetails(date, diary, keywords, aiComment, emotionScore, emotionIcon, themeIcon) // 2. 업데이트
+    }
 
     // ✅ 4️⃣ 해당 날짜의 일기 삭제
     @Query("DELETE FROM daily_entry WHERE date = :date")

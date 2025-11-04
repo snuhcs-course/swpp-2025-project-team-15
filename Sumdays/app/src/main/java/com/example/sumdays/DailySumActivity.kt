@@ -3,7 +3,6 @@ package com.example.sumdays
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -50,7 +49,7 @@ class DailySumActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     val mergedResult = memoMergeAdapter.skipMerge()
                     viewModel.updateEntry(date = date, diary = mergedResult)
-
+                    CalendarActivity.setIfDiaryCompleted(date, true) // conflict 해결
                     AnalysisRepository.requestAnalysis(date, mergedResult, viewModel)
                     moveToReadActivity()
                 }

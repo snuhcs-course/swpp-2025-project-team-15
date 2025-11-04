@@ -476,19 +476,24 @@ class DailyWriteActivityTest {
 
         // 어댑터에 임시 메모 주입
         val adapter = activity.findViewById<RecyclerView>(R.id.memo_list_view).adapter as MemoAdapter
-        val dummy = Memo(id = pendingId, content = "음성 인식 중...", timestamp = "11:11", date = LocalDate.now().toString(), order = 0)
+        val dummy = Memo(id = pendingId, content = "음성 인식 중...", timestamp = "11:11", date = LocalDate.now().toString(), order = 0, type = "audio")
         adapter.submitList(listOf(dummy))
         assertEquals(1, adapter.itemCount)
 
-        // private removeDummyMemoAndAddFinal 호출
-        val method = DailyWriteActivity::class.java.getDeclaredMethod("removeDummyMemoAndAddFinal", String::class.java).apply { isAccessible = true }
+        // ★★★ 변경점 1: getDeclaredMethod에 String::class.java를 하나 더 추가 ★★★
+        // private removeDummyMemoAndAddFinal(String, String) 호출
+        val method = DailyWriteActivity::class.java.getDeclaredMethod("removeDummyMemoAndAddFinal", String::class.java, String::class.java).apply { isAccessible = true }
         val finalText = "최종 변환 텍스트"
-        method.invoke(activity, finalText)
+        val finalType = "audio" // 오디오 메모이므로 "audio" 타입 전달
+
+        // ★★★ 변경점 2: invoke에 두 번째 인자(finalType) 추가 ★★★
+        method.invoke(activity, finalText, finalType)
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
         // dummy 제거됐고 insert 호출되었는지 확인
         assertTrue(adapter.currentList.none { it.id == pendingId })
-        verify(exactly = 1) { mockMemoViewModel.insert(match { it.content == finalText }) }
+        // ★★★ 변경점 3: insert 검증 시 type == "audio" 조건 추가 ★★★
+        verify(exactly = 1) { mockMemoViewModel.insert(match { it.content == finalText && it.type == finalType }) }
         // pendingAudioMemoId 초기화 확인
         assertNull(pendingField.get(activity))
     }

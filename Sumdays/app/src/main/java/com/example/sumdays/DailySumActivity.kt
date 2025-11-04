@@ -14,15 +14,18 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.daily.memo.MemoMergeAdapter
 import java.time.LocalDate
-import com.example.sumdays.daily.diary.DiaryRepository
 import com.example.sumdays.daily.diary.AnalysisRepository
 import kotlinx.coroutines.launch
+import com.example.sumdays.data.DailyEntry
+import androidx.activity.viewModels
+import com.example.sumdays.data.viewModel.DailyEntryViewModel
 
 class DailySumActivity : AppCompatActivity() {
 
     private lateinit var date: String
     private lateinit var recyclerView: RecyclerView
     private lateinit var memoMergeAdapter: MemoMergeAdapter
+    private val viewModel: DailyEntryViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,12 +45,11 @@ class DailySumActivity : AppCompatActivity() {
             memoMergeAdapter.undoLastMerge()
         }
 
-        findViewById<ImageButton>(R.id.skip_icon).setOnClickListener {
-            lifecycleScope.launch {
+            findViewById<ImageButton>(R.id.skip_icon).setOnClickListener {
+                lifecycleScope.launch {
                 val mergedResult = memoMergeAdapter.skipMerge()
-
-                DiaryRepository.saveDiary(date, mergedResult)
-                AnalysisRepository.requestAnalysis(date)
+                viewModel.updateEntry(date = date, diary = mergedResult)
+                AnalysisRepository.requestAnalysis(date, mergedResult, viewModel)
                 moveToReadActivity()
             }
         }

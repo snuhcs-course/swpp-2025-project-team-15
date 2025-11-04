@@ -3,7 +3,7 @@ package com.example.sumdays.data.dao
 import androidx.room.*
 import com.example.sumdays.data.DailyEntry
 import kotlinx.coroutines.flow.Flow
-
+import com.example.sumdays.data.AppDatabase
 @Dao
 interface DailyEntryDao {
 

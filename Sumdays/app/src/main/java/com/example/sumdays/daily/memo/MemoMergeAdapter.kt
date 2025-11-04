@@ -19,6 +19,7 @@ import com.example.sumdays.R
 import com.example.sumdays.network.ApiClient
 import com.google.gson.JsonObject
 
+
 class MemoMergeAdapter(
     private val memoList: MutableList<Memo>,
     private val scope: CoroutineScope,

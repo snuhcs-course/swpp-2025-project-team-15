@@ -1,19 +1,15 @@
-package com.example.sumdays.daily.diary
-
+package com.example.sumdays.data.viewModel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.data.AppDatabase
-import com.example.sumdays.data.DailyEntry
 import kotlinx.coroutines.launch
 
 class DailyEntryViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val dao = AppDatabase.getDatabase(application).dailyEntryDao()
+    private val dao = AppDatabase.Companion.getDatabase(application).dailyEntryDao()
 
     fun getEntry(date: String) =
         dao.getEntry(date).asLiveData()

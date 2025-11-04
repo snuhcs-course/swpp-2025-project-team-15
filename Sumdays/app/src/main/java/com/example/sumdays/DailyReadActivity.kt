@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import androidx.activity.viewModels
-import com.example.sumdays.daily.diary.DailyEntryViewModel
+import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import androidx.lifecycle.LiveData
 import com.example.sumdays.data.DailyEntry
 

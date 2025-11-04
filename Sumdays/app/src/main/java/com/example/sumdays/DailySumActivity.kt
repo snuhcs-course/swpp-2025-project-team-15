@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import com.example.sumdays.data.DailyEntry
 import androidx.activity.viewModels
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
-
+import android.util.Log
 class DailySumActivity : AppCompatActivity() {
 
     private lateinit var date: String
@@ -45,13 +45,17 @@ class DailySumActivity : AppCompatActivity() {
             memoMergeAdapter.undoLastMerge()
         }
 
-            findViewById<ImageButton>(R.id.skip_icon).setOnClickListener {
+        findViewById<ImageButton>(R.id.skip_icon).setOnClickListener {
+                Log.d("MemoMerge", "병합 결과: $0")
                 lifecycleScope.launch {
                 val mergedResult = memoMergeAdapter.skipMerge()
+                    Log.d("MemoMerge", "병합 결과: $1")
                 viewModel.updateEntry(date = date, diary = mergedResult)
+                    Log.d("MemoMerge", "병합 결과: $3")
                 AnalysisRepository.requestAnalysis(date, mergedResult, viewModel)
+                    Log.d("MemoMerge", "병합 결과: $2")
                 moveToReadActivity()
-            }
+                }
         }
 
         // 1. Intent에서 메모 리스트를 받습니다.

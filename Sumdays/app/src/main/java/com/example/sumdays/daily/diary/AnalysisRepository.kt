@@ -14,6 +14,17 @@ object AnalysisRepository {
     suspend fun requestAnalysis(date: String, diary : String?, viewModel: DailyEntryViewModel): AnalysisResponse? {
         return withContext(Dispatchers.IO) {
             try {
+                /* 임시 testing 부분
+                viewModel.updateEntry(
+                    date = date,
+                    keywords = "${date};1;2;3;4;",
+                    aiComment = "${date} 일기인 거 같아요 ",
+                    emotionScore = 100.0,
+                )
+                return@withContext null
+                 임시 testing 부분 */
+
+
                 Log.d("AnalysisRepository", "서버에 '$date' 분석 결과 요청...")
                 if (diary == null) {
                     Log.e("AnalysisRepository", "Date cannot be null for analysis request")
@@ -30,7 +41,7 @@ object AnalysisRepository {
 
                 viewModel.updateEntry(
                     date = date,
-                    diary = analysis.diary,
+                    diary = analysis.diary, // ?
                     keywords = analysis.analysis?.keywords?.joinToString(";"),
                     aiComment = analysis.aiComment,
                     emotionScore = analysis.analysis?.emotionScore,

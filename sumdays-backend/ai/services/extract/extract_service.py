@@ -57,7 +57,7 @@ def compute_style_profile_text(diaries):
     prompt = STYLE_PROFILE_PROMPT.replace("{TEXT}", text)
 
     response = client.chat.completions.create(
-        model=os.getenv("GPT_MODEL", "gpt-4.1-nano"),
+        model=os.getenv("GPT_MODEL_FOR_STYLE_AND_MERGE", "gpt-4.1-mini"),
         messages=[
             {"role": "system", "content": "당신은 일기에 특화된 문체 분석 AI입니다."},
             {"role": "user", "content": prompt}

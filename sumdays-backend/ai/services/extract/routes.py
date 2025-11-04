@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from .extract_service import compute_style_profile_text, compute_style_vector
+from .style_examples import extract_style_examples
 
 extract_bp = Blueprint("extract", __name__, url_prefix="/extract")
 MIN_DIARY_NUM = 3
@@ -14,8 +15,10 @@ def extract_style():
 
     style_vector = compute_style_vector(diaries)
     style_profile_text = compute_style_profile_text(diaries)
+    style_examples = extract_style_examples(diaries)
 
     return jsonify({
         "style_vector": style_vector,
-        "style_profile": style_profile_text
+        "style_profile": style_profile_text,
+        "style_examples": style_examples
     }), 200

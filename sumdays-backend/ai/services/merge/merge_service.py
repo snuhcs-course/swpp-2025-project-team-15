@@ -1,48 +1,54 @@
-from typing import Dict, Any
-from pydantic import BaseModel, Field
-from langchain_openai import ChatOpenAI
-from langchain.prompts import PromptTemplate
 import os
+import numpy as np
+from openai import OpenAI
+from sentence_transformers import SentenceTransformer
+from .style_prompt import build_style_prompt
+from .style_bias import make_logit_bias
 
-class MergedContentResult(BaseModel):
-    """ Represents the result of the memo-mergence """
-    merged_content  : str   = Field(description="result of the memo-mergence")
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
+ko_embed = SentenceTransformer("jhgan/ko-sroberta-multitask")
 
-class MemoMerger:
-    """ Service that analyzes a diary """
-    def __init__(self):
-        """ Initialize the Diary analyzing service. """
-        self.model = ChatOpenAI(
-            model=os.getenv("GPT_MODEL", "gpt-4.1-nano"),
-            temperature=0.5
-        )
+def embed(text):
+    return ko_embed.encode(text, convert_to_numpy=True)
 
-    def merge(self, contents: list[str]) -> Dict[str, Any]:
-        """ Merge two memos  """
-        if len(contents) < 2:
-            raise ValueError("At least two memos are required.")
-        else: 
-            promt_text = """
-            You are helping an app service that completes a single diary by combining memos written during the day. 
-            The notes below are arranged in the order that the user wants to put them together. 
-            Please combine the notes into a diary naturally. Keep in mind that you are not just concatenating strings.
+def cosine(a, b):
+    return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-12))
 
-            Return JSON matching the MergedContentResult schema.
+def merge_with_style(contents, style_vector, style_profile, style_examples):
 
-            Additional instructions:
-            - Respond in the same language as the memos or the user’s input.
-            - Avoid excessive imagination or adding information that is not clearly implied by the memos.
-            - Focus on maintaining a coherent, natural, and concise diary tone without inventing new events.
-            - Keep the tone natural and personal, suitable for a diary entry. Preserve the original tone, style, and sentence endings of the memos
-            ---
-            Make merged diary memo for memos: {memos}
-            """
+    style_prompt = build_style_prompt(style_profile)
+    logit_bias = make_logit_bias(style_profile)
 
-            prompt = PromptTemplate.from_template(promt_text)
-            llm = self.model.with_structured_output(MergedContentResult)
+    # ✅ 일기 생성 지시문 (전체를 자연스럽게 작성)
+    merge_instruction = (
+        "아래 메모들을 참고하여 자연스럽고 부드러운 흐름을 가진 일기를 작성해줘.\n"
+        "문장 길이, 말투, 어미 사용은 예문과 동일하게 유지해줘.\n"
+        "결과는 하나의 완성된 일기 형태여야 하며, 목록 형식이면 안 된다. 문단은 필요하면 나눠도 된다.\n"
+    )
 
-            chain = prompt | llm
-            result = chain.invoke({"memos": "\n".join(f"- {c}" for c in contents)})
-            return {"merged_content": result.merged_content}
+    base_input = merge_instruction + "\n".join(f"- {c}" for c in contents)
 
+    messages = [
+        {"role": "system", "content": style_prompt + "\n\n[사용자 문체 예문]\n" + "\n\n".join(style_examples)},
+        {"role": "user", "content": base_input}
+    ]
+
+    # n 후보 생성
+    res = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=messages,
+        n=4,                 # 4개 후보에서 선택
+        temperature=0.9,
+        max_tokens=500,
+        logit_bias=logit_bias
+    )
+
+    candidates = [c.message.content.strip() for c in res.choices]
+
+    # style_vector 와 가장 비슷한 후보 선택
+    style_vec = np.array(style_vector, dtype=float)
+    sims = [cosine(embed(c), style_vec) for c in candidates]
+    best = candidates[int(np.argmax(sims))]
+
+    return best

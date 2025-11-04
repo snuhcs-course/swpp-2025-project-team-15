@@ -104,6 +104,7 @@ dependencies {
     val roomVersion = "2.6.1" // Room의 최신 안정화 버전으로 교체
     // Room 라이브러리
     implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.sqlite:sqlite-ktx:2.4.0")
     // Kotlin용 Kapt 어노테이션 프로세서
     kapt("androidx.room:room-compiler:$roomVersion")
     // 선택 사항: 코루틴 지원

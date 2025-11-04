@@ -14,7 +14,6 @@ import org.junit.runner.RunWith
 import org.junit.*
 import org.junit.Assert.*
 import io.mockk.*
-import com.example.sumdays.daily.diary.DiaryRepository
 import com.example.sumdays.daily.diary.AnalysisRepository
 import com.example.sumdays.daily.diary.AnalysisResponse
 import com.example.sumdays.daily.diary.AnalysisBlock

@@ -5,22 +5,27 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.example.sumdays.network.ApiClient
 import com.google.gson.JsonObject
+import com.example.sumdays.data.viewModel.DailyEntryViewModel
+import com.google.gson.annotations.SerializedName
 
 object AnalysisRepository {
-
-
-    // 메모리 내 캐시 (날짜 String을 키로, AnalysisResponse를 값으로 저장)
-    private val analysisCache = mutableMapOf<String, AnalysisResponse>()
-    fun getAnalysis(date: String): AnalysisResponse? {
-            return analysisCache[date]
-    }
-
-    //요청 후 캐시에 저장
-    suspend fun requestAnalysis(date: String): AnalysisResponse? {
+    
+    //요청 후 DB에 저장
+    suspend fun requestAnalysis(date: String, diary : String?, viewModel: DailyEntryViewModel): AnalysisResponse? {
         return withContext(Dispatchers.IO) {
             try {
+                /* 임시 testing 부분
+                viewModel.updateEntry(
+                    date = date,
+                    keywords = "${date};1;2;3;4;",
+                    aiComment = "${date} 일기인 거 같아요 ",
+                    emotionScore = 100.0,
+                )
+                return@withContext null
+                 임시 testing 부분 */
+
+
                 Log.d("AnalysisRepository", "서버에 '$date' 분석 결과 요청...")
-                val diary = DiaryRepository.getDiary(date)
                 if (diary == null) {
                     Log.e("AnalysisRepository", "Date cannot be null for analysis request")
                     return@withContext null // Null이면 더 진행하지 않음
@@ -32,7 +37,17 @@ object AnalysisRepository {
 
                 val json = response.body() ?: throw IllegalStateException("Empty body")
                 val analysis = extractAnalysis(json)
-                analysisCache[date] = analysis
+                //  analysisCache[date] = analysis
+
+                viewModel.updateEntry(
+                    date = date,
+                    diary = analysis.diary, // ?
+                    keywords = analysis.analysis?.keywords?.joinToString(";"),
+                    aiComment = analysis.aiComment,
+                    emotionScore = analysis.analysis?.emotionScore,
+                    emotionIcon = null,
+                    themeIcon = analysis.icon
+                )
                 // 4️. 서버가 돌려준 병합 결과 반환
                 return@withContext analysis
             } catch (e: Exception) {
@@ -85,25 +100,4 @@ object AnalysisRepository {
             userId = userId
         )
     }
-
-    /**
-     * 특정 날짜의 캐시된 분석 결과를 삭제합니다. (선택적 기능)
-     * 예를 들어, 사용자가 일기를 수정했을 때 이전 분석 결과를 무효화하기 위해 사용할 수 있습니다.
-     * @param date 날짜 키
-     */
-    fun clearCacheForDate(date: String) {
-        analysisCache.remove(date)
-        Log.d("AnalysisRepository", "'$date' 캐시 삭제됨")
-    }
-
-    /**
-     * 모든 캐시된 분석 결과를 삭제합니다. (선택적 기능)
-     * 예를 들어, 로그아웃 시 호출할 수 있습니다.
-     */
-    fun clearAllCache() {
-        analysisCache.clear()
-        Log.d("AnalysisRepository", "모든 분석 캐시 삭제됨")
-    }
-
-
 }

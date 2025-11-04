@@ -8,7 +8,6 @@ import android.widget.ImageView
 import org.hamcrest.CoreMatchers.`is`
 import androidx.test.core.app.ApplicationProvider
 import com.example.sumdays.daily.diary.AnalysisRepository
-import com.example.sumdays.daily.diary.DiaryRepository
 import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.daily.memo.MemoMergeAdapter
 import io.mockk.*

@@ -19,6 +19,7 @@ import com.example.sumdays.R
 import com.example.sumdays.network.ApiClient
 import com.google.gson.JsonObject
 
+
 class MemoMergeAdapter(
     private val memoList: MutableList<Memo>,
     private val scope: CoroutineScope,
@@ -246,6 +247,13 @@ class MemoMergeAdapter(
 
 
     suspend fun skipMerge(): String{
+        /* 임시 testing 부분
+        var output = ""
+        for (memo in originalMemoMap) {
+            output += memo.value.content
+        }
+        return output
+        임시 testing 부분 */
         val idMutableList = mutableListOf<Int>()
         for (memo in originalMemoMap) {
             idMutableList.add(memo.value.id)

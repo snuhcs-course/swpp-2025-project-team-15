@@ -3,7 +3,6 @@ package com.example.sumdays
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -15,15 +14,18 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.daily.memo.MemoMergeAdapter
 import java.time.LocalDate
-import com.example.sumdays.daily.diary.DiaryRepository
 import com.example.sumdays.daily.diary.AnalysisRepository
 import kotlinx.coroutines.launch
-
+import com.example.sumdays.data.DailyEntry
+import androidx.activity.viewModels
+import com.example.sumdays.data.viewModel.DailyEntryViewModel
+import android.util.Log
 class DailySumActivity : AppCompatActivity() {
 
     private lateinit var date: String
     private lateinit var recyclerView: RecyclerView
     private lateinit var memoMergeAdapter: MemoMergeAdapter
+    private val viewModel: DailyEntryViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,13 +46,13 @@ class DailySumActivity : AppCompatActivity() {
         }
 
         findViewById<ImageButton>(R.id.skip_icon).setOnClickListener {
-            lifecycleScope.launch {
-                val mergedResult = memoMergeAdapter.skipMerge()
-
-                DiaryRepository.saveDiary(date, mergedResult)
-                AnalysisRepository.requestAnalysis(date)
-                moveToReadActivity()
-            }
+                lifecycleScope.launch {
+                    val mergedResult = memoMergeAdapter.skipMerge()
+                    viewModel.updateEntry(date = date, diary = mergedResult)
+                    CalendarActivity.setIfDiaryCompleted(date, true) // conflict 해결
+                    AnalysisRepository.requestAnalysis(date, mergedResult, viewModel)
+                    moveToReadActivity()
+                }
         }
 
         // 1. Intent에서 메모 리스트를 받습니다.

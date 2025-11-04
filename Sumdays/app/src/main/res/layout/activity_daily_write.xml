@@ -7,13 +7,12 @@
     android:id="@+id/write"
     tools:context=".DailyWriteActivity">
 
-    <!-- ← 전체 배경 -->
+    <!-- ... (background, sumdays_logo, header_layout, memo_list_view 등 상단부는 동일) ... -->
     <View
         android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#282d35" />
-
     <ImageView
         android:id="@+id/sumdays_logo"
         android:layout_width="wrap_content"
@@ -25,7 +24,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:translationY="-100dp"/>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/header_layout"
         android:layout_width="match_parent"
@@ -37,7 +35,7 @@
         android:layout_marginEnd="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp">
-
+        <!-- ... (date_text_view, read_diary_button) ... -->
         <TextView
             android:id="@+id/date_text_view"
             android:layout_width="wrap_content"
@@ -49,7 +47,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-
         <Button
             android:id="@+id/read_diary_button"
             android:layout_width="wrap_content"
@@ -59,9 +56,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/memo_list_view"
         android:layout_width="0dp"
@@ -77,6 +72,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header_layout" />
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/input_area"
         android:layout_width="0dp"
@@ -90,7 +86,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp">
 
-        <!-- 아이콘 묶음 -->
+        <!-- 아이콘 묶음 (동일) -->
         <LinearLayout
             android:id="@+id/input_actions"
             android:layout_width="wrap_content"
@@ -99,7 +95,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
-
+            <!-- ... (send_icon, mic_icon, photo_icon) ... -->
             <ImageView
                 android:id="@+id/send_icon"
                 android:layout_width="28dp"
@@ -107,7 +103,6 @@
                 android:src="@drawable/ic_send"
                 android:layout_marginStart="8dp"
                 android:contentDescription="메모 전송" />
-
             <ImageView
                 android:id="@+id/mic_icon"
                 android:layout_width="28dp"
@@ -115,7 +110,6 @@
                 android:src="@drawable/ic_mic"
                 android:layout_marginStart="8dp"
                 android:contentDescription="음성 입력" />
-
             <ImageView
                 android:id="@+id/photo_icon"
                 android:layout_width="28dp"
@@ -125,7 +119,7 @@
                 android:contentDescription="사진 입력" />
         </LinearLayout>
 
-        <!-- 입력창: 아이콘 묶음의 왼쪽까지 꽉 채움 -->
+        <!-- 입력창 (동일) -->
         <EditText
             android:id="@+id/memo_input_edittext"
             android:layout_width="0dp"
@@ -142,8 +136,45 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginEnd="12dp" />
+
+        <!-- ★★★ 변경점: ProgressBar -> LinearLayout (음파 뷰) ★★★ -->
+        <LinearLayout
+            android:id="@+id/audio_wave_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@drawable/rounded_edittext_background"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@id/memo_input_edittext"
+            app:layout_constraintEnd_toEndOf="@id/memo_input_edittext"
+            app:layout_constraintTop_toTopOf="@id/memo_input_edittext"
+            app:layout_constraintBottom_toBottomOf="@id/memo_input_edittext"
+            tools:visibility="visible">
+
+            <View
+                android:id="@+id/wave_bar_1"
+                android:layout_width="4dp"
+                android:layout_height="24dp"
+                android:layout_marginHorizontal="2dp"
+                android:background="@color/green_light"/>
+            <View
+                android:id="@+id/wave_bar_2"
+                android:layout_width="4dp"
+                android:layout_height="24dp"
+                android:layout_marginHorizontal="2dp"
+                android:background="@color/green_light"/>
+            <View
+                android:id="@+id/wave_bar_3"
+                android:layout_width="4dp"
+                android:layout_height="24dp"
+                android:layout_marginHorizontal="2dp"
+                android:background="@color/green_light"/>
+
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- ... (bottom_buttons_layout include는 동일) ... -->
     <include
         android:id="@+id/bottom_buttons_layout"
         layout="@layout/include_nav_daily"
@@ -156,3 +187,4 @@
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

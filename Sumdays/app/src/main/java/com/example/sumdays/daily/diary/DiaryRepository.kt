@@ -1,5 +1,7 @@
 package com.example.sumdays.daily.diary
 
+import com.example.sumdays.CalendarActivity
+
 object DiaryRepository {
     private val diaryMap = mutableMapOf<String, String>()
 
@@ -7,5 +9,6 @@ object DiaryRepository {
 
     fun saveDiary(date: String, text: String) {
         diaryMap[date] = text
+        CalendarActivity.setIfDiaryCompleted(date, true)
     }
 }

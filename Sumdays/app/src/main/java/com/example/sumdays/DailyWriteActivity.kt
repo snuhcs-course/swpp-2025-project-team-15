@@ -222,7 +222,6 @@ class DailyWriteActivity : AppCompatActivity() {
         memoInputEditText = findViewById(R.id.memo_input_edittext)
         sendIcon = findViewById(R.id.send_icon)
         micIcon = findViewById(R.id.mic_icon)
-        photoIcon = findViewById(R.id.photo_icon)
         readDiaryButton = findViewById(R.id.read_diary_button)
 
         // 음파 뷰 및 막대 초기화
@@ -336,9 +335,6 @@ class DailyWriteActivity : AppCompatActivity() {
         }
         micIcon.setOnClickListener {
             audioRecorderHelper.checkPermissionAndToggleRecording()
-        }
-        photoIcon.setOnClickListener {
-            showImageAnalysisOptions()
         }
     }
 

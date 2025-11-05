@@ -22,7 +22,8 @@ import com.example.sumdays.daily.memo.MemoDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import org.threeten.bp.LocalDate
+
 class ReminderReplyReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 

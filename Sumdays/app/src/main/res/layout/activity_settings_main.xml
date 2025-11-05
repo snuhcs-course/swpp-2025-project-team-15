@@ -44,7 +44,7 @@
 
                 <TextView
                     android:id="@+id/userStats"
-                    android:text="🔥 Strike: 12   🧱 Blocks: 34   🍇 Grapes: 150"
+                    android:text="🔥 Strike: 12   🍃 leaves: 34   🍇 Grapes: 10"
                     android:textSize="14sp"
                     android:textColor="#FFFFFF"
                     android:layout_marginTop="4dp"

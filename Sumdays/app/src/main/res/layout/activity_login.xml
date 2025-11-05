@@ -141,7 +141,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="80dp"
         android:padding="8dp"
-        android:text="(개발자용) 로그인 스킵"
+        android:text="로그인 스킵"
         android:textColor="@color/design_default_color_primary"
         app:layout_constraintEnd_toEndOf="@+id/signup_text"
         app:layout_constraintStart_toStartOf="@+id/signup_text"

@@ -49,7 +49,6 @@ class DailySumActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     val mergedResult = memoMergeAdapter.skipMerge()
                     viewModel.updateEntry(date = date, diary = mergedResult)
-                    CalendarActivity.setIfDiaryCompleted(date, true) // conflict 해결
                     AnalysisRepository.requestAnalysis(date, mergedResult, viewModel)
                     moveToReadActivity()
                 }

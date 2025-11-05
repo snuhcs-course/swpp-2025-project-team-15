@@ -2,6 +2,7 @@ package com.example.sumdays.data.dao
 
 import androidx.room.*
 import com.example.sumdays.data.DailyEntry
+import com.example.sumdays.data.EmojiData
 import kotlinx.coroutines.flow.Flow
 import com.example.sumdays.data.AppDatabase
 @Dao
@@ -10,6 +11,8 @@ interface DailyEntryDao {
     // ✅ 1️⃣ 특정 날짜의 엔트리(일기) 가져오기
     @Query("SELECT * FROM daily_entry WHERE date = :date")
     fun getEntry(date: String): Flow<DailyEntry?>
+
+
 
     /////////// update
     // 1. (비공개) 날짜가 없으면 초기값으로 삽입하는 함수
@@ -60,4 +63,7 @@ interface DailyEntryDao {
     // ✅ 4️⃣ 해당 날짜의 일기 삭제
     @Query("DELETE FROM daily_entry WHERE date = :date")
     suspend fun deleteEntry(date: String)
+
+    @Query("SELECT date, diary, themeIcon FROM daily_entry WHERE date BETWEEN :fromDate AND :toDate")
+    fun getMonthlyEmojis(fromDate : String, toDate : String): Flow<List<EmojiData>>
 }

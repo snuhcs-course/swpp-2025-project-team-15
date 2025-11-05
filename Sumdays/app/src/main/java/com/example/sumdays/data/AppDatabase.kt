@@ -10,7 +10,7 @@ import com.example.sumdays.data.DailyEntry
 
 @Database(
     entities = [DailyEntry::class /*, 다른 Entity들 추가 가능 */],
-    version = 1
+    version = 3
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun dailyEntryDao(): DailyEntryDao
@@ -25,9 +25,9 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "sumdays.db"
+                    "sumdays_1.db"
                 )
-                    // .fallbackToDestructiveMigration() // 필요 시만 사용
+                    .fallbackToDestructiveMigration() // 필요 시만 사용
                     .build()
                 INSTANCE = instance
                 instance

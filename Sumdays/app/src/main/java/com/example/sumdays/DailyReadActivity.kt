@@ -138,6 +138,7 @@ class DailyReadActivity : AppCompatActivity() {
         val updatedContent = binding.diaryContentEditText.text.toString()
         val dateKey = repoKeyFormatter.format(currentDate.time)
         viewModel.updateEntry(date = dateKey, diary = updatedContent)
+        // viewModel.updateEntry(date = dateKey, diary = updatedContent, themeIcon = "#") // test용
     }
 
     private fun showKeyboard(view: View) {

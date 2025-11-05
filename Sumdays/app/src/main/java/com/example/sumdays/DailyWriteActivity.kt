@@ -31,7 +31,6 @@ import com.example.sumdays.daily.memo.MemoViewModel
 import com.example.sumdays.daily.memo.MemoViewModelFactory
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.sumdays.daily.memo.MemoDragAndDropCallback
 import com.example.sumdays.audio.AudioRecorderHelper
@@ -39,6 +38,9 @@ import com.example.sumdays.image.ImageOcrHelper
 import android.util.Log
 import androidx.core.content.ContextCompat
 import java.util.ArrayList
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 // 일기 작성 및 수정 화면을 담당하는 액티비티
 class DailyWriteActivity : AppCompatActivity() {
@@ -141,7 +143,7 @@ class DailyWriteActivity : AppCompatActivity() {
                     val dummyMemo = Memo(
                         id = tempId,
                         content = "음성 인식 중...",
-                        timestamp = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")),
+                        timestamp = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Calendar.getInstance().time),
                         date = date,
                         order = memoAdapter.itemCount ,
                         type = "audio"
@@ -421,7 +423,7 @@ class DailyWriteActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun addTextMemoToList(content: String, memoType: String = "text") {
-        val currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+        val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Calendar.getInstance().time)
         val newMemo = Memo(
             id = 0, // Room이 자동 생성
             content = content,

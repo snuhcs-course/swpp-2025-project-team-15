@@ -19,7 +19,9 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
 import org.threeten.bp.format.DateTimeFormatter
 import com.jakewharton.threetenabp.AndroidThreeTen
-
+import com.example.sumdays.data.viewModel.CalendarViewModel
+import androidx.activity.viewModels
+import androidx.lifecycle.LiveData
 
 class CalendarActivity : AppCompatActivity() {
 
@@ -29,22 +31,11 @@ class CalendarActivity : AppCompatActivity() {
     private lateinit var btnPrevMonth: ImageButton
     private lateinit var btnNextMonth: ImageButton
 
-
-    // emojiMap: 이모지 데이터를 저장 <날짜, 이모지> -> TODO: 나중에 db에 맞춰 수정 필요
-    // ex) "2025-10-10" -> "😊"
-    private val emojiMap = mutableMapOf<String, String>()
-
-    companion object {
-        private val isDiaryCompletedMap = mutableMapOf<String, Boolean>()
-
-        fun getIfDiaryCompleted(date: String): Boolean {
-            return isDiaryCompletedMap[date] ?: false
-        }
-
-        fun setIfDiaryCompleted(date: String, value: Boolean) {
-            isDiaryCompletedMap[date] = value
-        }
-    }
+    // ▼▼▼▼▼ 2. '구독 연결선' 역할을 할 LiveData 변수 추가 ▼▼▼▼▼
+    private val viewModel: CalendarViewModel by viewModels()
+    var currentStatusMap: Map<String, Pair<Boolean, String?>> = emptyMap()
+    private var currentMonthLiveData: LiveData<Map<String, Pair<Boolean, String?>>>? = null
+    // ▲▲▲▲▲ 2. 끝 ▲▲▲▲▲
 
     // 캘린더 언어 설정
     private var currentLanguage: CalendarLanguage = CalendarLanguage.ENGLISH
@@ -60,7 +51,6 @@ class CalendarActivity : AppCompatActivity() {
         btnPrevMonth = findViewById(R.id.btn_prev_month)
         btnNextMonth = findViewById(R.id.btn_next_month)
         setCustomCalendar()
-        loadEventData()
         setStatisticBtnListener()
         setNavigationBar()
     }
@@ -144,6 +134,9 @@ class CalendarActivity : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 updateMonthYearTitle(position)
+                // ▼▼▼▼▼ 4. [트리거 1] 달이 바뀌면 데이터 구독 함수 호출 ▼▼▼▼▼
+                observeMonthlyData(position)
+                // ▲▲▲▲▲ 4. 끝 ▲▲▲▲▲
             }
         })
 
@@ -159,15 +152,46 @@ class CalendarActivity : AppCompatActivity() {
 
         // 현재 월 표시
         updateMonthYearTitle(startPosition)
+
+        // ▼▼▼▼▼ 5. [트리거 2] 앱 실행 시 첫 화면의 데이터 구독 ▼▼▼▼▼
+        observeMonthlyData(startPosition)
+        // ▲▲▲▲▲ 5. 끝 ▲▲▲▲▲
     }
 
+    // ▼▼▼▼▼ 6. DailyReadActivity의 observeEntry()와 동일한 패턴의 함수 (새로 추가) ▼▼▼▼▼
+    /**
+     * 특정 position(월)에 해당하는 데이터를 구독(observe)합니다.
+     * DailyReadActivity.observeEntry()와 동일한 로직을 수행합니다.
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun observeMonthlyData(position: Int) {
+        // 1. 날짜 키(fromDate, toDate) 계산
+        val targetMonth = getTargetMonthForPosition(position)
+        val fromDate = targetMonth.atDay(1).toString()
+        val toDate = targetMonth.atEndOfMonth().toString()
+
+        // 2. (핵심) 기존 옵저버 해제
+        currentMonthLiveData?.removeObservers(this)
+
+        // 3. (핵심) ViewModel에서 새로운 LiveData 받아오기
+        currentMonthLiveData = viewModel.getMonthlyEmojis(fromDate, toDate)
+
+        // 4. (핵심) 새로운 LiveData 구독 시작
+        currentMonthLiveData?.observe(this) { map ->
+            // LiveData가 (DB 변경 혹은 월 변경으로) 업데이트되면 실행됨
+
+            // 5. Activity의 데이터 변수 업데이트
+            currentStatusMap = map
+
+            // 6. 어댑터에 갱신 알림 (현재 보이는 페이지만 갱신)
+            monthAdapter.notifyItemChanged(calendarViewPager.currentItem)
+        }
+    }
+    // ▲▲▲▲▲ 6. 끝 ▲▲▲▲▲
     /** 입력 받은 position 위치의 달/년도 계산하여 반환함 */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun updateMonthYearTitle(position: Int) {
-        val baseYearMonth = YearMonth.now()
-        val startPosition = Int.MAX_VALUE / 2
-        val monthDiff = position - startPosition
-        val targetMonth = baseYearMonth.plusMonths(monthDiff.toLong())
+        val targetMonth = getTargetMonthForPosition(position)
 
         val (pattern, locale) = when (currentLanguage) {
             CalendarLanguage.KOREAN -> Pair(R.string.month_year_format, Locale.KOREAN)
@@ -178,19 +202,10 @@ class CalendarActivity : AppCompatActivity() {
         tvMonthYear.text = targetMonth.format(formatter)
     }
 
-    /** 이모지 데이터를 가져와 emojiMap에 저장함. 현재는 테스트용. TODO: 나중에 db에 맞춰 수정 필요 */
-    private fun loadEventData() {
-        val today = LocalDate.now().toString()
-        val nextWeek = LocalDate.now().plusWeeks(1).toString()
-
-        emojiMap[today] = "⭐"
-        emojiMap[nextWeek] = "💻"
-        emojiMap["2025-10-25"] = "🥳"
-        setIfDiaryCompleted("2025-10-25", true)
-    }
-
-    /** dayAdapter에서 호출하는 함수. 이모지 존재 유무에 따른 원 배경 설정을 위함 */
-    fun getEventEmoji(dateString: String): String? {
-        return emojiMap[dateString]
+    private fun getTargetMonthForPosition(position: Int): YearMonth {
+        val baseYearMonth = YearMonth.now()
+        val startPosition = Int.MAX_VALUE / 2
+        val monthDiff = position - startPosition
+        return baseYearMonth.plusMonths(monthDiff.toLong())
     }
 }

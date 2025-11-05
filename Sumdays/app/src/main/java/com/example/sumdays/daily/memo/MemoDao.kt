@@ -31,4 +31,8 @@ interface MemoDao {
     // 특정 메모를 삭제
     @Delete
     suspend fun delete(memo: Memo)
+
+    // reminder에서 memo를 추가할 떄 order 알기 위해 사용
+    @Query("SELECT COUNT(*) FROM memo_table WHERE date = :date")
+    suspend fun getMemoCountByDate(date: String): Int
 }

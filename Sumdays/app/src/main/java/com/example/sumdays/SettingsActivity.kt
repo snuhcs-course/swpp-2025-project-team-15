@@ -5,11 +5,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sumdays.databinding.ActivitySettingsMainBinding
 import com.example.sumdays.settings.AccountSettingsActivity
-import com.example.sumdays.settings.BackupSettingsActivity
 import com.example.sumdays.settings.DiaryStyleSettingsActivity
 import com.example.sumdays.settings.NotificationSettingsActivity
-import com.example.sumdays.settings.ScreenLockSettingsActivity
-import com.example.sumdays.settings.ThemeSettingsActivity
 import org.threeten.bp.LocalDate
 
 class SettingsActivity : AppCompatActivity() {
@@ -47,16 +44,9 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setSettingsBtnListener() = with(binding) {
-        binding.themeBlock.setOnClickListener {
-            startActivity(Intent(this@SettingsActivity, ThemeSettingsActivity::class.java))
-        }
 
         binding.notificationBlock.setOnClickListener {
             startActivity(Intent(this@SettingsActivity, NotificationSettingsActivity::class.java))
-        }
-
-        binding.lockBlock.setOnClickListener {
-            startActivity(Intent(this@SettingsActivity, ScreenLockSettingsActivity::class.java))
         }
 
         binding.diaryStyleBlock.setOnClickListener {
@@ -65,10 +55,6 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.accountBlock.setOnClickListener {
             startActivity(Intent(this@SettingsActivity, AccountSettingsActivity::class.java))
-        }
-
-        binding.backupBlock.setOnClickListener {
-            startActivity(Intent(this@SettingsActivity, BackupSettingsActivity::class.java))
         }
     }
 }

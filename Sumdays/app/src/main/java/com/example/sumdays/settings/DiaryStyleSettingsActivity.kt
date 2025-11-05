@@ -3,7 +3,6 @@ package com.example.sumdays.settings
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sumdays.R
-import com.example.sumdays.databinding.ActivitySettingsBackupBinding
 import com.example.sumdays.databinding.ActivitySettingsDiaryStyleBinding
 
 class DiaryStyleSettingsActivity : AppCompatActivity() {

@@ -61,33 +61,12 @@
                 android:background="#DDDDDD" />
 
             <!-- 아래 항목들 (버튼 역할) -->
-            <LinearLayout
-                android:id="@+id/themeBlock"
-                style="@style/SettingsItemStyle" >
-                <TextView
-                    android:text="테마 설정"
-                    style="@style/TextAppearance.App.Normal"
-                    android:textColor="#FFFFFF"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/notificationBlock"
                 style="@style/SettingsItemStyle" >
                 <TextView
                     android:text="알림 설정"
-                    style="@style/TextAppearance.App.Normal"
-                    android:textColor="#FFFFFF"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/lockBlock"
-                style="@style/SettingsItemStyle" >
-                <TextView
-                    android:text="화면 잠금"
                     style="@style/TextAppearance.App.Normal"
                     android:textColor="#FFFFFF"
                     android:layout_width="match_parent"
@@ -110,17 +89,6 @@
                 style="@style/SettingsItemStyle" >
                 <TextView
                     android:text="계정 설정"
-                    style="@style/TextAppearance.App.Normal"
-                    android:textColor="#FFFFFF"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/backupBlock"
-                style="@style/SettingsItemStyle">
-                <TextView
-                    android:text="데이터 백업"
                     style="@style/TextAppearance.App.Normal"
                     android:textColor="#FFFFFF"
                     android:layout_width="match_parent"

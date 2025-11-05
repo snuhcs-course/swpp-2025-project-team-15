@@ -30,30 +30,12 @@ class SettingsActivityTest {
     // --- Settings blocks ---
 
     @Test
-    fun clickingThemeBlock_navigatesToThemeSettings() {
-        val activity = launch()
-        activity.findViewById<android.view.View>(R.id.themeBlock).performClick()
-
-        val next = Shadows.shadowOf(activity).nextStartedActivity
-        assertThat(next.component?.className, `is`(ThemeSettingsActivity::class.java.name))
-    }
-
-    @Test
     fun clickingNotificationBlock_navigatesToNotificationSettings() {
         val activity = launch()
         activity.findViewById<android.view.View>(R.id.notificationBlock).performClick()
 
         val next = Shadows.shadowOf(activity).nextStartedActivity
         assertThat(next.component?.className, `is`(NotificationSettingsActivity::class.java.name))
-    }
-
-    @Test
-    fun clickingLockBlock_navigatesToScreenLockSettings() {
-        val activity = launch()
-        activity.findViewById<android.view.View>(R.id.lockBlock).performClick()
-
-        val next = Shadows.shadowOf(activity).nextStartedActivity
-        assertThat(next.component?.className, `is`(ScreenLockSettingsActivity::class.java.name))
     }
 
     @Test
@@ -72,15 +54,6 @@ class SettingsActivityTest {
 
         val next = Shadows.shadowOf(activity).nextStartedActivity
         assertThat(next.component?.className, `is`(AccountSettingsActivity::class.java.name))
-    }
-
-    @Test
-    fun clickingBackupBlock_navigatesToBackupSettings() {
-        val activity = launch()
-        activity.findViewById<android.view.View>(R.id.backupBlock).performClick()
-
-        val next = Shadows.shadowOf(activity).nextStartedActivity
-        assertThat(next.component?.className, `is`(BackupSettingsActivity::class.java.name))
     }
 
     // --- Navigation bar buttons ---

@@ -12,6 +12,8 @@ import org.threeten.bp.LocalDate
 import androidx.lifecycle.ViewModelProvider
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import kotlinx.coroutines.*
+import com.example.sumdays.auth.SessionManager
+import com.example.sumdays.LoginActivity
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -28,6 +30,14 @@ class SettingsActivity : AppCompatActivity() {
         userStatsPrefs = UserStatsPrefs(this)
         viewModel = ViewModelProvider(this).get(DailyEntryViewModel::class.java)
 
+
+        binding.logoutBlock.setOnClickListener {
+            SessionManager.clearSession()
+            // 로그인 화면으로 이동
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
         // 3. 닉네임 로드 및 표시 함수 호출
         loadAndDisplayNickname()
         calculateAndDisplayStreak() // ★ Strike 계산 시작

@@ -32,6 +32,8 @@ class SettingsActivity : AppCompatActivity() {
         loadAndDisplayNickname()
         calculateAndDisplayStreak() // ★ Strike 계산 시작
 
+        loadAndDisplayCounts() // ★ Leaf와 Grape 카운트 표시 함수 호출 ★
+
         setSettingsBtnListener()
         setNavigationBtnListener()
     }
@@ -83,6 +85,21 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         return currentStreak
+    }
+
+    /**
+     * UserStatsPrefs에서 Leaf 및 Grape 카운트를 가져와 UI에 표시하는 함수
+     */
+    private fun loadAndDisplayCounts() {
+        // 1. Leaf Count 로드
+        val leafCount = userStatsPrefs.getLeafCount()
+        // 2. Grape Count 로드
+        val grapeCount = userStatsPrefs.getGrapeCount()
+
+        // 3. UI에 반영
+        // ActivitySettingsMainBinding.xml 레이아웃에 각각의 TextView ID가 있다고 가정합니다.
+        binding.leaves.text = " \uD83C\uDF43 leaves: "+leafCount.toString()
+        binding.grapes.text = " \uD83C\uDF47 Grapes: "+grapeCount.toString()
     }
 
     /**

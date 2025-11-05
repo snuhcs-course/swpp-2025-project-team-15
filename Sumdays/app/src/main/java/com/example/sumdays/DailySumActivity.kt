@@ -108,7 +108,6 @@ class DailySumActivity : AppCompatActivity() {
 
     private suspend fun saveDiary(mergedResult: String){
         viewModel.updateEntry(date = date, diary = mergedResult)
-        CalendarActivity.setIfDiaryCompleted(date, true)
         AnalysisRepository.requestAnalysis(date, mergedResult, viewModel)
     }
 

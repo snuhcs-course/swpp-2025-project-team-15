@@ -33,7 +33,7 @@
         android:orientation="vertical"
         android:gravity="bottom|center_horizontal"
         app:layout_constraintTop_toBottomOf="@id/grape_icon"
-        app:layout_constraintBottom_toTopOf="@+id/month_title"
+        app:layout_constraintBottom_toTopOf="@+id/month_control_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="-20dp"
@@ -55,17 +55,50 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/month_title"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/month_control_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="2025년 9월"
-        android:textSize="18sp"
-        android:textColor="@android:color/white"
-        android:textStyle="bold"
-
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="-10dp">
+
+        <!-- 이전 달 버튼 -->
+        <ImageButton
+            android:id="@+id/btn_prev_month"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_arrow_back_ios"
+            android:background="@android:color/transparent"
+            android:layout_marginStart="16dp"
+            android:contentDescription="이전 달" />
+
+        <!-- 월 제목 -->
+        <TextView
+            android:id="@+id/month_title"
+
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2025년 9월"
+            android:textSize="18sp"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+        <!-- 다음 달 버튼 -->
+        <ImageButton
+            android:id="@+id/btn_next_month"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="다음 달"
+            android:src="@drawable/ic_arrow_forward_ios" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

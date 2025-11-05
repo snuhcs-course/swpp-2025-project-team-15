@@ -11,6 +11,8 @@ import com.example.sumdays.settings.NotificationSettingsActivity
 import com.example.sumdays.settings.ScreenLockSettingsActivity
 import com.example.sumdays.settings.ThemeSettingsActivity
 import org.threeten.bp.LocalDate
+import com.example.sumdays.auth.SessionManager
+import com.example.sumdays.LoginActivity
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -25,7 +27,13 @@ class SettingsActivity : AppCompatActivity() {
         binding.userBlock.setOnClickListener {
 
         }
-
+        binding.logoutBlock.setOnClickListener {
+            SessionManager.clearSession()
+            // 로그인 화면으로 이동
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
         setSettingsBtnListener()
         setNavigationBtnListener()
     }

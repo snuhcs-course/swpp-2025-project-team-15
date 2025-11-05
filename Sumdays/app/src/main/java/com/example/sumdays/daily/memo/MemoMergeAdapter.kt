@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
 import com.example.sumdays.network.ApiClient
 import com.google.gson.JsonObject
-
+import java.io.InputStreamReader
 
 class MemoMergeAdapter(
     private val memoList: MutableList<Memo>,
@@ -126,6 +126,9 @@ class MemoMergeAdapter(
         private val content: TextView = itemView.findViewById(R.id.memo_text)
         private val timestamp: TextView = itemView.findViewById(R.id.memo_time)
         fun bind(m: Memo) { content.text = m.content; timestamp.text = m.timestamp }
+        fun updateTextOnly(text: String) {
+            content.text = text
+        }
     }
 
     private fun maybeNotifyAllMerged() {
@@ -136,57 +139,65 @@ class MemoMergeAdapter(
     private fun mergeByIndex(fromIndex: Int, toIndex: Int, mergedIds: List<Int>) {
         if (fromIndex !in memoList.indices || toIndex !in memoList.indices) return
 
-        // 1) 되돌리기 레코드 저장 (변경 전 스냅샷)
         val record = MergeRecord(
             fromIndexBefore = fromIndex,
             toIndexBefore   = toIndex,
             fromMemo        = memoList[fromIndex],
             toMemoBefore    = memoList[toIndex],
-            mergedIds = mutableListOf<Int>()
+            mergedIds = mutableListOf()
         )
 
-
-        // 2) 실제 머지 수행 (기존 네 로직)
-        val fromMemo = memoList[fromIndex]
-        val toMemo   = memoList[toIndex]
-
         scope.launch(Dispatchers.IO) {
-            try {
-                val mergedText = mergeTextByIds(mergedIds)
-                mergedIds.forEach {
-                    updateIdMap(it, mergedIds)
+
+            // 1) 먼저 UI에서 fromIndex 제거 → **이게 먼저 되어야 스트리밍 UI 업데이트가 안전해짐**
+            var targetIndex: Int
+            withContext(Dispatchers.Main) {
+                memoList.removeAt(fromIndex)
+                notifyItemRemoved(fromIndex)
+
+                // 제거 후에야 올바른 targetIndex 계산 가능
+                targetIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
+            }
+
+            // 2) 스트리밍 병합 시작
+            val finalMergedText = mergeTextByIds(mergedIds, endFlag = false) { partial ->
+
+                scope.launch(Dispatchers.Main) {
+                    // ✅ 안전성 체크 꼭 필요
+                    if (targetIndex in memoList.indices) {
+                        memoList[targetIndex] = memoList[targetIndex].copy(content = partial)
+                        notifyItemChanged(targetIndex, partial)
+                    }
+                }
+            }
+
+            // 3) ID 업데이트
+            mergedIds.forEach { updateIdMap(it, mergedIds) }
+
+            // 4) 스트림 종료 후 최종 내용 고정
+            withContext(Dispatchers.Main) {
+                if (targetIndex in memoList.indices) {
+                    memoList[targetIndex] = memoList[targetIndex].copy(content = finalMergedText)
+                    notifyItemChanged(targetIndex, finalMergedText)
                 }
 
-                withContext(Dispatchers.Main) {
-                    // 1) 먼저 from 제거해서 인덱스 변동을 적용
-                    memoList.removeAt(fromIndex)
-                    notifyItemRemoved(fromIndex)
-
-                    // 2) 제거 후의 타깃 인덱스 계산
-                    val targetIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
-
-                    // 3) 타깃에 병합 내용 반영
-                    memoList[targetIndex] = memoList[targetIndex].copy(content = mergedText.toString())
-                    notifyItemChanged(targetIndex)
-
-                    // 4) undo 스택 push (원한다면 record도 타깃 인덱스 after 기준으로 보정)
-                    undoStack.addLast(record)
-
-                    // 5) memoList 하나 남았으면 팝업 띄우기
-                    maybeNotifyAllMerged()
-                }
-            } catch (e: Exception) {
-                Log.e("MemoMergeAdapter", "merge failed: ${e.message}", e)
+                undoStack.addLast(record)
+                maybeNotifyAllMerged()
             }
         }
     }
+
 
     fun updateIdMap(targetId: Int, mergedIds: List<Int>){
         idToMergedIds[targetId] = mergedIds.toMutableList()
     }
 
     /** 주어진 Memo Id들에 해당하는 Memo text들을 OpenAI를 이용해 하나로 합친다. 합쳐진 문장 반환 */
-    suspend fun mergeTextByIds(mergedIds: List<Int>): String {
+    suspend fun mergeTextByIds(
+        mergedIds: List<Int>,
+        endFlag: Boolean = false,
+        onPartial: (String) -> Unit = {}
+    ): String {
 
         // 1️. 서버에 보낼 Memo 리스트 구성
         val memos = mutableListOf<MemoPayload>()
@@ -216,19 +227,38 @@ class MemoMergeAdapter(
             "눈물도 나오고 콧물도 나왔다"
         )
         Log.d("test", "TEST: 0")
-        val request = MergeRequest(memos = memos, endFlag = true, testStylePrompt, testStyleExample)
+        val request = MergeRequest(memos = memos, endFlag = endFlag, testStylePrompt, testStyleExample)
 
+        if (endFlag) {
+            // skip button => 마지막 완성 → JSON 반환
+            val response = ApiClient.api.mergeMemos(request)
+            val json = response.body() ?: throw IllegalStateException("Empty final response")
+            return extractMergedText(json)
+        }
 
         Log.d("test", "TEST: 1")
         // 3️. API 호출
-        val response = ApiClient.api.mergeMemos(request)
+        val call = ApiClient.api.mergeMemosStream(request)
+        val response = call.execute()
 
-        Log.d("test", "TEST: 2")
-        val json = response.body() ?: throw IllegalStateException("Empty body")
-        val merged = extractMergedText(json)
+        val stream = response.body()?.byteStream()
+            ?: throw IllegalStateException("Empty streaming body")
 
-        // 4️. 서버가 돌려준 병합 결과 반환
-        return merged
+        val reader = InputStreamReader(stream, Charsets.UTF_8)
+        val sb = StringBuilder()
+        val charBuffer = CharArray(64)
+
+        while (true) {
+            val read = reader.read(charBuffer)
+            if (read == -1) break
+
+            val chunk = String(charBuffer, 0, read)
+            sb.append(chunk)
+
+            onPartial?.invoke(sb.toString()) // 여기서 UI로 즉시 전달
+        }
+
+        return sb.toString()
     }
 
     /** extract merged text from json file */
@@ -286,20 +316,23 @@ class MemoMergeAdapter(
 
 
     suspend fun mergeAllMemo(): String{
-        /* 임시 testing 부분
-        var output = ""
-        for (memo in originalMemoMap) {
-            output += memo.value.content
-        }
-        return output
-        임시 testing 부분 */
         val idMutableList = mutableListOf<Int>()
         for (memo in originalMemoMap) {
             idMutableList.add(memo.value.id)
         }
         val idList = idMutableList.toList()
 
-        return mergeTextByIds(idList)
+        return mergeTextByIds(idList, endFlag = true)
     }
+
+    override fun onBindViewHolder(holder: VH, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty()) {
+            val partialText = payloads.last() as String
+            holder.updateTextOnly(partialText)
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
+        }
+    }
+
 }
 

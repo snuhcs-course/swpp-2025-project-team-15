@@ -72,6 +72,7 @@ class DailySumActivity : AppCompatActivity() {
 
         // ✅ 드래그-머지 지원 어댑터로 교체
         memoMergeAdapter = MemoMergeAdapter(initialMemoList, lifecycleScope, ::showAllMergedSheet)
+        recyclerView.itemAnimator = null // streaming시 메모 깜빡임 방지
         recyclerView.adapter = memoMergeAdapter
 
         setupNavigationBar()

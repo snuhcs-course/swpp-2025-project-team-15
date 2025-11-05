@@ -12,6 +12,8 @@ class UserStatsPrefs(context: Context) {
         private const val KEY_STREAK = "current_streak"
         private const val KEY_LEAF_COUNT = "leaf_count"
         private const val KEY_GRAPE_COUNT = "grape_count"
+        private const val KEY_ACTIVE_STYLE_ID = "active_style_id"
+        private const val DEFAULT_STYLE_ID = 0L // 활성 스타일이 없을 때의 기본값
     }
 
     // SharedPreferences 인스턴스 초기화
@@ -61,5 +63,32 @@ class UserStatsPrefs(context: Context) {
         return prefs.getInt(KEY_GRAPE_COUNT, 0) // 기본값 0
     }
 
-    // 필요하다면, 모든 통계 정보를 한 번에 저장/로드하는 메서드를 추가할 수 있습니다.
+    // ===================================
+    // ★ AI 스타일 설정 관련 로직 (추가됨) ★
+    // ===================================
+
+    /**
+     * 현재 활성 스타일의 ID를 SharedPreferences에 저장합니다.
+     */
+    fun saveActiveStyleId(styleId: Long) {
+        prefs.edit().putLong(KEY_ACTIVE_STYLE_ID, styleId).apply()
+    }
+
+    /**
+     * 저장된 활성 스타일의 ID를 가져옵니다.
+     * 활성 스타일이 설정되지 않았다면 null을 반환합니다.
+     */
+    fun getActiveStyleId(): Long? {
+        val id = prefs.getLong(KEY_ACTIVE_STYLE_ID, DEFAULT_STYLE_ID)
+        // 활성 스타일이 없으면 0L (DEFAULT_STYLE_ID)이므로, null로 처리하여 '비활성' 상태를 나타냅니다.
+        return if (id == DEFAULT_STYLE_ID) null else id
+    }
+
+    /**
+     * 활성 스타일 ID 설정을 해제(제거)합니다.
+     * (스타일 삭제 시 활성 스타일이었다면 호출)
+     */
+    fun clearActiveStyleId() {
+        prefs.edit().remove(KEY_ACTIVE_STYLE_ID).apply()
+    }
 }

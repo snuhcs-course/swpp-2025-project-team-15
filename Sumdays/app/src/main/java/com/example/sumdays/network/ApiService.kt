@@ -10,6 +10,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.Part
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import retrofit2.http.Header
 import retrofit2.http.Streaming
 
 interface ApiService {
@@ -33,6 +34,13 @@ interface ApiService {
     ): Call<OcrResponse>
     @POST("/api/ai/analyze/")
     suspend fun diaryAnalyze(@Body req: AnalysisRequest): retrofit2.Response<com.google.gson.JsonObject>
+
+    @Multipart
+    @POST("api/ai/extract-style")
+    fun extractStyle(
+        @Part diaries: List<@JvmSuppressWildcards MultipartBody.Part>,
+        @Part images: List<MultipartBody.Part>
+    ): Call<StyleExtractionResponse>
 }
 
 // 응답 DTO (nullable 권장)

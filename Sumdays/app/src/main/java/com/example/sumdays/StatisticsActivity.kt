@@ -17,11 +17,17 @@ import com.example.sumdays.statistics.SummaryDetails
 import com.example.sumdays.statistics.WeekSummary
 import com.example.sumdays.statistics.WeekSummaryForMonth
 import java.time.LocalDate
+import android.widget.TextView // TextView 임포트 추가
+import android.view.View // View 임포트 추가 (버튼 가시성 설정용)
 
 class StatisticsActivity : AppCompatActivity() {
 
     private lateinit var monthViewPager: ViewPager2
     private lateinit var statisticsAdapter: StatisticsMonthAdapter
+
+    private lateinit var monthTitleTextView: TextView // 월 제목 TextView 추가
+    private lateinit var btnPrevMonth: ImageButton // 이전 달 버튼 추가
+    private lateinit var btnNextMonth: ImageButton // 다음 달 버튼 추가
 
     // ⭐ 더미 데이터 생성 함수
     private fun createDummyData(): List<MonthStatistics> {
@@ -233,6 +239,12 @@ class StatisticsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         // 임시로 레이아웃을 설정하거나, 토스트를 띄워 화면 전환 확인
         setContentView(R.layout.activity_statistics)
+
+        // 뷰 컴포넌트 참조
+        monthTitleTextView = findViewById(R.id.month_title) // XML에서 이름을 확인하세요.
+        btnPrevMonth = findViewById(R.id.btn_prev_month)
+        btnNextMonth = findViewById(R.id.btn_next_month)
+
         // 통계 RecyclerView 초기화 로직
         setupStatisticsRecyclerView()
         // ⭐ 내비게이션 바 설정 함수 호출
@@ -242,11 +254,78 @@ class StatisticsActivity : AppCompatActivity() {
         // 1. ViewPager2 참조
         monthViewPager = findViewById(R.id.month_statistics_recycler_view)
 
-        // 2. 어댑터 연결
+        // 2. 어댑터 연결 및 데이터 설정
         val dummyData = createDummyData()
+        // Adapter는 이제 ViewPager2 참조 없이 데이터만 받습니다.
         statisticsAdapter = StatisticsMonthAdapter(dummyData)
         monthViewPager.adapter = statisticsAdapter
+
+        // ⭐ ViewPager2 설정
+        // 1) 스와이프(사용자 입력) 비활성화
+        monthViewPager.isUserInputEnabled = false
+
+        // 2) 초기 페이지 설정: 가장 최근 달(dummyData의 0번째 인덱스)을 표시
+        val initialPosition = 0
+        monthViewPager.currentItem = initialPosition
+
+        // 3) 월 제목 초기화 및 버튼 리스너 설정
+        updateMonthDisplay(initialPosition)
+        setupMonthNavigationButtons(dummyData.size)
+
+        // ⭐ 4) 페이지 변경 콜백 추가 (혹시 모를 외부 변경에 대비하고 제목 갱신)
+        monthViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                updateMonthDisplay(position)
+            }
+        })
     }
+
+    // ⭐ 월 이동 버튼 클릭 리스너 설정 함수
+    private fun setupMonthNavigationButtons(itemCount: Int) {
+
+        // 이전 달 버튼 (Prev): 인덱스 증가 = 과거 달로 이동
+        btnPrevMonth.setOnClickListener {
+            navigateToMonth(1, itemCount)
+        }
+
+        // 다음 달 버튼 (Next): 인덱스 감소 = 미래/최신 달로 이동
+        btnNextMonth.setOnClickListener {
+            navigateToMonth(-1, itemCount)
+        }
+    }
+
+    // ⭐ 실제 월 이동을 처리하는 함수
+    private fun navigateToMonth(direction: Int, itemCount: Int) {
+        val currentPosition = monthViewPager.currentItem
+        val newPosition = currentPosition + direction
+
+        // 유효한 범위 내인지 확인
+        if (newPosition >= 0 && newPosition < itemCount) {
+            // 애니메이션 없이 페이지 이동 (smoothScroll=false)
+            monthViewPager.setCurrentItem(newPosition, false)
+
+            // 제목과 버튼 가시성은 OnPageSelected 콜백에서 자동으로 업데이트됩니다.
+        }
+    }
+
+    // ⭐ 월 제목 텍스트 및 버튼 가시성을 업데이트하는 함수
+    private fun updateMonthDisplay(position: Int) {
+        val dummyData = statisticsAdapter.monthList // Adapter에서 데이터를 가져옵니다.
+        val itemCount = dummyData.size
+
+        // 1. 월 제목 업데이트
+        monthTitleTextView.text = dummyData[position].monthTitle
+
+        // 2. 버튼 가시성 업데이트 (데이터가 최신순이므로 인덱스 0이 가장 최신)
+
+        // 이전 달 버튼: 가장 과거 달(마지막 인덱스)에 도달하면 숨김
+        btnPrevMonth.visibility = if (position == itemCount - 1) View.INVISIBLE else View.VISIBLE
+
+        // 다음 달 버튼: 가장 최신 달(0번째 인덱스)에 도달하면 숨김
+        btnNextMonth.visibility = if (position == 0) View.INVISIBLE else View.VISIBLE
+    }
+
     // ⭐ 하단 네비게이션 바의 버튼들 클릭 이벤트 처리 함수 추가
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupNavigationBar() {
@@ -258,7 +337,6 @@ class StatisticsActivity : AppCompatActivity() {
         // Calendar로 이동
         btnCalendar.setOnClickListener {
             startActivity(Intent(this, CalendarActivity::class.java))
-            finish()
         }
 
         // DailyWrite (오늘의 일기)로 이동

@@ -13,7 +13,6 @@ import com.example.sumdays.R // R 파일 임포트
 
 // 개별 '나무'를 담는 뷰 홀더
 class MonthViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    val monthTitle: TextView = itemView.findViewById(R.id.month_title)
     val grapeIcon: ImageView = itemView.findViewById(R.id.grape_icon) // 월간 요약 포도
     val treeStemLayout: LinearLayout = itemView.findViewById(R.id.tree_stem_layout) // 주간 블록을 쌓을 레이아웃
     val grapeGlowBackground: ImageView = itemView.findViewById(R.id.grape_glow_background)
@@ -21,7 +20,7 @@ class MonthViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     // 이외에 배경 나무 이미지, 여우 등의 뷰가 XML에 정의되어 있어야 함
 }
 
-class StatisticsMonthAdapter(private val monthList: List<MonthStatistics>) :
+class StatisticsMonthAdapter(val monthList: List<MonthStatistics>) :
     RecyclerView.Adapter<MonthViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MonthViewHolder {
@@ -33,9 +32,6 @@ class StatisticsMonthAdapter(private val monthList: List<MonthStatistics>) :
 
     override fun onBindViewHolder(holder: MonthViewHolder, position: Int) {
         val monthStats = monthList[position]
-
-        // 1. 월 제목 설정
-        holder.monthTitle.text = monthStats.monthTitle
 
         // 2-1. 월간 요약 (포도 아이콘) 표시/숨김 로직 변경:
         // 포도 아이콘 자체는 항상 보이고, 이제는 '빛'의 가시성을 조절합니다.

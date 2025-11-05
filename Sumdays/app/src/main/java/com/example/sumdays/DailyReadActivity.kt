@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -29,6 +30,7 @@ import com.example.sumdays.daily.diary.AnalysisRepository
 import com.example.sumdays.databinding.ActivityDailyReadBinding
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Locale
 
@@ -51,7 +53,7 @@ class DailyReadActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDailyReadBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        setupNavigationBar()
         // (주석 처리됨)
         // initializeImagePicker()
 
@@ -61,7 +63,26 @@ class DailyReadActivity : AppCompatActivity() {
         setupClickListeners()
         observeEntry() // currentDate가 초기화된 후 호출
     }
+    private fun setupNavigationBar() {
+        val btnCalendar = findViewById<ImageButton>(R.id.btnCalendar)
+        val btnDaily = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnDaily)
+        val btnInfo = findViewById<ImageButton>(R.id.btnInfo)
 
+        btnCalendar.setOnClickListener {
+            val intent = Intent(this, CalendarActivity::class.java)
+            startActivity(intent)
+        }
+        btnDaily.setOnClickListener {
+            val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
+            val intent = Intent(this, DailyWriteActivity::class.java)
+            intent.putExtra("date", today)
+            startActivity(intent)
+        }
+        btnInfo.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
+    }
     /* (주석 처리됨)
     private fun initializeImagePicker() {
         // ...

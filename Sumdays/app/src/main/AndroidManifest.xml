@@ -81,6 +81,13 @@
         <receiver
             android:name=".reminder.ReminderReceiver"
             android:exported="true" />
+        <receiver
+            android:name=".reminder.ReminderReplyReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.sumdays.ACTION_REPLY" />
+            </intent-filter>
+        </receiver>
 
 
     </application>

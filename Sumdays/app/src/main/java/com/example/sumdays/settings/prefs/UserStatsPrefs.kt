@@ -1,4 +1,4 @@
-// settings/prefs/UserStatsPrefs.kt
+package com.example.sumdays.settings.prefs
 
 import android.content.Context
 import android.content.SharedPreferences

@@ -9,10 +9,15 @@ import retrofit2.http.POST
 import retrofit2.http.Multipart
 import retrofit2.http.Part
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
+import retrofit2.http.Streaming
 
 interface ApiService {
     @POST("/api/ai/merge/")
     suspend fun mergeMemos(@Body req: MergeRequest): retrofit2.Response<com.google.gson.JsonObject>
+    @Streaming
+    @POST("/api/ai/merge")
+    fun mergeMemosStream(@Body request: MergeRequest): Call<ResponseBody>
     @Multipart
     @POST("/api/ai/stt/memo") // 서버의 STT 엔드포인트 경로
     fun transcribeAudio(

@@ -18,7 +18,7 @@ object ApiClient {
     private val okHttp by lazy {
         OkHttpClient.Builder()
             .connectTimeout(600, TimeUnit.SECONDS)   // 연결 타임아웃
-            .readTimeout(0, TimeUnit.SECONDS)      // 응답 대기 시간
+            .readTimeout(600, TimeUnit.SECONDS)      // 응답 대기 시간
             .writeTimeout(600, TimeUnit.SECONDS)     // 요청 전송 시간
             .addInterceptor(logging)
             .build()

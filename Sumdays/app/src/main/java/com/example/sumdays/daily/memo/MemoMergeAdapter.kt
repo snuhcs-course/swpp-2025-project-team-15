@@ -14,9 +14,14 @@ import android.view.View
 import android.view.View.DragShadowBuilder
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
+import com.example.sumdays.data.style.StylePrompt
+import com.example.sumdays.data.style.UserStyleDao
 import com.example.sumdays.network.ApiClient
+import com.example.sumdays.settings.prefs.UserStatsPrefs
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import java.io.InputStreamReader
 
@@ -24,7 +29,9 @@ class MemoMergeAdapter(
     private val memoList: MutableList<Memo>,
     private val scope: CoroutineScope,
     private val onAllMergesDone: () -> Unit,
-    private val useStableIds: Boolean = true
+    private val useStableIds: Boolean = true,
+    private val userStatsPrefs: UserStatsPrefs,
+    private val userStyleDao: UserStyleDao
 ) : RecyclerView.Adapter<MemoMergeAdapter.VH>() {
 
     data class MergeRecord(
@@ -206,28 +213,46 @@ class MemoMergeAdapter(
             memos.add(MemoPayload(memo!!.id,memo.content, memo.order))
         }
 
-        // 2️. 요청 객체 생성
-        val testStylePrompt: Map<String, Any> = mapOf(
-            "common_phrases" to listOf("자고 싶어", "그냥 없었다", "왜 있을까?"),
-            "emotional_tone" to "감정 표현이 강하며 다채롭고 직접적, 때로는 불평과 슬픔이 섞임",
-            "formality" to "반말, 구어체, 친근하고 자연스러운 말투",
-            "irony_or_sarcasm" to "없음",
-            "lexical_choice" to "구어체적 어휘와 감정을 드러내는 단어가 주를 이룸",
-            "pacing" to "빠름, 감정을 빠르게 전달하는 리듬",
-            "sentence_endings" to listOf("~!", "~지롱~", "!!", "??"),
-            "sentence_length" to "짧음",
-            "sentence_structure" to "단문 위주, 감정을 직설적으로 표현하는 구조",
-            "slang_or_dialect" to "반말, 일부 인터넷체적 어법 사용",
-            "tone" to "경쾌하고 자주 감정을 드러내는, 일상적이고 솔직한 분위기"
-        )
-        val testStyleExample = listOf(
-            "자고 싶어! 졸려! 나는 아무것도 하기 싫지롱~",
-            "오늘은 일기 쓸게 아무리 생각해도 없다",
-            "일기는 세상에 왜 있을까? 일기가 없으면 안 될까? 일기를 꼭 써야 되나??",
-            "눈물도 나오고 콧물도 나왔다"
-        )
+        // ★★★ 2️. 활성 스타일 데이터 로드 또는 더미 데이터 사용 ★★★
+        val activeStyleId = userStatsPrefs.getActiveStyleId()
+        val styleData = if (activeStyleId != null) {
+            // Room에서 활성 스타일 데이터 조회 (IO 스레드에서 suspend 호출)
+            userStyleDao.getStyleById(activeStyleId)
+        } else {
+            null // 활성 스타일이 없음
+        }
+
+        val stylePrompt: Map<String, Any>
+        val styleExample: List<String>
+
+        if (styleData != null) {
+            // ✅ 활성 스타일이 있을 경우: Room DB의 실제 데이터 사용
+            stylePrompt = convertStylePromptToMap(styleData.stylePrompt) // StylePrompt 객체를 Map으로 변환 필요
+            styleExample = styleData.styleExamples
+        } else {
+            // ✅ 활성 스타일이 없을 경우: 더미 데이터 사용 (기존 test 데이터)
+            stylePrompt = mapOf(
+                "common_phrases" to listOf("자고 싶어", "그냥 없었다", "왜 있을까?"),
+                "emotional_tone" to "감정 표현이 강하며 다채롭고 직접적, 때로는 불평과 슬픔이 섞임",
+                "formality" to "반말, 구어체, 친근하고 자연스러운 말투",
+                "irony_or_sarcasm" to "없음",
+                "lexical_choice" to "구어체적 어휘와 감정을 드러내는 단어가 주를 이룸",
+                "pacing" to "빠름, 감정을 빠르게 전달하는 리듬",
+                "sentence_endings" to listOf("~!", "~지롱~", "!!", "??"),
+                "sentence_length" to "짧음",
+                "sentence_structure" to "단문 위주, 감정을 직설적으로 표현하는 구조",
+                "slang_or_dialect" to "반말, 일부 인터넷체적 어법 사용",
+                "tone" to "경쾌하고 자주 감정을 드러내는, 일상적이고 솔직한 분위기"
+            )
+            styleExample = listOf(
+                "자고 싶어! 졸려! 나는 아무것도 하기 싫지롱~",
+                "오늘은 일기 쓸게 아무리 생각해도 없다",
+                "일기는 세상에 왜 있을까? 일기가 없으면 안 될까? 일기를 꼭 써야 되나??",
+                "눈물도 나오고 콧물도 나왔다"
+            )
+        }
         Log.d("test", "TEST: 0")
-        val request = MergeRequest(memos = memos, endFlag = endFlag, testStylePrompt, testStyleExample)
+        val request = MergeRequest(memos = memos, endFlag = endFlag, stylePrompt, styleExample)
 
         if (endFlag) {
             // skip button => 마지막 완성 → JSON 반환
@@ -259,6 +284,19 @@ class MemoMergeAdapter(
         }
 
         return sb.toString()
+    }
+
+    /** StylePrompt 객체를 서버 요청 형식(Map<String, Any>)으로 변환 */
+    private fun convertStylePromptToMap(prompt: StylePrompt): Map<String, Any> {
+        // Gson을 사용하여 객체를 Map으로 변환하는 것이 가장 안전하고 빠릅니다.
+        // Gson 라이브러리 사용 가정
+        val gson = Gson()
+        // Map<String, Any> 타입 토큰 정의
+        val type = object : com.google.gson.reflect.TypeToken<Map<String, Any>>() {}.type
+
+        // StylePrompt 객체를 JSON 문자열로 변환 후, 다시 Map으로 변환
+        val jsonString = gson.toJson(prompt)
+        return gson.fromJson(jsonString, type)
     }
 
     /** extract merged text from json file */

@@ -21,6 +21,9 @@ import androidx.activity.viewModels
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.example.sumdays.data.style.StyleDatabase
+import com.example.sumdays.data.style.UserStyleDao
+import com.example.sumdays.settings.prefs.UserStatsPrefs
 
 class DailySumActivity : AppCompatActivity() {
 
@@ -29,10 +32,19 @@ class DailySumActivity : AppCompatActivity() {
     private lateinit var memoMergeAdapter: MemoMergeAdapter
     private val viewModel: DailyEntryViewModel by viewModels()
 
+    // ★★★ 1. Prefs 및 DAO 인스턴스 선언 ★★★
+    private lateinit var userStatsPrefs: UserStatsPrefs
+    private lateinit var userStyleDao: UserStyleDao
+
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sum)
+
+        // ★★★ 2. Prefs 및 DAO 초기화 ★★★
+        userStatsPrefs = UserStatsPrefs(this)
+        userStyleDao = StyleDatabase.getDatabase(this).userStyleDao() // StyleDatabase를 통해 DAO 획득
 
         date = intent.getStringExtra("date") ?: "알 수 없는 날짜"
 
@@ -71,7 +83,13 @@ class DailySumActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // ✅ 드래그-머지 지원 어댑터로 교체
-        memoMergeAdapter = MemoMergeAdapter(initialMemoList, lifecycleScope, ::showAllMergedSheet)
+        memoMergeAdapter = MemoMergeAdapter(
+            initialMemoList,
+            lifecycleScope,
+            ::showAllMergedSheet,
+            userStatsPrefs = userStatsPrefs,      // UserStatsPrefs 전달
+            userStyleDao = userStyleDao           // UserStyleDao 전달
+        )
         recyclerView.itemAnimator = null // streaming시 메모 깜빡임 방지
         recyclerView.adapter = memoMergeAdapter
 

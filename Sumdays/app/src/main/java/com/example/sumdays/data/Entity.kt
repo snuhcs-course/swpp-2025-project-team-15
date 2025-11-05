@@ -14,6 +14,11 @@ data class DailyEntry(
     val themeIcon: String?                 // 테마 이모지
 )
 
+data class EmojiData(
+    val date : String,
+    val diary: String?,
+    val themeIcon : String?,
+)
 
 
 

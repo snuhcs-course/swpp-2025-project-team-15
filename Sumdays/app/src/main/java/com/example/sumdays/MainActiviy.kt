@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         // 10초 뒤 알람
-        val triggerTime = System.currentTimeMillis() + 10_000 
+        val triggerTime = System.currentTimeMillis() + 5_000
 
         alarmManager.set(
             AlarmManager.RTC_WAKEUP,

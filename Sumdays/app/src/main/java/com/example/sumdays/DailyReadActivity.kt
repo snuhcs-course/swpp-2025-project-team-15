@@ -1,28 +1,24 @@
 package com.example.sumdays
 
-import android.app.Dialog
+// import android.app.Dialog // 삭제
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
+// import android.net.Uri // 삭제
 import android.os.Bundle
-import android.view.LayoutInflater
+// import android.view.LayoutInflater // 삭제
 import android.view.View
-import android.view.ViewGroup
+// import android.view.ViewGroup // 삭제
 import android.view.inputmethod.InputMethodManager
+import android.widget.ImageButton // 추가
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
+// ActivityResultLauncher 관련 import 모두 삭제
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
+// RecyclerView/ListAdapter/DiffUtil 관련 import 모두 삭제
 import com.example.sumdays.data.DailyEntry
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import com.example.sumdays.daily.diary.AnalysisRepository
@@ -39,38 +35,52 @@ class DailyReadActivity : AppCompatActivity() {
     private val viewModel: DailyEntryViewModel by viewModels()
     private var currentLiveData: LiveData<DailyEntry?>? = null
 
-    private lateinit var photoGalleryAdapter: PhotoGalleryAdapter
+    // private lateinit var photoGalleryAdapter: PhotoGalleryAdapter // 삭제
 
     private val repoKeyFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private val displayFormatter = SimpleDateFormat("MM-dd", Locale.getDefault())
 
-    // (주석 처리됨)
-    // private lateinit var pickImageLauncher: ActivityResultLauncher<PickVisualMediaRequest>
+    // private lateinit var pickImageLauncher: ... // 삭제
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDailyReadBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupNavigationBar()
 
-        // (주석 처리됨)
-        // initializeImagePicker()
+        // initializeImagePicker() // 삭제
 
-        // ★★★ 변경점: initializeDate()를 observeEntry()보다 먼저 호출 ★★★
         initializeDate()
-        setupPhotoGallery()
+        // setupPhotoGallery() // 삭제
         setupClickListeners()
         observeEntry() // currentDate가 초기화된 후 호출
     }
 
-    /* (주석 처리됨)
-    private fun initializeImagePicker() {
-        // ...
+    private fun setupNavigationBar() {
+        val btnCalendar = findViewById<ImageButton>(R.id.btnCalendar)
+        val btnDaily = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnDaily)
+        val btnInfo = findViewById<ImageButton>(R.id.btnInfo)
+
+        btnCalendar.setOnClickListener {
+            val intent = Intent(this, CalendarActivity::class.java)
+            startActivity(intent)
+        }
+        btnDaily.setOnClickListener {
+            val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
+            val intent = Intent(this, DailyWriteActivity::class.java)
+            intent.putExtra("date", today)
+            startActivity(intent)
+        }
+        btnInfo.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
     }
-    */
+
+    // private fun initializeImagePicker() { ... } // 삭제
 
 
     private fun observeEntry() {
-        // ★★★ 이제 currentDate가 초기화되었으므로 이 줄은 안전함 ★★★
         val dateKey = repoKeyFormatter.format(currentDate.time)
         currentLiveData?.removeObservers(this)
         currentLiveData = viewModel.getEntry(dateKey)
@@ -88,11 +98,12 @@ class DailyReadActivity : AppCompatActivity() {
         binding.diaryContentTextView.text = entry?.diary ?: ""
         binding.commentIcon.text = entry?.emotionIcon ?: "🤔"
         binding.keywordsText.text = entry?.keywords ?: ""
-
         binding.commentText.text = entry?.aiComment ?: "코멘트가 없습니다."
+
+        // 감정 점수 로직 수정
         val score = entry?.emotionScore ?: 0.0 // 점수 가져오기 (기본값 0.0)
 
-        // ★★★ 감정 점수 범위(-1.0 ~ 1.0)에 따라 4개의 PNG 중 하나를 선택 ★★★
+        // 1. 온도계 아이콘 설정
         val thermometerResId = when {
             score > 0.5 -> R.drawable.ic_thermometer_high       // ( 0.5 ~  1.0] : 빨간색
             score > 0.0 -> R.drawable.ic_thermometer_medium     // ( 0.0 ~  0.5] : 주황색
@@ -101,29 +112,12 @@ class DailyReadActivity : AppCompatActivity() {
         }
         binding.thermometerIcon.setImageResource(thermometerResId)
 
-        // ★★★ 텍스트 설정 라인 제거 ★★★
-        // binding.emotionScore.text = ...
+        // 2. 온도 텍스트 설정 (score * 100)
+        val temperature = score * 100
+        binding.emotionScore.text = String.format(Locale.getDefault(), "%.0f°C", temperature)
+        binding.emotionScore.visibility = View.VISIBLE // GONE이었던 것을 보이도록
 
-        // (주석 처리됨)
-        // val photos = entry?.photoUris ?: emptyList()
-
-        // --- (임시 테스트용 코드) ---
-        val tempPhotos = listOf(
-            "https://placehold.co/100x100/E26A2C/white?text=Img1",
-            "https://placehold.co/100x100/3F51B5/white?text=Img2",
-            "https://placehold.co/100x100/4CAF50/white?text=Img3"
-        )
-        // --- 임시 코드 끝 ---
-
-        val photoItems = tempPhotos.map { GalleryItem.Photo(it) }
-        val galleryItems = photoItems // 'Add' 버튼 없이 표시
-
-        photoGalleryAdapter.submitList(galleryItems)
-        if (galleryItems.isNotEmpty()) {
-            binding.photoGalleryRecyclerView.visibility = View.VISIBLE
-        } else {
-            binding.photoGalleryRecyclerView.visibility = View.GONE
-        }
+        // 사진첩 관련 로직 모두 삭제
     }
 
     private fun initializeDate() {
@@ -136,39 +130,9 @@ class DailyReadActivity : AppCompatActivity() {
         } catch (e: Exception) { /* ... */ }
     }
 
-    /**
-     * 사진첩 RecyclerView 설정 함수 (수정됨)
-     */
-    private fun setupPhotoGallery() {
-        photoGalleryAdapter = PhotoGalleryAdapter(
-            onPhotoClick = { photoUrl ->
-                showPhotoDialog(photoUrl)
-            },
-            onAddClick = {
-                Toast.makeText(this, "사진 추가 기능은 현재 비활성화되어 있습니다.", Toast.LENGTH_SHORT).show()
-            }
-        )
-        binding.photoGalleryRecyclerView.apply {
-            layoutManager = LinearLayoutManager(this@DailyReadActivity, LinearLayoutManager.HORIZONTAL, false)
-            adapter = photoGalleryAdapter
-        }
-    }
+    // private fun setupPhotoGallery() { ... } // 삭제
 
-    private fun showPhotoDialog(photoUrl: String) {
-        val dialog = Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
-        val imageView = ImageView(this)
-        imageView.setBackgroundColor(getColor(android.R.color.black))
-        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
-
-        imageView.setOnClickListener {
-            Toast.makeText(this, "Clicked: $photoUrl", Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
-        }
-
-        dialog.setContentView(imageView)
-        dialog.show()
-    }
-
+    // private fun showPhotoDialog(photoUrl: String) { ... } // 삭제
 
     private fun setupClickListeners() {
         binding.prevDayButton.setOnClickListener { changeDate(-1) }
@@ -247,85 +211,5 @@ class DailyReadActivity : AppCompatActivity() {
     }
 
 
-    /**
-     * 사진첩 RecyclerView를 위한 어댑터
-     */
-    class PhotoGalleryAdapter(
-        private val onPhotoClick: (String) -> Unit,
-        private val onAddClick: () -> Unit
-    ) : ListAdapter<GalleryItem, RecyclerView.ViewHolder>(GalleryDiffCallback()) {
-
-        companion object {
-            private const val VIEW_TYPE_PHOTO = 1
-            private const val VIEW_TYPE_ADD = 2
-        }
-
-        override fun getItemViewType(position: Int): Int {
-            return when (getItem(position)) {
-                is GalleryItem.Photo -> VIEW_TYPE_PHOTO
-                is GalleryItem.Add -> VIEW_TYPE_ADD
-            }
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-            val inflater = LayoutInflater.from(parent.context)
-            return when (viewType) {
-                VIEW_TYPE_PHOTO -> {
-                    val view = inflater.inflate(R.layout.item_photo_gallery, parent, false)
-                    PhotoViewHolder(view)
-                }
-                VIEW_TYPE_ADD -> {
-                    val view = inflater.inflate(R.layout.item_photo_gallery_add, parent, false)
-                    AddViewHolder(view)
-                }
-                else -> throw IllegalArgumentException("Invalid view type")
-            }
-        }
-
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-            when (val item = getItem(position)) {
-                is GalleryItem.Photo -> (holder as PhotoViewHolder).bind(item.url, onPhotoClick, position)
-                is GalleryItem.Add -> (holder as AddViewHolder).bind(onAddClick)
-            }
-        }
-
-        class PhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            private val imageView: ImageView = itemView.findViewById(R.id.gallery_image)
-            fun bind(url: String, onClick: (String) -> Unit, position: Int) {
-                val colors = listOf(0xFFE26A2C.toInt(), 0xFF3F51B5.toInt(), 0xFF4CAF50.toInt())
-                imageView.setBackgroundColor(colors[position % colors.size])
-                itemView.setOnClickListener { onClick(url) }
-            }
-        }
-
-        class AddViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            fun bind(onClick: () -> Unit) {
-                itemView.setOnClickListener { onClick() }
-            }
-        }
-    }
-
-    /**
-     * RecyclerView 아이템을 위한 Sealed Class
-     */
-    sealed class GalleryItem {
-        data class Photo(val url: String) : GalleryItem()
-        object Add : GalleryItem()
-    }
-
-    /**
-     * ListAdapter를 위한 DiffUtil Callback
-     */
-    class GalleryDiffCallback : DiffUtil.ItemCallback<GalleryItem>() {
-        override fun areItemsTheSame(oldItem: GalleryItem, newItem: GalleryItem): Boolean {
-            return when {
-                oldItem is GalleryItem.Photo && newItem is GalleryItem.Photo -> oldItem.url == newItem.url
-                oldItem is GalleryItem.Add && newItem is GalleryItem.Add -> true
-                else -> false
-            }
-        }
-        override fun areContentsTheSame(oldItem: GalleryItem, newItem: GalleryItem): Boolean {
-            return oldItem == newItem
-        }
-    }
+    // 사진첩 관련 Adapter, Sealed Class, DiffCallback 모두 삭제
 }

@@ -20,9 +20,10 @@ object AnalysisRepository {
                     keywords = "${date};1;2;3;4;",
                     aiComment = "${date} 일기인 거 같아요 ",
                     emotionScore = 100.0,
+                    themeIcon = "abc"
                 )
                 return@withContext null
-                 임시 testing 부분 */
+                임시 testing 부분 */
 
 
                 Log.d("AnalysisRepository", "서버에 '$date' 분석 결과 요청...")

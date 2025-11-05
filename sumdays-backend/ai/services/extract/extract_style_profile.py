@@ -19,8 +19,7 @@ STYLE_PROFILE_PROMPT = """
   "emotional_tone": "감정 표현 강도 + 방향",
   "irony_or_sarcasm": "반어/해학/냉소 사용 여부",
   "slang_or_dialect": "비속어 / 인터넷체 / 방언 사용 여부",
-  "pacing": "문장 리듬 (빠름 / 보통 / 느림)",
-  "overall_style_summary": "위 요소들을 종합 요약"
+  "pacing": "문장 리듬 (빠름 / 보통 / 느림)"
 }
 
 글:

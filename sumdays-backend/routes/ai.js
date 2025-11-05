@@ -20,6 +20,6 @@ router.post('/ocr/memo', upload.single('image'), ocrController.memo); // image m
 router.post('/ocr/diary', upload.array('image'), ocrController.diary); // image diary to text(must extract date)
 router.post('/stt/memo', upload.single('audio'), sttController.memo);
 
-router.post('/extract-style', extractController.extractStyle); // extract diary style from image/db diaries
+router.post('/extract-style', upload.array('images'), extractController.extractStyle); // extract diary style from image/db diaries
 
 module.exports = router;

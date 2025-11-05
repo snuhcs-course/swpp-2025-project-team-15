@@ -47,8 +47,6 @@ def extract_style_examples(diaries, style_vector, n=4):
 
     return [raw_candidates[i] for i in top_idx]
 
-
-
 def extract_style(diaries):
     style_vector = compute_style_vector(diaries)
     style_examples = extract_style_examples(diaries, style_vector, n=4)

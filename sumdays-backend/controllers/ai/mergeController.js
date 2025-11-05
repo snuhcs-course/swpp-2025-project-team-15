@@ -2,58 +2,65 @@ const axios = require("axios");
 const PYTHON_SERVER_URL = process.env.PYTHON_AI_URL;
 
 const mergeController = {
+    // Controller method for a single merge request (Example: POST /api/ai/merge)
+    /* POST http://localhost:3000/api/ai/merge
+    POSTMAN raw json
+    {
+    "memos": [
+        {"id": 1, "content": "아침으로 빵을 먹었다.", "order": 1},
+        {"id": 3, "content": "저녁을 가족과 먹었다.", "order": 2},
+        {"id": 2, "content": "점심은 친구와 맛있게 먹었다.", "order": 3}
+    ],
+    "end_flag": true
+    }
+     */
     merge: async (req, res) => {
         try {
-            const { memos, end_flag, style_hidden, style_examples, style_prompt } = req.body;
+            const { memos, end_flag } = req.body;
 
             if (!memos || !Array.isArray(memos) || memos.length < 2) {
                 return res.status(400).json({
                     success: false,
-                    message: "At least two memos are required."
+                    message: "At least two memos are required for merging.",
                 });
             }
 
             memos.sort((a, b) => a.order - b.order);
 
-            // ✅ end_flag = false → Streaming Mode
+            const response = await axios.post(`${PYTHON_SERVER_URL}/merge/`, { memos, end_flag });
+            
             if (!end_flag) {
-                const response = await fetch(`${PYTHON_SERVER_URL}/merge/`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ memos, style_hidden, style_examples, style_prompt, end_flag })
-                });
-
-                if (!response.ok) {
-                    return res.status(500).json({ success: false, message: "AI Stream Error" });
+                if (!response.data || !response.data.merged_content) {
+                    return res.status(500).json({
+                        success: false,
+                        message: "Invalid response from AI server.",
+                        raw: response.data,
+                    });
                 }
 
-                res.setHeader("Content-Type", "text/event-stream");
-                res.setHeader("Cache-Control", "no-cache");
-
-                response.body.on("data", (chunk) => {
-                    res.write(chunk.toString());
+                return res.status(200).json({
+                    success: true,
+                    merged_content: response.data.merged_content,
                 });
+            } else {
+                // TODO: db 저장
 
-                response.body.on("end", () => res.end());
-                return;
+                if (!response.data) {
+                    return res.status(500).json({
+                        success: false,
+                        message: "Invalid response from AI server.",
+                        raw: response.data,
+                    });
+                }
+                
+                return res.status(200).json({
+                    success: true,
+                    result: response.data,
+                });
             }
-
-            // ✅ end_flag = true → Non-Streaming (완성 + 분석)
-            const final = await axios.post(`${PYTHON_SERVER_URL}/merge/`, {
-                memos,
-                style_hidden,
-                style_examples,
-                style_prompt,
-                end_flag
-            });
-
-            return res.status(200).json({
-                success: true,
-                result: final.data
-            });
-
+            
         } catch (err) {
-            console.error("[mergeController.merge] Error:", err);
+            console.error("[mergeController.merge] Error:", err.message);
             return res.status(500).json({
                 success: false,
                 error: err.message,

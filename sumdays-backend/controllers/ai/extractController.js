@@ -1,21 +1,56 @@
 const axios = require("axios");
+const FormData = require("form-data");
+const fs = require("fs");
 const PYTHON_SERVER_URL = process.env.PYTHON_AI_URL;
 
 const extractController = {
+    // Controller method for extracting writing style from diaries (Example: POST /api/ai/extract-style)
+    /* POST http://localhost:3000/api/ai/extract-style
+    POSTMAN form-data
+    images(file) |  multiple files(.jpeg .png etc)
+    diaries(text) | ["text1", "text2", ...]
+    */
     extractStyle: async (req, res) => {
         try {
-            const { diaries } = req.body;
+            let diaries = [];
 
-            if (!diaries || !Array.isArray(diaries) || diaries.length < 3) {
+            if (req.body.diaries) {
+                try {
+                    diaries = JSON.parse(req.body.diaries);
+                } catch {
+                    diaries = req.body.diaries;
+                }
+            }
+
+            if (!Array.isArray(diaries) || diaries.length < 1) {
                 return res.status(400).json({
                     success: false,
-                    message: "At least 3 diaries are required."
+                    message: "[extractController.extractStyle] Error: diaries must be an array (can be combined with images)."
                 });
             }
 
-            const response = await axios.post(`${PYTHON_SERVER_URL}/extract/style`, {
-                diaries
+            const formData = new FormData();
+            formData.append("diaries", JSON.stringify(diaries));
+
+            if (req.files && req.files.length > 0) {
+                for (const file of req.files) {
+                    formData.append("images", fs.createReadStream(file.path));
+                }
+            }
+
+            const response = await axios.post(`${PYTHON_SERVER_URL}/extract/style`, formData, {
+                headers: {
+                    ...formData.getHeaders(),
+                },
             });
+
+            if (req.files) {
+                for (const file of req.files) {
+                    fs.unlink(file.path, (err) => {
+                        if (err) console.error("Temp file deletion error:", err);
+                    });
+                }
+            }
 
             return res.status(200).json({
                 success: true,

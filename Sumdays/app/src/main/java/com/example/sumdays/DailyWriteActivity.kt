@@ -31,7 +31,6 @@ import com.example.sumdays.daily.memo.MemoViewModel
 import com.example.sumdays.daily.memo.MemoViewModelFactory
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.sumdays.daily.memo.MemoDragAndDropCallback
 import com.example.sumdays.audio.AudioRecorderHelper
@@ -39,6 +38,9 @@ import com.example.sumdays.image.ImageOcrHelper
 import android.util.Log
 import androidx.core.content.ContextCompat
 import java.util.ArrayList
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 // 일기 작성 및 수정 화면을 담당하는 액티비티
 class DailyWriteActivity : AppCompatActivity() {
@@ -83,7 +85,6 @@ class DailyWriteActivity : AppCompatActivity() {
     private var pendingAudioMemoId: Int? = null
 
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -141,7 +142,7 @@ class DailyWriteActivity : AppCompatActivity() {
                     val dummyMemo = Memo(
                         id = tempId,
                         content = "음성 인식 중...",
-                        timestamp = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")),
+                        timestamp = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Calendar.getInstance().time),
                         date = date,
                         order = memoAdapter.itemCount ,
                         type = "audio"
@@ -243,9 +244,8 @@ class DailyWriteActivity : AppCompatActivity() {
     }
 
     // 인텐트 데이터 처리 및 데이터 관찰 시작 (수정됨: LiveData 갱신 로직)
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun handleIntent(intent: Intent?) {
-        date = intent?.getStringExtra("date") ?: LocalDate.now().toString()
+        date = intent?.getStringExtra("date") ?: SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
         dateTextView.text = date
 
         memoViewModel.getMemosForDate(date).observe(this) { memos ->
@@ -284,7 +284,6 @@ class DailyWriteActivity : AppCompatActivity() {
     }
 
     // 주요 UI 요소에 클릭 리스너를 설정하는 함수 (수정됨)
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupClickListeners() {
         readDiaryButton.setOnClickListener {
             val intent = Intent(this, DailyReadActivity::class.java)
@@ -330,7 +329,6 @@ class DailyWriteActivity : AppCompatActivity() {
     }
 
     // 하단 네비게이션 바의 버튼들 클릭 이벤트를 처리 (변경 없음)
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupNavigationBar() {
         val btnCalendar: ImageButton = findViewById(R.id.btnCalendar)
         val btnDaily: ImageButton = findViewById(R.id.btnDaily)
@@ -349,7 +347,7 @@ class DailyWriteActivity : AppCompatActivity() {
             startActivity(intent)
         }
         btnDaily.setOnClickListener {
-            val today = LocalDate.now().toString()
+            val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
             val currentLoadedDate = this.date
             if (today != currentLoadedDate) {
                 val intent = Intent(this, DailyWriteActivity::class.java)
@@ -419,9 +417,8 @@ class DailyWriteActivity : AppCompatActivity() {
         waveBar3.scaleY = 1.0f
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun addTextMemoToList(content: String, memoType: String = "text") {
-        val currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+        val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Calendar.getInstance().time)
         val newMemo = Memo(
             id = 0, // Room이 자동 생성
             content = content,
@@ -437,7 +434,6 @@ class DailyWriteActivity : AppCompatActivity() {
     /**
      * ★★★ 임시 메모를 제거하고 최종 메모를 ViewModel에 저장하는 함수 (수정됨) ★★★
      */
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun removeDummyMemoAndAddFinal(newContent: String, memoType: String) {
         if (pendingAudioMemoId != null) {
             val currentList = memoAdapter.currentList.toMutableList()

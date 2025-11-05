@@ -74,7 +74,7 @@ class MemoMergeAdapterTest {
         val adapter = spyk(MemoMergeAdapter(makeMemoList(), this, useStableIds = false))
         coEvery { adapter.mergeTextByIds(any()) } returns "merged-all"
 
-        val result = adapter.skipMerge()
+        val result = adapter.mergeAllMemo()
 
         assertEquals("merged-all", result)
         coVerify(exactly = 1) { adapter.mergeTextByIds(any()) }

@@ -1,5 +1,6 @@
 package com.example.sumdays
 
+import android.app.Dialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -16,10 +17,11 @@ import com.example.sumdays.daily.memo.MemoMergeAdapter
 import java.time.LocalDate
 import com.example.sumdays.daily.diary.AnalysisRepository
 import kotlinx.coroutines.launch
-import com.example.sumdays.data.DailyEntry
 import androidx.activity.viewModels
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
-import android.util.Log
+import android.view.LayoutInflater
+import android.view.ViewGroup
+
 class DailySumActivity : AppCompatActivity() {
 
     private lateinit var date: String
@@ -47,9 +49,7 @@ class DailySumActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.skip_icon).setOnClickListener {
                 lifecycleScope.launch {
-                    val mergedResult = memoMergeAdapter.skipMerge()
-                    viewModel.updateEntry(date = date, diary = mergedResult)
-                    AnalysisRepository.requestAnalysis(date, mergedResult, viewModel)
+                    saveDiary(memoMergeAdapter.mergeAllMemo())
                     moveToReadActivity()
                 }
         }
@@ -71,11 +71,13 @@ class DailySumActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // ✅ 드래그-머지 지원 어댑터로 교체
-        memoMergeAdapter = MemoMergeAdapter(initialMemoList, lifecycleScope)
+        memoMergeAdapter = MemoMergeAdapter(initialMemoList, lifecycleScope, ::showAllMergedSheet)
         recyclerView.adapter = memoMergeAdapter
 
         setupNavigationBar()
     }
+
+
     private fun moveToReadActivity() {
         val intent = Intent(this, DailyReadActivity::class.java).putExtra("date", date)
         startActivity(intent)
@@ -102,5 +104,49 @@ class DailySumActivity : AppCompatActivity() {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    private suspend fun saveDiary(mergedResult: String){
+        viewModel.updateEntry(date = date, diary = mergedResult)
+        AnalysisRepository.requestAnalysis(date, mergedResult, viewModel)
+    }
+
+    private var mergeSheetShowing = false  // ✅ 중복 방지용
+
+    private fun showAllMergedSheet() {
+        if (mergeSheetShowing) return
+        mergeSheetShowing = true
+
+        val sheet = Dialog(this)
+        val view = LayoutInflater.from(this).inflate(R.layout.dialog_merge_done, null, false)
+        sheet.setContentView(view)
+
+        val btnCancel = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancel)
+        val btnSave   = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnSave)
+
+        btnCancel.setOnClickListener {
+            sheet.dismiss()
+        }
+
+        btnSave.setOnClickListener {
+            // 서버 머지 결과를 최종 일기로 저장하고 읽기화면 이동
+            lifecycleScope.launch {
+                try {
+                    saveDiary(memoMergeAdapter.getMemoContent(0))
+                    moveToReadActivity()
+                } finally {
+                    sheet.dismiss()
+                }
+            }
+        }
+
+        sheet.setOnDismissListener { mergeSheetShowing = false }
+        sheet.show()
+
+        // 화면 폭의 90%로 설정 (원하면 0.95f 등으로 조절)
+        val width = (resources.displayMetrics.widthPixels * 0.9f).toInt()
+        sheet.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
+        // 중앙 정렬(기본이지만 혹시 몰라 명시)
+        sheet.window?.setGravity(android.view.Gravity.CENTER)
     }
 }

@@ -19,7 +19,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,7 +41,7 @@ class DailySumActivityTest {
         Dispatchers.setMain(testDispatcher)
 
         mockkConstructor(MemoMergeAdapter::class)
-        coEvery { anyConstructed<MemoMergeAdapter>().skipMerge() } returns "merged-result-from-test"
+        coEvery { anyConstructed<MemoMergeAdapter>().mergeAllMemo() } returns "merged-result-from-test"
         every { anyConstructed<MemoMergeAdapter>().undoLastMerge() } returns true
 
         mockkObject(DiaryRepository)
@@ -85,7 +84,7 @@ class DailySumActivityTest {
         Shadows.shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
         // 1) 어댑터의 skipMerge가 실제로 불렸는지 먼저 확인
-        coVerify(exactly = 1) { anyConstructed<MemoMergeAdapter>().skipMerge() }
+        coVerify(exactly = 1) { anyConstructed<MemoMergeAdapter>().mergeAllMemo() }
 
         // 2) 저장 호출 검증
         verify(exactly = 1) { DiaryRepository.saveDiary("2025-11-01", "merged-result-from-test") }

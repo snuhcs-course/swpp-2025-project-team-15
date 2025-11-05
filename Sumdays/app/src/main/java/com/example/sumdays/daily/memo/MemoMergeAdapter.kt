@@ -196,12 +196,34 @@ class MemoMergeAdapter(
         }
 
         // 2️. 요청 객체 생성
-        val request = MergeRequest(memos = memos, endFlag = false)
+        val testStylePrompt: Map<String, Any> = mapOf(
+            "common_phrases" to listOf("자고 싶어", "그냥 없었다", "왜 있을까?"),
+            "emotional_tone" to "감정 표현이 강하며 다채롭고 직접적, 때로는 불평과 슬픔이 섞임",
+            "formality" to "반말, 구어체, 친근하고 자연스러운 말투",
+            "irony_or_sarcasm" to "없음",
+            "lexical_choice" to "구어체적 어휘와 감정을 드러내는 단어가 주를 이룸",
+            "pacing" to "빠름, 감정을 빠르게 전달하는 리듬",
+            "sentence_endings" to listOf("~!", "~지롱~", "!!", "??"),
+            "sentence_length" to "짧음",
+            "sentence_structure" to "단문 위주, 감정을 직설적으로 표현하는 구조",
+            "slang_or_dialect" to "반말, 일부 인터넷체적 어법 사용",
+            "tone" to "경쾌하고 자주 감정을 드러내는, 일상적이고 솔직한 분위기"
+        )
+        val testStyleExample = listOf(
+            "자고 싶어! 졸려! 나는 아무것도 하기 싫지롱~",
+            "오늘은 일기 쓸게 아무리 생각해도 없다",
+            "일기는 세상에 왜 있을까? 일기가 없으면 안 될까? 일기를 꼭 써야 되나??",
+            "눈물도 나오고 콧물도 나왔다"
+        )
+        Log.d("test", "TEST: 0")
+        val request = MergeRequest(memos = memos, endFlag = true, testStylePrompt, testStyleExample)
 
-        Log.d("test", "test: " + request.toString())
+
+        Log.d("test", "TEST: 1")
         // 3️. API 호출
         val response = ApiClient.api.mergeMemos(request)
 
+        Log.d("test", "TEST: 2")
         val json = response.body() ?: throw IllegalStateException("Empty body")
         val merged = extractMergedText(json)
 
@@ -211,9 +233,14 @@ class MemoMergeAdapter(
 
     /** extract merged text from json file */
     private fun extractMergedText(json: JsonObject): String {
+        Log.d("test", "TEST: " + json.toString())
         // case 1: end_flag = true → diary
-        if (json.has("diary") && json.get("diary").isJsonPrimitive) {
-            return json.get("diary").asString
+        if (json.has("result")) {
+            val result = json.getAsJsonObject("result")
+
+            if (result.has("diary") && result.get("diary").isJsonPrimitive) {
+                return result.get("diary").asString
+            }
         }
         // case 2: end_flag = false → {"merged_content": {"merged_content": "..."}}
         if (json.has("merged_content") && json.get("merged_content").isJsonObject) {

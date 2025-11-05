@@ -23,6 +23,7 @@ import com.google.gson.JsonObject
 class MemoMergeAdapter(
     private val memoList: MutableList<Memo>,
     private val scope: CoroutineScope,
+    private val onAllMergesDone: () -> Unit,
     private val useStableIds: Boolean = true
 ) : RecyclerView.Adapter<MemoMergeAdapter.VH>() {
 
@@ -56,6 +57,10 @@ class MemoMergeAdapter(
     init { setHasStableIds(true) }
     override fun getItemId(position: Int): Long =
         (memoList[position].content + memoList[position].timestamp).hashCode().toLong()
+
+    fun getMemoContent(index: Int): String{
+        return memoList.get(index).content
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val v = LayoutInflater.from(parent.context)
@@ -123,6 +128,10 @@ class MemoMergeAdapter(
         fun bind(m: Memo) { content.text = m.content; timestamp.text = m.timestamp }
     }
 
+    private fun maybeNotifyAllMerged() {
+        if (memoList.size <= 1) onAllMergesDone()
+    }
+
     /** 합칠 MemoList index들과 id들을 인자로 주면 두 메모를 하나로 합친다. */
     private fun mergeByIndex(fromIndex: Int, toIndex: Int, mergedIds: List<Int>) {
         if (fromIndex !in memoList.indices || toIndex !in memoList.indices) return
@@ -162,6 +171,9 @@ class MemoMergeAdapter(
 
                     // 4) undo 스택 push (원한다면 record도 타깃 인덱스 after 기준으로 보정)
                     undoStack.addLast(record)
+
+                    // 5) memoList 하나 남았으면 팝업 띄우기
+                    maybeNotifyAllMerged()
                 }
             } catch (e: Exception) {
                 Log.e("MemoMergeAdapter", "merge failed: ${e.message}", e)
@@ -246,7 +258,7 @@ class MemoMergeAdapter(
     }
 
 
-    suspend fun skipMerge(): String{
+    suspend fun mergeAllMemo(): String{
         /* 임시 testing 부분
         var output = ""
         for (memo in originalMemoMap) {

@@ -347,7 +347,7 @@ class DailyWriteActivity : AppCompatActivity() {
             startActivity(intent)
         }
         btnDaily.setOnClickListener {
-            val today = LocalDate.now().toString()
+            val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
             val currentLoadedDate = this.date
             if (today != currentLoadedDate) {
                 val intent = Intent(this, DailyWriteActivity::class.java)

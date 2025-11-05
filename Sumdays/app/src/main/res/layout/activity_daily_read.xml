@@ -8,7 +8,7 @@
     android:background="#303136"
     tools:context=".DailyReadActivity">
 
-    <!-- ... (상단 날짜, 버튼들 - 변경 없음) ... -->
+    <!-- 상단 날짜 및 버튼 (변경 없음) -->
     <TextView
         android:id="@+id/date_text"
         android:layout_width="wrap_content"
@@ -53,7 +53,7 @@
         app:layout_constraintTop_toTopOf="@+id/date_text"
         app:tint="@android:color/white" />
 
-    <!-- 이모지/키워드 영역 -->
+    <!-- 이모지/키워드 영역 (변경 없음) -->
     <LinearLayout
         android:id="@+id/analysis_header_layout"
         android:layout_width="0dp"
@@ -61,7 +61,6 @@
         android:layout_marginStart="64dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="64dp"
-
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -74,8 +73,6 @@
             android:gravity="center"
             android:textSize="30sp"
             tools:text="🤔" />
-
-        <!-- ★★★ 변경점: layout_width="wrap_content"로 변경, layout_weight 제거 ★★★ -->
         <TextView
             android:id="@+id/keywords_text"
             android:layout_width="wrap_content"
@@ -86,7 +83,7 @@
             tools:text="산책, 생각, 사유, 자아성찰" />
     </LinearLayout>
 
-    <!-- 1. 내비게이션 바 (화면 하단 고정) -->
+    <!-- 1. 내비게이션 바 (화면 하단 고정) (변경 없음) -->
     <include
         android:id="@+id/bottom_buttons_layout"
         layout="@layout/include_nav_calendar"
@@ -98,7 +95,7 @@
         android:layout_marginBottom="16dp"/>
 
 
-    <!-- 2. "오늘의 코멘트" 카드뷰 (내비게이션 바 위에 고정) -->
+    <!-- 2. "오늘의 코멘트" 카드뷰 (내비게이션 바 위에 고정) (변경 없음) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/comment_card"
         android:layout_width="0dp"
@@ -137,17 +134,19 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/comment_title"
                 tools:src="@drawable/ic_thermometer_high" />
+
+            <!-- ★★★ 감정 점수 (visibility="gone" 삭제) ★★★ -->
             <TextView
                 android:id="@+id/emotion_score"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
                 android:textSize="14sp"
-                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="@id/thermometer_icon"
                 app:layout_constraintStart_toStartOf="@id/thermometer_icon"
                 app:layout_constraintTop_toBottomOf="@id/thermometer_icon"
-                tools:text="1.0" />
+                tools:text="30°C" />
+
             <TextView
                 android:id="@+id/comment_text"
                 android:layout_width="0dp"
@@ -165,26 +164,15 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!-- 3. 사진첩 (RecyclerView) (코멘트 카드 위에 고정) -->
+    <!-- 3. 사진첩 (RecyclerView) (★★★ 삭제 ★★★) -->
+    <!--
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/photo_gallery_recycler_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:minHeight="80dp"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/comment_card"
-        android:paddingStart="40dp"
-        android:paddingEnd="40dp"
-        android:clipToPadding="false"
-        tools:listitem="@layout/item_photo_gallery"
-        tools:visibility="visible" />
+        ... />
+    -->
 
-    <!-- 4. 일기 내용 ScrollView (헤더와 사진첩 사이에 고정) -->
+    <!-- 4. 일기 내용 ScrollView (★★★ 제약 조건 수정 ★★★) -->
+    <!-- 하단(Bottom)을 photo_gallery_recycler_view 대신 comment_card에 연결 -->
     <ScrollView
         android:id="@+id/diary_scroll_view"
         android:layout_width="0dp"
@@ -194,7 +182,7 @@
         android:layout_marginEnd="40dp"
         android:layout_marginBottom="16dp"
         android:fillViewport="true"
-        app:layout_constraintBottom_toTopOf="@+id/photo_gallery_recycler_view"
+        app:layout_constraintBottom_toTopOf="@+id/comment_card"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/analysis_header_layout">
@@ -226,7 +214,7 @@
     </ScrollView>
 
 
-    <!-- 5. 좌우 이동 버튼 (영역 중앙에 고정) -->
+    <!-- 5. 좌우 이동 버튼 (변경 없음) -->
     <ImageView
         android:id="@+id/prev_day_button"
         android:layout_width="48dp"

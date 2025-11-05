@@ -19,7 +19,7 @@ const extractController = {
 
             return res.status(200).json({
                 success: true,
-                style_hidden: response.data.style_hidden,
+                style_vector: response.data.style_vector,
                 style_examples: response.data.style_examples,
                 style_prompt: response.data.style_prompt
             });

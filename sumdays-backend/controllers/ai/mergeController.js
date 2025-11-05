@@ -17,7 +17,7 @@ const mergeController = {
 
             // ✅ end_flag = false → Streaming Mode
             if (!end_flag) {
-                const response = await fetch(`${PYTHON_SERVER_URL}/merge/stream`, {
+                const response = await fetch(`${PYTHON_SERVER_URL}/merge/`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ memos, style_hidden, style_examples, style_prompt, end_flag })
@@ -39,7 +39,7 @@ const mergeController = {
             }
 
             // ✅ end_flag = true → Non-Streaming (완성 + 분석)
-            const final = await axios.post(`${PYTHON_SERVER_URL}/merge/stream`, {
+            const final = await axios.post(`${PYTHON_SERVER_URL}/merge/`, {
                 memos,
                 style_hidden,
                 style_examples,

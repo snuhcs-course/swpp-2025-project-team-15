@@ -85,7 +85,6 @@ class DailyWriteActivity : AppCompatActivity() {
     private var pendingAudioMemoId: Int? = null
 
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -245,9 +244,8 @@ class DailyWriteActivity : AppCompatActivity() {
     }
 
     // 인텐트 데이터 처리 및 데이터 관찰 시작 (수정됨: LiveData 갱신 로직)
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun handleIntent(intent: Intent?) {
-        date = intent?.getStringExtra("date") ?: LocalDate.now().toString()
+        date = intent?.getStringExtra("date") ?: SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
         dateTextView.text = date
 
         memoViewModel.getMemosForDate(date).observe(this) { memos ->
@@ -286,7 +284,6 @@ class DailyWriteActivity : AppCompatActivity() {
     }
 
     // 주요 UI 요소에 클릭 리스너를 설정하는 함수 (수정됨)
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupClickListeners() {
         readDiaryButton.setOnClickListener {
             val intent = Intent(this, DailyReadActivity::class.java)
@@ -332,7 +329,6 @@ class DailyWriteActivity : AppCompatActivity() {
     }
 
     // 하단 네비게이션 바의 버튼들 클릭 이벤트를 처리 (변경 없음)
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupNavigationBar() {
         val btnCalendar: ImageButton = findViewById(R.id.btnCalendar)
         val btnDaily: ImageButton = findViewById(R.id.btnDaily)
@@ -421,7 +417,6 @@ class DailyWriteActivity : AppCompatActivity() {
         waveBar3.scaleY = 1.0f
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun addTextMemoToList(content: String, memoType: String = "text") {
         val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Calendar.getInstance().time)
         val newMemo = Memo(
@@ -439,7 +434,6 @@ class DailyWriteActivity : AppCompatActivity() {
     /**
      * ★★★ 임시 메모를 제거하고 최종 메모를 ViewModel에 저장하는 함수 (수정됨) ★★★
      */
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun removeDummyMemoAndAddFinal(newContent: String, memoType: String) {
         if (pendingAudioMemoId != null) {
             val currentList = memoAdapter.currentList.toMutableList()

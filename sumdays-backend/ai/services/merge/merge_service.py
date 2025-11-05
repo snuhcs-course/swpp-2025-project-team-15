@@ -1,14 +1,25 @@
-import os, json
+import os, json, re, math
 from openai import OpenAI
 
 client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+def count_sentences(text):
+    sentences = re.split(r'[.!?]+\s*|\n+', text.strip())
+
+    sentences = [s for s in sentences if s.strip()]
+    return len(sentences)
 
 def merge_stream(memos, style_prompt, style_examples):
     if isinstance(style_prompt, dict):
         style_prompt = json.dumps(style_prompt, ensure_ascii=False, indent=2)
     if isinstance(style_examples, list):
         style_examples = "\n\n".join(f"- {s}" for s in style_examples)
+    
     joined_memos = "\n".join(f"- {m}" for m in memos)
+    
+    original_sent_count = count_sentences(joined_memos)
+    min_sentences = max(1, math.ceil(original_sent_count * 1.3))  
+    max_sentences = math.ceil(original_sent_count * 1.8)
 
     prompt = f"""
     You are a diary writing assistant.
@@ -22,17 +33,15 @@ def merge_stream(memos, style_prompt, style_examples):
     1) Write in the same tone, sentence flow, and rhythmic pacing as the style profile and examples.
     2) Maintain the natural emotional temperature and subtlety.
     3) Be sure to create your journal in the order in which the notes are given.
-    4) Respond **in the same language as the memos or the user’s input.**
+    4) Respond in the same language as the memos or the user’s input.
     5) Avoid excessive imagination or adding information that is not clearly implied by the memos.
     6) **Do NOT copy, paraphrase, or reuse** specific events, objects, situations, or scenes from the examples.
-    7) The examples are **ONLY** for tone / sentence flow / word choice patterns. Their **content must not appear** in the generated diary.
-    8) For "common_phrases": 
-        - These represent **habitual phrasing TENDENCIES** (e.g., softer endings, reflective pauses).
-        - **Do NOT reuse the phrases exactly**. Instead, write **new sentences** that feel like they belong to the same speech rhythm.
-    
-    Return the diary as **continuous text**, not JSON.
+    7) The examples are ONLY for tone / sentence flow / word choice patterns. Their content must not appear in the generated diary.
+    8) For "common_phrases": do NOT reuse them exactly. Instead, write new sentences that feel similar in rhythm.
+    9) Do NOT add filler sentences. Keep the pacing natural and minimal.
 
     ---
+
     STYLE PROFILE (JSON):
     {style_prompt}
 
@@ -41,6 +50,16 @@ def merge_stream(memos, style_prompt, style_examples):
 
     MEMOS TO MERGE:
     {joined_memos}
+
+    ---
+
+    ## LENGTH RULE (IMPORTANT — FOLLOW STRICTLY)
+    - The final diary must be **between {min_sentences} and {max_sentences} sentences total**.
+    - If your writing would be shorter than {min_sentences} sentences, expand gently by adding soft reflections or subtle inner thoughts.
+    - If your writing would exceed {max_sentences} sentences, shorten by removing filler or unnecessary elaboration.
+    - Do NOT mention these rules. Just follow them.
+
+    ---
 
     Now write the diary:
     """

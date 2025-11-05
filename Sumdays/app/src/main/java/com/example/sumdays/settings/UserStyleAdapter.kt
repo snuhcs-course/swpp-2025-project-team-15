@@ -11,7 +11,8 @@ import com.example.sumdays.data.style.UserStyle // Room Entity로 가정된 클�
 
 class UserStyleAdapter(
     private val onStyleSelected: (styleId: Long) -> Unit, // 스타일 선택 (RadioButton 클릭)
-    private val onDeleteClicked: (style: UserStyle) -> Unit // 삭제 버튼 클릭
+    private val onDeleteClicked: (style: UserStyle) -> Unit,
+    private val onStyleDeactivated: () -> Unit // ★★★ 활성 스타일 비활성화 요청 콜백 추가 ★★★
 ) : RecyclerView.Adapter<UserStyleAdapter.StyleViewHolder>() {
 
     private val stylesList = mutableListOf<UserStyle>()
@@ -55,24 +56,32 @@ class UserStyleAdapter(
             val isSelected = style.styleId == activeId
             binding.styleRadioButton.isChecked = isSelected
 
-            // --- 2. 리스너 설정 ---
+            // --- 2. 리스너 설정 수정 ---
 
-            // 스타일 선택 (라디오 버튼 또는 항목 클릭 시 활성화)
-            binding.root.setOnClickListener {
-                if (!isSelected) {
-                    onStyleSelected(style.styleId) // Activity로 활성 스타일 변경 요청
+            // 라디오 버튼 클릭 리스너 (root 클릭 리스너는 제거하거나 라디오 버튼 리스너와 동일하게 작동하도록 수정)
+            binding.styleRadioButton.setOnClickListener {
+                if (isSelected) {
+                    // 1. 활성화된 상태의 라디오 버튼을 다시 누른 경우 -> 비활성화 요청
+                    Toast.makeText(binding.root.context, "현재 스타일을 해제합니다.", Toast.LENGTH_SHORT).show()
+                    onStyleDeactivated() // 상위 컴포넌트로 비활성화 요청
+                } else {
+                    // 2. 비활성화된 상태의 라디오 버튼을 누른 경우 -> 새로운 활성 스타일로 설정 요청
+                    onStyleSelected(style.styleId) // 상위 컴포넌트로 활성 스타일 변경 요청
                 }
             }
-            binding.styleRadioButton.setOnClickListener {
-                if (!isSelected) {
-                    onStyleSelected(style.styleId)
-                }
+
+            // 항목 전체를 클릭했을 때도 라디오 버튼과 동일하게 작동하도록 처리 (선택 사항)
+            binding.root.setOnClickListener {
+                // 라디오 버튼의 클릭 로직을 그대로 호출
+                binding.styleRadioButton.performClick()
             }
 
             // 3. 삭제 버튼
             binding.deleteStyleButton.setOnClickListener {
-                if (style.styleId == activeId) {
-                    Toast.makeText(binding.root.context, "활성 스타일은 삭제할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                // ... (기존 삭제 로직 유지: 활성 스타일일 경우 비활성화 요청)
+                if (isSelected) {
+                    Toast.makeText(binding.root.context, "현재 스타일을 해제합니다.", Toast.LENGTH_SHORT).show()
+                    onStyleDeactivated()
                 } else {
                     onDeleteClicked(style)
                 }

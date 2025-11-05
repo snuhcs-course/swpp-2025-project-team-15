@@ -57,7 +57,9 @@ class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainSc
     private fun setupRecyclerView() {
         styleAdapter = UserStyleAdapter(
             onStyleSelected = { styleId -> handleStyleSelection(styleId) },
-            onDeleteClicked = { style -> handleDeleteStyle(style) }
+            onDeleteClicked = { style -> handleDeleteStyle(style) },
+            // ★★★ 비활성화 콜백 추가 ★★★
+            onStyleDeactivated = { handleStyleDeactivation() }
         )
         binding.styleRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@DiaryStyleSettingsActivity)
@@ -111,5 +113,11 @@ class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainSc
         withContext(Dispatchers.Main) {
             Toast.makeText(this@DiaryStyleSettingsActivity, "${style.styleName}이(가) 삭제되었습니다.", Toast.LENGTH_SHORT).show()
         }
+    }
+    private fun handleStyleDeactivation() {
+        userStatsPrefs.clearActiveStyleId() // SharedPreferences에서 ID 제거
+        // 뷰모델 또는 LiveData를 통해 목록을 다시 로드하여 UI를 업데이트해야 합니다.
+        // styleViewModel.loadStyles()
+        Toast.makeText(this, "활성 스타일이 해제되었습니다.", Toast.LENGTH_SHORT).show()
     }
 }

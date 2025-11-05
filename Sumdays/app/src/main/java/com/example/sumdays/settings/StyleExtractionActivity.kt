@@ -18,7 +18,9 @@ import com.google.gson.Gson // StylePrompt 저장을 위해 Gson 사용
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -90,32 +92,29 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
     private fun handleExtractStyle() {
         val textInput = binding.diaryTextInput.text.toString().trim()
 
-        // 텍스트를 줄바꿈 기준으로 분리하고, 빈 줄은 제거하여 유효한 텍스트 일기 목록을 만듭니다.
         val textDiaries = textInput.split("\n")
             .map { it.trim() }
             .filter { it.isNotEmpty() }
 
         val totalCount = textDiaries.size + selectedImageUris.size
 
-        // 최소 5개 유효성 검사
         if (totalCount < 5) {
             Toast.makeText(this, "텍스트와 이미지를 합쳐 최소 5개 이상 제공해야 합니다. (현재: $totalCount 개)", Toast.LENGTH_LONG).show()
             return
         }
 
-        // UI 비활성화 (로딩 상태 표시)
         binding.runExtractionButton.isEnabled = false
         binding.runExtractionButton.text = "스타일 분석 중..."
 
-        // Multipart 요청 구성 시작 (IO 스레드에서 파일 처리)
         launch(Dispatchers.IO) {
             try {
                 // 2. Multipart Part 구성
-                val diaryParts = createTextParts(textDiaries)
+                // 텍스트 일기 목록을 JSON 문자열로 변환하여 하나의 RequestBody 파트로 만듭니다.
+                val diaryPart = createTextPart(textDiaries) // <--- 함수 변경
                 val imageParts = createImageParts(selectedImageUris)
 
                 // 3. 서버 호출
-                callApi(diaryParts, imageParts)
+                callApi(diaryPart, imageParts) // <--- 파라미터 변경
 
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -126,22 +125,23 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
         }
     }
 
-    // --- 2. Multipart 구성 도우미 함수 ---
+    // --- 2. Multipart 구성 도우미 함수 변경 ---
 
-    private fun createTextParts(diaries: List<String>): List<MultipartBody.Part> {
-        return diaries.map { diaryText ->
-            // 서버의 배열 요구사항에 맞게 "diaries[]" 키 사용
-            MultipartBody.Part.createFormData("diaries[]", diaryText)
-        }
+    // diaries 목록을 JSON 문자열로 변환하여 하나의 RequestBody 파트로 반환하도록 변경
+    private fun createTextPart(diaries: List<String>): RequestBody {
+        // Gson을 사용하여 List<String>을 JSON 배열 문자열로 변환
+        val jsonDiaries = Gson().toJson(diaries)
+
+        // Content-Type: application/json; charset=utf-8로 RequestBody 생성
+        return jsonDiaries.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
     }
 
     private fun createImageParts(uris: List<Uri>): List<MultipartBody.Part> {
+        // 기존 코드 유지 (변경 불필요)
         return uris.mapNotNull { uri ->
-            // Uri에서 실제 File 경로를 얻는 유틸리티 함수 필요
             val file = FileUtil.getFileFromUri(this, uri)
             if (file != null && file.exists()) {
                 val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-                // 서버의 키인 "images"와 파일명, RequestBody 전달
                 MultipartBody.Part.createFormData("images", file.name, requestBody)
             } else {
                 null
@@ -149,10 +149,15 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
         }
     }
 
-    // --- 3. Retrofit API 호출 ---
+    // --- 3. Retrofit API 호출 함수 변경 ---
 
-    private fun callApi(diaryParts: List<MultipartBody.Part>, imageParts: List<MultipartBody.Part>) {
-        ApiClient.api.extractStyle(diaryParts, imageParts)
+    // 파라미터를 변경된 createTextPart의 결과(RequestBody)로 받도록 수정
+    private fun callApi(diaryPart: RequestBody, imageParts: List<MultipartBody.Part>) {
+        // ApiClient.api.extractStyle(diaryParts, imageParts) 호출 부분 수정
+        ApiClient.api.extractStyle(
+            diaryPart, // <--- 하나의 RequestBody 파트로 전달
+            imageParts
+        )
             .enqueue(object : Callback<StyleExtractionResponse> {
 
                 override fun onResponse(call: Call<StyleExtractionResponse>, response: Response<StyleExtractionResponse>) {
@@ -161,20 +166,26 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
 
                         if (response.isSuccessful) {
                             val styleResponse = response.body()
-                            if (styleResponse != null && styleResponse.success) {
+                            // ★★★ 성공 조건 변경: styleResponse가 null이 아니고 style_vector가 null이 아닌 경우 ★★★
+                            if (styleResponse != null && styleResponse.style_vector != null) {
                                 // 4. 추출 성공 및 Room DB 저장
                                 saveStyleData(styleResponse)
                                 withContext(Dispatchers.Main) {
                                     Toast.makeText(this@StyleExtractionActivity, "스타일 추출 완료! 설정 목록에서 확인하세요.", Toast.LENGTH_LONG).show()
-                                    finish() // 이전 화면으로 돌아가 목록 업데이트 유도
+                                    finish()
                                 }
                             } else {
-                                // 서버 응답 실패 처리
+                                // 서버 응답 실패 처리 (success: false 이거나 데이터 불완전)
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(this@StyleExtractionActivity, styleResponse?.message ?: "스타일 추출 실패", Toast.LENGTH_LONG).show()
+                                    // message가 있다면 출력하고, 없다면 "스타일 추출 실패" 출력
+                                    Toast.makeText(
+                                        this@StyleExtractionActivity,
+                                        styleResponse?.message ?: "스타일 추출에 필요한 데이터가 서버로부터 오지 않았습니다.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                 }
                             }
-                        } else {
+                        }  else {
                             // HTTP 에러 처리
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(this@StyleExtractionActivity, "서버 응답 오류 (코드: ${response.code()})", Toast.LENGTH_LONG).show()
@@ -195,16 +206,32 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
     // --- 4. Room DB 저장 로직 (IO 스레드) ---
 
     private suspend fun saveStyleData(response: StyleExtractionResponse) {
+
+        // 1. 필수 데이터 널 검사 및 안전 호출 (Safe Call)
+        // StyleExtractionResponse에서 데이터 필드가 null이면 저장을 진행할 수 없습니다.
+        val styleVector = response.style_vector
+        val styleExamples = response.style_examples
+        val stylePrompt = response.style_prompt
+
+        // 이 세 필드 중 하나라도 null이면 저장을 중단합니다.
+        if (styleVector == null || styleExamples == null || stylePrompt == null) {
+            // 이 부분은 UI에 오류를 알리거나 로그를 남기는 등 추가 처리가 필요할 수 있습니다.
+            // 현재는 단순히 함수 실행을 종료합니다.
+            // 예를 들어, throw Exception("스타일 데이터가 불완전합니다.") 등을 고려할 수 있습니다.
+            return
+        }
+
         val newStyleName = generateUniqueStyleName() // 고유한 이름 생성 함수 필요
 
+        // 2. Non-nullable 변수를 사용하여 UserStyle 객체 생성
         val newStyle = UserStyle(
             styleName = newStyleName,
-            styleVector = response.style_vector,
-            styleExamples = response.style_examples,
-            stylePrompt = response.style_prompt
+            styleVector = styleVector,     // Non-nullable 변수 사용
+            styleExamples = styleExamples, // Non-nullable 변수 사용
+            stylePrompt = stylePrompt      // Non-nullable 변수 사용
         )
 
-        // 1. 새로운 스타일 저장
+        // 3. 새로운 스타일 저장
         styleViewModel.insertStyle(newStyle)
     }
 

@@ -7,6 +7,12 @@
     android:fitsSystemWindows="true"
     tools:context=".StatisticsActivity">
 
+    <View
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#282d35" />
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/month_statistics_recycler_view"
         android:layout_width="match_parent"

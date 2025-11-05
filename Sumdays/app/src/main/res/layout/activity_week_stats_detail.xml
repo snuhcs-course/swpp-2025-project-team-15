@@ -6,6 +6,12 @@
     android:fitsSystemWindows="true"
     android:id="@+id/main_detail">
 
+    <View
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#282d35" />
+
     <LinearLayout
         android:id="@+id/header_layout"
         android:layout_width="match_parent"

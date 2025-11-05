@@ -5,6 +5,12 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
+    <View
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#282d35" />
+
     <LinearLayout
         android:id="@+id/header_layout"
         android:layout_width="match_parent"
@@ -49,7 +55,7 @@
                 android:id="@+id/month_range_text_view"
                 style="@style/SectionContent"
                 android:layout_marginBottom="16dp"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 android:textStyle="italic"
                 android:text="2025-09-01 ~ 2025-09-30 | 키워드1, 키워드2"/>
 

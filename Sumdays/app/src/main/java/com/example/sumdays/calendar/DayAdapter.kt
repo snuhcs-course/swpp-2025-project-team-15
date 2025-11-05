@@ -58,13 +58,16 @@ class DayAdapter(private val days: List<DateCell>, private val activity: Calenda
             }
             tvDayNumber.setTextColor(textColor)
 
-            // 오늘 날짜 스타일 설정
+            // 오늘 날짜 스타일 설정 (var currentStatusMap: Map<String, Pair<Boolean, String?>> = emptyMap())
+            val date = cell.dateString
             val isToday = cell.dateString == LocalDate.now().toString()
+            val hasDiary = activity.currentStatusMap[date]?.first ?: false
+            val emoji = activity.currentStatusMap[date]?.second ?: null
             if (isToday) {
                 tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_fox_today)
                 tvDayNumber.setTypeface(null, Typeface.BOLD) // 오늘은 볼드체로
             }
-            else if (CalendarActivity.getIfDiaryCompleted(cell.dateString))
+            else if (hasDiary)
             {
                 tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_fox_date_gray_completed)
                 tvDayNumber.setTypeface(null, Typeface.NORMAL)
@@ -75,7 +78,6 @@ class DayAdapter(private val days: List<DateCell>, private val activity: Calenda
             }
 
             // 이모지 있을 때 스타일 설정
-            val emoji = activity.getEventEmoji(cell.dateString)
             if (emoji != null) { // TODO: 이모지가 덮어쓰는 느낌이 안 나고 흐리게 보임
                 tvEmoji.text = emoji
                 tvEmoji.visibility = View.VISIBLE

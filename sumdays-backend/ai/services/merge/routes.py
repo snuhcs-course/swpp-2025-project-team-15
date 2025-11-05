@@ -5,6 +5,8 @@ import json
 
 analysis_service = DiaryAnalyzer()
 merge_bp = Blueprint("merge", __name__, url_prefix="/merge")
+analyzer = DiaryAnalyzer()
+
 
 @merge_bp.route("/", methods=["POST"])
 def merge_memo():
@@ -37,4 +39,4 @@ def merge_memo():
 
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"success": False, "error": str(e)}), 500

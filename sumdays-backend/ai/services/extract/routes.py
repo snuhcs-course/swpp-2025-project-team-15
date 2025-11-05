@@ -6,7 +6,7 @@ extract_bp = Blueprint("extract", __name__, url_prefix="/extract")
 MIN_DIARY_NUM = 3
 
 @extract_bp.route("/style", methods=["POST"])
-def extract_style():
+def extract_style_route():
     data = request.get_json()
     diaries = data.get("diaries", [])
 

@@ -84,7 +84,10 @@ class DailyWriteActivity : AppCompatActivity() {
     // ★★★ 오디오 분석 중인 임시 메모의 ID를 저장할 변수 (Int?) ★★★
     private var pendingAudioMemoId: Int? = null
 
+    // ★★★ 오디오 API 처리 중(STT)인지 확인하는 플래그 ★★★
+    private var isApiProcessingAudio = false
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -100,6 +103,7 @@ class DailyWriteActivity : AppCompatActivity() {
 
         // 헬퍼 초기화 (initViews 이후 호출)
         audioRecorderHelper = createAudioRecorderHelper()
+        // imageOcrHelper = createImageOcrHelper() // 사진 기능 삭제됨
 
         // 인텐트 데이터 처리 및 데이터 관찰 시작
         handleIntent(intent)
@@ -110,6 +114,8 @@ class DailyWriteActivity : AppCompatActivity() {
         // 하단 네비게이션 바 설정
         setupNavigationBar()
     }
+
+    // ★★★ ImageOcrHelper 관련 함수/변수 전체 삭제 ★★★
 
     /**
      * AudioRecorderHelper 인스턴스를 생성하고 콜백을 정의하는 함수
@@ -132,8 +138,17 @@ class DailyWriteActivity : AppCompatActivity() {
                 runOnUiThread {
                     Toast.makeText(this, "녹음 완료. 텍스트 변환 중...", Toast.LENGTH_SHORT).show()
                     isRecording = false
+
+                    // ★★★ API 처리 시작 플래그 ★★★
+                    isApiProcessingAudio = true
+
+                    // ★★★ 아이콘을 '비활성화된' 마이크로 변경 ★★★
+                    // (완전히 활성화(VISIBLE) 시키면 중복 녹음이 시작될 수 있음)
                     micIcon.visibility = View.VISIBLE
+                    micIcon.isEnabled = false // 클릭 안되게
+                    micIcon.alpha = 0.5f // 반투명하게
                     stopIcon.visibility = View.GONE
+
                     audioWaveView.visibility = View.GONE
                     memoInputEditText.visibility = View.VISIBLE
                     stopWaveAnimation()
@@ -162,13 +177,24 @@ class DailyWriteActivity : AppCompatActivity() {
                     val finalContent = transcribedText ?: "[오디오 파일: $filePath]"
                     removeDummyMemoAndAddFinal(finalContent, "audio")
                     Toast.makeText(this, "텍스트 변환 완료.", Toast.LENGTH_SHORT).show()
+
+                    // ★★★ API 처리 완료 ★★★
+                    isApiProcessingAudio = false
+                    micIcon.isEnabled = true // 아이콘 다시 활성화
+                    micIcon.alpha = 1.0f
                 }
             },
             onRecordingFailed = { errorMessage ->
                 runOnUiThread {
                     Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
                     val errorContent = "[오류: $errorMessage]"
-                    removeDummyMemoAndAddFinal(errorContent, "audio")
+                    // ★★★ removeDummyMemo()가 UI 복원까지 하도록 수정 ★★★
+                    removeDummyMemo(errorContent, "audio")
+
+                    // ★★★ API 처리 완료 ★★★
+                    isApiProcessingAudio = false
+                    micIcon.isEnabled = true // 아이콘 다시 활성화
+                    micIcon.alpha = 1.0f
                 }
             },
             onPermissionDenied = {
@@ -184,15 +210,14 @@ class DailyWriteActivity : AppCompatActivity() {
         )
     }
 
-    // 액티비티가 재사용될 때 새로운 인텐트 처리 (변경 없음)
-    @RequiresApi(Build.VERSION_CODES.O)
+    // 액티비티가 재사용될 때 새로운 인텐트 처리
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         handleIntent(intent)
     }
 
-    // UI 뷰 변수들을 레이아웃 ID와 연결 (수정됨)
+    // UI 뷰 변수들을 레이아웃 ID와 연결
     private fun initViews() {
         dateTextView = findViewById(R.id.date_text_view)
         memoListView = findViewById(R.id.memo_list_view)
@@ -200,6 +225,7 @@ class DailyWriteActivity : AppCompatActivity() {
         sendIcon = findViewById(R.id.send_icon)
         micIcon = findViewById(R.id.mic_icon)
         stopIcon = findViewById(R.id.stop_icon)
+        // photoIcon = findViewById(R.id.photo_icon) // ★★★ 삭제 ★★★
         readDiaryButton = findViewById(R.id.read_diary_button)
 
         audioWaveView = findViewById(R.id.audio_wave_view)
@@ -211,17 +237,14 @@ class DailyWriteActivity : AppCompatActivity() {
         memoAdapter = MemoAdapter()
         memoListView.adapter = memoAdapter
 
-        // ★★★ 힌트 저장 로직 제거 ★★★
-        // defaultMemoHint = memoInputEditText.hint.toString()
-
-        // 메모 아이템 클릭 시 수정 다이얼로그 표시 (변경 없음)
+        // 메모 아이템 클릭 시 수정 다이얼로그 표시
         memoAdapter.setOnItemClickListener(object : MemoAdapter.OnItemClickListener {
             override fun onItemClick(memo: Memo) {
                 showEditMemoDialog(memo)
             }
         })
 
-        // 드래그 앤 드롭 및 스와이프 콜백 정의 (변경 없음)
+        // 드래그 앤 드롭 및 스와이프 콜백 정의
         val dragAndDropCallback = MemoDragAndDropCallback(
             adapter = memoAdapter,
             onMove = { fromPosition, toPosition -> /* ... */ },
@@ -243,7 +266,7 @@ class DailyWriteActivity : AppCompatActivity() {
         itemTouchHelper.attachToRecyclerView(memoListView)
     }
 
-    // 인텐트 데이터 처리 및 데이터 관찰 시작 (수정됨: LiveData 갱신 로직)
+    // 인텐트 데이터 처리 및 데이터 관찰 시작
     private fun handleIntent(intent: Intent?) {
         date = intent?.getStringExtra("date") ?: SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
         dateTextView.text = date
@@ -303,30 +326,40 @@ class DailyWriteActivity : AppCompatActivity() {
             }
         }
         micIcon.setOnClickListener {
+            // ★★★ API 처리 중일 때는 녹음 시작 방지 ★★★
+            if (isApiProcessingAudio) {
+                Toast.makeText(this, "이전 음성을 처리 중입니다...", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             audioRecorderHelper.checkPermissionAndToggleRecording()
         }
         stopIcon.setOnClickListener {
             audioRecorderHelper.checkPermissionAndToggleRecording()
         }
 
-        // ★★★ EditText 포커스 리스너 추가 ★★★
+        // photoIcon.setOnClickListener { ... } // ★★★ 삭제 ★★★
+
+        // ★★★ EditText 포커스 리스너 (주석 해제 및 수정) ★★★
         memoInputEditText.setOnFocusChangeListener { view, hasFocus ->
             if (hasFocus) {
-                /*micIcon.visibility = View.GONE
-                stopIcon.visibility = View.GONE*/
+                // 포커스 받음: 아이콘 숨기기
+                micIcon.visibility = View.GONE
+                stopIcon.visibility = View.GONE
             } else {
-                // 포커스 잃음: photoIcon은 필요 없고, 녹음 상태에 따라 아이콘 복원
-                /*
+                // 포커스 잃음: 녹음 상태에 따라 아이콘 복원
                 if (isRecording) {
                     micIcon.visibility = View.GONE
                     stopIcon.visibility = View.VISIBLE
                 } else {
                     micIcon.visibility = View.VISIBLE
                     stopIcon.visibility = View.GONE
-                }*/
+                }
             }
         }
     }
+
+    // ★★★ 이미지 분석 옵션 대화상자 삭제 ★★★
+    // private fun showImageAnalysisOptions() { ... }
 
     // 하단 네비게이션 바의 버튼들 클릭 이벤트를 처리 (변경 없음)
     private fun setupNavigationBar() {
@@ -367,7 +400,6 @@ class DailyWriteActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         audioRecorderHelper.release()
-        // ★★★ 애니메이터 정리 ★★★
         waveAnimatorSet?.cancel()
     }
 
@@ -378,45 +410,29 @@ class DailyWriteActivity : AppCompatActivity() {
      */
     private fun startWaveAnimation() {
         waveAnimatorSet?.cancel() // 기존 애니메이션 세트 취소
-
-        // 3개의 막대에 대한 애니메이터 생성
         val anim1 = ObjectAnimator.ofFloat(waveBar1, "scaleY", 1.0f, 0.3f, 0.7f, 1.0f).apply {
-            duration = 400
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.REVERSE
+            duration = 400; repeatCount = ValueAnimator.INFINITE; repeatMode = ValueAnimator.REVERSE
         }
         val anim2 = ObjectAnimator.ofFloat(waveBar2, "scaleY", 1.0f, 0.5f, 0.2f, 0.8f, 1.0f).apply {
-            duration = 400
-            startDelay = 150 // 0.15초 지연
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.REVERSE
+            duration = 400; startDelay = 150; repeatCount = ValueAnimator.INFINITE; repeatMode = ValueAnimator.REVERSE
         }
         val anim3 = ObjectAnimator.ofFloat(waveBar3, "scaleY", 1.0f, 0.6f, 1.0f, 0.4f, 1.0f).apply {
-            duration = 400
-            startDelay = 300 // 0.3초 지연
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.REVERSE
+            duration = 400; startDelay = 300; repeatCount = ValueAnimator.INFINITE; repeatMode = ValueAnimator.REVERSE
         }
-
-        // 3. 세 애니메이션을 함께 실행 (startDelay로 인해 시차 발생)
-        waveAnimatorSet = AnimatorSet().apply {
-            playTogether(anim1, anim2, anim3)
-            start()
-        }
+        waveAnimatorSet = AnimatorSet().apply { playTogether(anim1, anim2, anim3); start() }
     }
 
     /**
      * "파동" 애니메이션을 중지하고 막대들의 스케일을 1.0으로 복원합니다. (변경 없음)
      */
     private fun stopWaveAnimation() {
-        waveAnimatorSet?.cancel()
-        waveAnimatorSet = null
-        // 스케일 원상 복구
-        waveBar1.scaleY = 1.0f
-        waveBar2.scaleY = 1.0f
-        waveBar3.scaleY = 1.0f
+        waveAnimatorSet?.cancel(); waveAnimatorSet = null
+        waveBar1.scaleY = 1.0f; waveBar2.scaleY = 1.0f; waveBar3.scaleY = 1.0f
     }
 
+    /**
+     * 텍스트 메모를 ViewModel에 저장하는 함수 (수정됨: memoType 파라미터 추가)
+     */
     private fun addTextMemoToList(content: String, memoType: String = "text") {
         val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Calendar.getInstance().time)
         val newMemo = Memo(
@@ -425,14 +441,14 @@ class DailyWriteActivity : AppCompatActivity() {
             timestamp = currentTime,
             date = date,
             order = memoAdapter.itemCount,
-            type = memoType // ★★★ 전달받은 memoType 사용 ★★★
+            type = memoType
         )
         memoViewModel.insert(newMemo)
         memoListView.smoothScrollToPosition(memoAdapter.itemCount)
     }
 
     /**
-     * ★★★ 임시 메모를 제거하고 최종 메모를 ViewModel에 저장하는 함수 (수정됨) ★★★
+     * 임시 메모를 제거하고 최종 메모를 ViewModel에 저장하는 함수 (수정됨)
      */
     private fun removeDummyMemoAndAddFinal(newContent: String, memoType: String) {
         if (pendingAudioMemoId != null) {
@@ -444,9 +460,21 @@ class DailyWriteActivity : AppCompatActivity() {
             }
             pendingAudioMemoId = null
         }
-
-        // ★★★ 최종 텍스트로 실제 메모를 DB에 저장 (memoType 전달) ★★★
         addTextMemoToList(newContent, memoType)
     }
-}
 
+    /**
+     * ★★★ (수정됨) 임시 메모를 제거하고 '실패한' 메모를 저장하는 함수 ★★★
+     */
+    private fun removeDummyMemo(errorContent: String, memoType: String) {
+        if (pendingAudioMemoId != null) {
+            val currentList = memoAdapter.currentList.toMutableList()
+            val removed = currentList.removeAll { it.id == pendingAudioMemoId }
+
+            if (removed) {
+                memoAdapter.submitList(currentList)
+            }
+            pendingAudioMemoId = null
+        }
+    }
+}

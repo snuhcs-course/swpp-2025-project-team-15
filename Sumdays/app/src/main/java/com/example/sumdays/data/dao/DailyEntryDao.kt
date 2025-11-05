@@ -12,6 +12,9 @@ interface DailyEntryDao {
     @Query("SELECT * FROM daily_entry WHERE date = :date")
     fun getEntry(date: String): Flow<DailyEntry?>
 
+    @Query("SELECT date FROM daily_entry WHERE diary IS NOT NULL AND diary != '' ORDER BY date DESC")
+    fun getAllWrittenDates(): List<String> // 일기 내용이 비어있지 않은 모든 날짜를 최신순으로 조회
+
 
 
     /////////// update

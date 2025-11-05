@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-ConstraintLayout을 최상위 레이아웃으로 사용하며, 오류 해결을 위해 네임스페이스 별칭을 'app'에서 'auto'로 변경했습니다.
-각 뷰(View)의 제약조건(constraint)을 통해 서로의 위치 관계를 정의합니다.
--->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:auto="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
@@ -12,35 +8,29 @@ ConstraintLayout을 최상위 레이아웃으로 사용하며, 오류 해결을 
     android:background="#303136"
     tools:context=".DailyReadActivity">
 
-    <!-- 상단 날짜 텍스트뷰 -->
-    <!-- 관계: 화면 상단 중앙에 위치합니다. 다른 뷰들의 수직 위치 기준점이 됩니다. -->
+    <!-- ... (상단 날짜, 버튼들 - 변경 없음) ... -->
     <TextView
         android:id="@+id/date_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text=""
         android:textColor="@android:color/white"
         android:textSize="24sp"
         android:textStyle="bold"
-        auto:layout_constraintEnd_toEndOf="parent"
-        auto:layout_constraintStart_toStartOf="parent"
-        auto:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="&lt; 09-27 &gt;" />
-
-    <!-- ★★★ 1번 버튼: 일기 수정 버튼 (펜 아이콘) ★★★ -->
     <ImageView
         android:id="@+id/edit_inplace_button"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginEnd="16dp"
         android:src="@drawable/ic_edit"
-        auto:layout_constraintBottom_toBottomOf="@+id/date_text"
-        auto:layout_constraintEnd_toStartOf="@+id/date_text"
-        auto:layout_constraintTop_toTopOf="@+id/date_text"
-        auto:tint="@android:color/white" />
-
-    <!-- 저장 버튼 (체크 아이콘), '일기 수정' 버튼을 누르면 나타남 -->
+        app:layout_constraintBottom_toBottomOf="@+id/date_text"
+        app:layout_constraintEnd_toStartOf="@+id/date_text"
+        app:layout_constraintTop_toTopOf="@+id/date_text"
+        app:tint="@android:color/white" />
     <ImageView
         android:id="@+id/save_button"
         android:layout_width="32dp"
@@ -48,46 +38,87 @@ ConstraintLayout을 최상위 레이아웃으로 사용하며, 오류 해결을 
         android:layout_marginEnd="16dp"
         android:src="@drawable/ic_save"
         android:visibility="gone"
-        auto:layout_constraintBottom_toBottomOf="@+id/date_text"
-        auto:layout_constraintEnd_toStartOf="@+id/date_text"
-        auto:layout_constraintTop_toTopOf="@+id/date_text"
-        auto:tint="@android:color/white"
-        tools:visibility="visible"/>
-
-    <!-- ★★★ 2번 버튼: 메모 편집 버튼 (노트 아이콘) ★★★ -->
+        app:layout_constraintBottom_toBottomOf="@+id/date_text"
+        app:layout_constraintEnd_toStartOf="@+id/date_text"
+        app:layout_constraintTop_toTopOf="@+id/date_text"
+        app:tint="@android:color/white" />
     <ImageView
         android:id="@+id/edit_memos_button"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginStart="16dp"
         android:src="@drawable/ic_notes"
-        auto:layout_constraintBottom_toBottomOf="@+id/date_text"
-        auto:layout_constraintStart_toEndOf="@+id/date_text"
-        auto:layout_constraintTop_toTopOf="@+id/date_text"
-        auto:tint="@android:color/white" />
+        app:layout_constraintBottom_toBottomOf="@+id/date_text"
+        app:layout_constraintStart_toEndOf="@+id/date_text"
+        app:layout_constraintTop_toTopOf="@+id/date_text"
+        app:tint="@android:color/white" />
 
-    <!-- "오늘의 코멘트" 카드뷰 -->
-    <!-- 관계: 화면 하단에 고정됩니다. ScrollView의 하단 경계 기준점이 됩니다. -->
+    <!-- 이모지/키워드 영역 -->
+    <LinearLayout
+        android:id="@+id/analysis_header_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="64dp"
+
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/date_text">
+        <TextView
+            android:id="@+id/comment_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:textSize="30sp"
+            tools:text="🤔" />
+
+        <!-- ★★★ 변경점: layout_width="wrap_content"로 변경, layout_weight 제거 ★★★ -->
+        <TextView
+            android:id="@+id/keywords_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textColor="#B0BEC5"
+            android:textSize="14sp"
+            tools:text="산책, 생각, 사유, 자아성찰" />
+    </LinearLayout>
+
+    <!-- 1. 내비게이션 바 (화면 하단 고정) -->
+    <include
+        android:id="@+id/bottom_buttons_layout"
+        layout="@layout/include_nav_calendar"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp"/>
+
+
+    <!-- 2. "오늘의 코멘트" 카드뷰 (내비게이션 바 위에 고정) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/comment_card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="100dp"
-        auto:cardBackgroundColor="#4A4B50"
-        auto:cardCornerRadius="20dp"
-        auto:cardElevation="0dp"
-        auto:layout_constraintBottom_toBottomOf="parent"
-        auto:layout_constraintEnd_toEndOf="parent"
-        auto:layout_constraintStart_toStartOf="parent">
+        android:layout_marginBottom="32dp"
+        app:cardBackgroundColor="#4A4B50"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_buttons_layout">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp">
 
-            <!-- "오늘의 코멘트" 제목 -->
+            <!-- 코멘트 카드 내부 레이아웃 -->
             <TextView
                 android:id="@+id/comment_title"
                 android:layout_width="wrap_content"
@@ -96,87 +127,80 @@ ConstraintLayout을 최상위 레이아웃으로 사용하며, 오류 해결을 
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                auto:layout_constraintStart_toStartOf="parent"
-                auto:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/comment_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+            <ImageView
+                android:id="@+id/thermometer_icon"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
                 android:layout_marginTop="16dp"
-                android:gravity="center"
-                android:textSize="30sp"
-                auto:layout_constraintStart_toStartOf="parent"
-                auto:layout_constraintTop_toBottomOf="@+id/comment_title"
-                tools:text="🤔" />
-
-            <!-- AI 코멘트 내용 -->
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/comment_title"
+                tools:src="@drawable/ic_thermometer_high" />
+            <TextView
+                android:id="@+id/emotion_score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="@id/thermometer_icon"
+                app:layout_constraintStart_toStartOf="@id/thermometer_icon"
+                app:layout_constraintTop_toBottomOf="@id/thermometer_icon"
+                tools:text="1.0" />
             <TextView
                 android:id="@+id/comment_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text=""
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:lineSpacingExtra="4sp"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
-                auto:layout_constraintBottom_toBottomOf="@+id/comment_icon"
-                auto:layout_constraintEnd_toEndOf="parent"
-                auto:layout_constraintStart_toEndOf="@+id/comment_icon"
-                auto:layout_constraintTop_toTopOf="@+id/comment_icon"
-                tools:text="저녁은 맛있게 드셨나요?" />
-            <!-- AI 평점 -->
-            <TextView
-                android:id="@+id/emotion_score"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text=""
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                auto:layout_constraintTop_toBottomOf="@+id/comment_text"
-                auto:layout_constraintStart_toStartOf="parent"
-                tools:text="감정 점수: unknown" />
-            <!-- 키워드 -->
-            <TextView
-                android:id="@+id/keywords"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text=""
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                auto:layout_constraintTop_toBottomOf="@+id/emotion_score"
-                auto:layout_constraintStart_toStartOf="parent"
-                tools:text="오늘의 키워드: ..." />
-
+                app:layout_constraintEnd_toStartOf="@+id/thermometer_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/comment_title"
+                tools:text="산책 속에서 생각이 많았지만 차분한 자아성찰로 마무리된 하루였습니다." />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
 
-    <!-- 일기 내용을 스크롤 가능하게 담는 ScrollView -->
-    <!--
-    관계: 상단으로는 'date_text' 아래, 하단으로는 'comment_card' 위에 위치합니다.
-    height="0dp"는 이 두 뷰 사이의 남는 공간을 모두 채우도록 만들어줍니다. (Stretch)
-    -->
+    <!-- 3. 사진첩 (RecyclerView) (코멘트 카드 위에 고정) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/photo_gallery_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:minHeight="80dp"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/comment_card"
+        android:paddingStart="40dp"
+        android:paddingEnd="40dp"
+        android:clipToPadding="false"
+        tools:listitem="@layout/item_photo_gallery"
+        tools:visibility="visible" />
+
+    <!-- 4. 일기 내용 ScrollView (헤더와 사진첩 사이에 고정) -->
     <ScrollView
         android:id="@+id/diary_scroll_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="40dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="16dp"
         android:fillViewport="true"
-        auto:layout_constraintBottom_toTopOf="@+id/comment_card"
-        auto:layout_constraintEnd_toEndOf="parent"
-        auto:layout_constraintStart_toStartOf="parent"
-        auto:layout_constraintTop_toBottomOf="@+id/date_text">
-
+        app:layout_constraintBottom_toTopOf="@+id/photo_gallery_recycler_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/analysis_header_layout">
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <!-- 읽기 모드일 때 보여줄 TextView -->
             <TextView
                 android:id="@+id/diary_content_text_view"
                 android:layout_width="match_parent"
@@ -185,9 +209,7 @@ ConstraintLayout을 최상위 레이아웃으로 사용하며, 오류 해결을 
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
                 android:visibility="visible"
-                tools:text="오늘은 소개원실 랩 수업을 들었다..." />
-
-            <!-- 수정 모드일 때 보여줄 EditText -->
+                tools:text="오늘은 산책하면서 생각이 많았던 하루였다." />
             <EditText
                 android:id="@+id/diary_content_edit_text"
                 android:layout_width="match_parent"
@@ -199,14 +221,12 @@ ConstraintLayout을 최상위 레이아웃으로 사용하며, 오류 해결을 
                 android:textColorHint="#AFAFAF"
                 android:textSize="16sp"
                 android:visibility="gone"
-                tools:text="수정 모드 텍스트..." />
+                tools:text="수정 모드..." />
         </FrameLayout>
-
     </ScrollView>
 
 
-    <!-- 왼쪽으로 날짜 이동 버튼 -->
-    <!-- 중요: 빌드 오류를 해결하려면 'res/drawable' 폴더에 'ic_arrow_back_ios.xml' 벡터 아이콘을 추가해야 합니다. -->
+    <!-- 5. 좌우 이동 버튼 (영역 중앙에 고정) -->
     <ImageView
         android:id="@+id/prev_day_button"
         android:layout_width="48dp"
@@ -214,13 +234,10 @@ ConstraintLayout을 최상위 레이아웃으로 사용하며, 오류 해결을 
         android:layout_marginStart="16dp"
         android:padding="12dp"
         android:src="@drawable/ic_arrow_back_ios"
-        auto:layout_constraintBottom_toBottomOf="parent"
-        auto:layout_constraintStart_toStartOf="parent"
-        auto:layout_constraintTop_toTopOf="parent"
-        auto:tint="@android:color/white" />
-
-    <!-- 오른쪽으로 날짜 이동 버튼 -->
-    <!-- 중요: 빌드 오류를 해결하려면 'res/drawable' 폴더에 'ic_arrow_forward_ios.xml' 벡터 아이콘을 추가해야 합니다. -->
+        app:layout_constraintBottom_toTopOf="@+id/comment_card"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/analysis_header_layout"
+        app:tint="@android:color/white" />
     <ImageView
         android:id="@+id/next_day_button"
         android:layout_width="48dp"
@@ -228,11 +245,9 @@ ConstraintLayout을 최상위 레이아웃으로 사용하며, 오류 해결을 
         android:layout_marginEnd="16dp"
         android:padding="12dp"
         android:src="@drawable/ic_arrow_forward_ios"
-        auto:layout_constraintBottom_toBottomOf="parent"
-        auto:layout_constraintEnd_toEndOf="parent"
-        auto:layout_constraintTop_toTopOf="parent"
-        auto:tint="@android:color/white" />
-
+        app:layout_constraintBottom_toTopOf="@+id/comment_card"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/analysis_header_layout"
+        app:tint="@android:color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

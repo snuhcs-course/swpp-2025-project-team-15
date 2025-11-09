@@ -3,6 +3,7 @@ package com.example.sumdays.statistics
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -20,6 +21,7 @@ import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import java.time.LocalDate
+import java.util.Locale
 
 // 주간 통계 상세 분석 화면
 class WeekStatsDetailActivity : AppCompatActivity() {
@@ -68,7 +70,25 @@ class WeekStatsDetailActivity : AppCompatActivity() {
         // 2.2. 감정 분석 섹션
         displayEmotionAnalysis(binding.emotionAnalysisBarChart, weekSummary.emotionAnalysis)
         binding.dominantEmojiTextView.text = "이번 주 감정을 이모지로 나타내면 : ${weekSummary.emotionAnalysis.dominantEmoji}"
-        binding.emotionScoreTextView.text = String.format("감정 점수: %.2f", weekSummary.emotionAnalysis.emotionScore)
+
+        // 감정 점수 로직 수정
+        val score = weekSummary.emotionAnalysis.emotionScore?.toDouble() ?: 0.0 // 점수 가져오기 (기본값 0.0)
+
+        // 1. 온도계 아이콘 설정
+        val thermometerResId = when {
+            score > 0.5 -> R.drawable.ic_thermometer_high       // ( 0.5 ~  1.0] : 빨간색
+            score > 0.0 -> R.drawable.ic_thermometer_medium     // ( 0.0 ~  0.5] : 주황색
+            score > -0.5 -> R.drawable.ic_thermometer_low       // (-0.5 ~  0.0] : 하늘색
+            else -> R.drawable.ic_thermometer_very_low          // [-1.0 ~ -0.5] : 파란색
+        }
+        binding.thermometerIcon.setImageResource(thermometerResId)
+
+        // 2. 온도 텍스트 설정 (score * 100)
+        val temperature = score * 100
+        val temptext = String.format(Locale.getDefault(), "%.0f°C", temperature)
+        binding.emotionScore.text = "감정 온도: ${temptext}"
+        binding.emotionScore.visibility = View.VISIBLE // GONE이었던 것을 보이도록
+
 
         // ⭐ 추세 (Trend) 데이터 바인딩 추가
         val trendValue = when (weekSummary.emotionAnalysis.trend) {

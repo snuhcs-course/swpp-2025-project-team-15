@@ -4,10 +4,14 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import java.util.Calendar
 
 object ReminderScheduler {
+    const val EXTRA_HOUR = "com.example.sumdays.reminder.EXTRA_HOUR"
+    const val EXTRA_MINUTE = "com.example.sumdays.reminder.EXTRA_MINUTE"
+    const val EXTRA_REQUEST_CODE = "com.example.sumdays.reminder.EXTRA_REQUEST_CODE"
 
     private const val REQUEST_CODE_BASE = 100 // 알람 ID의 시작점 (0~99까지 사용 가능)
 
@@ -17,7 +21,11 @@ object ReminderScheduler {
      */
     private fun scheduleSingleReminder(context: Context, hour: Int, minute: Int, requestCode: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(context, ReminderReceiver::class.java)
+        val intent = Intent(context, ReminderReceiver::class.java).apply {
+            putExtra(EXTRA_HOUR, hour)
+            putExtra(EXTRA_MINUTE, minute)
+            putExtra(EXTRA_REQUEST_CODE, requestCode)
+        }
 
         val pendingIntent = PendingIntent.getBroadcast(
             context,
@@ -42,13 +50,44 @@ object ReminderScheduler {
         // 3. 매일 반복 알람 등록 (setRepeating 대신 setExactAndAllowWhileIdle + 재등록 권장)
         // 여기서는 매일 반복의 정확성을 위해 setExactAndAllowWhileIdle을 사용하고 리시버에서 다음날 알람을 재등록하는 방식이 권장되지만,
         // 단순 반복을 위해 setRepeating을 사용합니다.
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            AlarmManager.INTERVAL_DAY, // 매일 반복
-            pendingIntent
-        )
-        Log.d("Scheduler", "알람 등록 완료: $hour:$minute (Request Code: ${REQUEST_CODE_BASE + requestCode})")
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                // S(31) 이상에서는 canScheduleExactAlarms() 확인 로직을 외부에서 먼저 수행해야 하지만,
+                // 로직 실패 시 발생할 수 있는 SecurityException을 여기서 처리합니다.
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    pendingIntent
+                )
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // API 23 ~ 30
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    pendingIntent
+                )
+            } else {
+                // API 19 ~ 22
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    pendingIntent
+                )
+            }
+            Log.d("Scheduler", "알람 등록 완료: $hour:$minute (Request Code: ${REQUEST_CODE_BASE + requestCode})")
+
+        } catch (e: SecurityException) {
+            Log.e("Scheduler", "정확한 알람 권한이 없습니다. 사용자에게 권한 요청을 안내해야 합니다.", e)
+            // 사용자에게 토스트 메시지 등을 통해 권한 필요성을 알리는 로직 추가
+        }
+    }
+
+    fun rescheduleNextDayReminder(context: Context, hour: Int, minute: Int, requestCode: Int) {
+        // 기존 scheduleSingleReminder를 다시 호출하면
+        // scheduleSingleReminder 내부의 "이미 지난 시간이라면 내일 알람으로 설정" 로직이
+        // 자동으로 다음 날 알람을 정확하게 잡아줍니다.
+        scheduleSingleReminder(context, hour, minute, requestCode)
     }
 
     /**

@@ -17,7 +17,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.First"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:launchMode="singleTask">
         <activity
             android:name=".RegisterationActivity"
             android:exported="false" />

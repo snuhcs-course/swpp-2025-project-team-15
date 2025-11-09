@@ -129,12 +129,14 @@ class SettingsActivity : AppCompatActivity() {
         btnCalendar.setOnClickListener {
             val intent = Intent(this@SettingsActivity, CalendarActivity::class.java)
             startActivity(intent)
+            overridePendingTransition(0, 0)
         }
         btnDaily.setOnClickListener {
             val today = LocalDate.now().toString()
             val intent = Intent(this@SettingsActivity, DailyWriteActivity::class.java)
             intent.putExtra("date", today)
             startActivity(intent)
+            overridePendingTransition(0, 0)
         }
         btnInfo.setOnClickListener {
 

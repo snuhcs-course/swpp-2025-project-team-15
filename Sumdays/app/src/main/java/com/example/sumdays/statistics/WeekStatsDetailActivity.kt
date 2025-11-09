@@ -56,7 +56,7 @@ class WeekStatsDetailActivity : AppCompatActivity() {
         // ⭐ 문제 2 해결: 일기 작성 횟수 표시
         val count = weekSummary.diaryCount
         val maxCount = 7
-        binding.diaryCountRatio.text = "$count/$maxCount"
+        binding.diaryCountRatio.text = "7일 중 ${count}일 일기를 썼어요!"
         binding.diaryCountProgress.max = maxCount
         binding.diaryCountProgress.progress = count
 
@@ -67,7 +67,7 @@ class WeekStatsDetailActivity : AppCompatActivity() {
 
         // 2.2. 감정 분석 섹션
         displayEmotionAnalysis(binding.emotionAnalysisBarChart, weekSummary.emotionAnalysis)
-        binding.dominantEmojiTextView.text = "대표 감정: ${weekSummary.emotionAnalysis.dominantEmoji}"
+        binding.dominantEmojiTextView.text = "이번 주 감정을 이모지로 나타내면 : ${weekSummary.emotionAnalysis.dominantEmoji}"
         binding.emotionScoreTextView.text = String.format("감정 점수: %.2f", weekSummary.emotionAnalysis.emotionScore)
 
         // ⭐ 추세 (Trend) 데이터 바인딩 추가
@@ -77,10 +77,6 @@ class WeekStatsDetailActivity : AppCompatActivity() {
             else -> "안정적"
         }
         binding.emotionTrendTextView.text = "감정 추세: $trendValue"
-
-        // 2.3. 하이라이트 섹션 (목록으로 표시)
-        binding.highlightsTextView.text = weekSummary.highlights
-            .joinToString("\n\n") { "${it.date}: ${it.summary}" }
 
         // 2.4. 통찰/조언 섹션
         binding.adviceTextView.text = weekSummary.insights.advice
@@ -111,7 +107,7 @@ class WeekStatsDetailActivity : AppCompatActivity() {
         }
 
         val dataSet = BarDataSet(entries, "감정 분포")
-        dataSet.color = getColor(R.color.colorPrimary) // 프로젝트 색상 사용 가정
+        dataSet.color = getColor(R.color.violet_dark) // 프로젝트 색상 사용 가정
 
         val barData = BarData(dataSet)
         barChart.data = barData
@@ -140,30 +136,6 @@ class WeekStatsDetailActivity : AppCompatActivity() {
         // 뒤로가기 버튼
         binding.backButton.setOnClickListener {
             finish()
-        }
-        val btnCalendar = findViewById<ImageButton>(R.id.btnCalendar)
-        val btnDaily = findViewById<ImageButton>(R.id.btnDaily)
-        val btnInfo = findViewById<ImageButton>(R.id.btnInfo)
-
-        // Calendar로 이동
-        btnCalendar.setOnClickListener {
-            startActivity(Intent(this, CalendarActivity::class.java))
-            finish()
-        }
-
-        // DailyWrite (오늘의 일기)로 이동
-        btnDaily.setOnClickListener {
-            val today = LocalDate.now().toString()
-            val intent = Intent(this, DailyWriteActivity::class.java)
-            intent.putExtra("date", today)
-            startActivity(intent)
-            finish()
-        }
-
-        // Info 화면 (정보/설정)
-        btnInfo.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
         }
     }
 }

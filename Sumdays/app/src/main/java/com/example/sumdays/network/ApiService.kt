@@ -14,29 +14,29 @@ import retrofit2.http.Header
 import retrofit2.http.Streaming
 
 interface ApiService {
-    @POST("/merge")
+    @POST("/api/ai/merge")
     suspend fun mergeMemos(@Body req: MergeRequest): retrofit2.Response<com.google.gson.JsonObject>
     @Streaming
-    @POST("/merge")
+    @POST("/api/ai/merge")
     fun mergeMemosStream(@Body request: MergeRequest): Call<ResponseBody>
     @Multipart
-    @POST("/stt/memo") // 서버의 STT 엔드포인트 경로
+    @POST("/api/ai/stt/memo") // 서버의 STT 엔드포인트 경로
     fun transcribeAudio(
         // 'audio'는 서버에서 파일을 받을 때 사용할 필드 이름
         @Part audio: MultipartBody.Part
     ): Call<STTResponse>
     @Multipart
-    @POST("/ocr/memo")
+    @POST("/api/ai/ocr/memo")
     fun extractTextFromImage(
         @Part image: MultipartBody.Part,
         // ★★★ 'type' 필드 추가 (RequestBody 형태) ★★★
         @Part("type") type: RequestBody
     ): Call<OcrResponse>
-    @POST("/analysis/diary")
+    @POST("/api/ai/analyze")
     suspend fun diaryAnalyze(@Body req: AnalysisRequest): retrofit2.Response<com.google.gson.JsonObject>
 
     @Multipart
-    @POST("/extract/style")
+    @POST("/api/ai/extract-style")
     fun extractStyle(
         // 1. diaries: JSON 배열을 담은 하나의 RequestBody 파트 (String으로 변환하여 사용)
         @Part("diaries") diaries: RequestBody,

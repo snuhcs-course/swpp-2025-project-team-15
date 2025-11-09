@@ -7,13 +7,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object ApiClient {
-    const val BASE_URL = "http://192.168.0.247:5001/"
+    const val BASE_URL = "http://192.168.0.247:3000/"
     //폰에서 실행하려면 서버를 돌리는 컴퓨터의 IP를 여기 적어야 함
 
     // OkHttp 로깅 + 타임아웃 설정
     private val logging = HttpLoggingInterceptor().apply {
-        // --- ★ BASIC 대신 BODY로 변경 ★ ---
-        level = HttpLoggingInterceptor.Level.BODY
+        level = HttpLoggingInterceptor.Level.HEADERS
     }
 
     private val okHttp by lazy {

@@ -312,6 +312,7 @@ class DailyWriteActivity : AppCompatActivity() {
             val intent = Intent(this, DailyReadActivity::class.java)
             intent.putExtra("date", date)
             startActivity(intent)
+            overridePendingTransition(0, 0)
         }
 
         sendIcon.setOnClickListener {
@@ -374,10 +375,12 @@ class DailyWriteActivity : AppCompatActivity() {
             intent.putExtra("date", date)
             intent.putParcelableArrayListExtra("memo_list", ArrayList(currentMemos))
             startActivity(intent)
+            overridePendingTransition(0, 0)
         }
         btnCalendar.setOnClickListener {
             val intent = Intent(this, CalendarActivity::class.java)
             startActivity(intent)
+            overridePendingTransition(0, 0)
         }
         btnDaily.setOnClickListener {
             val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
@@ -394,6 +397,7 @@ class DailyWriteActivity : AppCompatActivity() {
         btnInfo.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
+            overridePendingTransition(0, 0)
         }
     }
 

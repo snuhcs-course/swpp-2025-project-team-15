@@ -62,6 +62,7 @@ class CalendarActivity : AppCompatActivity() {
             // ⭐ 통계 화면(StatisticsActivity)으로 이동하는 Intent 추가
             val intent = Intent(this, StatisticsActivity::class.java)
             startActivity(intent)
+            overridePendingTransition(0, 0)
         }
     }
 
@@ -79,10 +80,12 @@ class CalendarActivity : AppCompatActivity() {
             val intent = Intent(this, DailyWriteActivity::class.java)
             intent.putExtra("date", today)
             startActivity(intent)
+            overridePendingTransition(0, 0)
         }
         btnInfo.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
+            overridePendingTransition(0, 0)
         }
     }
 

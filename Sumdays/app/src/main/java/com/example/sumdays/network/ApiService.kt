@@ -10,10 +10,11 @@ import retrofit2.http.Multipart
 import retrofit2.http.Part
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import retrofit2.http.Header
 import retrofit2.http.Streaming
 
 interface ApiService {
-    @POST("/api/ai/merge/")
+    @POST("/api/ai/merge")
     suspend fun mergeMemos(@Body req: MergeRequest): retrofit2.Response<com.google.gson.JsonObject>
     @Streaming
     @POST("/api/ai/merge")
@@ -25,14 +26,23 @@ interface ApiService {
         @Part audio: MultipartBody.Part
     ): Call<STTResponse>
     @Multipart
-    @POST("api/ai/ocr/memo")
+    @POST("/api/ai/ocr/memo")
     fun extractTextFromImage(
         @Part image: MultipartBody.Part,
         // ★★★ 'type' 필드 추가 (RequestBody 형태) ★★★
         @Part("type") type: RequestBody
     ): Call<OcrResponse>
-    @POST("/api/ai/analyze/")
+    @POST("/api/ai/analyze")
     suspend fun diaryAnalyze(@Body req: AnalysisRequest): retrofit2.Response<com.google.gson.JsonObject>
+
+    @Multipart
+    @POST("/api/ai/extract-style")
+    fun extractStyle(
+        // 1. diaries: JSON 배열을 담은 하나의 RequestBody 파트 (String으로 변환하여 사용)
+        @Part("diaries") diaries: RequestBody,
+        // 2. images: MultipartBody.Part 리스트 (파일명과 함께 전송)
+        @Part images: List<MultipartBody.Part>
+    ): Call<StyleExtractionResponse>
 }
 
 // 응답 DTO (nullable 권장)

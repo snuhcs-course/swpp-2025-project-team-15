@@ -64,16 +64,19 @@ class DailyReadActivity : AppCompatActivity() {
         btnCalendar.setOnClickListener {
             val intent = Intent(this, CalendarActivity::class.java)
             startActivity(intent)
+            overridePendingTransition(0, 0)
         }
         btnDaily.setOnClickListener {
             val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
             val intent = Intent(this, DailyWriteActivity::class.java)
             intent.putExtra("date", today)
             startActivity(intent)
+            overridePendingTransition(0, 0)
         }
         btnInfo.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
+            overridePendingTransition(0, 0)
         }
     }
 
@@ -146,6 +149,7 @@ class DailyReadActivity : AppCompatActivity() {
             val intent = Intent(this, DailyWriteActivity::class.java)
             intent.putExtra("date", repoKeyFormatter.format(currentDate.time))
             startActivity(intent)
+            overridePendingTransition(0, 0)
             finish()
         }
     }

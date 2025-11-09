@@ -17,6 +17,7 @@ import com.example.sumdays.network.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.example.sumdays.settings.prefs.UserStatsPrefs
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -24,6 +25,7 @@ class LoginActivity : AppCompatActivity() {
     private val apiService: AuthApiService by lazy {
         RetrofitClient.authApiService
     }
+    private lateinit var userStatsPrefs: UserStatsPrefs
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -35,6 +37,9 @@ class LoginActivity : AppCompatActivity() {
         }
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Prefs 초기화
+        userStatsPrefs = UserStatsPrefs(this)
 
         setupListeners()
     }
@@ -85,6 +90,11 @@ class LoginActivity : AppCompatActivity() {
                         Toast.makeText(this@LoginActivity, "로그인 성공!", Toast.LENGTH_SHORT).show()
 
                         SessionManager.saveSession(loginResponse.userId, loginResponse.token)
+
+                        // 2. ★ 닉네임 저장 로직 추가 ★
+                        loginResponse.nickname?.let {
+                            userStatsPrefs.saveNickname(it)
+                        }
 
                         // 메인 화면으로 이동
                         val intent = Intent(this@LoginActivity, CalendarActivity::class.java)

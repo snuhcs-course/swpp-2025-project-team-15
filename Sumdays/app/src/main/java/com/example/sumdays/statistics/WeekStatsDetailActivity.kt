@@ -3,6 +3,7 @@ package com.example.sumdays.statistics
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -20,6 +21,7 @@ import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import java.time.LocalDate
+import java.util.Locale
 
 // 주간 통계 상세 분석 화면
 class WeekStatsDetailActivity : AppCompatActivity() {
@@ -56,7 +58,7 @@ class WeekStatsDetailActivity : AppCompatActivity() {
         // ⭐ 문제 2 해결: 일기 작성 횟수 표시
         val count = weekSummary.diaryCount
         val maxCount = 7
-        binding.diaryCountRatio.text = "$count/$maxCount"
+        binding.diaryCountRatio.text = "7일 중 ${count}일 일기를 썼어요!"
         binding.diaryCountProgress.max = maxCount
         binding.diaryCountProgress.progress = count
 
@@ -67,8 +69,26 @@ class WeekStatsDetailActivity : AppCompatActivity() {
 
         // 2.2. 감정 분석 섹션
         displayEmotionAnalysis(binding.emotionAnalysisBarChart, weekSummary.emotionAnalysis)
-        binding.dominantEmojiTextView.text = "대표 감정: ${weekSummary.emotionAnalysis.dominantEmoji}"
-        binding.emotionScoreTextView.text = String.format("감정 점수: %.2f", weekSummary.emotionAnalysis.emotionScore)
+        binding.dominantEmojiTextView.text = "이번 주 감정을 이모지로 나타내면 : ${weekSummary.emotionAnalysis.dominantEmoji}"
+
+        // 감정 점수 로직 수정
+        val score = weekSummary.emotionAnalysis.emotionScore?.toDouble() ?: 0.0 // 점수 가져오기 (기본값 0.0)
+
+        // 1. 온도계 아이콘 설정
+        val thermometerResId = when {
+            score > 0.5 -> R.drawable.ic_thermometer_high       // ( 0.5 ~  1.0] : 빨간색
+            score > 0.0 -> R.drawable.ic_thermometer_medium     // ( 0.0 ~  0.5] : 주황색
+            score > -0.5 -> R.drawable.ic_thermometer_low       // (-0.5 ~  0.0] : 하늘색
+            else -> R.drawable.ic_thermometer_very_low          // [-1.0 ~ -0.5] : 파란색
+        }
+        binding.thermometerIcon.setImageResource(thermometerResId)
+
+        // 2. 온도 텍스트 설정 (score * 100)
+        val temperature = score * 100
+        val temptext = String.format(Locale.getDefault(), "%.0f°C", temperature)
+        binding.emotionScore.text = "감정 온도: ${temptext}"
+        binding.emotionScore.visibility = View.VISIBLE // GONE이었던 것을 보이도록
+
 
         // ⭐ 추세 (Trend) 데이터 바인딩 추가
         val trendValue = when (weekSummary.emotionAnalysis.trend) {
@@ -77,10 +97,6 @@ class WeekStatsDetailActivity : AppCompatActivity() {
             else -> "안정적"
         }
         binding.emotionTrendTextView.text = "감정 추세: $trendValue"
-
-        // 2.3. 하이라이트 섹션 (목록으로 표시)
-        binding.highlightsTextView.text = weekSummary.highlights
-            .joinToString("\n\n") { "${it.date}: ${it.summary}" }
 
         // 2.4. 통찰/조언 섹션
         binding.adviceTextView.text = weekSummary.insights.advice
@@ -111,7 +127,7 @@ class WeekStatsDetailActivity : AppCompatActivity() {
         }
 
         val dataSet = BarDataSet(entries, "감정 분포")
-        dataSet.color = getColor(R.color.colorPrimary) // 프로젝트 색상 사용 가정
+        dataSet.color = getColor(R.color.violet_dark) // 프로젝트 색상 사용 가정
 
         val barData = BarData(dataSet)
         barChart.data = barData
@@ -140,30 +156,6 @@ class WeekStatsDetailActivity : AppCompatActivity() {
         // 뒤로가기 버튼
         binding.backButton.setOnClickListener {
             finish()
-        }
-        val btnCalendar = findViewById<ImageButton>(R.id.btnCalendar)
-        val btnDaily = findViewById<ImageButton>(R.id.btnDaily)
-        val btnInfo = findViewById<ImageButton>(R.id.btnInfo)
-
-        // Calendar로 이동
-        btnCalendar.setOnClickListener {
-            startActivity(Intent(this, CalendarActivity::class.java))
-            finish()
-        }
-
-        // DailyWrite (오늘의 일기)로 이동
-        btnDaily.setOnClickListener {
-            val today = LocalDate.now().toString()
-            val intent = Intent(this, DailyWriteActivity::class.java)
-            intent.putExtra("date", today)
-            startActivity(intent)
-            finish()
-        }
-
-        // Info 화면 (정보/설정)
-        btnInfo.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
         }
     }
 }

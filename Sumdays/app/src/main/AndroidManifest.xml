@@ -17,7 +17,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.First"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:launchMode="singleTask">
         <activity
             android:name=".RegisterationActivity"
             android:exported="false" />
@@ -53,18 +54,18 @@
         <!--  settings  -->
         <activity android:name=".SettingsActivity"
             android:exported="false" />
-        <activity android:name=".settings.BackupSettingsActivity"
-            android:exported="false" />
         <activity android:name=".settings.AccountSettingsActivity"
             android:exported="false" />
         <activity android:name=".settings.DiaryStyleSettingsActivity"
             android:exported="false" />
         <activity android:name=".settings.NotificationSettingsActivity"
             android:exported="false" />
-        <activity android:name=".settings.ScreenLockSettingsActivity"
-            android:exported="false" />
-        <activity android:name=".settings.ThemeSettingsActivity"
-            android:exported="false" />
+
+        <activity
+            android:name=".settings.StyleExtractionActivity"
+            android:exported="false"
+            android:label="스타일 추출"
+            android:screenOrientation="portrait" />
         <!-- -->
 
 
@@ -80,6 +81,7 @@
         </activity>
         <receiver
             android:name=".reminder.ReminderReceiver"
+            android:enabled="true"
             android:exported="true" />
         <receiver
             android:name=".reminder.ReminderReplyReceiver"

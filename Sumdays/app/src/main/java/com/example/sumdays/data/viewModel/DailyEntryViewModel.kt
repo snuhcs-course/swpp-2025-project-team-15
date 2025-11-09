@@ -48,6 +48,13 @@ class DailyEntryViewModel(application: Application) : AndroidViewModel(applicati
             themeIcon = themeIcon
         )
     }
+
+    // ✅ 3️⃣ 모든 작성 날짜를 조회하는 함수 추가 (Strike 계산용)
+    fun getAllWrittenDates(): List<String> {
+        // ViewModelScope를 사용하지 않음: 호출하는 곳에서 코루틴을 관리하고 동기적으로 결과를 받음
+        return dao.getAllWrittenDates()
+    }
+
     fun deleteEntry(date: String) = viewModelScope.launch {
         dao.deleteEntry(date)
     }

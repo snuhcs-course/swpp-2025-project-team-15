@@ -37,4 +37,7 @@ interface UserStyleDao {
     @Query("SELECT styleName FROM user_style")
     suspend fun getAllStyleNames(): List<String>
 
+    // 8. 샘플 다이어리 조회
+    @Query("UPDATE user_style SET sampleDiary = :diary WHERE styleId = :id")
+    suspend fun updateSampleDiary(id: Long, diary: String)
 }

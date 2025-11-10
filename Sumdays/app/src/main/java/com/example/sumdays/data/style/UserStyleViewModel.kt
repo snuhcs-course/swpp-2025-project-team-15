@@ -73,4 +73,13 @@ class UserStyleViewModel(application: Application) : AndroidViewModel(applicatio
         val nextNumber = if (usedNumbers.isEmpty()) 1 else (usedNumbers.max() + 1)
         return@runBlocking "나의 스타일 - ${nextNumber}번째"
     }
+
+    // 추가: 샘플 데이터 업데이트
+    fun updateSampleDiary(id: Long, diary: String) = viewModelScope.launch(Dispatchers.IO) {
+        dao.updateSampleDiary(id, diary)
+    }
+    suspend fun insertStyleReturnId(style: UserStyle): Long {
+        return dao.insertStyle(style)
+    }
+
 }

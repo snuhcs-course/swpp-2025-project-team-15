@@ -10,5 +10,6 @@ data class UserStyle(
     val styleName: String, // 사용자가 지정할 이름 (예: '시니컬 스타일', '경쾌한 스타일')
     val styleVector: List<Float>, // AI 스타일 벡터 (768차원)
     val styleExamples: List<String>, // 추출된 예시 문장들
-    val stylePrompt: StylePrompt // 상세 분석 결과 객체
+    val stylePrompt: StylePrompt, // 상세 분석 결과 객체
+    val sampleDiary: String = "" // 스타일 적용하여 생성한 샘플 일기
 )

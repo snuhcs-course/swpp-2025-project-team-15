@@ -153,7 +153,6 @@ class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainSc
     }
 
     private fun deleteStyle(style: UserStyle) = launch(Dispatchers.IO) {
-        adapter.removeCache(style.styleId)
         styleViewModel.deleteStyle(style)
         if (style.styleId == userStatsPrefs.getActiveStyleId()) {
             userStatsPrefs.clearActiveStyleId()

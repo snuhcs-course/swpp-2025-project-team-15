@@ -8,6 +8,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.sumdays.auth.SessionManager
+import com.example.sumdays.daily.memo.MemoMergeUtils.convertStylePromptToMap
+import com.example.sumdays.daily.memo.MemoMergeUtils.extractMergedText
+import com.example.sumdays.daily.memo.MemoPayload
+import com.example.sumdays.daily.memo.MergeRequest
 import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.data.style.UserStyleViewModel
 import com.example.sumdays.databinding.ActivityStyleExtractionBinding
@@ -15,6 +19,7 @@ import com.example.sumdays.network.*
 import com.example.sumdays.settings.prefs.UserStatsPrefs
 import com.example.sumdays.utils.FileUtil // Uri에서 File 경로를 가져오는 유틸리티 클래스 가정
 import com.google.gson.Gson // StylePrompt 저장을 위해 Gson 사용
+import com.google.gson.JsonObject
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -228,11 +233,14 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
             styleName = newStyleName,
             styleVector = styleVector,     // Non-nullable 변수 사용
             styleExamples = styleExamples, // Non-nullable 변수 사용
-            stylePrompt = stylePrompt      // Non-nullable 변수 사용
+            stylePrompt = stylePrompt,      // Non-nullable 변수 사용
+            sampleDiary = ""
         )
+        val newId = styleViewModel.insertStyleReturnId(newStyle)
+        val diary = generateSampleDiary(newStyle)
 
         // 3. 새로운 스타일 저장
-        styleViewModel.insertStyle(newStyle)
+        styleViewModel.updateSampleDiary(newId, diary)
     }
 
     // --- 5. UI 및 유틸리티 ---
@@ -241,4 +249,34 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
         binding.runExtractionButton.isEnabled = true
         binding.runExtractionButton.text = "스타일 추출 실행"
     }
+
+    private suspend fun generateSampleDiary(style: UserStyle): String {
+
+        val promptMap = convertStylePromptToMap(style.stylePrompt)
+        val examples = style.styleExamples
+
+        val memosPayload = listOf(
+            MemoPayload(1, "아침에 일어나서 조금 멍했다.", 1),
+            MemoPayload(2, "카페에서 라떼를 마셨다.", 2),
+            MemoPayload(3, "오늘 하루는 조용히 지나간 것 같다.", 3)
+        )
+
+        val request = MergeRequest(
+            memos = memosPayload,
+            endFlag = true,
+            stylePrompt = promptMap,
+            styleExamples = examples
+        )
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = ApiClient.api.mergeMemos(request)
+                val json = response.body()
+                extractMergedText(json ?: JsonObject())
+            } catch (e: Exception) {
+                "샘플 생성 실패 :("
+            }
+        }
+    }
+
 }

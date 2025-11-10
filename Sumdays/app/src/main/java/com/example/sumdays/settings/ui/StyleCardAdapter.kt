@@ -10,21 +10,10 @@ import android.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
-import com.example.sumdays.daily.memo.MemoPayload
-import com.example.sumdays.daily.memo.MergeRequest
 import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.databinding.ItemStyleAddCardBinding
 import com.example.sumdays.databinding.ItemStyleCardBinding
-import com.example.sumdays.network.ApiClient
-import com.example.sumdays.settings.ui.model.SampleMemo
-import com.example.sumdays.daily.memo.MemoMergeAdapter
-import com.example.sumdays.daily.memo.MemoMergeUtils.convertStylePromptToMap
-import com.example.sumdays.daily.memo.MemoMergeUtils.extractMergedText
-import com.google.gson.JsonObject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+
 
 class StyleCardAdapter(
     private val onSelect: (UserStyle?) -> Unit,
@@ -34,14 +23,7 @@ class StyleCardAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val items = mutableListOf<UserStyle>()
-    private val sampleCache = mutableMapOf<Long, String>()
     private var activeId: Long? = null
-
-    private val sampleMemos = listOf(
-        SampleMemo(1, "아침에 일어나서 조금 멍했다.", 1),
-        SampleMemo(2, "카페에서 라떼를 마셨다.", 2),
-        SampleMemo(3, "오늘 하루는 그냥 조용히 지나간 것 같다.", 3)
-    )
 
     companion object {
         private const val TYPE_STYLE = 0
@@ -100,39 +82,31 @@ class StyleCardAdapter(
             // 기본 스타일 이름
             b.styleName.text = style.styleName
 
-            // 샘플 일기 표시 (캐시 → 없다면 생성)
-            if (sampleCache.containsKey(style.styleId)) {
-                b.sampleDiary.text = sampleCache[style.styleId]
-            } else {
-                b.sampleDiary.text = "샘플 생성 중..."
-                generateSampleDiary(style) { diary ->
-                    sampleCache[style.styleId] = diary
-                    b.sampleDiary.text = diary
-                }
-            }
+            // 샘플 일기 표시
+            b.sampleDiary.text = style.sampleDiary.ifBlank { "샘플 생성 중..." }
 
             // 프롬프트(요약) – style.stylePrompt 객체를 문자열로 요약 표시 (필드명은 프로젝트 정의에 맞게)
             val p = style.stylePrompt
             b.promptBody.text = buildString {
-                p?.tone?.let { append("• Tone: $it\n") }
-                p?.formality?.let { append("• Formality: $it\n") }
-                p?.sentence_length?.let { append("• Sentence Length: $it\n") }
-                p?.sentence_structure?.let { append("• Structure: $it\n") }
+                p.tone.let { append("• Tone: $it\n") }
+                p.formality.let { append("• Formality: $it\n") }
+                p.sentence_length.let { append("• Sentence Length: $it\n") }
+                p.sentence_structure.let { append("• Structure: $it\n") }
 
-                p?.sentence_endings?.takeIf { it.isNotEmpty() }?.let {
+                p.sentence_endings.takeIf { it.isNotEmpty() }?.let {
                     append("• Endings: ${it.joinToString(", ")}\n")
                 }
 
-                p?.lexical_choice?.let { append("• Word Choice: $it\n") }
+                p.lexical_choice.let { append("• Word Choice: $it\n") }
 
-                p?.common_phrases?.takeIf { it.isNotEmpty() }?.let {
+                p.common_phrases.takeIf { it.isNotEmpty() }?.let {
                     append("• Common Phrases: ${it.joinToString(", ")}\n")
                 }
 
-                p?.emotional_tone?.let { append("• Emotional Tone: $it\n") }
-                p?.irony_or_sarcasm?.let { append("• Irony/Sarcasm: $it\n") }
-                p?.slang_or_dialect?.let { append("• Slang/Dialect: $it\n") }
-                p?.pacing?.let { append("• Pacing: $it\n") }
+                p.emotional_tone.let { append("• Emotional Tone: $it\n") }
+                p.irony_or_sarcasm.let { append("• Irony/Sarcasm: $it\n") }
+                p.slang_or_dialect.let { append("• Slang/Dialect: $it\n") }
+                p.pacing.let { append("• Pacing: $it\n") }
             }
 
 
@@ -210,12 +184,6 @@ class StyleCardAdapter(
         }
 
         private fun defaultName(idx: Int) = "스타일 ${idx + 1}"
-
-        private fun dummySample(s: UserStyle): CharSequence {
-            // stylePrompt 필드가 있으면 맛만 보기로 반영, 없으면 고정 문구
-            val tone = s.stylePrompt?.emotional_tone ?: "담담한"
-            return "아침 공기가 ${tone} 느낌이었고,\n커피 한 잔으로 마음을 고르며\n하루를 가볍게 지나보냈다."
-        }
     }
 
     inner class AddVH(private val b: ItemStyleAddCardBinding) : RecyclerView.ViewHolder(b.root) {
@@ -230,40 +198,4 @@ class StyleCardAdapter(
         notifyDataSetChanged() // 즉시 UI 갱신
     }
 
-    private fun generateSampleDiary(
-        style: UserStyle,
-        callback: (String) -> Unit
-    ) {
-        val promptMap = convertStylePromptToMap(style.stylePrompt)
-        val examples = style.styleExamples
-
-        val memosPayload = sampleMemos.map {
-            MemoPayload(id = it.id, content = it.content, order = it.order)
-        }
-
-        val request = MergeRequest(
-            memos = memosPayload,
-            endFlag = true, // ✅ 1-shot 완성 모드
-            stylePrompt = promptMap,
-            styleExamples = examples
-        )
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val response = ApiClient.api.mergeMemos(request)
-                val json = response.body()
-                val diary = extractMergedText(json ?: JsonObject())
-
-                withContext(Dispatchers.Main) { callback(diary) }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) { callback("샘플 생성 실패 :(") }
-            }
-        }
-    }
-
-    fun removeCache(styleId: Long?) {
-        if (styleId != null) {
-            sampleCache.remove(styleId)
-        }
-    }
 }

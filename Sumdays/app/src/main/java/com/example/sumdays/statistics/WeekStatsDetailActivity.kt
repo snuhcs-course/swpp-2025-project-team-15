@@ -49,6 +49,7 @@ class WeekStatsDetailActivity : AppCompatActivity() {
     }
 
     private fun setupViews() {
+
         // 주간 제목 설정
         binding.weekTitleTextView.text = weekSummary.summary.title
         // ⭐ 문제 1 해결: 날짜 범위 표시

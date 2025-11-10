@@ -16,7 +16,6 @@ interface DailyEntryDao {
     fun getAllWrittenDates(): List<String> // 일기 내용이 비어있지 않은 모든 날짜를 최신순으로 조회
 
 
-
     /////////// update
     // 1. (비공개) 날짜가 없으면 초기값으로 삽입하는 함수
     @Query("""

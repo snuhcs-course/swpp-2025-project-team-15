@@ -1,5 +1,6 @@
 package com.example.sumdays
 
+import android.app.DatePickerDialog
 // import android.app.Dialog // 삭제
 import android.content.Context
 import android.content.Intent
@@ -9,7 +10,7 @@ import android.os.Bundle
 import android.view.View
 // import android.view.ViewGroup // 삭제
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageButton // 추가
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 // ActivityResultLauncher 관련 import 모두 삭제
@@ -25,6 +26,7 @@ import com.example.sumdays.daily.diary.AnalysisRepository
 import com.example.sumdays.databinding.ActivityDailyReadBinding
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+// import java.time.LocalDate // (LocalDate 사용 부분 삭제됨)
 import java.util.Calendar
 import java.util.Locale
 
@@ -38,7 +40,7 @@ class DailyReadActivity : AppCompatActivity() {
     // private lateinit var photoGalleryAdapter: PhotoGalleryAdapter // 삭제
 
     private val repoKeyFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    private val displayFormatter = SimpleDateFormat("MM-dd", Locale.getDefault())
+    private val displayFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) // 연도 표시
 
     // private lateinit var pickImageLauncher: ... // 삭제
 
@@ -93,14 +95,25 @@ class DailyReadActivity : AppCompatActivity() {
      * UI 업데이트 함수 (수정됨)
      */
     private fun updateUI(entry: DailyEntry?) {
-        binding.dateText.text = "< ${displayFormatter.format(currentDate.time)} >"
+
+        // "오늘" 날짜 표시 로직
+        val isToday = isSameDay(currentDate, Calendar.getInstance())
+
+        if (isToday) {
+            binding.dateText.text = "오늘"
+            binding.nextDayButton.visibility = View.GONE
+        } else {
+            binding.dateText.text = "${displayFormatter.format(currentDate.time)}"
+            binding.nextDayButton.visibility = View.VISIBLE
+        }
+
         binding.diaryContentEditText.setText(entry?.diary ?: "")
         binding.diaryContentTextView.text = entry?.diary ?: ""
         binding.commentIcon.text = entry?.emotionIcon ?: "🤔"
         binding.keywordsText.text = entry?.keywords ?: ""
         binding.commentText.text = entry?.aiComment ?: "코멘트가 없습니다."
 
-        // 감정 점수 로직 수정
+        // 감정 점수 로직 수정 (유지)
         val score = entry?.emotionScore ?: 0.0 // 점수 가져오기 (기본값 0.0)
 
         // 1. 온도계 아이콘 설정
@@ -114,7 +127,7 @@ class DailyReadActivity : AppCompatActivity() {
 
         // 2. 온도 텍스트 설정 (score * 100)
         val temperature = score * 100
-        binding.emotionScore.text = String.format(Locale.getDefault(), "%.0f°C", temperature)
+        binding.emotionScore.text = String.format(Locale.getDefault(), "감정 온도 %.0f°C", temperature)
         binding.emotionScore.visibility = View.VISIBLE // GONE이었던 것을 보이도록
 
         // 사진첩 관련 로직 모두 삭제
@@ -135,6 +148,9 @@ class DailyReadActivity : AppCompatActivity() {
     // private fun showPhotoDialog(photoUrl: String) { ... } // 삭제
 
     private fun setupClickListeners() {
+        binding.dateText.setOnClickListener {
+            showDatePickerDialog()
+        }
         binding.prevDayButton.setOnClickListener { changeDate(-1) }
         binding.nextDayButton.setOnClickListener { changeDate(1) }
         binding.editInplaceButton.setOnClickListener { toggleEditMode(true) }
@@ -149,10 +165,54 @@ class DailyReadActivity : AppCompatActivity() {
             finish()
         }
     }
+    private fun showDatePickerDialog() {
+        val year = currentDate.get(Calendar.YEAR)
+        val month = currentDate.get(Calendar.MONTH)
+        val day = currentDate.get(Calendar.DAY_OF_MONTH)
+
+        val dateSetListener = DatePickerDialog.OnDateSetListener { view, selectedYear, selectedMonth, selectedDayOfMonth ->
+            currentDate.set(selectedYear, selectedMonth, selectedDayOfMonth)
+            observeEntry()
+        }
+
+        val datePickerDialog = DatePickerDialog(this, dateSetListener, year, month, day)
+        datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
+
+        datePickerDialog.show()
+    }
 
     private fun changeDate(amount: Int) {
+        if (amount > 0) { // "다음 날" 버튼을 눌렀을 때
+            if (isAfterToday(currentDate)) {
+                return // 이미 오늘이거나 미래면 아무것도 하지 않음
+            }
+        }
         currentDate.add(Calendar.DAY_OF_MONTH, amount)
         observeEntry()
+    }
+
+    private fun isSameDay(cal1: Calendar, cal2: Calendar): Boolean {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH) &&
+                cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH)
+    }
+
+    private fun isAfterToday(cal: Calendar): Boolean {
+        val today = Calendar.getInstance()
+        // 년, 월, 일만 비교하기 위해 시간 초기화
+        today.set(Calendar.HOUR_OF_DAY, 0)
+        today.set(Calendar.MINUTE, 0)
+        today.set(Calendar.SECOND, 0)
+        today.set(Calendar.MILLISECOND, 0)
+
+        val compareCal = cal.clone() as Calendar
+        compareCal.set(Calendar.HOUR_OF_DAY, 0)
+        compareCal.set(Calendar.MINUTE, 0)
+        compareCal.set(Calendar.SECOND, 0)
+        compareCal.set(Calendar.MILLISECOND, 0)
+
+        // 오늘과 같거나(equals) 오늘보다 뒤(after)인지 확인
+        return compareCal.equals(today) || compareCal.after(today)
     }
 
     private fun toggleEditMode(isEditing: Boolean) {

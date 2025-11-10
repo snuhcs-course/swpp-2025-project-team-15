@@ -20,6 +20,7 @@ import com.example.sumdays.R
 import com.example.sumdays.daily.memo.MemoMergeUtils.convertStylePromptToMap
 import com.example.sumdays.daily.memo.MemoMergeUtils.extractMergedText
 import com.example.sumdays.data.style.StylePrompt
+import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.data.style.UserStyleDao
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.settings.prefs.UserStatsPrefs
@@ -221,7 +222,7 @@ class MemoMergeAdapter(
             // Room에서 활성 스타일 데이터 조회 (IO 스레드에서 suspend 호출)
             userStyleDao.getStyleById(activeStyleId)
         } else {
-            null // 활성 스타일이 없음
+            UserStyle.Default // 기본 스타일
         }
 
         val stylePrompt: Map<String, Any>

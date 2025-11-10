@@ -25,6 +25,7 @@ class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainSc
 
     private val job = Job()
     private var currentSnapPos: Int = 0
+    private var hasInitialScroll = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,23 +104,29 @@ class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainSc
             adapter.submit(list, userStatsPrefs.getActiveStyleId())
             // 데이터 바뀌면 선택 버튼 라벨 업데이트
             updateSelectButtonText()
-        }
 
-        // 새 카드 위치로 이동
-        binding.styleRecycler.post {
-            binding.styleRecycler.smoothScrollToPosition(adapter.itemCount - 1)
+            // 처음 들어왔을 때만 스크롤 이동
+            if (!hasInitialScroll) {
+                hasInitialScroll = true
+
+                val activeId = userStatsPrefs.getActiveStyleId()
+                val targetIndex = adapter.items.indexOfFirst { it.styleId == activeId }.let {
+                    if (it == -1) 0 else it
+                }
+
+                binding.styleRecycler.post {
+                    binding.styleRecycler.smoothScrollToPosition(targetIndex)
+                }
+            }
         }
     }
 
     private fun setupSelectButton() {
         binding.selectButton.setOnClickListener {
             val style = adapter.styleAt(currentSnapPos)
-            if (style != null) {
-                saveActiveStyle(style.styleId ?: return@setOnClickListener)
-            } else {
-                // +카드 위치일 때는 생성 화면으로
-                startActivity(Intent(this, StyleExtractionActivity::class.java))
-            }
+            if (style == null)
+                return@setOnClickListener
+            saveActiveStyle(style.styleId)
         }
     }
 
@@ -136,9 +143,9 @@ class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainSc
     private fun saveActiveStyle(styleId: Long) = launch(Dispatchers.IO) {
         val current = userStatsPrefs.getActiveStyleId()
         if (current == styleId) {
-            userStatsPrefs.clearActiveStyleId()  // 해제
+            userStatsPrefs.clearActiveStyleId()
         } else {
-            userStatsPrefs.saveActiveStyleId(styleId) // 선택
+            userStatsPrefs.saveActiveStyleId(styleId)
         }
         withContext(Dispatchers.Main) {
             updateSelectButtonText()

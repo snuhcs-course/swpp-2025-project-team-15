@@ -167,8 +167,6 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
 
                 override fun onResponse(call: Call<StyleExtractionResponse>, response: Response<StyleExtractionResponse>) {
                     launch { // CoroutineScope를 사용하여 Main/IO 스레드 관리
-                        resetUi() // UI 활성화
-
                         if (response.isSuccessful) {
                             val styleResponse = response.body()
                             // ★★★ 성공 조건 변경: styleResponse가 null이 아니고 style_vector가 null이 아닌 경우 ★★★
@@ -177,12 +175,14 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
                                 saveStyleData(styleResponse)
                                 withContext(Dispatchers.Main) {
                                     Toast.makeText(this@StyleExtractionActivity, "스타일 추출 완료! 설정 목록에서 확인하세요.", Toast.LENGTH_LONG).show()
+                                    resetUi() // UI 활성화
                                     finish()
                                 }
                             } else {
                                 // 서버 응답 실패 처리 (success: false 이거나 데이터 불완전)
                                 withContext(Dispatchers.Main) {
                                     // message가 있다면 출력하고, 없다면 "스타일 추출 실패" 출력
+                                    resetUi() // UI 활성화
                                     Toast.makeText(
                                         this@StyleExtractionActivity,
                                         styleResponse?.message ?: "스타일 추출에 필요한 데이터가 서버로부터 오지 않았습니다.",

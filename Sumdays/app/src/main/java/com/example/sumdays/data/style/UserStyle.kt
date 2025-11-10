@@ -12,4 +12,32 @@ data class UserStyle(
     val styleExamples: List<String>, // 추출된 예시 문장들
     val stylePrompt: StylePrompt, // 상세 분석 결과 객체
     val sampleDiary: String = "" // 스타일 적용하여 생성한 샘플 일기
-)
+) {
+    companion object {
+        val Default = UserStyle(
+            styleId = 0L,                // DB에 존재하지 않음을 의미
+            styleName = "기본 스타일",
+            styleVector = emptyList(),
+            styleExamples = listOf(
+                "자고 싶어! 졸려! 아무것도 하기 싫어~",
+                "오늘은 그냥 아무 말도 하기 싫었다.",
+                "일기는 왜 꼭 써야 하는 걸까?"
+            ),
+            stylePrompt = StylePrompt(
+                tone = "일상적이고 솔직하며 감정 표현이 직접적",
+                formality = "구어체",
+                sentence_length = "짧음",
+                sentence_structure = "단문 위주",
+                sentence_endings = listOf("~", "~다", "~네"),
+                lexical_choice = "편안하고 일상적인 단어 사용",
+                common_phrases = listOf("그냥", "아무래도", "왜인지 모르게"),
+                emotional_tone = "약간 무기력 + 솔직한 표현",
+                irony_or_sarcasm = "거의 없음",
+                slang_or_dialect = "반말",
+                pacing = "보통"
+            ),
+            sampleDiary = "아침에 일어났는데 그냥 몸이 무거웠다.\n라떼를 마시면서 조금은 숨이 돌았다.\n하루가 그냥 흘러갔다."
+        )
+    }
+
+}

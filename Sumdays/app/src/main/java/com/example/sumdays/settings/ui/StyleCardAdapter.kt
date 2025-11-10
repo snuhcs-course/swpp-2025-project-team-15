@@ -22,7 +22,7 @@ class StyleCardAdapter(
     private val onAdd: () -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val items = mutableListOf<UserStyle>()
+    val items = mutableListOf<UserStyle>()
     private var activeId: Long? = null
 
     companion object {
@@ -32,7 +32,13 @@ class StyleCardAdapter(
 
     fun submit(list: List<UserStyle>, activeStyleId: Long?) {
         items.clear()
-        items.addAll(list)
+
+        // 기본 스타일 항상 첫 번째
+        items.add(UserStyle.Default)
+
+        // DB 스타일은 기본 스타일과 ID 충돌 없도록
+        items.addAll(list.filter { it.styleId != 0L })
+
         this.activeId = activeStyleId
         notifyDataSetChanged()
     }
@@ -61,6 +67,13 @@ class StyleCardAdapter(
         private var isFront = true
 
         fun bind(style: UserStyle) {
+            // 기본 스타일 메뉴 삭제
+            if (style.styleId == 0L) {
+                b.moreButton.visibility = View.INVISIBLE
+            } else {
+                b.moreButton.visibility = View.VISIBLE
+            }
+
             // 항상 초기 상태는 앞면
             b.front.visibility = View.VISIBLE
             b.back.visibility = View.GONE
@@ -136,7 +149,7 @@ class StyleCardAdapter(
 
             // 선택 상태(외부 버튼에서 처리하므로 카드에는 시각 피드백만)
             val isActive = (style.styleId == activeId)
-            b.cardRoot.strokeWidth = if (isActive) 2 else 0
+            b.cardRoot.strokeWidth = if (isActive) (4 * b.root.resources.displayMetrics.density).toInt() else 0
             b.cardRoot.strokeColor = 0xFF8B008B.toInt()
         }
 
@@ -191,7 +204,8 @@ class StyleCardAdapter(
     }
 
     /** 외부에서 현재 스냅된 포지션의 스타일을 얻고 싶을 때 */
-    fun styleAt(position: Int): UserStyle? = items.getOrNull(position)
+    fun styleAt(position: Int): UserStyle? =
+        if (position in 0 until items.size) items[position] else null
 
     fun updateActiveStyleId(activeId: Long?) {
         this.activeId = activeId

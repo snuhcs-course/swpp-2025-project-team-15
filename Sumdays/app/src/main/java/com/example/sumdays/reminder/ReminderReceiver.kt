@@ -58,7 +58,7 @@ class ReminderReceiver : BroadcastReceiver() {
         }
 
         val replyPendingIntent = PendingIntent.getBroadcast(
-            context,
+            context,    
             requestCode + 100, // 다른 코드 사용
             replyIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE

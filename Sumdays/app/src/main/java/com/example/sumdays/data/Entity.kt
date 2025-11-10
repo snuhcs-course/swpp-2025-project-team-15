@@ -2,6 +2,7 @@ package com.example.sumdays.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.sumdays.statistics.WeekSummary
 
 @Entity(tableName = "daily_entry")
 data class DailyEntry(
@@ -12,6 +13,12 @@ data class DailyEntry(
     val emotionScore: Double?,             // 감정 점수
     val emotionIcon: String?,              // 감정 이모지
     val themeIcon: String?                 // 테마 이모지
+)
+
+@Entity(tableName = "weekly_summary")
+data class WeekSummaryEntity(
+    @PrimaryKey val startDate: String, // 주간 데이터의 시작일 (고유키)
+    val weekSummary: WeekSummary       // WeekSummary 전체를 저장 (JSON 변환됨)
 )
 
 data class EmojiData(

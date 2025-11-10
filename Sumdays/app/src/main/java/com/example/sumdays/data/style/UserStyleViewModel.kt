@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class UserStyleViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -51,5 +52,25 @@ class UserStyleViewModel(application: Application) : AndroidViewModel(applicatio
     // 추가: 모든 스타일 데이터를 삭제하는 함수
     fun deleteAllStyles() = viewModelScope.launch(Dispatchers.IO) {
         dao.deleteAllStyles()
+    }
+
+    // 추가: 스타일 업데이트
+    fun updateStyle(style: UserStyle) = viewModelScope.launch(Dispatchers.IO) {
+        dao.updateStyle(style)
+    }
+
+    // 추가: 새로운 스타일 이름 생성
+    fun generateNextStyleName(): String = runBlocking(Dispatchers.IO) {
+        val names = dao.getAllStyleNames()
+
+        // 형식: "나의 스타일 - k번째"
+        val regex = Regex("""나의\s*스타일\s*-\s*(\d+)\s*번째""")
+
+        val usedNumbers = names.mapNotNull { name ->
+            regex.find(name)?.groupValues?.get(1)?.toIntOrNull()
+        }
+
+        val nextNumber = if (usedNumbers.isEmpty()) 1 else (usedNumbers.max() + 1)
+        return@runBlocking "나의 스타일 - ${nextNumber}번째"
     }
 }

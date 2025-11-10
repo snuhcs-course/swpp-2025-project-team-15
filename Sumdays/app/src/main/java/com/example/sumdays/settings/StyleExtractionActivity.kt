@@ -221,7 +221,7 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
             return
         }
 
-        val newStyleName = generateUniqueStyleName() // 고유한 이름 생성 함수 필요
+        val newStyleName = styleViewModel.generateNextStyleName() // 고유한 이름 생성 함수 필요
 
         // 2. Non-nullable 변수를 사용하여 UserStyle 객체 생성
         val newStyle = UserStyle(
@@ -240,11 +240,5 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
     private fun resetUi() {
         binding.runExtractionButton.isEnabled = true
         binding.runExtractionButton.text = "스타일 추출 실행"
-    }
-
-    // StyleName 생성 로직 (현재는 미구현)
-    private suspend fun generateUniqueStyleName(): String {
-        val styleCount = styleViewModel.getAllStyles().value?.size ?: 0
-        return "나의 스타일 - ${styleCount + 1}번째"
     }
 }

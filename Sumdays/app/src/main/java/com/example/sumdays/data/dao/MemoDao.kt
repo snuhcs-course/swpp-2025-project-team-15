@@ -60,5 +60,5 @@ interface MemoDao {
     suspend fun resetDeletedFlags(ids: List<Int>)
 
     @Query("UPDATE memo_table SET isEdited = 0, isDeleted = 0 WHERE id IN (:ids)")
-    suspend fun resetEdittedFlags(ids: List<Int>)
+    suspend fun resetEditedFlags(ids: List<Int>)
 }

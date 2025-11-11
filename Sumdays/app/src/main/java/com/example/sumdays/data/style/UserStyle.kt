@@ -13,3 +13,5 @@ data class UserStyle(
     val isEdited: Boolean = false,
     val isDeleted: Boolean = false
 )
+
+

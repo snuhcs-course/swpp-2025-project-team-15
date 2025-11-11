@@ -31,6 +31,7 @@ data class EmotionAnalysis(
     val emotionScore: Float,
     val trend: String? = null // 감정 추이 (increasing, decreasing)
 ): Parcelable
+
 @Parcelize
 data class Highlight(
     val date: String,

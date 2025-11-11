@@ -24,6 +24,10 @@ import androidx.activity.viewModels
 import androidx.lifecycle.LiveData
 import com.example.sumdays.data.sync.BackupScheduler
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import com.example.sumdays.data.AppDatabase
+import com.example.sumdays.data.style.StylePrompt
+import com.example.sumdays.data.style.UserStyle
 
 class CalendarActivity : AppCompatActivity() {
 
@@ -69,6 +73,8 @@ class CalendarActivity : AppCompatActivity() {
         }
         btnUpdate.setOnClickListener {
             // 서버 db로 update
+
+
             BackupScheduler.triggerManualBackup()
             Toast.makeText(this, "수동 백업을 시작합니다", Toast.LENGTH_SHORT).show()
         }

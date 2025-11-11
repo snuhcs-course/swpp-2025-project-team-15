@@ -22,6 +22,8 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import com.example.sumdays.data.viewModel.CalendarViewModel
 import androidx.activity.viewModels
 import androidx.lifecycle.LiveData
+import com.example.sumdays.data.sync.BackupScheduler
+import android.widget.Toast
 
 class CalendarActivity : AppCompatActivity() {
 
@@ -57,12 +59,18 @@ class CalendarActivity : AppCompatActivity() {
 
     private fun setStatisticBtnListener() {
         val btnStats = findViewById<ImageButton>(R.id.statistic_btn)
+        val btnUpdate = findViewById<ImageButton>(R.id.update_btn)
 
         btnStats.setOnClickListener {
             // ⭐ 통계 화면(StatisticsActivity)으로 이동하는 Intent 추가
             val intent = Intent(this, StatisticsActivity::class.java)
             startActivity(intent)
             overridePendingTransition(0, 0)
+        }
+        btnUpdate.setOnClickListener {
+            // 서버 db로 update
+            BackupScheduler.triggerManualBackup()
+            Toast.makeText(this, "수동 백업을 시작합니다", Toast.LENGTH_SHORT).show()
         }
     }
 

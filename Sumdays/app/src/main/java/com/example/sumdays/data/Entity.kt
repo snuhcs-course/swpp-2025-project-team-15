@@ -12,13 +12,17 @@ data class DailyEntry(
     val aiComment: String?,                // AI 코멘트
     val emotionScore: Double?,             // 감정 점수
     val emotionIcon: String?,              // 감정 이모지
-    val themeIcon: String?                 // 테마 이모지
+    val themeIcon: String?,                // 테마 이모지
+    val isEdited: Boolean = false,
+    val isDeleted: Boolean = false
 )
 
 @Entity(tableName = "weekly_summary")
 data class WeekSummaryEntity(
     @PrimaryKey val startDate: String, // 주간 데이터의 시작일 (고유키)
-    val weekSummary: WeekSummary       // WeekSummary 전체를 저장 (JSON 변환됨)
+    val weekSummary: WeekSummary,      // WeekSummary 전체를 저장 (JSON 변환됨)
+    val isEdited: Boolean = false,
+    val isDeleted: Boolean = false
 )
 
 data class EmojiData(

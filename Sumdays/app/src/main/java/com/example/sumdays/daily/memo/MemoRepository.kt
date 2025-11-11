@@ -1,5 +1,6 @@
 package com.example.sumdays.daily.memo
 
+import com.example.sumdays.data.dao.MemoDao
 import kotlinx.coroutines.flow.Flow
 
 // 데이터베이스 접근을 위한 저장소(Repository) 클래스

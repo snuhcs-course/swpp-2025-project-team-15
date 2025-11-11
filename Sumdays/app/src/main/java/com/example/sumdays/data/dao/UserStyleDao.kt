@@ -1,10 +1,11 @@
-package com.example.sumdays.data.style
+package com.example.sumdays.data.dao
 
-// com.example.sumdays.data.UserStyleDao.kt (수정됨)
-
-<<<<<<< HEAD
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import com.example.sumdays.data.style.UserStyle
 
 @Dao
 interface UserStyleDao {
@@ -15,7 +16,7 @@ interface UserStyleDao {
 
     // 2. 모든 스타일 목록 조회 (SettingsActivity에서 사용)
     // LiveData<List<UserStyle>>을 반환하여 단일 사용자에게 속한 모든 스타일을 표시
-    @Query("SELECT * FROM user_style ORDER BY styleId ASC")
+    @Query("SELECT * FROM user_style ORDER BY styleId DESC")
     fun getAllStyles(): LiveData<List<UserStyle>>
 
     // 3. 스타일 삭제
@@ -29,18 +30,4 @@ interface UserStyleDao {
     // 5. 모든 스타일 삭제 (계정 탈퇴 시 등 - userId 없이 전체 삭제)
     @Query("DELETE FROM user_style")
     suspend fun deleteAllStyles()
-
-    // 6. 스타일 수정
-    @Update
-    suspend fun updateStyle(style: UserStyle)
-
-    // 7. 모든 스타일 이름 조회 (자동 이름 증가에 필요)
-    @Query("SELECT styleName FROM user_style")
-    suspend fun getAllStyleNames(): List<String>
-
-    // 8. 샘플 다이어리 조회
-    @Query("UPDATE user_style SET sampleDiary = :diary WHERE styleId = :id")
-    suspend fun updateSampleDiary(id: Long, diary: String)
 }
-=======
->>>>>>> 25198a5 (db room unify)

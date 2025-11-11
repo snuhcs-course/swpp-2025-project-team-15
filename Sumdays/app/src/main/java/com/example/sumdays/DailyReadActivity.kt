@@ -101,15 +101,17 @@ class DailyReadActivity : AppCompatActivity() {
 
         if (isToday) {
             binding.dateText.text = "오늘"
-            binding.nextDayButton.visibility = View.GONE
+            binding.nextDayButton.visibility = View.INVISIBLE
+            binding.nextDayButton.isEnabled = false
         } else {
             binding.dateText.text = "${displayFormatter.format(currentDate.time)}"
             binding.nextDayButton.visibility = View.VISIBLE
+            binding.nextDayButton.isEnabled = true
         }
 
         binding.diaryContentEditText.setText(entry?.diary ?: "")
         binding.diaryContentTextView.text = entry?.diary ?: ""
-        binding.commentIcon.text = entry?.emotionIcon ?: "🤔"
+        binding.commentIcon.text = entry?.themeIcon ?: "🤔"
         binding.keywordsText.text = entry?.keywords ?: ""
         binding.commentText.text = entry?.aiComment ?: "코멘트가 없습니다."
 

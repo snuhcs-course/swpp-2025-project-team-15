@@ -20,7 +20,7 @@ import com.example.sumdays.data.style.UserStyle
         UserStyle::class,
         Memo::class
     ],
-    version = 7, // ⚠️ 기존 버전보다 +1 해야 함 (ex. 3 → 4)
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(

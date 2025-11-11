@@ -18,9 +18,10 @@ import com.example.sumdays.data.style.UserStyle
         DailyEntry::class,
         WeekSummaryEntity::class,
         UserStyle::class,
-        Memo::class
+        Memo::class,
+        deleteRecord::class
     ],
-    version = 6, // ⚠️ 기존 버전보다 +1 해야 함 (ex. 3 → 4)
+    version = 7, // ⚠️ 기존 버전보다 +1 해야 함 (ex. 3 → 4)
     exportSchema = false
 )
 @TypeConverters(

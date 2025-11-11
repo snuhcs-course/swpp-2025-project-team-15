@@ -21,14 +21,12 @@ data class WeekSummaryEntity(
     val weekSummary: WeekSummary       // WeekSummary 전체를 저장 (JSON 변환됨)
 )
 
-/*
 @Entity(tableName = "delete_flag")
-data class deleteRecord(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+data class DeleteRecord(
     val room_id: Int,
-    val
+    val type: String // dailyEntry, weekSummary, userStyle, memo
 )
-*/
+
 data class EmojiData(
     val date : String,
     val diary: String?,

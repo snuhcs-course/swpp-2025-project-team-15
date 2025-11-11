@@ -5,13 +5,14 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "user_style")
 data class UserStyle(
-    @PrimaryKey(autoGenerate = true)
-    val styleId: Long = 0, // PK: 각 스타일을 식별하는 고유 ID
+    @PrimaryKey(autoGenerate = true) val styleId: Long = 0, // PK: 각 스타일을 식별하는 고유 ID
     val styleName: String, // 사용자가 지정할 이름 (예: '시니컬 스타일', '경쾌한 스타일')
     val styleVector: List<Float>, // AI 스타일 벡터 (768차원)
     val styleExamples: List<String>, // 추출된 예시 문장들
     val stylePrompt: StylePrompt, // 상세 분석 결과 객체
-    val sampleDiary: String = "" // 스타일 적용하여 생성한 샘플 일기
+    val sampleDiary: String = "", // 스타일 적용하여 생성한 샘플 일기
+    val isEdited: Boolean = false,
+    val isDeleted: Boolean = false
 ) {
     companion object {
         val Default = UserStyle(
@@ -39,5 +40,4 @@ data class UserStyle(
             sampleDiary = "아침에 일어나서 좀 멍했어. 오늘은 카페에서 라떼 마시고 조용히 보낸 하루인 것 같아. 그런대로 지나가긴 했는데, 왜인지 모르게 기분이 묘하네. 그냥 일상적인 하루였지만, 별 의미 없이 흘러간 것 같아."
         )
     }
-
 }

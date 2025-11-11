@@ -6,20 +6,32 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.sumdays.data.dao.*
 import androidx.room.TypeConverters
+import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.data.converter.WeekSummaryConverter
+import com.example.sumdays.data.style.StyleConverters
+import com.example.sumdays.data.style.UserStyle
+
+
 
 @Database(
     entities = [
         DailyEntry::class,
-        WeekSummaryEntity::class // ✅ WeekSummary 테이블 추가
+        WeekSummaryEntity::class,
+        UserStyle::class,
+        Memo::class
     ],
-    version = 4, // ⚠️ 기존 버전보다 +1 해야 함 (ex. 3 → 4)
+    version = 6, // ⚠️ 기존 버전보다 +1 해야 함 (ex. 3 → 4)
     exportSchema = false
 )
-@TypeConverters(WeekSummaryConverter::class)
+@TypeConverters(
+    WeekSummaryConverter::class,
+    StyleConverters::class
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun dailyEntryDao(): DailyEntryDao
     abstract fun weekSummaryDao(): WeekSummaryDao
+    abstract fun userStyleDao() : UserStyleDao
+    abstract fun memoDao() : MemoDao
 
     companion object {
         @Volatile

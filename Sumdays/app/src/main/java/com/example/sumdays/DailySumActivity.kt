@@ -21,8 +21,8 @@ import androidx.activity.viewModels
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.example.sumdays.data.style.StyleDatabase
-import com.example.sumdays.data.style.UserStyleDao
+import com.example.sumdays.data.AppDatabase
+import com.example.sumdays.data.dao.UserStyleDao
 import com.example.sumdays.settings.prefs.UserStatsPrefs
 
 class DailySumActivity : AppCompatActivity() {
@@ -44,7 +44,7 @@ class DailySumActivity : AppCompatActivity() {
 
         // ★★★ 2. Prefs 및 DAO 초기화 ★★★
         userStatsPrefs = UserStatsPrefs(this)
-        userStyleDao = StyleDatabase.getDatabase(this).userStyleDao() // StyleDatabase를 통해 DAO 획득
+        userStyleDao = AppDatabase.getDatabase(this).userStyleDao() // StyleDatabase를 통해 DAO 획득
 
         date = intent.getStringExtra("date") ?: "알 수 없는 날짜"
 

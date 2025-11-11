@@ -1,5 +1,6 @@
 package com.example.sumdays.daily.memo
 
+import com.example.sumdays.data.dao.MemoDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest

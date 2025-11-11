@@ -1,13 +1,11 @@
 package com.example.sumdays.settings
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.example.sumdays.auth.SessionManager
 import com.example.sumdays.daily.memo.MemoMergeUtils.convertStylePromptToMap
 import com.example.sumdays.daily.memo.MemoMergeUtils.extractMergedText
 import com.example.sumdays.daily.memo.MemoPayload
@@ -16,7 +14,6 @@ import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.data.style.UserStyleViewModel
 import com.example.sumdays.databinding.ActivityStyleExtractionBinding
 import com.example.sumdays.network.*
-import com.example.sumdays.settings.prefs.UserStatsPrefs
 import com.example.sumdays.utils.FileUtil // Uri에서 File 경로를 가져오는 유틸리티 클래스 가정
 import com.google.gson.Gson // StylePrompt 저장을 위해 Gson 사용
 import com.google.gson.JsonObject
@@ -29,7 +26,6 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope() {

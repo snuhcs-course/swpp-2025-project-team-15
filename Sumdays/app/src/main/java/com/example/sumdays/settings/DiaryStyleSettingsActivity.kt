@@ -154,7 +154,6 @@ class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainSc
     }
 
     private fun renameStyle(style: UserStyle, newName: String) = launch(Dispatchers.IO) {
-        // ViewModel에 rename 메서드가 없다면, style 복사 후 update 추가 필요
         val updated = style.copy(styleName = newName)
         styleViewModel.updateStyle(updated)
     }

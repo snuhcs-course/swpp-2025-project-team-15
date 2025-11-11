@@ -13,7 +13,7 @@ interface DeleteRecordDao {
     @Query("SELECT * FROM delete_flag WHERE type = :type")
     suspend fun getRecordsByType(type: String): List<DeleteRecord>
 
-    @Query("DELETE FROM delete_flag WHERE id IN (:ids)")
+    @Query("DELETE FROM delete_flag WHERE room_id IN (:ids)")
     suspend fun deleteRecords(ids: List<Int>)
 
     @Query("DELETE FROM delete_flag")

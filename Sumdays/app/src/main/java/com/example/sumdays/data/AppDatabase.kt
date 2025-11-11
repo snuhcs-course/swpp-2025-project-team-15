@@ -19,7 +19,7 @@ import com.example.sumdays.data.style.UserStyle
         WeekSummaryEntity::class,
         UserStyle::class,
         Memo::class,
-        deleteRecord::class
+        DeleteRecord::class
     ],
     version = 7, // ⚠️ 기존 버전보다 +1 해야 함 (ex. 3 → 4)
     exportSchema = false
@@ -33,6 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun weekSummaryDao(): WeekSummaryDao
     abstract fun userStyleDao() : UserStyleDao
     abstract fun memoDao() : MemoDao
+    abstract fun DeleteRecordDao() : DeleteRecordDao
 
     companion object {
         @Volatile

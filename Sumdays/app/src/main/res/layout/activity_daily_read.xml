@@ -8,55 +8,63 @@
     android:background="#303136"
     tools:context=".DailyReadActivity">
 
-    <!-- 상단 날짜 및 버튼 (변경 없음) -->
+    <!-- 상단 날짜 및 버튼 -->
     <TextView
         android:id="@+id/date_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:textColor="@android:color/white"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="&lt; 09-27 &gt;" />
+        tools:text="2025-09-27" />
+
+    <!-- 좌우 이동 버튼 (날짜 양옆) -->
     <ImageView
-        android:id="@+id/edit_inplace_button"
+        android:id="@+id/prev_day_button"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:layout_marginEnd="16dp"
-        android:src="@drawable/ic_edit"
+        android:layout_marginEnd="8dp"
+        android:padding="8dp"
+        android:src="@drawable/ic_arrow_back_ios"
         app:layout_constraintBottom_toBottomOf="@+id/date_text"
         app:layout_constraintEnd_toStartOf="@+id/date_text"
         app:layout_constraintTop_toTopOf="@+id/date_text"
         app:tint="@android:color/white" />
     <ImageView
-        android:id="@+id/save_button"
+        android:id="@+id/next_day_button"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:layout_marginEnd="16dp"
-        android:src="@drawable/ic_save"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/date_text"
-        app:layout_constraintEnd_toStartOf="@+id/date_text"
-        app:layout_constraintTop_toTopOf="@+id/date_text"
-        app:tint="@android:color/white" />
-    <ImageView
-        android:id="@+id/edit_memos_button"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="16dp"
-        android:src="@drawable/ic_notes"
+        android:layout_marginStart="8dp"
+        android:padding="8dp"
+        android:src="@drawable/ic_arrow_forward_ios"
         app:layout_constraintBottom_toBottomOf="@+id/date_text"
         app:layout_constraintStart_toEndOf="@+id/date_text"
         app:layout_constraintTop_toTopOf="@+id/date_text"
         app:tint="@android:color/white" />
 
-    <!-- 이모지/키워드 영역 (변경 없음) -->
+    <!-- (복구) 메모 보기 버튼 (주황색) -->
+    <Button
+        android:id="@+id/edit_memos_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="메모 보기"
+        android:backgroundTint="#E26A2C"
+        android:minHeight="0dp"
+        android:paddingVertical="8dp"
+        android:layout_marginEnd="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/next_day_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/next_day_button" />
+
+
+    <!-- 이모지/키워드 영역 (중앙 정렬됨) -->
     <LinearLayout
         android:id="@+id/analysis_header_layout"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="64dp"
         android:layout_marginTop="24dp"
@@ -83,7 +91,7 @@
             tools:text="산책, 생각, 사유, 자아성찰" />
     </LinearLayout>
 
-    <!-- 1. 내비게이션 바 (화면 하단 고정) (변경 없음) -->
+    <!-- 1. 내비게이션 바 (화면 하단 고정) -->
     <include
         android:id="@+id/bottom_buttons_layout"
         layout="@layout/include_nav_calendar"
@@ -95,7 +103,7 @@
         android:layout_marginBottom="16dp"/>
 
 
-    <!-- 2. "오늘의 코멘트" 카드뷰 (내비게이션 바 위에 고정) (변경 없음) -->
+    <!-- 2. "오늘의 코멘트" 카드뷰 (내비게이션 바 위에 고정) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/comment_card"
         android:layout_width="0dp"
@@ -109,12 +117,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/bottom_buttons_layout">
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp">
-
             <!-- 코멘트 카드 내부 레이아웃 -->
             <TextView
                 android:id="@+id/comment_title"
@@ -134,8 +140,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/comment_title"
                 tools:src="@drawable/ic_thermometer_high" />
-
-            <!-- ★★★ 감정 점수 (visibility="gone" 삭제) ★★★ -->
             <TextView
                 android:id="@+id/emotion_score"
                 android:layout_width="wrap_content"
@@ -146,7 +150,6 @@
                 app:layout_constraintStart_toStartOf="@id/thermometer_icon"
                 app:layout_constraintTop_toBottomOf="@id/thermometer_icon"
                 tools:text="30°C" />
-
             <TextView
                 android:id="@+id/comment_text"
                 android:layout_width="0dp"
@@ -164,15 +167,9 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!-- 3. 사진첩 (RecyclerView) (★★★ 삭제 ★★★) -->
-    <!--
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/photo_gallery_recycler_view"
-        ... />
-    -->
+    <!-- 3. 사진첩 (RecyclerView) (삭제됨) -->
 
-    <!-- 4. 일기 내용 ScrollView (★★★ 제약 조건 수정 ★★★) -->
-    <!-- 하단(Bottom)을 photo_gallery_recycler_view 대신 comment_card에 연결 -->
+    <!-- 4. 일기 내용 ScrollView (코멘트 카드 위에 고정) -->
     <ScrollView
         android:id="@+id/diary_scroll_view"
         android:layout_width="0dp"
@@ -214,28 +211,34 @@
     </ScrollView>
 
 
-    <!-- 5. 좌우 이동 버튼 (변경 없음) -->
+    <!-- 5. 수정/저장 버튼 (Floating) -->
     <ImageView
-        android:id="@+id/prev_day_button"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="16dp"
-        android:padding="12dp"
-        android:src="@drawable/ic_arrow_back_ios"
-        app:layout_constraintBottom_toTopOf="@+id/comment_card"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/analysis_header_layout"
-        app:tint="@android:color/white" />
-    <ImageView
-        android:id="@+id/next_day_button"
+        android:id="@+id/edit_inplace_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_bubble_grey"
         android:padding="12dp"
-        android:src="@drawable/ic_arrow_forward_ios"
-        app:layout_constraintBottom_toTopOf="@+id/comment_card"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/analysis_header_layout"
-        app:tint="@android:color/white" />
+        android:src="@drawable/ic_edit"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/diary_scroll_view"
+        app:layout_constraintEnd_toEndOf="@+id/diary_scroll_view"
+        app:tint="@android:color/black" />
+
+    <ImageView
+        android:id="@+id/save_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_bubble_grey"
+        android:padding="12dp"
+        android:src="@drawable/ic_save"
+        android:elevation="4dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/diary_scroll_view"
+        app:layout_constraintEnd_toEndOf="@+id/diary_scroll_view"
+        app:tint="@android:color/black" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

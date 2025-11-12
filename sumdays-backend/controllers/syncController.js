@@ -13,7 +13,7 @@ exports.syncData = async (req, res) => {
      /** ------------------------------
      * 🧩 공통 INSERT or UPDATE 함수
      * ------------------------------ */
-    const upsert = async (table, data, uniqueFields, columns) => {
+    const upsert = async (table, data, columns) => {
       if (!Array.isArray(data) || data.length === 0) return;
 
       // INSERT INTO ... ON DUPLICATE KEY UPDATE ...
@@ -113,7 +113,6 @@ exports.syncData = async (req, res) => {
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
-
 
 
 

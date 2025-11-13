@@ -2,6 +2,8 @@ package com.example.sumdays.network
 
 import com.example.sumdays.daily.diary.AnalysisRequest
 import com.example.sumdays.daily.memo.MergeRequest
+import com.example.sumdays.data.sync.SyncRequest
+import com.example.sumdays.data.sync.SyncResponse
 import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.Body
@@ -14,6 +16,13 @@ import retrofit2.http.Header
 import retrofit2.http.Streaming
 
 interface ApiService {
+
+    @POST("/db/sync")
+    suspend fun syncData(
+        // @Header("Authorization") token: String,
+        @Body body: SyncRequest
+    ): retrofit2.Response<SyncResponse>
+
     @POST("/api/ai/merge")
     suspend fun mergeMemos(@Body req: MergeRequest): retrofit2.Response<com.google.gson.JsonObject>
     @Streaming

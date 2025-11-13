@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -24,6 +25,7 @@ import android.view.ViewGroup
 import com.example.sumdays.data.style.StyleDatabase
 import com.example.sumdays.data.style.UserStyleDao
 import com.example.sumdays.settings.prefs.UserStatsPrefs
+import com.bumptech.glide.Glide
 
 class DailySumActivity : AppCompatActivity() {
 
@@ -35,10 +37,12 @@ class DailySumActivity : AppCompatActivity() {
     // ★★★ 1. Prefs 및 DAO 인스턴스 선언 ★★★
     private lateinit var userStatsPrefs: UserStatsPrefs
     private lateinit var userStyleDao: UserStyleDao
-
+    private lateinit var loadingOverlay: View
+    private lateinit var loadingGifView: ImageView
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun
+            onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sum)
 
@@ -47,7 +51,8 @@ class DailySumActivity : AppCompatActivity() {
         userStyleDao = StyleDatabase.getDatabase(this).userStyleDao() // StyleDatabase를 통해 DAO 획득
 
         date = intent.getStringExtra("date") ?: "알 수 없는 날짜"
-
+        loadingOverlay = findViewById(R.id.loading_overlay)
+        loadingGifView = findViewById(R.id.loading_gif_view)
         findViewById<TextView>(R.id.date_text_view).text = date
 
 //        findViewById<ImageView>(R.id.back_icon).setOnClickListener {
@@ -60,6 +65,7 @@ class DailySumActivity : AppCompatActivity() {
         }
 
         findViewById<ImageButton>(R.id.skip_icon).setOnClickListener {
+                showLoading(true)
                 lifecycleScope.launch {
                     saveDiary(memoMergeAdapter.mergeAllMemo())
                     moveToReadActivity()
@@ -96,7 +102,24 @@ class DailySumActivity : AppCompatActivity() {
         setupNavigationBar()
     }
 
-
+    private fun showLoading(isLoading: Boolean) {
+        runOnUiThread {
+            if (isLoading) {
+                loadingOverlay.visibility = View.VISIBLE
+                loadingGifView.visibility = View.VISIBLE
+                // Glide로 GIF 로드 (R.drawable.loading_animation.gif 파일이 있다고 가정)
+                Glide.with(this)
+                    .asGif()
+                    .load(R.drawable.loading_animation) // "loading_animation.gif" 파일 이름
+                    .into(loadingGifView)
+            } else {
+                loadingOverlay.visibility = View.GONE
+                loadingGifView.visibility = View.GONE
+                // Glide 로드 중지
+                Glide.with(this).clear(loadingGifView)
+            }
+        }
+    }
     private fun moveToReadActivity() {
         val intent = Intent(this, DailyReadActivity::class.java).putExtra("date", date)
         startActivity(intent)
@@ -167,5 +190,10 @@ class DailySumActivity : AppCompatActivity() {
         sheet.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
         // 중앙 정렬(기본이지만 혹시 몰라 명시)
         sheet.window?.setGravity(android.view.Gravity.CENTER)
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        // ★★★ 7. 액티비티 종료 시 로딩 UI 숨기기 ★★★
+        showLoading(false)
     }
 }

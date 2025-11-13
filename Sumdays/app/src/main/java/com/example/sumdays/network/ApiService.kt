@@ -17,7 +17,7 @@ import retrofit2.http.Streaming
 
 interface ApiService {
 
-    @POST("/db/sync")
+    @POST("/api/db/sync")
     suspend fun syncData(
         // @Header("Authorization") token: String,
         @Body body: SyncRequest

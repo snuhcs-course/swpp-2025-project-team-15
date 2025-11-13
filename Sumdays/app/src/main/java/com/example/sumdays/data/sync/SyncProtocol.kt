@@ -30,11 +30,11 @@ data class EditedPayload(
 
 // ------------------ Memo 데이터 ------------------
 data class MemoPayload(
-    val id: Int,
-    val date: String,
-    val order: Int,
+    val room_id: Int,
     val content: String?,
     val timestamp: String?,
+    val date: String,
+    val memo_order: Int,
     val type: String?
 )
 
@@ -49,15 +49,6 @@ data class DailyEntryPayload(
     val themeIcon: String?
 )
 
-// ------------------ UserStyle 데이터 ------------------
-data class UserStylePayload(
-    val styleId: Long,
-    val styleName: String,
-    val styleVector: List<Float>,
-    val styleExamples: List<String>,
-    val stylePrompt: Any // Gson이 JSON → Any 로 자동 매핑
-)
-
 // ------------------ WeekSummary 데이터 ------------------
 data class WeekSummaryPayload(
     val startDate: String,
@@ -68,6 +59,17 @@ data class WeekSummaryPayload(
     val insights: Any?,
     val summary: Any?
 )
+
+// ------------------ UserStyle 데이터 ------------------
+data class UserStylePayload(
+    val styleId: Long,
+    val styleName: String,
+    val styleVector: List<Float>,
+    val styleExamples: List<String>,
+    val stylePrompt: Any // Gson이 JSON → Any 로 자동 매핑
+)
+
+
 
 // ------------------ 서버 응답 ------------------
 data class SyncResponse(
@@ -100,9 +102,9 @@ fun buildSyncRequest(
     // ----- Room → Payload 변환 -----
     val memoPayloads = editedMemos.map {
         MemoPayload(
-            id = it.id,
+            room_id = it.id,
             date = it.date,
-            order = it.order,
+            memo_order = it.order,
             content = it.content,
             timestamp = it.timestamp,
             type = it.type

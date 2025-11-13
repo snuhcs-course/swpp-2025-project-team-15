@@ -37,7 +37,7 @@ class CalendarActivity : AppCompatActivity() {
     private var currentMonthLiveData: LiveData<Map<String, Pair<Boolean, String?>>>? = null
 
     // 캘린더 언어 설정
-    private var currentLanguage: CalendarLanguage = CalendarLanguage.ENGLISH
+    private var currentLanguage: CalendarLanguage = CalendarLanguage.KOREAN
 
     // ★ 오늘/이번달 기준 값을 한 번만 계산해서 재사용
     private val today: LocalDate by lazy { LocalDate.now() }
@@ -93,11 +93,7 @@ class CalendarActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setCustomCalendar() {
         // ★ MonthAdapter에 최대 허용 월/날짜 전달 (미래 차단 & 셀 흐리기 용)
-        monthAdapter = MonthAdapter(
-            activity = this,
-            maxYearMonth = currentYearMonth,
-            today = today
-        )
+        monthAdapter = MonthAdapter(activity = this)
         calendarViewPager.adapter = monthAdapter
 
         // 0. 언어에 따른 헤더 설정
@@ -131,18 +127,8 @@ class CalendarActivity : AppCompatActivity() {
         calendarViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                val ym = getTargetMonthForPosition(position)
-
-                // ★ 미래 달로 스크롤된 경우 즉시 되돌리기
-                if (ym.isAfter(currentYearMonth)) {
-                    calendarViewPager.post {
-                        calendarViewPager.setCurrentItem(position - 1, true)
-                    }
-                    return
-                }
                 updateMonthYearTitle(position)
                 observeMonthlyData(position) // 월 변경 시 데이터 구독 갱신
-                updateNavButtonsState(position)
             }
         })
 
@@ -154,23 +140,12 @@ class CalendarActivity : AppCompatActivity() {
         btnNextMonth.setOnClickListener {
             val currentItem = calendarViewPager.currentItem
             val nextPos = currentItem + 1
-            val nextYm = getTargetMonthForPosition(nextPos)
-            if (!nextYm.isAfter(currentYearMonth)) {
-                calendarViewPager.setCurrentItem(nextPos, true)
-            } // else 무시 (미래 달 차단)
+            calendarViewPager.setCurrentItem(nextPos, true)
         }
 
         // 현재 월 표시 & 데이터 구독
         updateMonthYearTitle(startPosition)
         observeMonthlyData(startPosition)
-        updateNavButtonsState(startPosition)
-    }
-
-    // ★ 현재 화면이 이번 달이면 다음 버튼 비활성화
-    private fun updateNavButtonsState(position: Int) {
-        val ym = getTargetMonthForPosition(position)
-        btnNextMonth.isEnabled = !ym.equals(currentYearMonth)
-        btnNextMonth.alpha = if (btnNextMonth.isEnabled) 1f else 0.4f
     }
 
     /** 특정 position(월)에 해당하는 데이터를 구독 */

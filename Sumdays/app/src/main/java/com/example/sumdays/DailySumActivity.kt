@@ -192,7 +192,5 @@ class DailySumActivity : AppCompatActivity() {
     }
     override fun onDestroy() {
         super.onDestroy()
-        // ★★★ 7. 액티비티 종료 시 로딩 UI 숨기기 ★★★
-        showLoading(false)
     }
 }

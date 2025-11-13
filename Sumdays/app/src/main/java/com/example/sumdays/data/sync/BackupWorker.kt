@@ -17,6 +17,9 @@ import org.json.JSONObject
 import org.json.JSONArray
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
+import com.example.sumdays.network.ApiClient
+import retrofit2.Response
+
 
 class BackupWorker(
     context: Context,
@@ -49,15 +52,15 @@ class BackupWorker(
             val editedEntryDates = editedEntries.map { it.date }
 
             val deletedSummaryStartDates = weekSummaryDao.getDeletedSummaries().map { it.startDate }
-            val editedSummaries = weekSummaryDao.getEditedSummaries()
+            val editedSummaryEntities = weekSummaryDao.getEditedSummaries()
+            val editedSummaries = editedSummaryEntities.map {it.weekSummary}
             val editedSummaryStartDates = editedSummaries.map { it.startDate }
 
             // 3. 서버에 요청하기
-            val tempRequestData = listOf(
-                deletedMemoIds, deletedStyleIds, deletedEntryDates, deletedSummaryStartDates,
-                editedMemos, editedStyles, editedEntries, editedSummaries
-            )
-            logTest(tempRequestData)
+            val syncRequest : SyncRequest = buildSyncRequest(deletedMemoIds, deletedStyleIds, deletedEntryDates, deletedSummaryStartDates,
+                editedMemos, editedStyles, editedEntries, editedSummaries)
+            val response: Response<SyncResponse>  = ApiClient.api.syncData(syncRequest)
+            logTest(syncRequest)
 
 
             // 4. 서버에 응닫 받으면, flag 초기화
@@ -77,32 +80,10 @@ class BackupWorker(
         }
     }
 
-    private fun logTest(requestData : List<Any>) {
-        val jsonRequestData = requestData.map{listToJSONArray(it as List<Any>)}
-
-        val deleted = JSONObject()
-        deleted.put("memo", jsonRequestData[0])
-        deleted.put("userStyle",jsonRequestData[1])
-        deleted.put("dailyEntry",jsonRequestData[2])
-        deleted.put("weekSummary",jsonRequestData[3])
-        val edited = JSONObject()
-        edited.put("memo", jsonRequestData[4])
-        edited.put("userStyle",jsonRequestData[5])
-        edited.put("dailyEntry",jsonRequestData[6])
-        edited.put("weekSummary",jsonRequestData[7])
-        val requestBody = JSONObject()
-        requestBody.put("deleted", deleted)
-        requestBody.put("edited", edited)
-
-        // 서버에 요청하기
-        // 2️⃣ 로그로 서버 전송 대체
-        Log.d("BackupWorker", requestBody.toString(2))
+    private fun logTest(syncRequest: SyncRequest) {
+        Log.d("BackupWorker", syncRequest.toString())
     }
 
-    private fun listToJSONArray(list: List<Any>): JSONArray {
-        val gson = Gson()
-        return JSONArray(gson.toJson(list))
-    }
     private suspend fun testEntityInsert(memo : Boolean, userStyle : Boolean, dailyEntry: Boolean, weekSummary: Boolean) {
         // test code
         val db = AppDatabase.getDatabase(applicationContext)

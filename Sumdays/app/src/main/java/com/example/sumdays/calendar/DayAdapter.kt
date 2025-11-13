@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.CalendarActivity
@@ -17,6 +18,7 @@ import com.example.sumdays.R
 import org.threeten.bp.LocalDate
 import org.threeten.bp.DayOfWeek
 import org.threeten.bp.YearMonth
+import com.example.sumdays.DailyWriteActivity
 
 class DayAdapter(
     private val days: List<DateCell>,
@@ -106,7 +108,7 @@ class DayAdapter(
                 tvEmoji.visibility = View.GONE
                 tvDayNumber.alpha = 0.4f
                 tvCircle.alpha = 0.4f
-                tvDayNumber.setTextColor(Color.GRAY)
+                tvDayNumber.setTextColor(Color.GRAY) // TODO: 일단 주말도 회색임. 수정 필요
             } else {
                 tvDayNumber.alpha = 1.0f
                 tvCircle.alpha = 1.0f
@@ -117,16 +119,24 @@ class DayAdapter(
                 itemView.isClickable = false
                 itemView.isFocusable = false
                 tvEmoji.visibility = View.GONE
-                tvDayNumber.alpha = 0.35f
-                tvCircle.alpha = 0.35f
                 tvDayNumber.setTypeface(null, Typeface.NORMAL)
             } else {
                 // 과거/오늘만 클릭 허용
                 if (cell.dateString.isNotEmpty()) {
                     itemView.setOnClickListener {
-                        val intent = Intent(activity, DailyReadActivity::class.java)
-                        intent.putExtra("date", cell.dateString)
-                        activity.startActivity(intent)
+                        // 캘린더에서 가져온 '일기 존재 여부' 플래그 확인
+                        if (hasDiary) {
+                            // 일기가 있으면 DailyReadActivity로
+                            val intent = Intent(activity, DailyReadActivity::class.java)
+                            intent.putExtra("date", cell.dateString)
+                            activity.startActivity(intent)
+                        } else {
+                            // 일기가 없으면 DailyWriteActivity로
+                            Toast.makeText(activity, "이 날의 일기가 없습니다.", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(activity, DailyWriteActivity::class.java)
+                            intent.putExtra("date", cell.dateString)
+                            activity.startActivity(intent)
+                        }
                     }
                 }
             }

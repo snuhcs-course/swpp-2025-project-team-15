@@ -25,23 +25,37 @@ def merge_memo():
         end_flag = data["end_flag"]
         style_prompt = data["style_prompt"]
         style_examples = data["style_examples"]
+        style_vector = data["style_vector"]
 
         if not end_flag:
-            stream = merge_stream(memos, style_prompt, style_examples)
-
             def generate():
-                for chunk in stream:
-                    if chunk.choices and chunk.choices[0].delta.content:
-                        yield chunk.choices[0].delta.content
+                for chunk in merge_stream(memos, style_prompt, style_examples):
+                    # OpenAI stream chunk에서 텍스트만 뽑기
+                    delta = chunk.choices[0].delta
+                    content = delta.content or ""
+                    if not content:
+                        continue
+                    # 여기서는 그냥 raw 텍스트를 넘긴다고 가정
+                    # 필요하면 JSON 줄단위로 감싸도 됨 (e.g. yield json.dumps({"content": content}) + "\n")
+                    yield content
 
+            # text/plain으로 쭉 흘려보내는 방식
             return Response(generate(), mimetype="text/plain; charset=utf-8")
-        else:
-            stream = merge_stream(memos, style_prompt, style_examples)
+            # return merge_stream(memos, style_prompt, style_examples, style_vector)
 
-            diary = ""
-            for chunk in stream:
-                if chunk.choices and chunk.choices[0].delta.content:
-                    diary += chunk.choices[0].delta.content
+            # def generate():
+            #     for chunk in stream:
+            #         if chunk.choices and chunk.choices[0].delta.content:
+            #             yield chunk.choices[0].delta.content
+
+            # return Response(generate(), mimetype="text/plain; charset=utf-8")
+        else:
+            diary = merge_stream(memos, style_prompt, style_examples, style_vector)
+
+            # diary = ""
+            # for chunk in stream:
+            #     if chunk.choices and chunk.choices[0].delta.content:
+            #         diary += chunk.choices[0].delta.content
 
             result = analysis_service.analyze(diary)
 

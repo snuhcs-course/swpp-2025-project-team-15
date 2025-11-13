@@ -18,7 +18,9 @@ import org.json.JSONArray
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
 import com.example.sumdays.network.ApiClient
+import com.google.gson.GsonBuilder
 import retrofit2.Response
+import androidx.work.workDataOf
 
 
 class BackupWorker(
@@ -29,7 +31,7 @@ class BackupWorker(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
             // 0. testCode
-            testEntityInsert(false,false,false,false)
+            testEntityInsert(true,true,true,true)
 
             // 1. dao 초기화
             val db = AppDatabase.getDatabase(applicationContext)
@@ -39,49 +41,64 @@ class BackupWorker(
             val weekSummaryDao = db.weekSummaryDao()
 
             // 2. edited, deleted 객체 가져오기 (memo, userStyle, dailyEntry, weekSummary)
+            // 2-1. Memo
             val deletedMemoIds =  memoDao.getDeletedMemos().map { it.id }
             val editedMemos = memoDao.getEditedMemos()
-            val editedMemoIds = editedMemos.map { it.id }
-
+            // 2-2. Style
             val deletedStyleIds = userStyleDao.getDeletedStyles().map { it.styleId }
             val editedStyles = userStyleDao.getEditedStyles()
-            val editedStyleIds = editedStyles.map { it.styleId }
-
+            // 2-3. Entry
             val deletedEntryDates = dailyEntryDao.getDeletedEntries().map { it.date }
             val editedEntries = dailyEntryDao.getEditedEntries()
-            val editedEntryDates = editedEntries.map { it.date }
-
+            // 2-4. Summary
             val deletedSummaryStartDates = weekSummaryDao.getDeletedSummaries().map { it.startDate }
             val editedSummaryEntities = weekSummaryDao.getEditedSummaries()
             val editedSummaries = editedSummaryEntities.map {it.weekSummary}
-            val editedSummaryStartDates = editedSummaries.map { it.startDate }
+
 
             // 3. 서버에 요청하기
             val syncRequest : SyncRequest = buildSyncRequest(deletedMemoIds, deletedStyleIds, deletedEntryDates, deletedSummaryStartDates,
                 editedMemos, editedStyles, editedEntries, editedSummaries)
-            val response: Response<SyncResponse>  = ApiClient.api.syncData(syncRequest)
-            logTest(syncRequest)
+            val syncResponseBody = ApiClient.api.syncData(syncRequest).body()
 
+            // 4-1. 성공 -> flag 해제
+            if (syncResponseBody != null && syncResponseBody.status == "success"){
+                val editedMemoIds = editedMemos.map { it.id }
+                val editedStyleIds = editedStyles.map { it.styleId }
+                val editedEntryDates = editedEntries.map { it.date }
+                val editedSummaryStartDates = editedSummaries.map { it.startDate }
 
-            // 4. 서버에 응닫 받으면, flag 초기화
-            memoDao.resetDeletedFlags(deletedMemoIds)
-            memoDao.resetEditedFlags(editedMemoIds)
-            userStyleDao.resetDeletedFlags(deletedStyleIds)
-            userStyleDao.resetEditedFlags(editedStyleIds)
-            dailyEntryDao.resetDeletedFlags(deletedEntryDates)
-            dailyEntryDao.resetEditedFlags(editedEntryDates)
-            weekSummaryDao.resetDeletedFlags(deletedSummaryStartDates)
-            weekSummaryDao.resetEditedFlags(editedSummaryStartDates)
-
-            Result.success()
+                memoDao.resetDeletedFlags(deletedMemoIds)
+                memoDao.resetEditedFlags(editedMemoIds)
+                userStyleDao.resetDeletedFlags(deletedStyleIds)
+                userStyleDao.resetEditedFlags(editedStyleIds)
+                dailyEntryDao.resetDeletedFlags(deletedEntryDates)
+                dailyEntryDao.resetEditedFlags(editedEntryDates)
+                weekSummaryDao.resetDeletedFlags(deletedSummaryStartDates)
+                weekSummaryDao.resetEditedFlags(editedSummaryStartDates)
+                return@withContext Result.success()
+            }
+            // 4-2. 실패
+            else {
+                val serverFailData = workDataOf(
+                    "type" to "server_error",
+                    "message" to (syncResponseBody?.message ?: "서버 응답 없음")
+                )
+                return@withContext Result.failure(serverFailData)
+            }
         } catch (e: Exception) {
-            Log.e("BackupWorker", "백업 실패: ${e.message}")
-            Result.retry()
+            val exceptionData = workDataOf(
+                "type" to "exception",
+                "message" to (e.message ?: "알 수 없는 오류")
+            )
+            return@withContext Result.failure(exceptionData)
         }
     }
 
     private fun logTest(syncRequest: SyncRequest) {
-        Log.d("BackupWorker", syncRequest.toString())
+        val gson = GsonBuilder().setPrettyPrinting().create()
+        val json = gson.toJson(syncRequest)
+        Log.d("SyncRequest", json)
     }
 
     private suspend fun testEntityInsert(memo : Boolean, userStyle : Boolean, dailyEntry: Boolean, weekSummary: Boolean) {

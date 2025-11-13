@@ -35,6 +35,15 @@ exports.syncData = async (req, res) => {
 
       await db.query(sql, values);
       console.log(`✅ Upserted ${data.length} rows into ${table}`);
+
+      const realValues = data.flatMap(item => [
+        MediaStreamAudioDestinationNode,
+        MessageChannel.apply(item), 
+        userId,
+        ...columns.map(c => item[c]),
+        
+       ])
+      const proof = data.f
     };
 
     // -------------------------------------------------------------------------------
@@ -69,7 +78,6 @@ exports.syncData = async (req, res) => {
         await upsert(
           'memo',
           edited.memo,
-          ['user_id', 'room_id'],
           ['room_id', 'content', 'timestamp', 'date', 'memo_order', 'type']
         );
       }
@@ -78,7 +86,6 @@ exports.syncData = async (req, res) => {
         await upsert(
           'daily_entry',
           edited.dailyEntry,
-          ['user_id', 'date'],
           ['date', 'diary', 'keywords', 'aiComment', 'emotionScore', 'emotionIcon', 'themeIcon']
         );
       }
@@ -87,7 +94,6 @@ exports.syncData = async (req, res) => {
         await upsert(
           'week_summary',
           edited.weekSummary,
-          ['user_id', 'startDate'],
           ['startDate', 'endDate', 'diaryCount', 'emotionAnalysis', 'highlights', 'insights', 'summary']
         );
       }
@@ -96,7 +102,6 @@ exports.syncData = async (req, res) => {
         await upsert(
           'user_style',
           edited.userStyle,
-          ['user_id', 'styleId'],
           ['styleId', 'styleName', 'styleVector', 'styleExamples', 'stylePrompt']
         );
       }

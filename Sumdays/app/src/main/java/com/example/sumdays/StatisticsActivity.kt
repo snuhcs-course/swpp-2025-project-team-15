@@ -38,7 +38,7 @@ class StatisticsActivity : AppCompatActivity() {
         recyclerView.overScrollMode = View.OVER_SCROLL_NEVER
 
         // 2) 어댑터: 처음엔 적당한 개수만 (예: 200개)
-        adapter = LeafAdapter(initialCount = 100) { index ->
+        adapter = LeafAdapter { index ->
             Toast.makeText(this, "Leaf $index clicked!", Toast.LENGTH_SHORT).show()
         }
         recyclerView.adapter = adapter
@@ -82,7 +82,6 @@ class StatisticsActivity : AppCompatActivity() {
 
 
     private class LeafAdapter(
-        initialCount: Int,
         private val onLeafClick: (Int) -> Unit
     ) : RecyclerView.Adapter<LeafAdapter.VH>() {
 
@@ -96,15 +95,14 @@ class StatisticsActivity : AppCompatActivity() {
         private var maxLeafIndex: Int
 
         init {
+            maxLeafIndex = currentWeeklyStatsNumber + 10
             // 맨 아래가 1번이 되도록 세팅:
             // position: 0(맨 위) -> index 큰 값
             // position: last(맨 아래) -> index 1
-            for (i in initialCount downTo 1) {
+            for (i in maxLeafIndex downTo 1) {
                 items.add(LeafItem(i))
             }
-            nextIndex = initialCount + 1
-
-            maxLeafIndex = currentWeeklyStatsNumber + 10
+            nextIndex = maxLeafIndex + 1
         }
 
         /** 위로 스크롤하다가 더 필요할 때, 위쪽에 잎 추가 */

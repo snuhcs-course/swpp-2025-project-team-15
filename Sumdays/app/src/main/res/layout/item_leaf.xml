@@ -8,19 +8,11 @@
 
     <!-- 나뭇잎 버튼 -->
     <ImageButton
-        android:id="@+id/btnLeaf"
+        android:id="@+id/btnWeeklyStats"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:src="@drawable/leaf_right"
         />
 
-    <ImageView
-        android:id="@+id/imgGrape"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|top"
-        android:layout_marginTop="24dp"
-        android:src="@drawable/grape_with_branch_right"
-        android:visibility="gone"/>
 </FrameLayout>

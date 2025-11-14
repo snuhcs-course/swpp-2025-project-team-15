@@ -65,17 +65,21 @@ class StatisticsActivity : AppCompatActivity() {
     private fun maybePrependMore() {
         val firstPos = lm.findFirstVisibleItemPosition()
         if (firstPos <= 50) { // 상단 임계치
-            // prepend 전 현재 첫번째 보이는 뷰의 top을 저장해서 점프 방지
             val firstView = lm.findViewByPosition(firstPos)
             val offsetTop = firstView?.top ?: 0
 
-            val added = 800 // 한 번에 넉넉히 추가 (필요에 맞춰 조절)
-            adapter.prepend(added)
+            val request = 800 // 한 번에 시도할 개수
+            val added = adapter.prepend(request)   // 🔴 실제로 얼마나 붙었는지 받기
 
-            // 화면 보정: prepend 전 보던 아이템이 동일 위치로 오도록
-            lm.scrollToPositionWithOffset(firstPos + added, offsetTop)
+            if (added > 0) {
+                // prepend 전 보던 아이템이 동일 위치로 오도록 보정
+                lm.scrollToPositionWithOffset(firstPos + added, offsetTop)
+            }
+            // added == 0 이면: 더 이상 위에 붙일 잎이 없으므로
+            // 그냥 아무 것도 안 하고 놔두면 됨 → 리스트 최상단에서 막힘
         }
     }
+
 
     private class LeafAdapter(
         initialCount: Int,
@@ -88,6 +92,9 @@ class StatisticsActivity : AppCompatActivity() {
         private val items = mutableListOf<LeafItem>()
         private var nextIndex: Int
 
+        private var currentWeeklyStatsNumber: Int = 20
+        private var maxLeafIndex: Int
+
         init {
             // 맨 아래가 1번이 되도록 세팅:
             // position: 0(맨 위) -> index 큰 값
@@ -96,20 +103,26 @@ class StatisticsActivity : AppCompatActivity() {
                 items.add(LeafItem(i))
             }
             nextIndex = initialCount + 1
+
+            maxLeafIndex = currentWeeklyStatsNumber + 10
         }
 
         /** 위로 스크롤하다가 더 필요할 때, 위쪽에 잎 추가 */
-        fun prepend(n: Int) {
-            if (n <= 0) return
+        fun prepend(requestCount: Int): Int {
+            if (requestCount <= 0) return 0
 
-            // 새 잎들은 기존 것보다 번호가 더 큰 애들
-            val newItems = (nextIndex + n - 1 downTo nextIndex).map { idx ->
-                LeafItem(idx)
-            }
+            // 아직 만들 수 있는 잎 개수
+            val remaining = maxLeafIndex - (nextIndex - 1)
+            if (remaining <= 0) return 0   // 🔴 한계 도달 → 더 이상 안 붙임
+
+            val toAdd = minOf(requestCount, remaining)
+
+            val newItems = (nextIndex + toAdd - 1 downTo nextIndex).map { LeafItem(it) }
             items.addAll(0, newItems)
-            nextIndex += n
+            nextIndex += toAdd
 
-            notifyItemRangeInserted(0, n)
+            notifyItemRangeInserted(0, toAdd)
+            return toAdd
         }
 
         override fun getItemCount() = items.size
@@ -123,39 +136,39 @@ class StatisticsActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: VH, position: Int) {
             val leafIndex = items[position].index
 
-            val leafLP = holder.buttonLeaf.layoutParams as FrameLayout.LayoutParams
-            val grapeLP = holder.imgGrape.layoutParams as FrameLayout.LayoutParams
+            val leafLP = holder.buttonWeeklyStats.layoutParams as FrameLayout.LayoutParams
 
             // 좌/우 번갈아: (parityBase + position) % 2
             val isLeft = (leafIndex % 2 == 0)
 
+            val isGrapeRow = (leafIndex % 5 == 0)
+
             if (isLeft) {
-                // grape is at right branch
                 leafLP.gravity = Gravity.START
-                grapeLP.gravity = Gravity.END
-                holder.buttonLeaf.setImageResource(R.drawable.leaf_left)
-                holder.imgGrape.setImageResource(R.drawable.grape_with_branch_right)
-                holder.imgGrape.translationX = 300.toFloat()
+                if (isGrapeRow) {
+                    holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_left)
+                }
+                else {
+                    holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_left)
+                }
             }
             else {
-                // grape is at left branch
                 leafLP.gravity = Gravity.END
-                grapeLP.gravity = Gravity.START
-                holder.buttonLeaf.setImageResource(R.drawable.leaf_right)
-                holder.imgGrape.setImageResource(R.drawable.grape_with_branch_left)
-                holder.imgGrape.translationX = -300.toFloat()
+                if (isGrapeRow) {
+                    holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_right)
+                }
+                else {
+                    holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_right)
+                }
             }
-            holder.buttonLeaf.layoutParams = leafLP
+            holder.buttonWeeklyStats.layoutParams = leafLP
 
-            holder.buttonLeaf.setOnClickListener { onLeafClick(leafIndex) }
-
-            val isGrapeRow = ((leafIndex % 5 == 1) && (leafIndex != 1))
-            holder.imgGrape.visibility = if (isGrapeRow) View.VISIBLE else View.GONE
+            holder.buttonWeeklyStats.setOnClickListener { onLeafClick(leafIndex) }
         }
 
         class VH(view: View) : RecyclerView.ViewHolder(view) {
-            val buttonLeaf: ImageButton = view.findViewById(R.id.btnLeaf)
-            val imgGrape: ImageView = view.findViewById(R.id.imgGrape)
+            val buttonWeeklyStats: ImageButton = view.findViewById(R.id.btnWeeklyStats)
+
             fun dp(v: Int): Int =
                 (itemView.resources.displayMetrics.density * v + 0.5f).toInt()
         }

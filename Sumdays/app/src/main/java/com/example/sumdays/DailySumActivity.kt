@@ -62,6 +62,9 @@ class DailySumActivity : AppCompatActivity() {
         findViewById<ImageView>(R.id.undo_icon).setOnClickListener {
             memoMergeAdapter.undoLastMerge()
         }
+        findViewById<ImageView>(R.id.back_icon).setOnClickListener {
+            finish()
+        }
 
         findViewById<ImageButton>(R.id.skip_icon).setOnClickListener {
                 showLoading(true)
@@ -97,8 +100,6 @@ class DailySumActivity : AppCompatActivity() {
         )
         recyclerView.itemAnimator = null // streaming시 메모 깜빡임 방지
         recyclerView.adapter = memoMergeAdapter
-
-        setupNavigationBar()
     }
 
     private fun showLoading(isLoading: Boolean) {
@@ -123,28 +124,6 @@ class DailySumActivity : AppCompatActivity() {
         val intent = Intent(this, DailyReadActivity::class.java).putExtra("date", date)
         startActivity(intent)
         finish()
-    }
-    // 하단 네비게이션 바의 버튼들 클릭 이벤트 처리
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun setupNavigationBar() {
-        val btnCalendar = findViewById<ImageButton>(R.id.btnCalendar)
-        val btnDaily = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnDaily)
-        val btnInfo = findViewById<ImageButton>(R.id.btnInfo)
-
-        btnCalendar.setOnClickListener {
-            val intent = Intent(this, CalendarActivity::class.java)
-            startActivity(intent)
-        }
-        btnDaily.setOnClickListener {
-            val today = LocalDate.now().toString()
-            val intent = Intent(this, DailyWriteActivity::class.java)
-            intent.putExtra("date", today)
-            startActivity(intent)
-        }
-        btnInfo.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
-        }
     }
 
     private suspend fun saveDiary(mergedResult: String){

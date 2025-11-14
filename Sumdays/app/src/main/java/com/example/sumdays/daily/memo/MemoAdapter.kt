@@ -45,22 +45,12 @@ class MemoAdapter : ListAdapter<Memo, MemoAdapter.MemoViewHolder>(MemoDiffCallba
         holder.itemView.setOnClickListener {
             onItemClickListener?.onItemClick(currentMemo)
         }
-
-        if (currentMemo.type == "audio") {
-            // "audio" 타입이면 파란색 풍선 배경 설정
-            holder.content.setBackgroundResource(R.drawable.bg_bubble_blue)
-
-            // (선택) 텍스트 색상을 흰색으로 변경
-            holder.content.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.white))
-            holder.timestamp.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.white)) // 시간 텍스트도 변경
-        } else {
             // "text" 또는 기타 타입이면 회색 풍선 배경 설정
             holder.content.setBackgroundResource(R.drawable.bg_bubble_grey)
 
             // (선택) 텍스트 색상도 기본값으로 복원
             holder.content.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.black))
             holder.timestamp.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.darker_gray)) // 시간 텍스트도 복원
-        }
     }
 
     // 아이템 위치를 직접 변경하는 함수

@@ -33,33 +33,38 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp">
-
+        <ImageView
+            android:id="@+id/back_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_back"
+            android:contentDescription="back"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
         <ImageView
             android:id="@+id/undo_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@drawable/ic_undo"
             android:contentDescription="undo"
+            android:layout_marginStart="16dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toEndOf="@id/date_text_view" />
 
         <TextView
             android:id="@+id/date_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="2025-10-02"
-            android:textSize="18sp"
+            android:textSize="24sp"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
+            android:layout_marginStart="16dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/undo_icon"
-            app:layout_constraintEnd_toStartOf="@id/skip_icon" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <ImageButton
             android:id="@+id/skip_icon"
@@ -68,9 +73,9 @@
             android:src="@drawable/ic_skip"
             android:background="@android:color/transparent"
             android:contentDescription="건너뛰기"
+            android:layout_marginStart="16dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintStart_toEndOf="@id/undo_icon" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -94,21 +99,10 @@
         android:layout_height="2dp"
         android:background="#A0A0A0"
         app:layout_constraintTop_toBottomOf="@id/memo_list_view"
-        app:layout_constraintBottom_toTopOf="@id/bottom_buttons_layout"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="16dp" />
-
-    <include
-        android:id="@+id/bottom_buttons_layout"
-        layout="@layout/include_nav_calendar"
-        android:layout_width="0dp"
-        android:layout_height="150dp"
-        app:layout_constraintTop_toBottomOf="@id/sum_button_divider"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="16dp"/>
 
 
     <!-- res/layout/activity_main.xml -->

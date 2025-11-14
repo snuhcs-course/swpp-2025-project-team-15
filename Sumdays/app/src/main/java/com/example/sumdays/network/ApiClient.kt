@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object ApiClient {
-    const val BASE_URL = "http://10.148.192.202:3000/"
+    const val BASE_URL = "http://10.0.2.2:3000/"  // Flask 서버 주소
     //폰에서 실행하려면 서버를 돌리는 컴퓨터의 IP를 여기 적어야 함
 
     // OkHttp 로깅 + 타임아웃 설정
@@ -17,9 +17,9 @@ object ApiClient {
 
     private val okHttp by lazy {
         OkHttpClient.Builder()
-            .connectTimeout(600, TimeUnit.SECONDS)   // 연결 타임아웃
-            .readTimeout(600, TimeUnit.SECONDS)      // 응답 대기 시간
-            .writeTimeout(600, TimeUnit.SECONDS)     // 요청 전송 시간
+            .connectTimeout(60, TimeUnit.SECONDS)   // 연결 타임아웃
+            .readTimeout(60, TimeUnit.SECONDS)      // 응답 대기 시간
+            .writeTimeout(60, TimeUnit.SECONDS)     // 요청 전송 시간
             .addInterceptor(logging)
             .build()
     }

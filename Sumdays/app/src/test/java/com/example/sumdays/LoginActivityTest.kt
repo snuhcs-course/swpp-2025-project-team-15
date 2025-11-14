@@ -74,7 +74,8 @@ class LoginActivityTest {
             success = true,
             message = "Login success",  // ✅ null 아님
             userId = 1,
-            token = "mockToken"
+            token = "mockToken",
+            nickname = "mockNickname"
         )
 
         every { callMock.enqueue(any()) } answers {
@@ -111,7 +112,8 @@ class LoginActivityTest {
             success = false,
             message = "Invalid credentials", // ✅ null 아님
             userId = null,
-            token = null
+            token = null,
+            nickname = "invalid"
         )
 
         every { callMock.enqueue(any()) } answers {

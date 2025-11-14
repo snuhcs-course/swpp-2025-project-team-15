@@ -88,12 +88,12 @@ class StatisticsMonthAdapter(val monthList: List<MonthStatistics>) :
             if (blockCount % 2 == 0) { // 0, 2, 4... 번째 (첫 번째, 세 번째...) -> 왼쪽에 치우치게 (오른쪽에 마진)
                 layoutParams.marginStart = 0
                 layoutParams.marginEnd = 0
-                statisticsTreeLeaf.setBackgroundResource(R.drawable.statistics_tree_leaf_left)
+                statisticsTreeLeaf.setBackgroundResource(R.drawable.leaf_right)
                 // 텍스트는 블록 내에서 가운데 정렬이 유지되지만, 블록 자체가 나무 기둥의 왼쪽으로 이동합니다.
             } else { // 1, 3, 5... 번째 (두 번째, 네 번째...) -> 오른쪽에 치우치게 (왼쪽에 마진)
                 layoutParams.marginStart = 60
                 layoutParams.marginEnd = 0
-                statisticsTreeLeaf.setBackgroundResource(R.drawable.statistics_tree_leaf_right)
+                statisticsTreeLeaf.setBackgroundResource(R.drawable.leaf_right)
             }
 
             blockView.layoutParams = layoutParams

@@ -357,6 +357,23 @@ class DailyWriteActivity : AppCompatActivity() {
         }
 
         // photoIcon.setOnClickListener { ... } // ★★★ 삭제 ★★★
+
+        // ★★★ EditText 포커스 리스너 (주석 해제 및 수정) ★★★
+        memoInputEditText.setOnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                // 포커스 받음: 아이콘 숨기기
+                stopIcon.visibility = View.GONE
+            } else {
+                // 포커스 잃음: 녹음 상태에 따라 아이콘 복원
+                if (isRecording) {
+                    micIcon.visibility = View.GONE
+                    stopIcon.visibility = View.VISIBLE
+                } else {
+                    micIcon.visibility = View.VISIBLE
+                    stopIcon.visibility = View.GONE
+                }
+            }
+        }
     }
 
     // ★★★ 이미지 분석 옵션 대화상자 삭제 ★★★

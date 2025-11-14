@@ -41,6 +41,7 @@ import java.util.ArrayList
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import com.example.sumdays.data.viewModel.DailyEntryViewModel
 
 // 일기 작성 및 수정 화면을 담당하는 액티비티
 class DailyWriteActivity : AppCompatActivity() {
@@ -69,12 +70,15 @@ class DailyWriteActivity : AppCompatActivity() {
     private lateinit var audioRecorderHelper: AudioRecorderHelper
     private lateinit var readDiaryButton: Button
 
+
     // ViewModel 초기화 (앱의 싱글톤 저장소를 사용)
     private val memoViewModel: MemoViewModel by viewModels {
         MemoViewModelFactory(
             (application as MyApplication).repository
         )
     }
+
+    private val dailyEntryViewModel: DailyEntryViewModel by viewModels()
 
     // ★★★ 힌트 및 애니메이터 변수 추가 ★★★
     private var defaultMemoHint: String = ""
@@ -282,6 +286,20 @@ class DailyWriteActivity : AppCompatActivity() {
                 }
             }
         }
+        dailyEntryViewModel.getEntry(date).observe(this) { entry ->
+            val diaryExists = !entry?.diary.isNullOrEmpty()
+            if (diaryExists) {
+                // 일기가 있으면: 버튼 활성화 및 주황색
+                readDiaryButton.isEnabled = true
+                readDiaryButton.backgroundTintList =
+                    ContextCompat.getColorStateList(this, R.color.blue_light)
+            } else {
+                // 일기가 없으면: 버튼 비활성화 및 회색
+                readDiaryButton.isEnabled = false
+                readDiaryButton.backgroundTintList =
+                    ContextCompat.getColorStateList(this, R.color.gray)
+            }
+        }
     }
 
     // 메모 수정 다이얼로그를 보여주는 함수 (변경 없음)
@@ -364,7 +382,6 @@ class DailyWriteActivity : AppCompatActivity() {
     // 하단 네비게이션 바의 버튼들 클릭 이벤트를 처리 (변경 없음)
     private fun setupNavigationBar() {
         val btnCalendar: ImageButton = findViewById(R.id.btnCalendar)
-        val btnDaily: ImageButton = findViewById(R.id.btnDaily)
         val btnInfo: ImageButton = findViewById(R.id.btnInfo)
         val btnSum: ImageButton = findViewById(R.id.btnSum)
 
@@ -380,18 +397,6 @@ class DailyWriteActivity : AppCompatActivity() {
             val intent = Intent(this, CalendarActivity::class.java)
             startActivity(intent)
             overridePendingTransition(0, 0)
-        }
-        btnDaily.setOnClickListener {
-            val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
-            val currentLoadedDate = this.date
-            if (today != currentLoadedDate) {
-                val intent = Intent(this, DailyWriteActivity::class.java)
-                intent.putExtra("date", today)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                startActivity(intent)
-            } else {
-                Toast.makeText(this, "이미 오늘 날짜입니다.", Toast.LENGTH_SHORT).show()
-            }
         }
         btnInfo.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)

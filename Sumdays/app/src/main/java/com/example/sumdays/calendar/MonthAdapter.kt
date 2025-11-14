@@ -10,7 +10,7 @@ import com.example.sumdays.R
 import org.threeten.bp.YearMonth
 
 class MonthAdapter(private val activity: CalendarActivity) :
-        RecyclerView.Adapter<MonthAdapter.MonthViewHolder>() {
+    RecyclerView.Adapter<MonthAdapter.MonthViewHolder>() {
 
     // 무한 스크롤을 위해 다룰 달의 개수를 Int.MAX_VALUE로 설정
     override fun getItemCount(): Int = Int.MAX_VALUE

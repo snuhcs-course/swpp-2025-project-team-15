@@ -16,7 +16,7 @@ class MemoDragAndDropCallback(
     // 드래그 방향 및 스와이프 방향 설정
     override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
         val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN // 위아래 드래그 허용
-        val swipeFlags = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT // 좌우 스와이프 허용 (삭제 기능에 사용)
+        val swipeFlags = 0 // 좌우 스와이프 비허용
         return makeMovementFlags(dragFlags, swipeFlags)
     }
 

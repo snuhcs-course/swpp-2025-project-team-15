@@ -317,7 +317,11 @@ class DailyWriteActivity : AppCompatActivity() {
                     memoViewModel.update(updatedMemo)
                 }
             }
-            .setNegativeButton("취소") { dialog, id ->
+            .setNegativeButton("삭제") { dialog, id ->
+                memoViewModel.delete(memo)
+                dialog.dismiss()
+            }
+            .setNeutralButton("취소") { dialog, id ->
                 dialog.dismiss()
             }
             .create()

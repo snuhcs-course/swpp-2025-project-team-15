@@ -344,7 +344,6 @@ class DailyWriteActivity : AppCompatActivity() {
         memoInputEditText.setOnFocusChangeListener { view, hasFocus ->
             if (hasFocus) {
                 // 포커스 받음: 아이콘 숨기기
-                micIcon.visibility = View.GONE
                 stopIcon.visibility = View.GONE
             } else {
                 // 포커스 잃음: 녹음 상태에 따라 아이콘 복원

@@ -13,7 +13,7 @@ class UserStatsPrefs(context: Context) {
         private const val KEY_LEAF_COUNT = "leaf_count"
         private const val KEY_GRAPE_COUNT = "grape_count"
         private const val KEY_ACTIVE_STYLE_ID = "active_style_id"
-        private const val DEFAULT_STYLE_ID = 0L // 활성 스타일이 없을 때의 기본값
+        private const val DEFAULT_STYLE_ID = -1L // 활성 스타일이 없을 때의 기본값
     }
 
     // SharedPreferences 인스턴스 초기화

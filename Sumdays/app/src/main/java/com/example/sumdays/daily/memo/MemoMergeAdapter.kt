@@ -17,7 +17,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
+import com.example.sumdays.daily.memo.MemoMergeUtils.convertStylePromptToMap
+import com.example.sumdays.daily.memo.MemoMergeUtils.extractMergedText
 import com.example.sumdays.data.style.StylePrompt
+import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.data.style.UserStyleDao
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.settings.prefs.UserStatsPrefs
@@ -219,7 +222,7 @@ class MemoMergeAdapter(
             // Room에서 활성 스타일 데이터 조회 (IO 스레드에서 suspend 호출)
             userStyleDao.getStyleById(activeStyleId)
         } else {
-            null // 활성 스타일이 없음
+            UserStyle.Default // 기본 스타일
         }
 
         val stylePrompt: Map<String, Any>
@@ -285,42 +288,6 @@ class MemoMergeAdapter(
 
         return sb.toString()
     }
-
-    /** StylePrompt 객체를 서버 요청 형식(Map<String, Any>)으로 변환 */
-    private fun convertStylePromptToMap(prompt: StylePrompt): Map<String, Any> {
-        // Gson을 사용하여 객체를 Map으로 변환하는 것이 가장 안전하고 빠릅니다.
-        // Gson 라이브러리 사용 가정
-        val gson = Gson()
-        // Map<String, Any> 타입 토큰 정의
-        val type = object : com.google.gson.reflect.TypeToken<Map<String, Any>>() {}.type
-
-        // StylePrompt 객체를 JSON 문자열로 변환 후, 다시 Map으로 변환
-        val jsonString = gson.toJson(prompt)
-        return gson.fromJson(jsonString, type)
-    }
-
-    /** extract merged text from json file */
-    private fun extractMergedText(json: JsonObject): String {
-        Log.d("test", "TEST: " + json.toString())
-        // case 1: end_flag = true → diary
-        if (json.has("result")) {
-            val result = json.getAsJsonObject("result")
-
-            if (result.has("diary") && result.get("diary").isJsonPrimitive) {
-                return result.get("diary").asString
-            }
-        }
-        // case 2: end_flag = false → {"merged_content": {"merged_content": "..."}}
-        if (json.has("merged_content") && json.get("merged_content").isJsonObject) {
-            val inner = json.getAsJsonObject("merged_content")
-            if (inner.has("merged_content") && inner.get("merged_content").isJsonPrimitive) {
-                return inner.get("merged_content").asString
-            }
-        }
-        return ""
-    }
-
-
 
     /** 마지막 머지를 되돌린다. 성공하면 true */
     fun undoLastMerge(): Boolean {

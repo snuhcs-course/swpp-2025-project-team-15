@@ -1,20 +1,22 @@
 package com.example.sumdays.settings
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.example.sumdays.auth.SessionManager
+import com.example.sumdays.daily.memo.MemoMergeUtils.convertStylePromptToMap
+import com.example.sumdays.daily.memo.MemoMergeUtils.extractMergedText
+import com.example.sumdays.daily.memo.MemoPayload
+import com.example.sumdays.daily.memo.MergeRequest
 import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.data.style.UserStyleViewModel
 import com.example.sumdays.databinding.ActivityStyleExtractionBinding
 import com.example.sumdays.network.*
-import com.example.sumdays.settings.prefs.UserStatsPrefs
 import com.example.sumdays.utils.FileUtil // Uri에서 File 경로를 가져오는 유틸리티 클래스 가정
 import com.google.gson.Gson // StylePrompt 저장을 위해 Gson 사용
+import com.google.gson.JsonObject
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -24,7 +26,6 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope() {
@@ -162,8 +163,6 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
 
                 override fun onResponse(call: Call<StyleExtractionResponse>, response: Response<StyleExtractionResponse>) {
                     launch { // CoroutineScope를 사용하여 Main/IO 스레드 관리
-                        resetUi() // UI 활성화
-
                         if (response.isSuccessful) {
                             val styleResponse = response.body()
                             // ★★★ 성공 조건 변경: styleResponse가 null이 아니고 style_vector가 null이 아닌 경우 ★★★
@@ -172,12 +171,14 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
                                 saveStyleData(styleResponse)
                                 withContext(Dispatchers.Main) {
                                     Toast.makeText(this@StyleExtractionActivity, "스타일 추출 완료! 설정 목록에서 확인하세요.", Toast.LENGTH_LONG).show()
+                                    resetUi() // UI 활성화
                                     finish()
                                 }
                             } else {
                                 // 서버 응답 실패 처리 (success: false 이거나 데이터 불완전)
                                 withContext(Dispatchers.Main) {
                                     // message가 있다면 출력하고, 없다면 "스타일 추출 실패" 출력
+                                    resetUi() // UI 활성화
                                     Toast.makeText(
                                         this@StyleExtractionActivity,
                                         styleResponse?.message ?: "스타일 추출에 필요한 데이터가 서버로부터 오지 않았습니다.",
@@ -221,18 +222,21 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
             return
         }
 
-        val newStyleName = generateUniqueStyleName() // 고유한 이름 생성 함수 필요
+        val newStyleName = styleViewModel.generateNextStyleName() // 고유한 이름 생성 함수 필요
 
         // 2. Non-nullable 변수를 사용하여 UserStyle 객체 생성
         val newStyle = UserStyle(
             styleName = newStyleName,
             styleVector = styleVector,     // Non-nullable 변수 사용
             styleExamples = styleExamples, // Non-nullable 변수 사용
-            stylePrompt = stylePrompt      // Non-nullable 변수 사용
+            stylePrompt = stylePrompt,      // Non-nullable 변수 사용
+            sampleDiary = ""
         )
+        val newId = styleViewModel.insertStyleReturnId(newStyle)
+        val diary = generateSampleDiary(newStyle)
 
         // 3. 새로운 스타일 저장
-        styleViewModel.insertStyle(newStyle)
+        styleViewModel.updateSampleDiary(newId, diary)
     }
 
     // --- 5. UI 및 유틸리티 ---
@@ -242,9 +246,33 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
         binding.runExtractionButton.text = "스타일 추출 실행"
     }
 
-    // StyleName 생성 로직 (현재는 미구현)
-    private suspend fun generateUniqueStyleName(): String {
-        val styleCount = styleViewModel.getAllStyles().value?.size ?: 0
-        return "나의 스타일 - ${styleCount + 1}번째"
+    private suspend fun generateSampleDiary(style: UserStyle): String {
+
+        val promptMap = convertStylePromptToMap(style.stylePrompt)
+        val examples = style.styleExamples
+
+        val memosPayload = listOf(
+            MemoPayload(1, "아침에 일어나서 조금 멍했다.", 1),
+            MemoPayload(2, "카페에서 라떼를 마셨다.", 2),
+            MemoPayload(3, "오늘 하루는 조용히 지나간 것 같다.", 3)
+        )
+
+        val request = MergeRequest(
+            memos = memosPayload,
+            endFlag = true,
+            stylePrompt = promptMap,
+            styleExamples = examples
+        )
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = ApiClient.api.mergeMemos(request)
+                val json = response.body()
+                extractMergedText(json ?: JsonObject())
+            } catch (e: Exception) {
+                "샘플 생성 실패 :("
+            }
+        }
     }
+
 }

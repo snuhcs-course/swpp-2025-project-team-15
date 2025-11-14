@@ -40,77 +40,77 @@ class SettingsActivity : AppCompatActivity() {
         }
         // 3. 닉네임 로드 및 표시 함수 호출
         loadAndDisplayNickname()
-        calculateAndDisplayStreak() // ★ Strike 계산 시작
-
-        loadAndDisplayCounts() // ★ Leaf와 Grape 카운트 표시 함수 호출 ★
+//        calculateAndDisplayStreak() // ★ Strike 계산 시작
+//
+//        loadAndDisplayCounts() // ★ Leaf와 Grape 카운트 표시 함수 호출 ★
 
         setSettingsBtnListener()
         setNavigationBtnListener()
     }
 
-    private fun calculateAndDisplayStreak() {
-        // CoroutineScope를 사용하여 백그라운드 (IO 스레드)에서 DB 접근 및 계산 수행
-        CoroutineScope(Dispatchers.IO).launch {
-
-            // 1. Room에서 모든 작성 날짜(String)를 가져옵니다.
-            val allDates = viewModel.getAllWrittenDates()
-
-            // 2. Strike 횟수를 계산합니다.
-            val streak = calculateCurrentStreak(allDates) // 아래 정의할 계산 함수 호출
-
-            // 3. UserStatsPrefs에 저장합니다.
-            userStatsPrefs.saveStreak(streak)
-
-            // 4. Main 스레드에서 UI 업데이트 (선택 사항: 계산된 값을 화면에 바로 반영)
-            withContext(Dispatchers.Main) {
-                binding.strike.text = "\uD83D\uDD25 Strike: "+streak.toString()
-            }
-        }
-    }
-
-    fun calculateCurrentStreak(dates: List<String>): Int {
-        if (dates.isEmpty()) return 0
-
-        // 날짜 문자열을 LocalDate 객체로 변환하고 중복 제거, 내림차순 정렬
-        val uniqueDates = dates.toSet()
-            .map { LocalDate.parse(it) }
-            .sortedDescending()
-
-        var currentStreak = 0
-        var currentDate = LocalDate.now()
-        var isTodayWritten = uniqueDates.any { it.isEqual(currentDate) }
-
-        // 1. 오늘 날짜부터 시작하여 연속성 검사
-        while (true) {
-            if (uniqueDates.contains(currentDate)) {
-                currentStreak++
-            } else if (!isTodayWritten && currentDate.isEqual(LocalDate.now())) {
-                // 오늘 날짜이고, 오늘 일기가 작성되지 않았다면 스킵하고 어제로 이동
-                // (이 로직은 사실상 uniqueDates.contains(currentDate)에서 처리됨)
-            } else {
-                // 연속성이 끊어지면 종료
-                break
-            }
-            currentDate = currentDate.minusDays(1) // 이전 날짜로 이동
-        }
-
-        return currentStreak
-    }
-
-    /**
-     * UserStatsPrefs에서 Leaf 및 Grape 카운트를 가져와 UI에 표시하는 함수
-     */
-    private fun loadAndDisplayCounts() {
-        // 1. Leaf Count 로드
-        val leafCount = userStatsPrefs.getLeafCount()
-        // 2. Grape Count 로드
-        val grapeCount = userStatsPrefs.getGrapeCount()
-
-        // 3. UI에 반영
-        // ActivitySettingsMainBinding.xml 레이아웃에 각각의 TextView ID가 있다고 가정합니다.
-        binding.leaves.text = " \uD83C\uDF43 leaves: "+leafCount.toString()
-        binding.grapes.text = " \uD83C\uDF47 Grapes: "+grapeCount.toString()
-    }
+//    private fun calculateAndDisplayStreak() {
+//        // CoroutineScope를 사용하여 백그라운드 (IO 스레드)에서 DB 접근 및 계산 수행
+//        CoroutineScope(Dispatchers.IO).launch {
+//
+//            // 1. Room에서 모든 작성 날짜(String)를 가져옵니다.
+//            val allDates = viewModel.getAllWrittenDates()
+//
+//            // 2. Strike 횟수를 계산합니다.
+//            val streak = calculateCurrentStreak(allDates) // 아래 정의할 계산 함수 호출
+//
+//            // 3. UserStatsPrefs에 저장합니다.
+//            userStatsPrefs.saveStreak(streak)
+//
+//            // 4. Main 스레드에서 UI 업데이트 (선택 사항: 계산된 값을 화면에 바로 반영)
+//            withContext(Dispatchers.Main) {
+//                binding.strike.text = "\uD83D\uDD25 Strike: "+streak.toString()
+//            }
+//        }
+//    }
+//
+//    fun calculateCurrentStreak(dates: List<String>): Int {
+//        if (dates.isEmpty()) return 0
+//
+//        // 날짜 문자열을 LocalDate 객체로 변환하고 중복 제거, 내림차순 정렬
+//        val uniqueDates = dates.toSet()
+//            .map { LocalDate.parse(it) }
+//            .sortedDescending()
+//
+//        var currentStreak = 0
+//        var currentDate = LocalDate.now()
+//        var isTodayWritten = uniqueDates.any { it.isEqual(currentDate) }
+//
+//        // 1. 오늘 날짜부터 시작하여 연속성 검사
+//        while (true) {
+//            if (uniqueDates.contains(currentDate)) {
+//                currentStreak++
+//            } else if (!isTodayWritten && currentDate.isEqual(LocalDate.now())) {
+//                // 오늘 날짜이고, 오늘 일기가 작성되지 않았다면 스킵하고 어제로 이동
+//                // (이 로직은 사실상 uniqueDates.contains(currentDate)에서 처리됨)
+//            } else {
+//                // 연속성이 끊어지면 종료
+//                break
+//            }
+//            currentDate = currentDate.minusDays(1) // 이전 날짜로 이동
+//        }
+//
+//        return currentStreak
+//    }
+//
+//    /**
+//     * UserStatsPrefs에서 Leaf 및 Grape 카운트를 가져와 UI에 표시하는 함수
+//     */
+//    private fun loadAndDisplayCounts() {
+//        // 1. Leaf Count 로드
+//        val leafCount = userStatsPrefs.getLeafCount()
+//        // 2. Grape Count 로드
+//        val grapeCount = userStatsPrefs.getGrapeCount()
+//
+//        // 3. UI에 반영
+//        // ActivitySettingsMainBinding.xml 레이아웃에 각각의 TextView ID가 있다고 가정합니다.
+//        binding.leaves.text = " \uD83C\uDF43 leaves: "+leafCount.toString()
+//        binding.grapes.text = " \uD83C\uDF47 Grapes: "+grapeCount.toString()
+//    }
 
     /**
      * SharedPreferences에서 닉네임을 가져와 UI에 표시하는 함수

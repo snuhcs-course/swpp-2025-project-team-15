@@ -1,7 +1,5 @@
 package com.example.sumdays.settings
 
-// com.example.sumdays.settings.AlarmAdapter.kt
-
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView

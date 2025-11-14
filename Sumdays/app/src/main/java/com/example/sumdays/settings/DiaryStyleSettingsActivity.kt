@@ -124,9 +124,11 @@ class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainSc
     private fun setupSelectButton() {
         binding.selectButton.setOnClickListener {
             val style = adapter.styleAt(currentSnapPos)
-            if (style == null)
-                return@setOnClickListener
-            saveActiveStyle(style.styleId)
+            if (style == null) {
+                startActivity(Intent(this, StyleExtractionActivity::class.java))
+            } else {
+                saveActiveStyle(style.styleId)
+            }
         }
     }
 

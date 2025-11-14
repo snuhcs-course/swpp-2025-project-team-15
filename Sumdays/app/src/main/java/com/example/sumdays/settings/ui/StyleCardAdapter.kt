@@ -98,7 +98,7 @@ class StyleCardAdapter(
             // 샘플 일기 표시
             b.sampleDiary.text = style.sampleDiary.ifBlank { "샘플 생성 중..." }
 
-            // 프롬프트(요약) – style.stylePrompt 객체를 문자열로 요약 표시 (필드명은 프로젝트 정의에 맞게)
+            // 프롬프트
             val p = style.stylePrompt
             b.promptBody.text = buildString {
                 p.tone.let { append("• Tone: $it\n") }

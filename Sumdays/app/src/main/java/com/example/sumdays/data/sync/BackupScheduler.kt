@@ -4,7 +4,6 @@ import androidx.work.*
 import java.util.concurrent.TimeUnit
 
 object BackupScheduler {
-
     // 🔹 3시간마다 자동 백업
     fun scheduleAutoBackup() {
         val constraints = Constraints.Builder()

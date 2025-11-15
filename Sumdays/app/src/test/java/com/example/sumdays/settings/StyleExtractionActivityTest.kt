@@ -1,305 +1,423 @@
 package com.example.sumdays.settings
 
+import android.net.Uri
+import android.os.Looper
+import androidx.lifecycle.ViewModelProvider
+import androidx.test.core.app.ActivityScenario
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.sumdays.daily.memo.MemoMergeUtils
+import com.example.sumdays.data.style.StylePrompt
+import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.style.UserStyleViewModel
+import com.example.sumdays.network.*
+import com.example.sumdays.utils.FileUtil
+import com.google.gson.JsonObject
+import io.mockk.*
+import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import okhttp3.ResponseBody.Companion.toResponseBody
+import org.junit.After
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowToast
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.io.File
 
+@RunWith(AndroidJUnit4::class)
+@Config(sdk = [28])
 class StyleExtractionActivityTest {
 
-//    // --- 1. 테스트 규칙 (Rules) ---
+    private val testDispatcher = StandardTestDispatcher()
+
+    @MockK
+    private lateinit var mockViewModel: UserStyleViewModel
+    @MockK
+    private lateinit var mockApiService: ApiService
+    @MockK
+    private lateinit var mockFile: File
+    @MockK
+    private lateinit var mockUri: Uri
+
+    private lateinit var scenario: ActivityScenario<StyleExtractionActivity>
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Before
+    fun setUp() {
+        MockKAnnotations.init(this, relaxUnitFun = true)
+
+        Dispatchers.setMain(testDispatcher)
+
+        // ViewModel mock
+        mockkConstructor(ViewModelProvider::class)
+        every {
+            anyConstructed<ViewModelProvider>().get(UserStyleViewModel::class.java)
+        } returns mockViewModel
+
+        // ApiClient mock
+        mockkObject(ApiClient)
+        every { ApiClient.api } returns mockApiService
+
+        // FileUtil mock
+        mockkObject(FileUtil)
+        every { FileUtil.getFileFromUri(any(), any()) } returns mockFile
+        every { mockFile.exists() } returns false
+
+        // MemoMergeUtils mock
+        mockkObject(MemoMergeUtils)
+
+        // ViewModel 기본 동작
+        coEvery { mockViewModel.generateNextStyleName() } returns "Test Style"
+        coEvery { mockViewModel.insertStyleReturnId(any()) } returns 1L
+        coEvery { mockViewModel.updateSampleDiary(any(), any()) } just Awaits
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+        unmockkAll()
+    }
+
+    @Test
+    fun `onCreate should initialize UI correctly`() {
+        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
+
+        scenario.onActivity { activity ->
+            assertNotNull(activity.binding)
+            assertNotNull(activity.binding.runExtractionButton)
+            assertNotNull(activity.binding.diaryTextInput)
+        }
+    }
+
+    @Test
+    fun `validation fails when less than 5 items`() {
+        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
+
+        scenario.onActivity { activity ->
+            activity.binding.diaryTextInput.setText("일기1\n일기2")
+
+            activity.binding.runExtractionButton.performClick()
+
+            val toast = ShadowToast.getTextOfLatestToast()
+            assertTrue(toast.contains("최소 5개 이상"))
+            assertTrue(toast.contains("현재: 2 개"))
+        }
+    }
+
+    @Test
+    fun `handleExtractStyle should disable button during processing`() = runTest {
+        val mockCall = mockk<Call<StyleExtractionResponse>>()
+        every { mockApiService.extractStyle(any(), any()) } returns mockCall
+        every { mockCall.enqueue(any()) } just Runs
+
+        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
+
+        scenario.onActivity { activity ->
+            activity.binding.diaryTextInput.setText("1\n2\n3\n4\n5")
+            activity.binding.runExtractionButton.performClick()
+
+            testScheduler.advanceUntilIdle()
+
+            assertFalse(activity.binding.runExtractionButton.isEnabled)
+            assertEquals("스타일 분석 중...", activity.binding.runExtractionButton.text)
+        }
+    }
+
+//    @Test
+//    fun `API success with valid data should save style and finish`() = runTest {
+//        val callbackSlot = slot<Callback<StyleExtractionResponse>>()
+//        val mockCall = mockk<Call<StyleExtractionResponse>>()
+//        every { mockApiService.extractStyle(any(), any()) } returns mockCall
+//        every { mockCall.enqueue(capture(callbackSlot)) } just Runs
 //
-//    // Coroutine 디스패처를 제어 (Main, IO 등)
-//    // (파일 하단에 정의된 중첩 클래스 MainCoroutineRule 사용)
-//    @get:Rule
-//    val mainCoroutineRule = MainCoroutineRule()
+//        val mockStylePrompt = mockk<StylePrompt>(relaxed = true)
+//        every { MemoMergeUtils.convertStylePromptToMap(mockStylePrompt) } returns mapOf("tone" to "casual")
+//        every { MemoMergeUtils.extractMergedText(any()) } returns "샘플 일기"
+//        coEvery { mockApiService.mergeMemos(any()) } returns Response.success(JsonObject())
 //
-//    // ActivityResult (이미지 선택) API를 테스트하기 위한 Rule
-//    @get:Rule
-//    val intentsRule = Intents.testRule()
-//
-//    // --- 2. Mock 객체 및 테스트 데이터 ---
-//
-//    private lateinit var mockApiService: ApiService
-//    private lateinit var scenario: ActivityScenario<StyleExtractionActivity>
-//
-//    // 테스트용 가짜 데이터 (파일에서 가져온 실제 클래스 사용)
-//    private val fakeStylePrompt = StylePrompt(
-//        common_phrases = listOf("테스트"), emotional_tone = "happy", formality = "formal",
-//        irony_or_sarcasm = "none", lexical_choice = "easy", pacing = "fast",
-//        sentence_endings = listOf("."), sentence_length = "short",
-//        sentence_structure = "simple", slang_or_dialect = "none", tone = "bright"
-//    )
-//
-//    // API 성공 응답 (StyleExtractionActivity의 null 체크를 통과해야 함)
-//    private val fakeSuccessResponse = StyleExtractionResponse(
-//        success = true,
-//        style_vector = listOf(0.1f, 0.2f, 0.3f),
-//        style_examples = listOf("테스트 예시 1.", "테스트 예시 2."),
-//        style_prompt = fakeStylePrompt,
-//        message = "Success"
-//    )
-//
-//    // 샘플 일기 생성 API 응답
-//    private val fakeSampleDiaryResponse = JsonObject().apply {
-//        // extractMergedText가 파싱할 수 있는 구조
-//        val result = JsonObject().apply { addProperty("diary", "생성된 샘플 일기입니다.") }
-//        add("result", result)
-//    }
-//
-//    private lateinit var db: StyleDatabase
-//
-//    // --- 3. 테스트 설정 및 해제 ---
-//
-//    @Before
-//    fun setUp() {
-//        // --- 의존성 모킹 (Mocking) ---
-//
-//        // 1. ApiService 모킹
-//        mockApiService = mockk()
-//        mockkObject(ApiClient) // ApiClient는 object이므로 mockkObject 사용
-//        every { ApiClient.api } returns mockApiService // ApiClient.api 호출 시 mockApiService 반환
-//
-//        // 2. FileUtil 모킹 (실제 파일 시스템 접근 방지)
-//        mockkObject(FileUtil)
-//        val mockFile = mockk<File>(relaxed = true)
-//        every { mockFile.exists() } returns true
-//        every { mockFile.name } returns "fake_image.jpg"
-//        every { FileUtil.getFileFromUri(any(), any()) } returns mockFile
-//
-//        // 3. MemoMergeUtils 모킹
-//        mockkObject(MemoMergeUtils)
-//        every { MemoMergeUtils.convertStylePromptToMap(any()) } returns emptyMap()
-//        // extractMergedText의 로직을 모킹 (실제 로직 대신 가짜 응답 반환)
-//        every { MemoMergeUtils.extractMergedText(fakeSampleDiaryResponse) } returns "생성된 샘플 일기입니다."
-//
-//        // 4. Room Database 초기화 (테스트마다 깨끗한 DB 사용)
-//        val context = ApplicationProvider.getApplicationContext<Context>()
-//        db = Room.inMemoryDatabaseBuilder(context, StyleDatabase::class.java)
-//            .allowMainThreadQueries() // 테스트에서는 Main 스레드 쿼리 허용
-//            .build()
-//
-//        // StyleDatabase 싱글톤 인스턴스 교체 (중요!)
-//        // getDatabase()가 항상 위에서 만든 인메모리 DB를 반환하도록 함
-//        mockkObject(StyleDatabase)
-//        every { StyleDatabase.getDatabase(any()) } returns db
-//
-//        // --- API 기본 응답 설정 (Happy Path) ---
-//
-//        // 1. extractStyle (Call.enqueue 방식)
-//        stubExtractStyleResponse(Response.success(fakeSuccessResponse))
-//
-//        // 2. mergeMemos (suspend 방식)
-//        coEvery { mockApiService.mergeMemos(any()) } returns Response.success(fakeSampleDiaryResponse)
-//
-//        // Activity 실행
 //        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
-//    }
 //
-//    @After
-//    fun tearDown() {
-//        db.close() // 인메모리 DB 닫기
-//        unmockkAll() // 모든 Mock 해제
-//        scenario.close()
-//    }
+//        scenario.onActivity { activity ->
+//            // Reflection으로 selectedImageUris 접근
+//            val field = StyleExtractionActivity::class.java.getDeclaredField("selectedImageUris")
+//            field.isAccessible = true
+//            @Suppress("UNCHECKED_CAST")
+//            val urisList = field.get(activity) as MutableList<Uri>
 //
-//    // --- 4. 테스트 케이스 ---
+//            activity.binding.diaryTextInput.setText("일기1\n일기2\n일기3")
+//            urisList.add(mockUri)
+//            urisList.add(mockUri) // 총 5개
 //
-//    @Test
-//    fun testExtractionSuccess_HappyPath() {
-//        // Given: 유효한 데이터 (텍스트 3줄 + 이미지 2개 = 총 5개)
-//        onView(withId(R.id.diaryTextInput)).perform(typeText("일기 1\n일기 2\n일기 3"))
-//        stubImageSelectionResult(2) // 이미지 2개 선택 시뮬레이션
-//        onView(withId(R.id.selectImagesButton)).perform(click())
-//        onView(withId(R.id.selectedImageCount)).check(matches(withText("선택된 이미지: 2개")))
+//            activity.binding.runExtractionButton.performClick()
 //
-//        // When: '스타일 추출 실행' 버튼 클릭
-//        onView(withId(R.id.runExtractionButton)).perform(click())
+//            // Robolectric: Main Looper를 idle 상태로 만들어 코루틴 실행
+//            shadowOf(Looper.getMainLooper()).idle()
+//        }
 //
-//        // Then: UI가 '분석 중' 상태로 변경됨
-//        onView(withId(R.id.runExtractionButton)).check(matches(not(isEnabled())))
-//        onView(withId(R.id.runExtractionButton)).check(matches(withText("스타일 분석 중...")))
+//        testScheduler.advanceUntilIdle()
 //
-//        // And: API들이 순서대로 호출됨
-//        verify(exactly = 1) { mockApiService.extractStyle(any(), any()) }
-//        coVerify(exactly = 1) { mockApiService.mergeMemos(any()) } // 샘플 일기 생성 API
+//        // enqueue 호출 확인
+//        verify(timeout = 1000) { mockCall.enqueue(any()) }
+//        assertTrue(callbackSlot.isCaptured)
 //
-//        // And: Activity가 성공적으로 종료됨
-//        // (네트워크 응답이 비동기이므로 잠시 대기 후 상태 확인)
-//        Thread.sleep(500) // 비동기 처리를 기다림 (더 나은 방법: Espresso IdlingResource)
-//        assert(scenario.state == Lifecycle.State.DESTROYED)
+//        // 성공 응답 주입
+//        val mockSuccessResponse = StyleExtractionResponse(
+//            style_vector = listOf(0.1f, 0.2f, 0.3f),
+//            style_examples = listOf("예시1", "예시2"),
+//            style_prompt = mockStylePrompt,
+//            message = "성공"
+//        )
+//        callbackSlot.captured.onResponse(mockCall, Response.success(mockSuccessResponse))
 //
-//        // And: Room Database에 데이터가 저장됨 (가장 확실한 검증)
-//        runBlocking {
-//            // (파일 하단에 정의된 비공개 확장 함수 getOrAwaitValue 사용)
-//            val styles = db.userStyleDao().getAllStyles().getOrAwaitValue()
-//            assert(styles.isNotEmpty())
-//            assert(styles[0].styleName == "나의 스타일 - 1번째")
-//            assert(styles[0].sampleDiary == "생성된 샘플 일기입니다.")
+//        // Main Looper idle로 callback 처리
+//        shadowOf(Looper.getMainLooper()).idle()
+//        testScheduler.advanceUntilIdle()
+//
+//        scenario.onActivity { activity ->
+//            coVerify { mockViewModel.insertStyleReturnId(any()) }
+//            coVerify { mockViewModel.updateSampleDiary(1L, any()) }
+//
+//            val toast = ShadowToast.getTextOfLatestToast()
+//            assertEquals("스타일 추출 완료! 설정 목록에서 확인하세요.", toast)
+//            assertTrue(activity.isFinishing)
 //        }
 //    }
-//
+
+    @Test
+    fun `API success with null style_vector should show error`() = runTest {
+        val callbackSlot = slot<Callback<StyleExtractionResponse>>()
+        val mockCall = mockk<Call<StyleExtractionResponse>>()
+        every { mockApiService.extractStyle(any(), any()) } returns mockCall
+        every { mockCall.enqueue(capture(callbackSlot)) } just Runs
+
+        val mockStylePrompt = mockk<StylePrompt>(relaxed = true)
+
+        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
+
+        scenario.onActivity { activity ->
+            activity.binding.diaryTextInput.setText("1\n2\n3\n4\n5")
+            activity.binding.runExtractionButton.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+
+        testScheduler.advanceUntilIdle()
+        verify(timeout = 1000) { mockCall.enqueue(any()) }
+
+        // null vector 응답
+        val errorResponse = StyleExtractionResponse(
+            style_vector = null,
+            style_examples = listOf("예시1"),
+            style_prompt = mockStylePrompt,
+            message = "데이터 불완전"
+        )
+        callbackSlot.captured.onResponse(mockCall, Response.success(errorResponse))
+
+        shadowOf(Looper.getMainLooper()).idle()
+        testScheduler.advanceUntilIdle()
+
+        scenario.onActivity { activity ->
+            val toast = ShadowToast.getTextOfLatestToast()
+            assertTrue(toast.contains("데이터 불완전") || toast.contains("데이터가 서버로부터"))
+            assertTrue(activity.binding.runExtractionButton.isEnabled)
+        }
+    }
+
+    @Test
+    fun `API HTTP error should show error toast`() = runTest {
+        val callbackSlot = slot<Callback<StyleExtractionResponse>>()
+        val mockCall = mockk<Call<StyleExtractionResponse>>()
+        every { mockApiService.extractStyle(any(), any()) } returns mockCall
+        every { mockCall.enqueue(capture(callbackSlot)) } just Runs
+
+        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
+
+        scenario.onActivity { activity ->
+            activity.binding.diaryTextInput.setText("1\n2\n3\n4\n5")
+            activity.binding.runExtractionButton.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+
+        testScheduler.advanceUntilIdle()
+        verify(timeout = 1000) { mockCall.enqueue(any()) }
+
+        // HTTP 500 에러
+        val errorResponse = Response.error<StyleExtractionResponse>(
+            500,
+            "".toResponseBody(null)
+        )
+        callbackSlot.captured.onResponse(mockCall, errorResponse)
+
+        shadowOf(Looper.getMainLooper()).idle()
+        testScheduler.advanceUntilIdle()
+
+        scenario.onActivity {
+            val toast = ShadowToast.getTextOfLatestToast()
+            assertTrue(toast.contains("서버 응답 오류"))
+            assertTrue(toast.contains("500"))
+        }
+    }
+
+    @Test
+    fun `network failure should show error toast`() = runTest {
+        val callbackSlot = slot<Callback<StyleExtractionResponse>>()
+        val mockCall = mockk<Call<StyleExtractionResponse>>()
+        every { mockApiService.extractStyle(any(), any()) } returns mockCall
+        every { mockCall.enqueue(capture(callbackSlot)) } just Runs
+
+        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
+
+        scenario.onActivity { activity ->
+            activity.binding.diaryTextInput.setText("1\n2\n3\n4\n5")
+            activity.binding.runExtractionButton.performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+        }
+
+        testScheduler.advanceUntilIdle()
+        verify(timeout = 1000) { mockCall.enqueue(any()) }
+
+        // 네트워크 실패
+        callbackSlot.captured.onFailure(mockCall, Exception("Network error"))
+
+        shadowOf(Looper.getMainLooper()).idle()
+        testScheduler.advanceUntilIdle()
+
+        scenario.onActivity {
+            val toast = ShadowToast.getTextOfLatestToast()
+            assertTrue(toast.contains("네트워크 오류"))
+            assertTrue(toast.contains("Network error"))
+        }
+    }
+
+    @Test
+    fun `createTextPart should create RequestBody from list`() {
+        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
+
+        scenario.onActivity { activity ->
+            val diaries = listOf("일기1", "일기2", "일기3")
+
+            val method = StyleExtractionActivity::class.java.getDeclaredMethod(
+                "createTextPart",
+                List::class.java
+            )
+            method.isAccessible = true
+            val result = method.invoke(activity, diaries)
+
+            assertNotNull(result)
+        }
+    }
+
+    @Test
+    fun `createImageParts should filter invalid URIs`() {
+        every { FileUtil.getFileFromUri(any(), any()) } returns null
+
+        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
+
+        scenario.onActivity { activity ->
+            val uris = listOf(mockUri, mockUri)
+
+            val method = StyleExtractionActivity::class.java.getDeclaredMethod(
+                "createImageParts",
+                List::class.java
+            )
+            method.isAccessible = true
+            @Suppress("UNCHECKED_CAST")
+            val result = method.invoke(activity, uris) as List<*>
+
+            assertTrue(result.isEmpty())
+        }
+    }
+
 //    @Test
-//    fun testValidationFail_NotEnoughData() {
-//        // Given: 불충분한 데이터 (텍스트 1줄 + 이미지 1개 = 총 2개)
-//        onView(withId(R.id.diaryTextInput)).perform(typeText("일기 1"))
-//        stubImageSelectionResult(1)
-//        onView(withId(R.id.selectImagesButton)).perform(click())
-//        onView(withId(R.id.selectedImageCount)).check(matches(withText("선택된 이미지: 1개")))
+//    fun `generateSampleDiary should return sample text`() = runTest {
+//        val mockStylePrompt = mockk<StylePrompt>(relaxed = true)
+//        every { MemoMergeUtils.convertStylePromptToMap(mockStylePrompt) } returns mapOf("tone" to "casual")
+//        every { MemoMergeUtils.extractMergedText(any()) } returns "생성된 샘플 일기"
+//        coEvery { mockApiService.mergeMemos(any()) } returns Response.success(JsonObject())
 //
-//        // When: '스타일 추출 실행' 버튼 클릭
-//        onView(withId(R.id.runExtractionButton)).perform(click())
-//
-//        // Then: API가 호출되지 않음
-//        verify(exactly = 0) { mockApiService.extractStyle(any(), any()) }
-//        coVerify(exactly = 0) { mockApiService.mergeMemos(any()) }
-//
-//        // And: 버튼이 활성 상태로 유지됨
-//        onView(withId(R.id.runExtractionButton)).check(matches(isEnabled()))
-//        onView(withId(R.id.runExtractionButton)).check(matches(withText("스타일 추출 실행")))
-//
-//        // And: Activity가 종료되지 않음
-//        assert(scenario.state == Lifecycle.State.RESUMED)
-//    }
-//
-//    @Test
-//    fun testExtractionFail_HttpError() {
-//        // Given: API가 500 에러를 반환하도록 설정
-//        val errorBody = "{\"message\":\"Server Error\"}".toResponseBody("application/json".toMediaTypeOrNull())
-//        stubExtractStyleResponse(Response.error(500, errorBody))
-//
-//        // And: 유효한 데이터 (텍스트 5줄)
-//        onView(withId(R.id.diaryTextInput)).perform(typeText("1\n2\n3\n4\n5"))
-//
-//        // When: '스타일 추출 실행' 버튼 클릭
-//        onView(withId(R.id.runExtractionButton)).perform(click())
-//
-//        // Then: UI가 다시 원래 상태로 리셋됨
-//        onView(withId(R.id.runExtractionButton)).check(matches(isEnabled()))
-//        onView(withId(R.id.runExtractionButton)).check(matches(withText("스타일 추출 실행")))
-//
-//        // And: 샘플 일기 생성 API는 호출되지 않음
-//        coVerify(exactly = 0) { mockApiService.mergeMemos(any()) }
-//
-//        // And: Activity가 종료되지 않음
-//        assert(scenario.state == Lifecycle.State.RESUMED)
-//    }
-//
-//    @Test
-//    fun testExtractionFail_NetworkFailure() {
-//        // Given: API가 네트워크 실패(onFailure)를 반환하도록 설정
-//        val mockCall: Call<StyleExtractionResponse> = mockk()
-//        every { mockCall.enqueue(any()) } answers {
-//            firstArg<Callback<StyleExtractionResponse>>().onFailure(mockCall, IOException("Network down"))
-//        }
+//        // generateSampleDiary는 private suspend이므로 간접 테스트
+//        // saveStyleData를 통해 호출되는지 확인
+//        val callbackSlot = slot<Callback<StyleExtractionResponse>>()
+//        val mockCall = mockk<Call<StyleExtractionResponse>>()
 //        every { mockApiService.extractStyle(any(), any()) } returns mockCall
+//        every { mockCall.enqueue(capture(callbackSlot)) } just Runs
 //
-//        // And: 유효한 데이터 (텍스트 5줄)
-//        onView(withId(R.id.diaryTextInput)).perform(typeText("1\n2\n3\n4\n5"))
+//        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
 //
-//        // When: '스타일 추출 실행' 버튼 클릭
-//        onView(withId(R.id.runExtractionButton)).perform(click())
+//        scenario.onActivity { activity ->
+//            activity.binding.diaryTextInput.setText("1\n2\n3\n4\n5")
+//            activity.binding.runExtractionButton.performClick()
+//            shadowOf(Looper.getMainLooper()).idle()
+//        }
 //
-//        // Then: UI가 다시 원래 상태로 리셋됨
-//        onView(withId(R.id.runExtractionButton)).check(matches(isEnabled()))
-//        onView(withId(R.id.runExtractionButton)).check(matches(withText("스타일 추출 실행")))
+//        testScheduler.advanceUntilIdle()
+//        verify(timeout = 1000) { mockCall.enqueue(any()) }
 //
-//        // And: 샘플 일기 생성 API는 호출되지 않음
-//        coVerify(exactly = 0) { mockApiService.mergeMemos(any()) }
+//        // 성공 응답으로 saveStyleData → generateSampleDiary 호출
+//        val mockSuccessResponse = StyleExtractionResponse(
+//            style_vector = listOf(0.1f, 0.2f),
+//            style_examples = listOf("예시"),
+//            style_prompt = mockStylePrompt,
+//            message = "성공"
+//        )
+//        callbackSlot.captured.onResponse(mockCall, Response.success(mockSuccessResponse))
+//
+//        shadowOf(Looper.getMainLooper()).idle()
+//        testScheduler.advanceUntilIdle()
+//
+//        // mergeMemos가 호출되었는지 확인 (generateSampleDiary 내부에서 호출됨)
+//        coVerify { mockApiService.mergeMemos(any()) }
+//        coVerify { mockViewModel.updateSampleDiary(1L, any()) }
 //    }
-//
-//    @Test
-//    fun testBackButton_FinishesActivity() {
-//        // When: 헤더의 뒤로가기 버튼 클릭 (R.id.header_back_icon은 include_settings_header.xml 내부 ID 가정)
-//        onView(withId(R.id.header_back_icon)).perform(click())
-//
-//        // Then: Activity가 종료됨
-//        assert(scenario.state == Lifecycle.State.DESTROYED)
-//    }
-//
-//    // --- 5. 헬퍼 (Helper) ---
-//
-//    /**
-//     * 이미지 선택 ActivityResult를 스터빙(Stubbing)합니다.
-//     */
-//    private fun stubImageSelectionResult(imageCount: Int) {
-//        val imageUris = (1..imageCount).map {
-//            Uri.parse("content://fake/image/$it")
-//        }
-//
-//        val resultData = Intent().apply {
-//            // GetMultipleContents는 ClipData를 사용
-//            clipData = android.content.ClipData.newPlainText("uris", "")
-//            imageUris.forEach { uri ->
-//                clipData!!.addItem(android.content.ClipData.Item(uri))
-//            }
-//        }
-//        val result = Instrumentation.ActivityResult(Activity.RESULT_OK, resultData)
-//
-//        // "image/*" 타입의 ACTION_GET_CONTENT 인텐트가 발생하면 'result'를 반환
-//        intending(hasAction(Intent.ACTION_GET_CONTENT)).respondWith(result)
-//    }
-//
-//    /**
-//     * extractStyle API의 응답을 설정하는 헬퍼 함수
-//     */
-//    private fun stubExtractStyleResponse(response: Response<StyleExtractionResponse>) {
-//        val mockCall: Call<StyleExtractionResponse> = mockk()
-//        every { mockCall.enqueue(any()) } answers {
-//            firstArg<Callback<StyleExtractionResponse>>().onResponse(mockCall, response)
-//        }
-//        every { mockApiService.extractStyle(any(), any()) } returns mockCall
-//    }
-//
-//
-//    // --- 6. 이 파일에 포함된 유틸리티 ---
-//
-//    /**
-//     * [HELPER CLASS] Coroutine Dispatcher 제어를 위한 JUnit Rule.
-//     * 이 클래스 내부에서만 사용됩니다.
-//     */
-//    @ExperimentalCoroutinesApi
-//    class MainCoroutineRule(
-//        val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
-//    ) : TestWatcher() {
-//
-//        override fun starting(description: Description) {
-//            super.starting(description)
-//            Dispatchers.setMain(testDispatcher)
-//        }
-//
-//        override fun finished(description: Description) {
-//            super.finished(description)
-//            Dispatchers.resetMain()
-//        }
-//    }
-//
-//    /**
-//     * [HELPER FUNCTION] LiveData의 값을 동기적으로 가져옵니다.
-//     * 이 클래스 내부에서만 사용됩니다.
-//     */
-//    private fun <T> LiveData<T>.getOrAwaitValue(
-//        time: Long = 2,
-//        timeUnit: TimeUnit = TimeUnit.SECONDS
-//    ): T {
-//        var data: T? = null
-//        val latch = CountDownLatch(1)
-//        val observer = object : Observer<T> {
-//            override fun onChanged(o: T?) {
-//                data = o
-//                latch.countDown()
-//                this@getOrAwaitValue.removeObserver(this)
-//            }
-//        }
-//
-//        this.observeForever(observer)
-//
-//        try {
-//            // 지정된 시간 동안 대기
-//            if (!latch.await(time, timeUnit)) {
-//                throw TimeoutException("LiveData value was never set.")
-//            }
-//        } finally {
-//            this.removeObserver(observer)
-//        }
-//
-//        @Suppress("UNCHECKED_CAST")
-//        return data as T
-//    }
+
+    @Test
+    fun `resetUi should enable button and restore text`() {
+        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
+
+        scenario.onActivity { activity ->
+            activity.binding.runExtractionButton.isEnabled = false
+            activity.binding.runExtractionButton.text = "처리 중..."
+
+            val method = StyleExtractionActivity::class.java.getDeclaredMethod("resetUi")
+            method.isAccessible = true
+            method.invoke(activity)
+
+            assertTrue(activity.binding.runExtractionButton.isEnabled)
+            assertEquals("스타일 추출 실행", activity.binding.runExtractionButton.text)
+        }
+    }
+
+    @Test
+    fun `updateImageCountUi should display correct count`() {
+        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
+
+        scenario.onActivity { activity ->
+            val field = StyleExtractionActivity::class.java.getDeclaredField("selectedImageUris")
+            field.isAccessible = true
+            @Suppress("UNCHECKED_CAST")
+            val urisList = field.get(activity) as MutableList<Uri>
+
+            urisList.add(mockUri)
+            urisList.add(mockUri)
+            urisList.add(mockUri)
+
+            val method = StyleExtractionActivity::class.java.getDeclaredMethod("updateImageCountUi")
+            method.isAccessible = true
+            method.invoke(activity)
+
+            assertEquals("선택된 이미지: 3개", activity.binding.selectedImageCount.text)
+        }
+    }
+
+    
 }

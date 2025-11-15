@@ -19,12 +19,16 @@ import org.robolectric.Shadows.shadowOf
 import android.os.Looper
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import org.junit.Rule
+import androidx.recyclerview.widget.RecyclerView
 
 // 실제 Android 런타임 환경에서 실행되도록 @RunWith(AndroidJUnit4::class) 사용
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [34])
 class MemoAdapterTest {
-
+    @get:Rule
+    val instantExecutorRule = InstantTaskExecutorRule()
     // 테스트에 필요한 Context
     private lateinit var context: Context
     private lateinit var adapter: MemoAdapter
@@ -50,6 +54,7 @@ class MemoAdapterTest {
         adapter.submitList(initialList)
         // submitList가 비동기적으로 처리될 수 있으므로, 테스트에서는 즉시 currentList를 확인합니다.
         // ListAdapter의 테스트 시나리오에서는 submitList(null) 후 submitList(list)를 호출하여 DiffUtil 작동을 유도하기도 합니다.
+        shadowOf(Looper.getMainLooper()).idle()
     }
 
     // 테스트를 위한 목업 ViewGroup 및 View 생성
@@ -105,4 +110,23 @@ class MemoAdapterTest {
         // 클릭이 발생했을 때, mockListener의 onItemClick이 호출되었는지 확인
         verify(mockListener).onItemClick(expectedMemo)
     }
+    @Test
+    fun moveItem_doesNotLoseOrDuplicateItems() {
+        // 초기 리스트 제출
+        adapter.submitList(initialList)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        adapter.moveItem(fromPosition = 0, toPosition = 2)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        val result = adapter.currentList
+
+        assertEquals(3, result.size)
+
+        val sortedIds = result.map { it.id }.sorted()
+        assertEquals(listOf(1, 2, 3), sortedIds)
+    }
+
+
+
 }

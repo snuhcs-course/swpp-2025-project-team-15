@@ -16,9 +16,9 @@ import com.example.sumdays.settings.ui.HorizontalMarginItemDecoration
 import com.example.sumdays.settings.ui.StyleCardAdapter
 import kotlinx.coroutines.*
 
-class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainScope() {
+open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
-    private lateinit var binding: ActivitySettingsDiaryStyleBinding
+    lateinit var binding: ActivitySettingsDiaryStyleBinding
     private lateinit var userStatsPrefs: UserStatsPrefs
     private lateinit var styleViewModel: UserStyleViewModel
     private lateinit var adapter: StyleCardAdapter
@@ -32,8 +32,8 @@ class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainSc
         binding = ActivitySettingsDiaryStyleBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        userStatsPrefs = UserStatsPrefs(this)
-        styleViewModel = ViewModelProvider(this).get(UserStyleViewModel::class.java)
+        userStatsPrefs = provideUserStatsPrefs()
+        styleViewModel = provideUserStyleViewModel()
 
         setupHeader()
         setupRecycler()
@@ -46,18 +46,19 @@ class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainSc
         job.cancel()
     }
 
+    protected open fun provideUserStatsPrefs(): UserStatsPrefs = UserStatsPrefs(this)
+
+    protected open fun provideUserStyleViewModel(): UserStyleViewModel = ViewModelProvider(this).get(UserStyleViewModel::class.java)
+
+    protected open fun createAdapter(): StyleCardAdapter = StyleCardAdapter(onSelect = { style -> style?.styleId?.let { saveActiveStyle(it) } }, onRename = { style, newName -> renameStyle(style, newName) }, onDelete = { style -> deleteStyle(style) }, onAdd = { startActivity(Intent(this, StyleExtractionActivity::class.java)) })
+
     private fun setupHeader() {
         binding.header.headerTitle.text = "AI 스타일 설정"
         binding.header.headerBackIcon.setOnClickListener { finish() }
     }
 
     private fun setupRecycler() {
-        adapter = StyleCardAdapter(
-            onSelect = { style -> style?.styleId?.let { saveActiveStyle(it) } },
-            onRename = { style, newName -> renameStyle(style, newName) },
-            onDelete = { style -> deleteStyle(style) },
-            onAdd = { startActivity(Intent(this, StyleExtractionActivity::class.java)) }
-        )
+        adapter = createAdapter()
 
         val lm = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
         val snap = PagerSnapHelper()
@@ -142,7 +143,7 @@ class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainSc
         }
     }
 
-    private fun saveActiveStyle(styleId: Long) = launch(Dispatchers.IO) {
+    fun saveActiveStyle(styleId: Long) = launch(Dispatchers.IO) {
         val current = userStatsPrefs.getActiveStyleId()
         if (current == styleId) {
             userStatsPrefs.clearActiveStyleId()
@@ -155,12 +156,12 @@ class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainSc
         }
     }
 
-    private fun renameStyle(style: UserStyle, newName: String) = launch(Dispatchers.IO) {
+    fun renameStyle(style: UserStyle, newName: String) = launch(Dispatchers.IO) {
         val updated = style.copy(styleName = newName)
         styleViewModel.updateStyle(updated)
     }
 
-    private fun deleteStyle(style: UserStyle) = launch(Dispatchers.IO) {
+    fun deleteStyle(style: UserStyle) = launch(Dispatchers.IO) {
         styleViewModel.deleteStyle(style)
         if (style.styleId == userStatsPrefs.getActiveStyleId()) {
             userStatsPrefs.clearActiveStyleId()

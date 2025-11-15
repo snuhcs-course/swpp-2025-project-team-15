@@ -30,7 +30,7 @@ import kotlin.coroutines.CoroutineContext
 
 class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
-    private lateinit var binding: ActivityStyleExtractionBinding
+    lateinit var binding: ActivityStyleExtractionBinding
     private lateinit var styleViewModel: UserStyleViewModel
     private val selectedImageUris = mutableListOf<Uri>() // 선택된 이미지 URI 목록
 

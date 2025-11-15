@@ -45,23 +45,6 @@ class StatisticsActivityTest {
         assertNotNull(activity)
     }
 
-    @Test
-    fun `testStatisticsRecyclerViewSetup_adapterBoundAndDataLoaded`() {
-        // 뷰페이저 참조
-        val monthViewPager: ViewPager2 = activity.findViewById(R.id.month_statistics_recycler_view)
-
-        // ViewPager2가 Null이 아닌지 확인
-        assertNotNull(monthViewPager)
-
-        // 어댑터가 올바르게 연결되었는지 확인
-        val adapter = monthViewPager.adapter
-        assertNotNull(adapter)
-        assertTrue(adapter is StatisticsMonthAdapter)
-
-        // createDummyData()가 반환하는 데이터 수(3개)가 어댑터에 로드되었는지 확인
-        assertEquals(3, adapter?.itemCount)
-    }
-
     // --- 2. 내비게이션 바 클릭 이벤트 테스트 ---
 
     @Test

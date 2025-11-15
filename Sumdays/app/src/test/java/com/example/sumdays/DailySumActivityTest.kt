@@ -1,128 +1,207 @@
 package com.example.sumdays
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Looper
+import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
-import org.hamcrest.CoreMatchers.`is`
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
-import com.example.sumdays.daily.diary.AnalysisRepository
 import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.daily.memo.MemoMergeAdapter
-import io.mockk.*
-import junit.framework.TestCase.assertTrue
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.After
-import org.junit.Before
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.spy
+import org.mockito.Mockito.verify
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows
 import org.robolectric.annotation.Config
+import org.robolectric.shadow.api.Shadow
+import org.robolectric.shadows.ShadowActivity
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+@Config(sdk = [Build.VERSION_CODES.O])   // DailySumActivity가 O 이상 요구
 class DailySumActivityTest {
 
-    private val testDispatcher = StandardTestDispatcher()
-    private val testDate = "2025-11-01"
+    // 네가 만든 Memo 엔티티랑 맞춘 helper
+    private fun memo(
+        id: Int,
+        content: String,
+        timestamp: String,
+        date: String = "2025-02-05",
+        order: Int,
+        type: String = "text"
+    ) = Memo(
+        id = id,
+        content = content,
+        timestamp = timestamp,
+        date = date,
+        order = order,
+        type = type
+    )
 
-
-    @Before
-    fun setup() {
-        Dispatchers.setMain(testDispatcher)
-
-        mockkConstructor(MemoMergeAdapter::class)
-        coEvery { anyConstructed<MemoMergeAdapter>().mergeAllMemo() } returns "merged-result-from-test"
-        every { anyConstructed<MemoMergeAdapter>().undoLastMerge() } returns true
-
-        mockkObject(DiaryRepository)
-        every { DiaryRepository.saveDiary(any(), any()) } just Runs
-
-        mockkObject(AnalysisRepository)
-        // ← 함수 시그니처가 AnalysisResponse? 라면 null 반환으로 맞추세요.
-        coEvery { AnalysisRepository.requestAnalysis(any()) } returns null
-    }
-
-
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-        unmockkAll()
-    }
-
-    /** Helper: Activity 실행 */
-    private fun launchWith(
-        date: String = testDate,
-        memos: ArrayList<Memo> = arrayListOf()
-    ): DailySumActivity {
-        val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
-        val intent = Intent(ctx, DailySumActivity::class.java).apply {
-            putExtra("date", date)
-            putParcelableArrayListExtra("memo_list", memos)
+    /** 공통: Intent에 memo_list + date 넣고 Activity 생성 */
+    private fun createActivityWithMemos(): DailySumActivity {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, DailySumActivity::class.java).apply {
+            putExtra("date", "2025-02-05")
+            putParcelableArrayListExtra(
+                "memo_list",
+                arrayListOf(
+                    memo(1, "First memo", "10:00", order = 0),
+                    memo(2, "Second memo", "10:01", order = 1)
+                )
+            )
         }
-        return Robolectric.buildActivity(DailySumActivity::class.java, intent).setup().get()
+
+        val controller = Robolectric.buildActivity(DailySumActivity::class.java, intent)
+        return controller.setup().get()
     }
 
+    // ---------------------------------------------------------------------
+    // 1. onCreate: RecyclerView + Adapter 셋업 확인
+    // ---------------------------------------------------------------------
     @Test
-    fun clickingSkip_savesDiary_and_navigatesToRead() {
-        val activity = launchWith()
+    fun onCreate_bindsRecyclerViewWithMemoMergeAdapter() {
+        val activity = createActivityWithMemos()
 
-        activity.findViewById<ImageButton>(R.id.skip_icon).performClick()
+        val dateView = activity.findViewById<TextView>(R.id.date_text_view)
+        assertEquals("2025-02-05", dateView.text.toString())
 
-        // ★ 코루틴 작업 마무리
-        testDispatcher.scheduler.advanceUntilIdle()
-        // ★ 메인 루퍼 큐도 비우기
-        Shadows.shadowOf(Looper.getMainLooper()).runToEndOfTasks()
-
-        // 1) 어댑터의 skipMerge가 실제로 불렸는지 먼저 확인
-        coVerify(exactly = 1) { anyConstructed<MemoMergeAdapter>().mergeAllMemo() }
-
-        // 2) 저장 호출 검증
-        verify(exactly = 1) { DiaryRepository.saveDiary("2025-11-01", "merged-result-from-test") }
-
-        // 3) 화면 전환 검증
-        val started = Shadows.shadowOf(activity).nextStartedActivity
-        assert(started != null)
-        assert(started.component?.className == DailyReadActivity::class.java.name)
+        val recycler = activity.findViewById<RecyclerView>(R.id.memo_list_view)
+        assertNotNull(recycler)
+        assertNotNull(recycler.adapter)
+        assertTrue(recycler.adapter is MemoMergeAdapter)
+        assertEquals(2, recycler.adapter!!.itemCount)
     }
 
+    // ---------------------------------------------------------------------
+    // 2. undo_icon: undoLastMerge() 호출되는지
+    // ---------------------------------------------------------------------
     @Test
-    fun clickingUndo_invokesAdapterUndo() {
-        val activity = launchWith()
+    fun clickingUndoIcon_callsUndoLastMergeOnAdapter() {
+        val activity = createActivityWithMemos()
 
-        val undo = activity.findViewById<ImageView>(R.id.undo_icon)
-        undo.performClick()
+        // Activity 내부 memoMergeAdapter를 spy로 교체
+        val field = DailySumActivity::class.java.getDeclaredField("memoMergeAdapter")
+        field.isAccessible = true
+        val originalAdapter = field.get(activity) as MemoMergeAdapter
+        val spyAdapter = spy(originalAdapter)
 
-        Shadows.shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+        field.set(activity, spyAdapter)
+        val recycler = activity.findViewById<RecyclerView>(R.id.memo_list_view)
+        recycler.adapter = spyAdapter
 
-        verify(exactly = 1) { anyConstructed<MemoMergeAdapter>().undoLastMerge() }
+        val undoIcon = activity.findViewById<ImageView>(R.id.undo_icon)
+        undoIcon.performClick()
+
+        verify(spyAdapter).undoLastMerge()
     }
 
+    // ---------------------------------------------------------------------
+    // 3. showLoading(true/false) 가 overlay visibility를 토글하는지
+    // ---------------------------------------------------------------------
     @Test
-    fun clickingCalendar_opensCalendarActivity() {
-        val activity = launchWith()
-        activity.findViewById<ImageButton>(R.id.btnCalendar).performClick()
+    fun showLoading_togglesOverlayVisibility() {
+        val activity = createActivityWithMemos()
 
-        val next = Shadows.shadowOf(activity).nextStartedActivity
-        assertThat(next.component?.className, `is`(CalendarActivity::class.java.name))
+        val overlay = activity.findViewById<View>(R.id.loading_overlay)
+        val gifView = activity.findViewById<View>(R.id.loading_gif_view)
+
+        // 초기: GONE 이라고 가정 (레이아웃에 맞춰 필요시 변경)
+        assertEquals(View.GONE, overlay.visibility)
+        assertEquals(View.GONE, gifView.visibility)
+
+        val method = DailySumActivity::class.java.getDeclaredMethod(
+            "showLoading",
+            Boolean::class.javaPrimitiveType
+        )
+        method.isAccessible = true
+
+        // 로딩 시작
+        method.invoke(activity, true)
+        assertEquals(View.VISIBLE, overlay.visibility)
+        assertEquals(View.VISIBLE, gifView.visibility)
+
+        // 로딩 종료
+        method.invoke(activity, false)
+        assertEquals(View.GONE, overlay.visibility)
+        assertEquals(View.GONE, gifView.visibility)
     }
 
+    // ---------------------------------------------------------------------
+    // 4. showAllMergedSheet(): mergeSheetShowing 플래그 확인
+    // ---------------------------------------------------------------------
     @Test
-    fun clickingDaily_opensDailyWriteActivity_withTodayDate() {
-        val activity = launchWith()
-        activity.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnDaily).performClick()
+    fun showAllMergedSheet_setsFlagAndPreventsDoubleShow() {
+        val activity = createActivityWithMemos()
 
-        val next = Shadows.shadowOf(activity).nextStartedActivity
-        assertThat(next.component?.className, `is`(DailyWriteActivity::class.java.name))
-        assertTrue(next.hasExtra("date"))
+        val flagField = DailySumActivity::class.java.getDeclaredField("mergeSheetShowing")
+        flagField.isAccessible = true
+        assertEquals(false, flagField.getBoolean(activity))
+
+        val method = DailySumActivity::class.java.getDeclaredMethod("showAllMergedSheet")
+        method.isAccessible = true
+
+        // 첫 호출
+        method.invoke(activity)
+        assertEquals(true, flagField.getBoolean(activity))
+
+        // 두 번째 호출: early return → 여전히 true, 크래시 없이 통과
+        method.invoke(activity)
+        assertEquals(true, flagField.getBoolean(activity))
+    }
+
+    // ---------------------------------------------------------------------
+    // 5. skip_icon 클릭: showLoading(true) 호출되어 overlay 가 VISIBLE 되는지
+    // ---------------------------------------------------------------------
+    @Test
+    fun clickingSkipIcon_showsLoadingOverlay() {
+        val activity = createActivityWithMemos()
+
+        val overlay = activity.findViewById<View>(R.id.loading_overlay)
+        val gifView = activity.findViewById<View>(R.id.loading_gif_view)
+
+        // 초기에는 안 보인다고 가정
+        assertEquals(View.GONE, overlay.visibility)
+        assertEquals(View.GONE, gifView.visibility)
+
+        val skipIcon = activity.findViewById<ImageButton>(R.id.skip_icon)
+        skipIcon.performClick()   // 내부에서 showLoading(true) 호출
+
+        // 코루틴이 어떻게 동작하든, showLoading(true)는 즉시 호출되므로
+        // overlay는 VISIBLE이어야 함
+        assertEquals(View.VISIBLE, overlay.visibility)
+        assertEquals(View.VISIBLE, gifView.visibility)
+    }
+
+    // ---------------------------------------------------------------------
+    // 6. moveToReadActivity(): DailyReadActivity로 넘어가고 date extra 전달되는지
+    // ---------------------------------------------------------------------
+    @Test
+    fun moveToReadActivity_startsDailyReadActivityWithDateExtra() {
+        val activity = createActivityWithMemos()
+
+        val method = DailySumActivity::class.java.getDeclaredMethod("moveToReadActivity")
+        method.isAccessible = true
+
+        // startActivity() 호출
+        method.invoke(activity)
+
+        val shadow = Shadow.extract<ShadowActivity>(activity)
+        val startedIntent = shadow.nextStartedActivity
+        assertNotNull("DailyReadActivity 로의 Intent 가 존재해야 함", startedIntent)
+
+        // 컴포넌트 클래스 이름이 DailyReadActivity 인지 확인
+        assertEquals(
+            DailyReadActivity::class.java.name,
+            startedIntent.component?.className
+        )
+
+        // date extra 확인
+        assertEquals("2025-02-05", startedIntent.getStringExtra("date"))
     }
 }

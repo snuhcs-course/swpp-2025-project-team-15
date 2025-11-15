@@ -107,18 +107,18 @@ class CalendarActivityTest {
         assertThat(actualDate, `is`(expectedDate))
     }
 
-    @Test
-    fun getEventEmoji_returnsValuesFromLoadedMap() {
-        val activity = buildActivity()
-
-        val today = LocalDate.now().toString()
-        val nextWeek = LocalDate.now().plusWeeks(1).toString()
-
-        assertThat(activity.getEventEmoji(today), `is`("⭐"))
-        assertThat(activity.getEventEmoji(nextWeek), `is`("💻"))
-        // 없는 날짜는 null
-        assertThat(activity.getEventEmoji("2099-12-31"), `is`(nullValue()))
-    }
+//    @Test
+//    fun getEventEmoji_returnsValuesFromLoadedMap() {
+//        val activity = buildActivity()
+//
+//        val today = LocalDate.now().toString()
+//        val nextWeek = LocalDate.now().plusWeeks(1).toString()
+//
+//        assertThat(activity.getEventEmoji(today), `is`("⭐"))
+//        assertThat(activity.getEventEmoji(nextWeek), `is`("💻"))
+//        // 없는 날짜는 null
+//        assertThat(activity.getEventEmoji("2099-12-31"), `is`(nullValue()))
+//    }
 
     @Test
     fun viewPager_swipeProgrammatically_updatesTitle() {

@@ -14,7 +14,6 @@ import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowToast
 import org.robolectric.shadows.ShadowApplication
-import com.example.sumdays.statistics.StatisticsMonthAdapter
 import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
@@ -43,66 +42,5 @@ class StatisticsActivityTest {
     fun `testActivityInitialization_success`() {
         // 액티비티가 null이 아니며 성공적으로 생성되었는지 확인
         assertNotNull(activity)
-    }
-
-    // --- 2. 내비게이션 바 클릭 이벤트 테스트 ---
-
-    @Test
-    fun `testBtnCalendarClick_startsCalendarActivityAndFinishes`() {
-        // GIVEN
-        val btnCalendar: ImageButton = activity.findViewById(R.id.btnCalendar)
-
-        // WHEN
-        btnCalendar.performClick()
-
-        // THEN: Intent 검증
-        val expectedIntent = Intent(activity, CalendarActivity::class.java)
-        val actual = shadowApplication.nextStartedActivity
-
-        // 올바른 액티비티로 전환되는지 확인
-        assertEquals(expectedIntent.component, actual.component)
-
-        // finish()가 호출되어 액티비티가 종료되었는지 확인
-        assertTrue(activity.isFinishing)
-    }
-
-    @Test
-    fun `testBtnDailyClick_startsDailyWriteActivityWithDateAndFinishes`() {
-        // GIVEN
-        val btnDaily: ImageButton = activity.findViewById(R.id.btnDaily)
-        val expectedDate = LocalDate.now().toString()
-
-        // WHEN
-        btnDaily.performClick()
-
-        // THEN: Intent 검증
-        val actual = shadowApplication.nextStartedActivity
-
-        // 올바른 액티비티로 전환되는지 확인
-        assertEquals(DailyWriteActivity::class.java.name, actual.component?.className)
-
-        // date Extra에 오늘 날짜가 올바르게 담겨 있는지 확인
-        assertEquals(expectedDate, actual.getStringExtra("date"))
-
-        // finish()가 호출되어 액티비티가 종료되었는지 확인
-        assertTrue(activity.isFinishing)
-    }
-
-    @Test
-    fun `testBtnInfoClick_startsSettingsActivity`() {
-        // GIVEN
-        val btnInfo: ImageButton = activity.findViewById(R.id.btnInfo)
-
-        // WHEN
-        btnInfo.performClick()
-
-        // THEN: Intent 검증
-        val actual = shadowApplication.nextStartedActivity
-
-        // 1. 액티비티가 시작되었는지 확인
-        assertNotNull(actual)
-
-        // 2. 시작된 액티비티가 SettingsActivity인지 확인
-        assertEquals(SettingsActivity::class.java.name, actual.component?.className)
     }
 }

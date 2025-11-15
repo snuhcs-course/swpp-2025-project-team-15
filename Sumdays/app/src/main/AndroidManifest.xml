@@ -48,9 +48,6 @@
         <activity
             android:name=".statistics.WeekStatsDetailActivity"
             android:exported="false" />
-        <activity
-            android:name=".statistics.MonthStatsDetailActivity"
-            android:exported="false" />
 
         <!--  settings  -->
         <activity android:name=".SettingsActivity"

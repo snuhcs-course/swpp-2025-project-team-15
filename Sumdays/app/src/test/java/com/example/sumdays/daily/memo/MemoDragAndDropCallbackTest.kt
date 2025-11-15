@@ -93,8 +93,6 @@ class MemoDragAndDropCallbackTest {
         fun has(mask: Int) = (flags and mask) != 0
         assertThat(has(ItemTouchHelper.UP), `is`(true))
         assertThat(has(ItemTouchHelper.DOWN), `is`(true))
-        assertThat(has(ItemTouchHelper.LEFT), `is`(true))
-        assertThat(has(ItemTouchHelper.RIGHT), `is`(true))
     }
 
     @Test

@@ -37,13 +37,14 @@ class CalendarActivityTest {
     fun onCreate_setsHeaderAndTitle_andAdapter() {
         val activity = buildActivity()
 
-        // 1) 요일 헤더는 7개가 생성되고, ENGLISH 기본값에서 SUN…SAT 문자여야 함
         val header = activity.findViewById<LinearLayout>(R.id.day_of_week_header)
         assertThat(header.childCount, `is`(7))
+
         val first = header.getChildAt(0) as TextView
         val last = header.getChildAt(6) as TextView
-        assertThat(first.text.toString(), `is`("SUN"))
-        assertThat(last.text.toString(), `is`("SAT"))
+
+        assertThat(first.text.toString(), `is`("일"))
+        assertThat(last.text.toString(),  `is`("토"))
 
         // 2) 상단 월/년 텍스트가 비어있지 않음
         val monthTitle = activity.findViewById<TextView>(R.id.tv_month_year)
@@ -106,19 +107,6 @@ class CalendarActivityTest {
         val actualDate = nextIntent.getStringExtra("date")
         assertThat(actualDate, `is`(expectedDate))
     }
-
-//    @Test
-//    fun getEventEmoji_returnsValuesFromLoadedMap() {
-//        val activity = buildActivity()
-//
-//        val today = LocalDate.now().toString()
-//        val nextWeek = LocalDate.now().plusWeeks(1).toString()
-//
-//        assertThat(activity.getEventEmoji(today), `is`("⭐"))
-//        assertThat(activity.getEventEmoji(nextWeek), `is`("💻"))
-//        // 없는 날짜는 null
-//        assertThat(activity.getEventEmoji("2099-12-31"), `is`(nullValue()))
-//    }
 
     @Test
     fun viewPager_swipeProgrammatically_updatesTitle() {

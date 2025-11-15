@@ -56,6 +56,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.runner)
+    implementation(libs.androidx.junit.ktx)
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testImplementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation("junit:junit:4.13.2")

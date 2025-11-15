@@ -1,217 +1,206 @@
 package com.example.sumdays.settings.prefs
 
 import android.content.Context
-import android.content.SharedPreferences
-import io.mockk.MockKAnnotations
-import io.mockk.every
-import io.mockk.impl.annotations.MockK
-import io.mockk.verify
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import android.os.Build
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.LooperMode
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertNotNull
 
+/**
+ * UserStatsPrefs 클래스에 대한 Unit Test입니다.
+ * 샘플 테스트의 설정(SDK 34)을 사용하여 Robolectric 환경에서 실행됩니다.
+ */
+@RunWith(AndroidJUnit4::class)
+// 샘플 테스트의 환경 설정을 차용하여 SDK 버전 호환성 문제를 해결합니다.
+@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE]) // 34
+@LooperMode(LooperMode.Mode.PAUSED)
 class UserStatsPrefsTest {
 
-    // 의존성 모의 처리
-    @MockK
-    private lateinit var context: Context
-    @MockK
-    private lateinit var sharedPreferences: SharedPreferences
-    @MockK(relaxUnitFun = true) // editor.apply()가 Unit을 반환하므로 relax
-    private lateinit var editor: SharedPreferences.Editor
+    // 테스트 대상 객체
+    private lateinit var prefs: UserStatsPrefs
 
-    // 테스트 대상 클래스 (Class Under Test)
-    private lateinit var userStatsPrefs: UserStatsPrefs
+    // 테스트에 사용할 Context (Robolectric 환경에서 제공)
+    private val context: Context = ApplicationProvider.getApplicationContext<Context>()
 
-    // SharedPreferences 키 (테스트 검증을 위해 원본 클래스에서 가져옴)
-    companion object {
-        private const val APP_PREFS_NAME = "user_stats_prefs"
-        private const val KEY_NICKNAME = "nickname"
-        private const val KEY_STREAK = "current_streak"
-        private const val KEY_LEAF_COUNT = "leaf_count"
-        private const val KEY_GRAPE_COUNT = "grape_count"
-        private const val KEY_ACTIVE_STYLE_ID = "active_style_id"
-        private const val DEFAULT_STYLE_ID = -1L
-    }
+    // UserStatsPrefs 내부에서 사용하는 SharedPreferences 파일 이름
+    private val prefsFileName = "user_stats_prefs"
 
     @Before
     fun setUp() {
-        MockKAnnotations.init(this)
+        // 1. 매 테스트 시작 전 UserStatsPrefs 인스턴스 초기화
+        prefs = UserStatsPrefs(context)
 
-        // --- 모의 객체 체이닝 설정 ---
-
-        // 1. context.getSharedPreferences(...)가 mock SharedPreferences를 반환하도록 설정
-        every {
-            context.getSharedPreferences(APP_PREFS_NAME, Context.MODE_PRIVATE)
-        } returns sharedPreferences
-
-        // 2. sharedPreferences.edit()가 mock Editor를 반환하도록 설정
-        every { sharedPreferences.edit() } returns editor
-
-        // 3. editor.put...(...) 메서드들이 체이닝(.apply() 호출)을 위해
-        //    자기 자신(editor)을 반환하도록 설정
-        every { editor.putString(any(), any()) } returns editor
-        every { editor.putInt(any(), any()) } returns editor
-        every { editor.putLong(any(), any()) } returns editor
-        every { editor.remove(any()) } returns editor
-
-        // 4. 테스트 대상 클래스 초기화
-        userStatsPrefs = UserStatsPrefs(context)
+        // 2. 테스트 간 간섭을 막기 위해 모든 저장된 데이터를 지웁니다.
+        // (SharedPreferences는 singleton이 아니지만, 같은 파일에 접근하므로 초기화 필요)
+        context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .commit()
     }
 
-    // --- 닉네임 테스트 ---
+    @After
+    fun tearDown() {
+        // 테스트 후에도 데이터를 다시 한번 정리
+        context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .commit()
+    }
+
+    // --- 닉네임 관리 테스트 (Line Coverage 100%) ---
 
     @Test
-    fun `saveNickname - saves correct value to prefs`() {
-        val testNickname = "TestUser"
-
-        // 실행
-        userStatsPrefs.saveNickname(testNickname)
-
-        // 검증 (Editor가 올바른 키/값으로 호출되었는지 확인)
-        verify { editor.putString(KEY_NICKNAME, testNickname) }
-        verify { editor.apply() } // apply()가 호출되었는지 확인
+    fun saveAndGetNickname_SavesCorrectly() {
+        // GIVEN
+        val testNickname = "전문개발자_테스터"
+        // WHEN
+        prefs.saveNickname(testNickname)
+        val result = prefs.getNickname()
+        // THEN
+        assertEquals(testNickname, result, "저장된 닉네임이 정확히 반환되어야 합니다.")
     }
 
     @Test
-    fun `getNickname - returns saved value`() {
-        val savedNickname = "MyUser"
-        // 모의 설정 (Prefs가 "MyUser"를 반환하도록)
-        every { sharedPreferences.getString(KEY_NICKNAME, "사용자") } returns savedNickname
+    fun getNickname_ReturnsDefaultWhenNotSet() {
+        // WHEN
+        val result = prefs.getNickname()
+        // THEN
+        // 기본값 "사용자"를 반환하는지 확인 (?: "사용자" 분기 커버)
+        assertEquals("사용자", result, "설정되지 않았을 때 기본값 '사용자'가 반환되어야 합니다.")
+    }
 
-        // 실행
-        val nickname = userStatsPrefs.getNickname()
+    // --- Strike 관리 테스트 (Line Coverage 100%) ---
 
-        // 검증
-        assertEquals(savedNickname, nickname)
+    @Test
+    fun saveAndGetStreak_SavesCorrectly() {
+        // GIVEN
+        val testStreak = 100
+        // WHEN
+        prefs.saveStreak(testStreak)
+        val result = prefs.getStreak()
+        // THEN
+        assertEquals(testStreak, result, "저장된 스트라이크 값이 정확히 반환되어야 합니다.")
     }
 
     @Test
-    fun `getNickname - returns default value when empty`() {
-        val defaultNickname = "사용자"
-        // 모의 설정 (Prefs가 기본값("사용자")을 반환하도록)
-        every { sharedPreferences.getString(KEY_NICKNAME, defaultNickname) } returns defaultNickname
+    fun getStreak_ReturnsDefaultWhenNotSet() {
+        // WHEN
+        val result = prefs.getStreak()
+        // THEN
+        // 기본값 0을 반환하는지 확인
+        assertEquals(0, result, "설정되지 않았을 때 기본값 0이 반환되어야 합니다.")
+    }
 
-        // 실행
-        val nickname = userStatsPrefs.getNickname()
+    // --- Leaf Count 관리 테스트 (Line Coverage 100%) ---
 
-        // 검증
-        assertEquals(defaultNickname, nickname)
+    @Test
+    fun incrementLeafCount_IncrementsFromDefault() {
+        // WHEN
+        prefs.incrementLeafCount() // 0 -> 1 (기본값 읽기 분기 커버)
+        val result = prefs.getLeafCount()
+        // THEN
+        assertEquals(1, result, "기본값 0에서 1로 정확히 증가해야 합니다.")
     }
 
     @Test
-    fun `getNickname - returns default value when prefs return null`() {
-        // 원본 코드의 '?: "사용자"' 폴백 로직 테스트
-        every { sharedPreferences.getString(KEY_NICKNAME, "사용자") } returns null
-
-        // 실행
-        val nickname = userStatsPrefs.getNickname()
-
-        // 검증
-        assertEquals("사용자", nickname)
-    }
-
-    // --- Streak 테스트 ---
-
-    @Test
-    fun `saveStreak - saves correct value`() {
-        // 실행
-        userStatsPrefs.saveStreak(10)
-
-        // 검증
-        verify { editor.putInt(KEY_STREAK, 10) }
-        verify { editor.apply() }
+    fun incrementLeafCount_IncrementsFromExistingValue() {
+        // GIVEN: 초기값을 5로 직접 설정하여 getLeafCount()가 저장된 값을 읽도록 유도
+        context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE)
+            .edit()
+            .putInt("leaf_count", 5)
+            .commit()
+        // WHEN
+        prefs.incrementLeafCount() // 5 -> 6 (기존 값 읽기 분기 커버)
+        val result = prefs.getLeafCount()
+        // THEN
+        assertEquals(6, result, "기존 값 5에서 6으로 정확히 증가해야 합니다.")
     }
 
     @Test
-    fun `getStreak - returns saved value`() {
-        // 모의 설정
-        every { sharedPreferences.getInt(KEY_STREAK, 0) } returns 5
-
-        // 실행
-        val streak = userStatsPrefs.getStreak()
-
-        // 검증
-        assertEquals(5, streak)
+    fun getLeafCount_ReturnsDefaultWhenNotSet() {
+        // WHEN
+        val result = prefs.getLeafCount()
+        // THEN
+        assertEquals(0, result, "설정되지 않았을 때 기본값 0이 반환되어야 합니다.")
     }
 
-    // --- Leaf Count (증가 로직) 테스트 ---
+    // --- Grape Count 관리 테스트 (Line Coverage 100%) ---
 
     @Test
-    fun `incrementLeafCount - reads current value and writes incremented value`() {
-        // 모의 설정 (현재 값 5를 반환)
-        every { sharedPreferences.getInt(KEY_LEAF_COUNT, 0) } returns 5
-
-        // 실행
-        userStatsPrefs.incrementLeafCount()
-
-        // 검증 (5 + 1 = 6이 저장되었는지 확인)
-        verify { editor.putInt(KEY_LEAF_COUNT, 6) }
-        verify { editor.apply() }
-    }
-
-    // --- Grape Count (증가 로직) 테스트 ---
-
-    @Test
-    fun `incrementGrapeCount - reads current value and writes incremented value`() {
-        // 모의 설정 (현재 값 2를 반환)
-        every { sharedPreferences.getInt(KEY_GRAPE_COUNT, 0) } returns 2
-
-        // 실행
-        userStatsPrefs.incrementGrapeCount()
-
-        // 검증 (2 + 1 = 3이 저장되었는지 확인)
-        verify { editor.putInt(KEY_GRAPE_COUNT, 3) }
-        verify { editor.apply() }
-    }
-
-    // --- ★ AI 스타일 ID 테스트 ★ ---
-
-    @Test
-    fun `saveActiveStyleId - saves correct ID`() {
-        val styleId = 12345L
-
-        // 실행
-        userStatsPrefs.saveActiveStyleId(styleId)
-
-        // 검증
-        verify { editor.putLong(KEY_ACTIVE_STYLE_ID, styleId) }
-        verify { editor.apply() }
+    fun incrementGrapeCount_IncrementsFromDefault() {
+        // WHEN
+        prefs.incrementGrapeCount() // 0 -> 1 (기본값 읽기 분기 커버)
+        val result = prefs.getGrapeCount()
+        // THEN
+        assertEquals(1, result, "기본값 0에서 1로 정확히 증가해야 합니다.")
     }
 
     @Test
-    fun `getActiveStyleId - returns saved ID when it exists`() {
-        val styleId = 12345L
-        // 모의 설정
-        every { sharedPreferences.getLong(KEY_ACTIVE_STYLE_ID, DEFAULT_STYLE_ID) } returns styleId
-
-        // 실행
-        val activeId = userStatsPrefs.getActiveStyleId()
-
-        // 검증
-        assertEquals(styleId, activeId)
+    fun incrementGrapeCount_IncrementsFromExistingValue() {
+        // GIVEN: 초기값을 3으로 직접 설정하여 getGrapeCount()가 저장된 값을 읽도록 유도
+        context.getSharedPreferences(prefsFileName, Context.MODE_PRIVATE)
+            .edit()
+            .putInt("grape_count", 3)
+            .commit()
+        // WHEN
+        prefs.incrementGrapeCount() // 3 -> 4 (기존 값 읽기 분기 커버)
+        val result = prefs.getGrapeCount()
+        // THEN
+        assertEquals(4, result, "기존 값 3에서 4로 정확히 증가해야 합니다.")
     }
 
     @Test
-    fun `getActiveStyleId - returns null when no ID is set (default)`() {
-        // 모의 설정 (기본값 -1L이 반환되는 상황)
-        every { sharedPreferences.getLong(KEY_ACTIVE_STYLE_ID, DEFAULT_STYLE_ID) } returns DEFAULT_STYLE_ID
+    fun getGrapeCount_ReturnsDefaultWhenNotSet() {
+        // WHEN
+        val result = prefs.getGrapeCount()
+        // THEN
+        assertEquals(0, result, "설정되지 않았을 때 기본값 0이 반환되어야 합니다.")
+    }
 
-        // 실행
-        val activeId = userStatsPrefs.getActiveStyleId()
+    // --- AI 스타일 설정 관련 로직 테스트 (Line Coverage 100%) ---
 
-        // 검증 (ID가 -1L일 때 null을 반환하는 핵심 로직 테스트)
-        assertNull(activeId)
+    @Test
+    fun saveAndGetActiveStyleId_SavesCorrectly() {
+        // GIVEN
+        val testId = 987654321L
+        // WHEN
+        prefs.saveActiveStyleId(testId)
+        val result = prefs.getActiveStyleId()
+        // THEN
+        assertNotNull(result, "저장 후 null이 아니어야 합니다.")
+        assertEquals(testId, result, "저장된 스타일 ID가 정확히 반환되어야 합니다.")
+        // if (id == DEFAULT_STYLE_ID) null else id 에서 else 분기 커버
     }
 
     @Test
-    fun `clearActiveStyleId - removes the key from prefs`() {
-        // 실행
-        userStatsPrefs.clearActiveStyleId()
+    fun getActiveStyleId_ReturnsNullWhenNotSet() {
+        // WHEN
+        val result = prefs.getActiveStyleId()
+        // THEN
+        // 기본값 -1L이 반환될 때 null로 처리되는지 확인 (if 분기 커버)
+        assertNull(result, "스타일이 설정되지 않았을 때 null을 반환해야 합니다.")
+    }
 
-        // 검증 (remove가 호출되었는지 확인)
-        verify { editor.remove(KEY_ACTIVE_STYLE_ID) }
-        verify { editor.apply() }
+    @Test
+    fun clearActiveStyleId_RemovesTheSetting() {
+        // GIVEN: 스타일 ID를 미리 저장
+        val testId = 12345L
+        prefs.saveActiveStyleId(testId)
+        assertNotNull(prefs.getActiveStyleId(), "클리어 전에는 값이 존재해야 합니다.")
+
+        // WHEN
+        prefs.clearActiveStyleId()
+        val result = prefs.getActiveStyleId()
+        // THEN
+        // clearActiveStyleId()가 remove()를 호출했는지, 그 결과 기본값(-1L)이 되어 null로 반환되는지 확인
+        assertNull(result, "clearActiveStyleId() 호출 후 null을 반환해야 합니다.")
     }
 }

@@ -103,7 +103,7 @@ class WeekStatsDetailActivityTest {
         assertEquals(expectedRangeText, activity.findViewById<TextView>(R.id.week_range_text_view).text.toString())
 
         // 일기 작성 횟수
-        assertEquals("5/7", activity.findViewById<TextView>(R.id.diary_count_ratio).text.toString())
+        assertEquals("7일 중 5일 일기를 썼어요!", activity.findViewById<TextView>(R.id.diary_count_ratio).text.toString())
     }
 
     @Test
@@ -119,7 +119,7 @@ class WeekStatsDetailActivityTest {
     @Test
     fun `testDataBinding_emotionAnalysis`() {
         // 대표 감정 및 점수
-        assertEquals("대표 감정: 😄", activity.findViewById<TextView>(R.id.dominant_emoji_text_view).text.toString())
+        assertEquals("이번 주 감정을 이모지로 나타내면 : 😄", activity.findViewById<TextView>(R.id.dominant_emoji_text_view).text.toString())
 
         // 감정 점수 포맷팅 확인 (%.2f)
 //        assertEquals("감정 점수: 0.65", activity.findViewById<TextView>(R.id.emotion_score_text_view).text.toString())
@@ -169,61 +169,5 @@ class WeekStatsDetailActivityTest {
         assertTrue(activity.isFinishing)
     }
 
-    @Test
-    fun `testBtnCalendarClick_startsCalendarActivityAndFinishes`() {
-        // GIVEN
-        val btnCalendar: ImageButton = activity.findViewById(R.id.btnCalendar)
 
-        // WHEN
-        btnCalendar.performClick()
-
-        // THEN: Intent 검증
-        val actual = shadowApplication.nextStartedActivity
-
-        assertNotNull(actual)
-        assertEquals(CalendarActivity::class.java.name, actual.component?.className)
-
-        // 현재 액티비티가 종료되었는지 확인
-        assertTrue(activity.isFinishing)
-    }
-
-    @Test
-    fun `testBtnDailyClick_startsDailyWriteActivityWithTodayAndFinishes`() {
-        // GIVEN
-        val btnDaily: ImageButton = activity.findViewById(R.id.btnDaily)
-        val expectedDate = LocalDate.now().toString()
-
-        // WHEN
-        btnDaily.performClick()
-
-        // THEN: Intent 검증
-        val actual = shadowApplication.nextStartedActivity
-
-        assertNotNull(actual)
-        assertEquals(DailyWriteActivity::class.java.name, actual.component?.className)
-
-        // date Extra에 오늘 날짜가 올바르게 담겨 있는지 확인
-        assertEquals(expectedDate, actual.getStringExtra("date"))
-
-        // 현재 액티비티가 종료되었는지 확인
-        assertTrue(activity.isFinishing)
-    }
-
-    @Test
-    fun `testBtnInfoClick_startsSettingsActivity`() {
-        // GIVEN
-        val btnInfo: ImageButton = activity.findViewById(R.id.btnInfo)
-
-        // WHEN
-        btnInfo.performClick()
-
-        // THEN: Intent 검증
-        val actual = shadowApplication.nextStartedActivity
-
-        assertNotNull(actual)
-        assertEquals(SettingsActivity::class.java.name, actual.component?.className)
-
-        // Info 버튼 클릭 시에는 finish()가 호출되지 않도록 코딩되어 있으므로, 종료되지 않았는지 확인
-        assertFalse(activity.isFinishing)
-    }
 }

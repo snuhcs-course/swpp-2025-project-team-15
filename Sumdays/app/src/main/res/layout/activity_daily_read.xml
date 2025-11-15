@@ -220,7 +220,7 @@
         android:layout_marginBottom="16dp"
         android:background="@drawable/bg_bubble_grey"
         android:padding="12dp"
-        android:src="@drawable/ic_edit"
+        android:src="@drawable/ic_edit_diary"
         android:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="@+id/diary_scroll_view"
         app:layout_constraintEnd_toEndOf="@+id/diary_scroll_view"

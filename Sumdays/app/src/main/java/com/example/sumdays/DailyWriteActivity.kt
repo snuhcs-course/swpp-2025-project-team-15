@@ -5,6 +5,8 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -291,8 +293,7 @@ class DailyWriteActivity : AppCompatActivity() {
             if (diaryExists) {
                 // 일기가 있으면: 버튼 활성화 및 주황색
                 readDiaryButton.isEnabled = true
-                readDiaryButton.backgroundTintList =
-                    ContextCompat.getColorStateList(this, R.color.blue_light)
+                readDiaryButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#E26A2C"))
             } else {
                 // 일기가 없으면: 버튼 비활성화 및 회색
                 readDiaryButton.isEnabled = false

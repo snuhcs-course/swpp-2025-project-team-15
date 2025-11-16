@@ -130,6 +130,8 @@ dependencies {
     // ⭐ 3. AndroidX 아키텍처 컴포넌트 테스트 (LiveData 테스트를 위해 필수)
     // InstantTaskExecutorRule과 같은 유틸리티 포함
     testImplementation("androidx.arch.core:core-testing:2.2.0")
+    testImplementation("org.hamcrest:hamcrest:2.2")
+    testImplementation("org.hamcrest:hamcrest-library:2.2")
 }
 
 configurations.all {

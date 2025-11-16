@@ -1,127 +1,118 @@
-package com.example.sumdays
+package com.example.sumdays.data.dao
 
-import android.content.Intent
-import android.os.Build
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.sumdays.calendar.MonthAdapter
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import org.hamcrest.CoreMatchers.*
+import androidx.room.Room
+import com.example.sumdays.data.*
+import com.example.sumdays.statistics.*
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.*
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
+import org.robolectric.RuntimeEnvironment
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
-import org.robolectric.Shadows
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.LooperMode
-import org.robolectric.shadows.ShadowLooper
-import org.threeten.bp.LocalDate
+import androidx.test.core.app.ApplicationProvider
+import android.content.Context
 
-@RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE]) // 34
-@LooperMode(LooperMode.Mode.PAUSED)
-class CalendarActivityTest {
+@RunWith(RobolectricTestRunner::class) // 👈 추가됨 (필수)
+@Config(sdk = [33])
+class DaoIntegrationTest {
 
-    /** 액티비티를 초기화해서 반환 */
-    private fun buildActivity(): CalendarActivity {
-        val controller = Robolectric.buildActivity(CalendarActivity::class.java)
-        val activity = controller.setup().get()
-        // 메인 루퍼 처리
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        return activity
+    private lateinit var db: AppDatabase
+    private lateinit var dailyDao: DailyEntryDao
+    private lateinit var weekDao: WeekSummaryDao
+
+    @Before
+    fun setup() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+
+        dailyDao = db.dailyEntryDao()
+        weekDao = db.weekSummaryDao()
     }
 
-    @Test
-    fun onCreate_setsHeaderAndTitle_andAdapter() {
-        val activity = buildActivity()
-
-        val header = activity.findViewById<LinearLayout>(R.id.day_of_week_header)
-        assertThat(header.childCount, `is`(7))
-
-        val first = header.getChildAt(0) as TextView
-        val last = header.getChildAt(6) as TextView
-
-        assertThat(first.text.toString(), `is`("일"))
-        assertThat(last.text.toString(),  `is`("토"))
-
-        // 2) 상단 월/년 텍스트가 비어있지 않음
-        val monthTitle = activity.findViewById<TextView>(R.id.tv_month_year)
-        assertThat(monthTitle.text.toString().isNotBlank(), `is`(true))
-
-        // 3) ViewPager2 어댑터가 MonthAdapter로 설정됨
-        val pager = activity.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.calendarViewPager)
-        assertThat(pager.adapter, instanceOf(MonthAdapter::class.java))
+    @After
+    fun tearDown() {
+        db.close()
     }
 
+    // ---------------------------
+    // ① DailyEntryDao 테스트
+    // ---------------------------
     @Test
-    fun nextPrevButtons_changeMonthTitle() {
-        val activity = buildActivity()
+    fun test_dailyEntryDao_allFunctions() = runBlocking {
+        val date = "2025-01-01"
 
-        val monthTitle = activity.findViewById<TextView>(R.id.tv_month_year)
-        val btnPrev = activity.findViewById<ImageButton>(R.id.btn_prev_month)
-        val btnNext = activity.findViewById<ImageButton>(R.id.btn_next_month)
+        // insert/update
+        dailyDao.updateEntry(date, diary = "hello", themeIcon = "icon1")
 
-        val initial = monthTitle.text.toString()
+        val value1 = dailyDao.getEntry(date).first()
+        assertThat(value1?.diary, `is`("hello"))
 
-        // 다음 달로
-        btnNext.performClick()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        val afterNext = monthTitle.text.toString()
-        assertThat(afterNext, not(initial))
+        // update again
+        dailyDao.updateEntry(date, diary = "changed")
+        val value2 = dailyDao.getEntry(date).first()
+        assertThat(value2?.diary, `is`("changed"))
 
-        // 다시 이전 달로(원래로 돌아오지는 않아도, 타이틀 변경이 일어나는지만 확인)
-        btnPrev.performClick()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-        val afterPrev = monthTitle.text.toString()
-        assertThat(afterPrev.isNotBlank(), `is`(true))
+        // monthly emojis
+        val list = dailyDao.getMonthlyEmojis("2025-01-01", "2025-01-31").first()
+        assertThat(list.size, `is`(1))
+        assertThat(list[0].themeIcon, `is`("icon1"))
+
+        // delete
+        dailyDao.deleteEntry(date)
+        val afterDelete = dailyDao.getEntry(date).first()
+        assertThat(afterDelete, nullValue())
     }
 
+    // ---------------------------
+    // ② WeekSummaryDao 테스트
+    // ---------------------------
     @Test
-    fun statisticButton_startsStatisticsActivity() {
-        val activity = buildActivity()
+    fun test_weekSummaryDao_allFunctions() = runBlocking {
 
-        val statsBtn = activity.findViewById<ImageButton>(R.id.statistic_btn)
-        statsBtn.performClick()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        val summary = WeekSummary(
+            startDate = "2025-10-13",
+            endDate = "2025-10-19",
+            diaryCount = 5,
+            emotionAnalysis = EmotionAnalysis(
+                distribution = mapOf("positive" to 3, "neutral" to 1, "negative" to 1),
+                dominantEmoji = "😊",
+                emotionScore = 0.8f
+            ),
+            highlights = listOf(
+                Highlight("2025-10-15", "좋은 하루였다")
+            ),
+            insights = Insights("충분한 휴식 필요", "감정 기복 있음"),
+            summary = SummaryDetails(
+                emergingTopics = listOf("공부", "운동"),
+                overview = "전반적으로 긍정적인 주",
+                title = "긍정적인 한 주"
+            )
+        )
 
-        val shadowActivity = Shadows.shadowOf(activity)
-        val nextIntent: Intent = shadowActivity.nextStartedActivity
-        assertThat(nextIntent.component?.className, `is`(StatisticsActivity::class.qualifiedName))
-    }
+        // upsert
+        weekDao.upsert(summary)
 
-    @Test
-    fun navBar_dailyButton_startsDailyWrite_withTodayExtra() {
-        val activity = buildActivity()
+        val loaded = weekDao.getWeekSummary("2025-10-13")
+        assertThat(loaded?.diaryCount, `is`(5))
 
-        val dailyBtn = activity.findViewById<FloatingActionButton>(R.id.btnDaily)
-        dailyBtn.performClick()
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        // getAllDatesAsc
+        val dates = weekDao.getAllDatesAsc()
+        assertThat(dates.size, `is`(1))
+        assertThat(dates[0], `is`("2025-10-13"))
 
-        val shadowActivity = Shadows.shadowOf(activity)
-        val nextIntent: Intent = shadowActivity.nextStartedActivity
-        assertThat(nextIntent.component?.className, `is`(DailyWriteActivity::class.qualifiedName))
+        // clear
+        weekDao.clearAll()
+        val afterClear = weekDao.getAllDatesAsc()
 
-        val expectedDate = LocalDate.now().toString()
-        val actualDate = nextIntent.getStringExtra("date")
-        assertThat(actualDate, `is`(expectedDate))
-    }
+        assertThat(afterClear, `is`(emptyList<String>()))
 
-    @Test
-    fun viewPager_swipeProgrammatically_updatesTitle() {
-        val activity = buildActivity()
-        val pager = activity.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.calendarViewPager)
-        val title = activity.findViewById<TextView>(R.id.tv_month_year)
-
-        val before = title.text.toString()
-        val current = pager.currentItem
-
-        // 스와이프 시뮬레이션: 다음 페이지로 이동
-        pager.setCurrentItem(current + 1, false)
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
-
-        val after = title.text.toString()
-        assertThat(after, not(before))
     }
 }

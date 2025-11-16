@@ -34,6 +34,13 @@ const mergeController = {
                     { memos, style_prompt, style_examples, style_vector, end_flag },
                     {responseType: "stream"}
                 );
+
+                if (!response.data || !response.data.pipe) {
+                    return res.status(500).json({
+                        success: false,
+                        message: "Invalid stream from AI server"
+                    });
+                }
                 
                 res.setHeader("Content-Type", "text/plain; charset=utf-8");
                 response.data.pipe(res);

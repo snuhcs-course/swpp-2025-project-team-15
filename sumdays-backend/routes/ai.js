@@ -14,7 +14,7 @@ router.post('/merge', mergeController.merge); // merge memos
 
 router.post('/analyze', analyzeController.analyze); // analyze a diary: summary, emotion-score, emoji, feedback
 router.post('/summarize-week', analyzeController.summarizeWeek); // summarize week
-router.post('/summarize-month', analyzeController.summarizeMonth); // summarize month
+// router.post('/summarize-month', analyzeController.summarizeMonth); // summarize month
 
 router.post('/ocr/memo', upload.single('image'), ocrController.memo); // image memo to text
 router.post('/ocr/diary', upload.array('image'), ocrController.diary); // image diary to text(must extract date)

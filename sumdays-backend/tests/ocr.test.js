@@ -18,7 +18,7 @@ describe("OCR API Tests", () => {
       const res = await request(app)
         .post("/api/ai/ocr/memo")
         .field("type", "extract") // form-data text field
-        .attach("image", path.join(__dirname, "../testcase/ocr_test_한국어.jpg")); // ✅ 실제 파일 사용
+        .attach("image", path.join(__dirname, "../testcase/ocr_test_한국어.jpg")); 
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);

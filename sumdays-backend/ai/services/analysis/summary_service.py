@@ -68,29 +68,29 @@ class SummaryService:
             result = chain.invoke({"diaries": diaries})
             return result.model_dump()
         
-    def summarize_month(self, weeks: list[Dict]) -> Dict[str, Any]:
-        """ Summarize diaries of the month """
-        if len(weeks) < MIN_WEEKSUMMARY_NUM:
-            raise ValueError("At least 2 week-summary are required for monthly summary.")
-        else: 
-            promt_text = """
-            You are an AI summarization assistant specialized in emotional pattern tracking.
+    # def summarize_month(self, weeks: list[Dict]) -> Dict[str, Any]:
+    #     """ Summarize diaries of the month """
+    #     if len(weeks) < MIN_WEEKSUMMARY_NUM:
+    #         raise ValueError("At least 2 week-summary are required for monthly summary.")
+    #     else: 
+    #         promt_text = """
+    #         You are an AI summarization assistant specialized in emotional pattern tracking.
 
-            Based on the provided week summaries, generate a single monthly overview that
-            captures the emotional and behavioral trends of the entire month.
-            Extract emerging topics, summarize emotional cycles, and offer reflective advice.
+    #         Based on the provided week summaries, generate a single monthly overview that
+    #         captures the emotional and behavioral trends of the entire month.
+    #         Extract emerging topics, summarize emotional cycles, and offer reflective advice.
 
-            Return ONLY a JSON object strictly matching the `SummaryMonthResult` schema.
-            Do not include extra text or explanations. Respond **in the same language** as the user's input.
+    #         Return ONLY a JSON object strictly matching the `SummaryMonthResult` schema.
+    #         Do not include extra text or explanations. Respond **in the same language** as the user's input.
             
-            ---
-            Week summaries:
-            {weeks}
-            """
+    #         ---
+    #         Week summaries:
+    #         {weeks}
+    #         """
 
-            prompt = PromptTemplate.from_template(promt_text)
-            llm = self.model.with_structured_output(SummaryMonthResult)
+    #         prompt = PromptTemplate.from_template(promt_text)
+    #         llm = self.model.with_structured_output(SummaryMonthResult)
 
-            chain = prompt | llm
-            result = chain.invoke({"weeks": weeks})
-            return result.model_dump()
+    #         chain = prompt | llm
+    #         result = chain.invoke({"weeks": weeks})
+    #         return result.model_dump()

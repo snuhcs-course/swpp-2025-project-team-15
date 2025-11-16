@@ -36,7 +36,6 @@ def merge_memo():
                         continue
                     yield content
 
-            # text/plain으로 쭉 흘려보내는 방식
             return Response(generate(), mimetype="text/plain; charset=utf-8")
             # return merge_rerank(memos, style_prompt, style_examples, style_vector)
         

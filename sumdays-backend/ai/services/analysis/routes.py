@@ -65,32 +65,32 @@ def analyze_week():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@analysis_bp.route("/month", methods=["POST"])
-def analyze_month():
-    """POST http://localhost:5001/analysis/month
-    testcase/summarize_month_{number} 참고
-    """
-    try:
-        data = request.get_json()
-        weeks = data.get("weeks", "")
-        result = summary_service.summarize_month(weeks)
+# @analysis_bp.route("/month", methods=["POST"])
+# def analyze_month():
+#     """POST http://localhost:5001/analysis/month
+#     testcase/summarize_month_{number} 참고
+#     """
+#     try:
+#         data = request.get_json()
+#         weeks = data.get("weeks", "")
+#         result = summary_service.summarize_month(weeks)
 
-        response = {
-            "summary": {
-                "title": result["title"],
-                "overview": result["overview"],
-                "dominant_emoji": result["dominant_emoji"],
-                "emerging_topics": result["emerging_topics"],
-                "emotion_statistics": { "positive": 0, "neutral": 0, "negative": 0 },
-                "emotion_score": 0
-            },
-            "insights": {
-                "emotion_cycle": result["emotion_cycle"],
-                "advice": result["advice"]
-            },
-            "weeks": data.get("weeks")
-        }
-        return jsonify(response), 200
+#         response = {
+#             "summary": {
+#                 "title": result["title"],
+#                 "overview": result["overview"],
+#                 "dominant_emoji": result["dominant_emoji"],
+#                 "emerging_topics": result["emerging_topics"],
+#                 "emotion_statistics": { "positive": 0, "neutral": 0, "negative": 0 },
+#                 "emotion_score": 0
+#             },
+#             "insights": {
+#                 "emotion_cycle": result["emotion_cycle"],
+#                 "advice": result["advice"]
+#             },
+#             "weeks": data.get("weeks")
+#         }
+#         return jsonify(response), 200
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 400

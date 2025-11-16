@@ -9,7 +9,6 @@ DIARY_IMG_1 = os.path.join("ai", "tests", "images", "diary_page1.jpg")
 DIARY_IMG_2 = os.path.join("ai", "tests", "images", "diary_page2.jpg")
 
 
-@pytest.mark.integration
 def test_image_memo_extract(client):
     """
     [통합 테스트] /image/memo (type=extract)
@@ -32,7 +31,6 @@ def test_image_memo_extract(client):
         print("\n[extract error]", data["error"])
 
 
-@pytest.mark.integration
 def test_image_memo_describe(client):
     """
     [통합 테스트] /image/memo (type=describe)
@@ -81,7 +79,6 @@ def test_image_memo_no_file(client):
     assert "No image file uploaded" in data["error"]
 
 
-@pytest.mark.integration
 def test_image_diary_multiple(client):
     """
     [통합 테스트] /image/diary

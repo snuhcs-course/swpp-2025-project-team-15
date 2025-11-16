@@ -7,7 +7,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 import pytest
-from unittest.mock import MagicMock
 from ai.app import app
 
 
@@ -22,7 +21,6 @@ def load_env():
         load_dotenv(dotenv_path=env_path)
     else:
         print("[WARN] .env 파일을 찾을 수 없습니다:", env_path)
-    # 기본 포트 설정 (테스트 환경에서 누락되더라도 안전하게)
     os.environ.setdefault("AI_SERVER_PORT", "5001")
 
 

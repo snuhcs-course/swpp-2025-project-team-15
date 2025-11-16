@@ -11,3 +11,4 @@ google-cloud-vision
 pytest
 coverage
 pytest-cov
+sentence-transformers

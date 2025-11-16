@@ -82,58 +82,58 @@ const analyzeController = {
         "end_date": "2025-10-31"
         }
     }
-    */
-    summarizeMonth: async (req, res) => {
-        try {
-            const { user_id, period } = req.body;
+    // */
+    // summarizeMonth: async (req, res) => {
+    //     try {
+    //         const { user_id, period } = req.body;
 
-            if (!period || period.range_type !== "month") {
-                return res.status(400).json({
-                    success: false,
-                    message: "Not a proper input."
-                })
-            }
+    //         if (!period || period.range_type !== "month") {
+    //             return res.status(400).json({
+    //                 success: false,
+    //                 message: "Not a proper input."
+    //             })
+    //         }
             
-            // TODO: get data(weeks) from db(mock for now)
-            const weeks = await getUserWeeksMock(user_id, period);
-            if (!weeks || weeks.length < MIN_WEEKSUMMARY_NUM) {
-                return res.status(404).json({
-                    success: false,
-                    message: "There must be at least 2 week summaries to make monthly summary"
-                });
-            }
+    //         // TODO: get data(weeks) from db(mock for now)
+    //         const weeks = await getUserWeeksMock(user_id, period);
+    //         if (!weeks || weeks.length < MIN_WEEKSUMMARY_NUM) {
+    //             return res.status(404).json({
+    //                 success: false,
+    //                 message: "There must be at least 2 week summaries to make monthly summary"
+    //             });
+    //         }
 
-            // calculate average score and distribution
-            const average_score = calculateAverageScore(weeks);
-            const distribution = calculateEmotionDistribution_month(weeks);
+    //         // calculate average score and distribution
+    //         const average_score = calculateAverageScore(weeks);
+    //         const distribution = calculateEmotionDistribution_month(weeks);
 
-            // get flask response
-            const response = await axios.post(`${PYTHON_SERVER_URL}/analysis/month`, { weeks });
+    //         // get flask response
+    //         const response = await axios.post(`${PYTHON_SERVER_URL}/analysis/month`, { weeks });
             
-            if (!response.data) {
-                return res.status(500).json({
-                    success: false,
-                    message: "Invalid response from AI server.",
-                    raw: response.data,
-                });
-            }
+    //         if (!response.data) {
+    //             return res.status(500).json({
+    //                 success: false,
+    //                 message: "Invalid response from AI server.",
+    //                 raw: response.data,
+    //             });
+    //         }
 
-            // final response
-            response.data.summary.emotion_score = average_score
-            response.data.summary.emotion_statistics = distribution
+    //         // final response
+    //         response.data.summary.emotion_score = average_score
+    //         response.data.summary.emotion_statistics = distribution
 
-            return res.status(200).json({
-                success: true,
-                result: response.data,
-            });
-        } catch (err) {
-            console.error("[analyzeController.summarizeMonth] Error:", err.message);
-            return res.status(500).json({
-                success: false,
-                error: err.message,
-            });
-        }
-    },
+    //         return res.status(200).json({
+    //             success: true,
+    //             result: response.data,
+    //         });
+    //     } catch (err) {
+    //         console.error("[analyzeController.summarizeMonth] Error:", err.message);
+    //         return res.status(500).json({
+    //             success: false,
+    //             error: err.message,
+    //         });
+    //     }
+    // },
 
     // Controller method for daily diary analysis (Example: POST /api/ai/analyze)
     /* POST http://localhost:3000/api/ai/analyze
@@ -201,24 +201,24 @@ function calculateEmotionDistribution_week(diaries) {
 /**
  * calculate emotion score distribution for month 
  */
-function calculateEmotionDistribution_month(weeks) {
-    const total = { positive: 0, neutral: 0, negative: 0 };
-    weeks.forEach(w => {
-        const dist = w.distribution || { positive: 0, neutral: 0, negative: 0 };
-        total.positive += dist.positive || 0;
-        total.neutral += dist.neutral || 0;
-        total.negative += dist.negative || 0;
-    });
+// function calculateEmotionDistribution_month(weeks) {
+//     const total = { positive: 0, neutral: 0, negative: 0 };
+//     weeks.forEach(w => {
+//         const dist = w.distribution || { positive: 0, neutral: 0, negative: 0 };
+//         total.positive += dist.positive || 0;
+//         total.neutral += dist.neutral || 0;
+//         total.negative += dist.negative || 0;
+//     });
     
-    const sum = total.positive + total.neutral + total.negative;
-    if (sum > 0) {
-        total.positive = +(total.positive / sum).toFixed(2);
-        total.neutral  = +(total.neutral  / sum).toFixed(2);
-        total.negative = +(total.negative / sum).toFixed(2);
-    }
+//     const sum = total.positive + total.neutral + total.negative;
+//     if (sum > 0) {
+//         total.positive = +(total.positive / sum).toFixed(2);
+//         total.neutral  = +(total.neutral  / sum).toFixed(2);
+//         total.negative = +(total.negative / sum).toFixed(2);
+//     }
 
-    return total;
-}
+//     return total;
+// }
 
 /**
  * Temporary mock function for fetching diaries until DB is implemented

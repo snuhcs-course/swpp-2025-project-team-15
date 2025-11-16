@@ -1,9 +1,8 @@
-from flask import Blueprint, request, jsonify
-from .merge_service import MemoMerger
+from flask import Blueprint, request, jsonify, Response
+from .merge_service import merge_stream, merge_rerank
 from ..analysis.diary_service import DiaryAnalyzer
 
 analysis_service = DiaryAnalyzer()
-merge_service = MemoMerger()
 merge_bp = Blueprint("merge", __name__, url_prefix="/merge")
 
 @merge_bp.route("/", methods=["POST"])
@@ -15,22 +14,42 @@ def merge_memo():
             {"id": 3, "content": "저녁을 가족과 먹었다.", "order": 2},
             {"id": 2, "content": "점심은 친구와 맛있게 먹었다.", "order": 3}
         ],
-        "end_flag": true
+        "end_flag": true,
+        "style_prompt": {...},
+        "style_examples": {"adsf", "asdfaf", "FKSJD"}
     \}
     """
     try:
         data = request.get_json()
-        memos = data["memos"]
+        memos =  [m["content"] for m in sorted(data["memos"], key=lambda x: x["order"])]
         end_flag = data["end_flag"]
-
-        memos.sort(key=lambda x: x["order"])
-        contents = [m["content"] for m in memos]
-        result = merge_service.merge(contents)
+        style_prompt = data["style_prompt"]
+        style_examples = data["style_examples"]
+        style_vector = data["style_vector"]
 
         if not end_flag:
-            response = {"merged_content": result}
+            def generate():
+                for chunk in merge_stream(memos, style_prompt, style_examples):
+                    delta = chunk.choices[0].delta
+                    content = delta.content or ""
+                    if not content:
+                        continue
+                    yield content
+
+            return Response(generate(), mimetype="text/plain; charset=utf-8")
+            # return merge_rerank(memos, style_prompt, style_examples, style_vector)
+        
         else:
-            diary = result["merged_content"]
+            # diary = merge_rerank(memos, style_prompt, style_examples, style_vector)
+
+            diary = ""
+            for chunk in merge_stream(memos, style_prompt, style_examples):
+                delta = chunk.choices[0].delta
+                content = delta.content or ""
+                if not content:
+                    continue
+                diary += content
+
             result = analysis_service.analyze(diary)
 
             response = {

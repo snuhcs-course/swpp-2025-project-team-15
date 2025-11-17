@@ -6,6 +6,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -136,27 +137,40 @@ class StatisticsActivity : AppCompatActivity() {
 
             val leafLP = holder.buttonWeeklyStats.layoutParams as FrameLayout.LayoutParams
 
-            // 좌/우 번갈아: (parityBase + position) % 2
             val isLeft = (leafIndex % 2 == 0)
 
             val isGrapeRow = (leafIndex % 5 == 0)
 
+            val isOnlyBranch = (leafIndex > currentWeeklyStatsNumber)
+
             if (isLeft) {
                 leafLP.gravity = Gravity.START
-                if (isGrapeRow) {
+                if (isOnlyBranch){
+                    holder.buttonWeeklyStats.setImageResource(R.drawable.branch_left)
+                    holder.buttonWeeklyStats.isEnabled = false
+                }
+                else if (isGrapeRow) {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_left)
+                    holder.buttonWeeklyStats.isEnabled = true
                 }
                 else {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_left)
+                    holder.buttonWeeklyStats.isEnabled = true
                 }
             }
             else {
                 leafLP.gravity = Gravity.END
-                if (isGrapeRow) {
+                if (isOnlyBranch){
+                    holder.buttonWeeklyStats.setImageResource(R.drawable.branch_right)
+                    holder.buttonWeeklyStats.isEnabled = false
+                }
+                else if (isGrapeRow) {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_right)
+                    holder.buttonWeeklyStats.isEnabled = true
                 }
                 else {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_right)
+                    holder.buttonWeeklyStats.isEnabled = true
                 }
             }
             holder.buttonWeeklyStats.layoutParams = leafLP

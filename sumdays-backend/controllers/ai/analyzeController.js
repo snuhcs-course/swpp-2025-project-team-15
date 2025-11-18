@@ -19,17 +19,8 @@ const analyzeController = {
     */
     summarizeWeek: async (req, res) => {
         try {
-            const { user_id, period } = req.body;
+            const { diaries } = req.body;
 
-            if (!period || period.range_type !== "week") {
-                return res.status(400).json({
-                    success: false,
-                    message: "Not a proper input."
-                })
-            }
-            
-            // TODO: get data(diaries) from db(mock for now)
-            const diaries = await getUserDiariesMock(user_id, period);
             if (!diaries || diaries.length < MIN_DIARY_NUM) {
                 return res.status(404).json({
                     success: false,
@@ -56,7 +47,6 @@ const analyzeController = {
             response.data.emotion_analysis.emotion_score = average_score
             response.data.emotion_analysis.distribution = distribution
 
-            // TODO: save data(week summary) to db
 
             return res.status(200).json({
                 success: true,

@@ -47,17 +47,18 @@ class SummaryService:
             raise ValueError("At least 3 diaries are required for weekly summary.")
         else: 
             promt_text = """
-            You are an AI summarization assistant specialized in emotional diary analysis.
+            당신은 감정 일기 분석에 특화된 AI 요약 도우미입니다.
 
-            Analyze the following diaries written by a user over a week.
-            Summarize emotional and thematic trends, identify emerging topics,
-            and extract 1–3 key highlights (meaningful days). Answer 
+            사용자가 일주일 동안 작성한 다음 일기를 분석합니다.
+            감정적 및 주제별 트렌드를 요약하고, 새롭게 떠오르는 주제를 식별합니다.
+            1~3개의 주요 하이라이트를 추출합니다(의미 있는 날).
 
-            Return ONLY a JSON object strictly matching the `SummaryWeekResult` schema.
-            Do not include extra text or explanations. Respond **in the same language** as the user's input.
+            'SummaryWeekResult' 스키마와 정확히 일치하는 JSON 객체만 반환합니다.
+            추가 텍스트나 설명은 포함하지 마세요. 사용자의 입력과 동일한 언어로 응답하세요. 
+            한국어의 경우 '-다'체로 응답하세요. advice는 친한 사람이 조언이나 응원해주듯이 말하고, 확신에 차서 대답하기보다는 조금 부드럽게 대답하세요.
             
             ---
-            Diaries:
+            일기:
             {diaries}
             """
 

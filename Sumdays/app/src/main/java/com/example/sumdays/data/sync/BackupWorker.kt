@@ -21,6 +21,7 @@ import com.example.sumdays.network.ApiClient
 import com.google.gson.GsonBuilder
 import retrofit2.Response
 import androidx.work.workDataOf
+import com.example.sumdays.auth.SessionManager
 
 
 class BackupWorker(
@@ -30,8 +31,20 @@ class BackupWorker(
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
+            // 먼저 로그인 되어있는지 검사
+            /*
+            val token = SessionManager.getToken()
+            if(token == null) {
+                val serverFailData = workDataOf(
+                    "type" to "token_error",
+                    "message" to "token이 유효하지 않음"
+                )
+                return@withContext Result.failure(serverFailData)
+            }
+            */
+
             // 0. testCode
-            testEntityInsert(true,true,true,true)
+            testEntityInsert(false, false, false, false)
 
             // 1. dao 초기화
             val db = AppDatabase.getDatabase(applicationContext)

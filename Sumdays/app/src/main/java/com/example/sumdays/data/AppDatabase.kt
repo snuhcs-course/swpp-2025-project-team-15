@@ -11,8 +11,6 @@ import com.example.sumdays.data.converter.WeekSummaryConverter
 import com.example.sumdays.data.style.StyleConverters
 import com.example.sumdays.data.style.UserStyle
 
-
-
 @Database(
     entities = [
         DailyEntry::class,

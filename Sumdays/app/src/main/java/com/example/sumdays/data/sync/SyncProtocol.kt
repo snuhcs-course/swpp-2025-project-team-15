@@ -12,6 +12,13 @@ data class SyncRequest(
     val edited: EditedPayload?
 )
 
+data class SyncFetchResponse(
+    val memo: List<MemoPayload>,
+    val dailyEntry: List<DailyEntryPayload>,
+    val weekSummary: List<WeekSummaryPayload>,
+    val userStyle: List<UserStylePayload>
+)
+
 // ------------------ 삭제 데이터 (ID 리스트만) ------------------
 data class DeletedPayload(
     val memo: List<Int>?,

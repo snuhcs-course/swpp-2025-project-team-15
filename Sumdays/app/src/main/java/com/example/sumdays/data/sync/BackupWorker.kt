@@ -44,7 +44,7 @@ class BackupWorker(
             */
 
             // 0. testCode
-            testEntityInsert(false, false, false, false)
+            testEntityInsert(true, true, true, true)
 
             // 1. dao 초기화
             val db = AppDatabase.getDatabase(applicationContext)
@@ -119,7 +119,6 @@ class BackupWorker(
         val db = AppDatabase.getDatabase(applicationContext)
         if (memo) {
             val exampleMemo = com.example.sumdays.daily.memo.Memo(
-                id = 0,
                 date = "2022/01",
                 order = 3,
                 content = "테스트 메모 - 백업 검증용",

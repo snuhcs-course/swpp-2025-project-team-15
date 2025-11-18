@@ -4,10 +4,12 @@ import com.example.sumdays.daily.diary.AnalysisRequest
 import com.example.sumdays.daily.memo.MergeRequest
 import com.example.sumdays.data.sync.SyncRequest
 import com.example.sumdays.data.sync.SyncResponse
+import com.example.sumdays.data.sync.SyncFetchResponse
 import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.Part
 import okhttp3.RequestBody
@@ -22,6 +24,12 @@ interface ApiService {
         // @Header("Authorization") token: String,
         @Body body: SyncRequest
     ): retrofit2.Response<SyncResponse>
+
+    @GET("/api/db/fetch")
+    suspend fun fetchServerData(
+        // @Header("Authorization") token: String
+    ): retrofit2.Response<SyncFetchResponse>
+
 
     @POST("/api/ai/merge")
     suspend fun mergeMemos(@Body req: MergeRequest): retrofit2.Response<com.google.gson.JsonObject>

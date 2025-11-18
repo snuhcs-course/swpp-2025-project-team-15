@@ -15,7 +15,7 @@ gpt-4.1-nano 가 빠르고 싸서 좋네요.
 우선 openai api key는 Tutorial 5 실습용 을 사용하고, 안 되면 팀 api key로 바꾸어 사용하면 크레딧 아낄 수 있을 것 같네요.  
 
 #### 1-3
-```$ node app.js``` 로 중앙 nodejs 서버 실행합니다.(sumdays-backend 폴더에서, port 3000)  
+```$ node server.js``` 로 중앙 nodejs 서버 실행합니다.(sumdays-backend 폴더에서, port 3000)  
 ```$ python app.py``` 로 python ai 서버 실행합니다.(sumdays-backend/ai폴더에서, port 5001)  
 
 #### 1-4

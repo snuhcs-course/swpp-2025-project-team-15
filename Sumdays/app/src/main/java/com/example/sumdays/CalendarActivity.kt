@@ -28,7 +28,9 @@ import androidx.lifecycle.lifecycleScope
 import com.example.sumdays.data.AppDatabase
 import com.example.sumdays.data.style.StylePrompt
 import com.example.sumdays.data.style.UserStyle
-
+import com.example.sumdays.data.sync.InitialSyncWorker
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 class CalendarActivity : AppCompatActivity() {
 
     private lateinit var calendarViewPager: ViewPager2
@@ -42,6 +44,7 @@ class CalendarActivity : AppCompatActivity() {
     var currentStatusMap: Map<String, Pair<Boolean, String?>> = emptyMap()
     private var currentMonthLiveData: LiveData<Map<String, Pair<Boolean, String?>>>? = null
     // ▲▲▲▲▲ 2. 끝 ▲▲▲▲▲
+
 
     // 캘린더 언어 설정
     private var currentLanguage: CalendarLanguage = CalendarLanguage.ENGLISH
@@ -64,6 +67,7 @@ class CalendarActivity : AppCompatActivity() {
     private fun setStatisticBtnListener() {
         val btnStats = findViewById<ImageButton>(R.id.statistic_btn)
         val btnUpdate = findViewById<ImageButton>(R.id.update_btn)
+        val btnInit = findViewById<ImageButton>(R.id.init_btn)
 
         btnStats.setOnClickListener {
             // ⭐ 통계 화면(StatisticsActivity)으로 이동하는 Intent 추가
@@ -74,9 +78,12 @@ class CalendarActivity : AppCompatActivity() {
         btnUpdate.setOnClickListener {
             // 서버 db로 update
 
-
             BackupScheduler.triggerManualBackup()
             Toast.makeText(this, "수동 백업을 시작합니다", Toast.LENGTH_SHORT).show()
+        }
+        btnInit.setOnClickListener {
+            val request = OneTimeWorkRequestBuilder<InitialSyncWorker>().build()
+            WorkManager.getInstance(applicationContext).enqueue(request)
         }
     }
 

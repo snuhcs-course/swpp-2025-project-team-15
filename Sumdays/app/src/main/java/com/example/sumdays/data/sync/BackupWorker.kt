@@ -30,6 +30,7 @@ class BackupWorker(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
+        Log.d("BackupWork","dowork (front to back")
         try {
             // 먼저 로그인 되어있는지 검사
             /*
@@ -43,8 +44,7 @@ class BackupWorker(
             }
             */
 
-            // 0. testCode
-            testEntityInsert(true, true, true, true)
+
 
             // 1. dao 초기화
             val db = AppDatabase.getDatabase(applicationContext)
@@ -52,6 +52,14 @@ class BackupWorker(
             val userStyleDao = db.userStyleDao()
             val dailyEntryDao = db.dailyEntryDao()
             val weekSummaryDao = db.weekSummaryDao()
+
+
+            // 0. testCode
+            memoDao.clearAll()
+            userStyleDao.clearAll()
+            dailyEntryDao.clearAll()
+            weekSummaryDao.clearAll()
+            testEntityInsert(true, true, true, false)
 
             // 2. edited, deleted 객체 가져오기 (memo, userStyle, dailyEntry, weekSummary)
             // 2-1. Memo
@@ -89,6 +97,17 @@ class BackupWorker(
                 dailyEntryDao.resetEditedFlags(editedEntryDates)
                 weekSummaryDao.resetDeletedFlags(deletedSummaryStartDates)
                 weekSummaryDao.resetEditedFlags(editedSummaryStartDates)
+
+
+                // test code
+                // 0. testCode
+                memoDao.clearAll()
+                userStyleDao.clearAll()
+                dailyEntryDao.clearAll()
+                weekSummaryDao.clearAll()
+
+                ///
+
                 return@withContext Result.success()
             }
             // 4-2. 실패
@@ -119,16 +138,16 @@ class BackupWorker(
         val db = AppDatabase.getDatabase(applicationContext)
         if (memo) {
             val exampleMemo = com.example.sumdays.daily.memo.Memo(
-                date = "2022/01",
+                date = "2025-11-19",
                 order = 3,
                 content = "테스트 메모 - 백업 검증용",
-                timestamp = System.currentTimeMillis().toString(),
+                timestamp = "21:33"
             )
             db.memoDao().insert(exampleMemo)
         }
         if (dailyEntry) {
             val exampleEntry = com.example.sumdays.data.DailyEntry(
-                date = "2025-11-11",
+                date = "2025-11-14",
                 diary = "오늘은 Room 백업 기능을 테스트했다.",
                 keywords = "테스트;백업;Room",
                 aiComment = "테스트용으로 삽입된 일기입니다.",

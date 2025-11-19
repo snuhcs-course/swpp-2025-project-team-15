@@ -1,6 +1,7 @@
 package com.example.sumdays.data.sync
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
@@ -19,9 +20,6 @@ import com.example.sumdays.statistics.*
 
 // --- 네트워크 ---
 import com.example.sumdays.network.ApiClient
-
-
-
 
 class InitialSyncWorker(
     context: Context,
@@ -63,6 +61,7 @@ class InitialSyncWorker(
 
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
+        Log.d("initWork","dowork (back to frontr")
         try {
             // 1) 서버에서 전체 데이터 가져오기
             val response = ApiClient.api.fetchServerData()
@@ -103,7 +102,7 @@ class InitialSyncWorker(
                 }
                 memoDao.insertAll(memoList)
 
-                // DailyEntry7777777777777777
+                // DailyEntry
                 val dailyEntryList = serverData.dailyEntry.map { p ->
                     DailyEntry(
                         date = p.date,

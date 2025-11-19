@@ -25,7 +25,7 @@ interface ApiService {
         @Body body: SyncRequest
     ): retrofit2.Response<SyncResponse>
 
-    @GET("/api/db/fetch")
+    @GET("/api/db/sync")
     suspend fun fetchServerData(
         // @Header("Authorization") token: String
     ): retrofit2.Response<SyncFetchResponse>

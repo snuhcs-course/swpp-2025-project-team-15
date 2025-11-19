@@ -15,9 +15,23 @@ import retrofit2.http.Part
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.http.Header
+import retrofit2.http.PUT
 import retrofit2.http.Streaming
 
 interface ApiService {
+    @POST("/api/login")
+    fun login(@Body request: LoginRequest): Call<LoginResponse>
+    // ★★★ 회원가입 API 함수 추가 ★★★
+    @POST("api/signup")
+    fun signup(@Body request: SignupRequest): Call<SignupResponse>
+
+    // 1. 닉네임 변경
+    @PUT("api/user/nickname")
+    fun updateNickname(@Header("Authorization") token: String, @Body request: UpdateNicknameRequest): Call<UpdateNicknameResponse>
+
+    // 2. 비밀번호 변경
+    @PUT("api/auth/password")
+    fun changePassword(@Header("Authorization") token: String, @Body request: ChangePasswordRequest): Call<ChangePasswordResponse>
 
     @POST("/api/db/sync")
     suspend fun syncData(

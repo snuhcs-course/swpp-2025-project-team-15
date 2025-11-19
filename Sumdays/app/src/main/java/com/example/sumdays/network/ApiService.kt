@@ -26,7 +26,7 @@ interface ApiService {
     fun signup(@Body request: SignupRequest): Call<SignupResponse>
 
     // 1. 닉네임 변경
-    @PUT("api/user/nickname")
+    @PUT("api/auth/nickname")
     fun updateNickname(@Header("Authorization") token: String, @Body request: UpdateNicknameRequest): Call<UpdateNicknameResponse>
 
     // 2. 비밀번호 변경

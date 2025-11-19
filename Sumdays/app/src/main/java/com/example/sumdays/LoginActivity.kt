@@ -8,7 +8,10 @@ import androidx.core.view.WindowInsetsCompat
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.sumdays.auth.SessionManager
+import com.example.sumdays.data.sync.InitialSyncWorker
 import com.example.sumdays.databinding.ActivityLoginBinding
 import retrofit2.Call
 import retrofit2.Callback
@@ -91,6 +94,10 @@ class LoginActivity : AppCompatActivity() {
                         loginResponse.nickname?.let {
                             userStatsPrefs.saveNickname(it)
                         }
+
+                        // 초기화하고 이동
+                        val request = OneTimeWorkRequestBuilder<InitialSyncWorker>().build()
+                        WorkManager.getInstance(applicationContext).enqueue(request)
 
                         // 메인 화면으로 이동
                         val intent = Intent(this@LoginActivity, CalendarActivity::class.java)

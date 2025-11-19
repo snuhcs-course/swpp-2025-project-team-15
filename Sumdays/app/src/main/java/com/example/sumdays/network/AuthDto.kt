@@ -7,6 +7,15 @@ data class UpdateNicknameResponse(
     val message: String
 )
 
+data class ChangePasswordRequest(
+    val currentPassword: String,
+    val newPassword: String
+)
+
+data class ChangePasswordResponse(
+    val success: Boolean,
+    val message: String
+)
 data class SignupRequest(
     val nickname: String,
     val email: String,
@@ -19,15 +28,6 @@ data class SignupResponse(
 )
 
 
-data class ChangePasswordRequest(
-    val currentPassword: String,
-    val newPassword: String
-)
-
-data class ChangePasswordResponse(
-    val success: Boolean,
-    val message: String
-)
 
 data class LoginRequest(
     val email: String,

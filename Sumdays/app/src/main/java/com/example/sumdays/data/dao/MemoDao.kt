@@ -43,6 +43,11 @@ interface MemoDao {
     suspend fun delete(memo: Memo) {
         markAsDeleted(memo.id)
     }
+    @Query("DELETE FROM memo_table")
+    suspend fun clearAll()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(entries: List<Memo>)
 
     // reminder에서 memo를 추가할 때 order 계산용 (삭제된 메모 제외)
     @Query("SELECT COUNT(*) FROM memo_table WHERE date = :date AND isDeleted = 0")

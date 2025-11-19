@@ -59,12 +59,12 @@ data class DailyEntryPayload(
 // ------------------ WeekSummary 데이터 ------------------
 data class WeekSummaryPayload(
     val startDate: String,
-    val endDate: String?,
-    val diaryCount: Int?,
-    val emotionAnalysis: Any?,
-    val highlights: Any?,
-    val insights: Any?,
-    val summary: Any?
+    val endDate: String,
+    val diaryCount: Int,
+    val emotionAnalysis: Any,
+    val highlights: Any,
+    val insights: Any,
+    val summary: Any
 )
 
 // ------------------ UserStyle 데이터 ------------------

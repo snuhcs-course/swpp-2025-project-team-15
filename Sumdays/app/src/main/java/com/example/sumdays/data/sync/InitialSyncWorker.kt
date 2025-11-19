@@ -7,6 +7,8 @@ import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.room.withTransaction
+import androidx.work.workDataOf
+import com.example.sumdays.auth.SessionManager
 import com.google.gson.Gson
 
 // --- 너의 엔티티 & DAO 관련 ---
@@ -61,32 +63,41 @@ class InitialSyncWorker(
 
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
-        Log.d("initWork","dowork (back to frontr")
+
         try {
+            Log.d("initWork","dowork (back to frontr")
+
+            // 0) login 되어있는지 확인
+            val token = SessionManager.getToken()
+            if(token == null) {
+                val serverFailData = workDataOf(
+                    "type" to "token_error",
+                    "message" to "token이 유효하지 않음"
+                )
+                return@withContext Result.failure(serverFailData)
+            }
+
             // 1) 서버에서 전체 데이터 가져오기
-            val response = ApiClient.api.fetchServerData()
+            val response = ApiClient.api.fetchServerData(token)
             if (!response.isSuccessful || response.body() == null) {
                 return@withContext Result.failure()
             }
             val serverData = response.body()!!
 
-            // 2) Room DB
+            // 2) Room DB 및 전부 삭제
             val db = AppDatabase.getDatabase(applicationContext)
             val memoDao = db.memoDao()
             val dailyDao = db.dailyEntryDao()
             val styleDao = db.userStyleDao()
             val weekDao = db.weekSummaryDao()
+            memoDao.clearAll()
+            dailyDao.clearAll()
+            styleDao.clearAll()
+            weekDao.clearAll()
 
             // 3) 트랜잭션으로 Room DB 업데이트
             db.withTransaction {
-
-                // --- 3-1. 로컬 DB 초기화 ---
-                memoDao.clearAll()
-                dailyDao.clearAll()
-                styleDao.clearAll()
-                weekDao.clearAll()
-
-                // --- 3-2. 서버 데이터 삽입 ---
+                // --- 서버 데이터 삽입 ---
                 // Memo
                 val memoList = serverData.memo.map { payload ->
                     Memo(
@@ -147,8 +158,6 @@ class InitialSyncWorker(
                     )
                 }
                 weekDao.insertAll(weekSummaryList)
-
-
             }
 
             return@withContext Result.success()

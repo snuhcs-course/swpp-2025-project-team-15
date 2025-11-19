@@ -30,10 +30,11 @@ class BackupWorker(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
-        Log.d("BackupWork","dowork (front to back")
+
         try {
+            Log.d("BackupWork","dowork (front to back")
+
             // 먼저 로그인 되어있는지 검사
-            /*
             val token = SessionManager.getToken()
             if(token == null) {
                 val serverFailData = workDataOf(
@@ -42,9 +43,6 @@ class BackupWorker(
                 )
                 return@withContext Result.failure(serverFailData)
             }
-            */
-
-
 
             // 1. dao 초기화
             val db = AppDatabase.getDatabase(applicationContext)
@@ -53,13 +51,14 @@ class BackupWorker(
             val dailyEntryDao = db.dailyEntryDao()
             val weekSummaryDao = db.weekSummaryDao()
 
-
-            // 0. testCode
+            // testCode
+            /*
             memoDao.clearAll()
             userStyleDao.clearAll()
             dailyEntryDao.clearAll()
             weekSummaryDao.clearAll()
             testEntityInsert(true, true, true, false)
+            */
 
             // 2. edited, deleted 객체 가져오기 (memo, userStyle, dailyEntry, weekSummary)
             // 2-1. Memo
@@ -80,7 +79,7 @@ class BackupWorker(
             // 3. 서버에 요청하기
             val syncRequest : SyncRequest = buildSyncRequest(deletedMemoIds, deletedStyleIds, deletedEntryDates, deletedSummaryStartDates,
                 editedMemos, editedStyles, editedEntries, editedSummaries)
-            val syncResponseBody = ApiClient.api.syncData(syncRequest).body()
+            val syncResponseBody = ApiClient.api.syncData(token,syncRequest).body()
 
             // 4-1. 성공 -> flag 해제
             if (syncResponseBody != null && syncResponseBody.status == "success"){
@@ -98,14 +97,13 @@ class BackupWorker(
                 weekSummaryDao.resetDeletedFlags(deletedSummaryStartDates)
                 weekSummaryDao.resetEditedFlags(editedSummaryStartDates)
 
-
                 // test code
-                // 0. testCode
+                /* 0. testCode
                 memoDao.clearAll()
                 userStyleDao.clearAll()
                 dailyEntryDao.clearAll()
                 weekSummaryDao.clearAll()
-
+                */
                 ///
 
                 return@withContext Result.success()

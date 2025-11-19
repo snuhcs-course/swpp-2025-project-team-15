@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.widget.ImageButton
 import android.widget.TextView
@@ -32,6 +33,8 @@ import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.data.sync.InitialSyncWorker
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.sumdays.auth.SessionManager
+
 class CalendarActivity : AppCompatActivity() {
 
     private lateinit var calendarViewPager: ViewPager2
@@ -84,6 +87,8 @@ class CalendarActivity : AppCompatActivity() {
         btnUpdate.setOnClickListener {
             // 서버 db로 update
 
+            val token = SessionManager.getToken()
+            // Log.d("testtest","${token}")
             BackupScheduler.triggerManualBackup()
             Toast.makeText(this, "수동 백업을 시작합니다", Toast.LENGTH_SHORT).show()
         }

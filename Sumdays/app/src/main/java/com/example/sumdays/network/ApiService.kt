@@ -35,13 +35,13 @@ interface ApiService {
 
     @POST("/api/db/sync")
     suspend fun syncData(
-        // @Header("Authorization") token: String,
+        @Header("Authorization") token: String,
         @Body body: SyncRequest
     ): retrofit2.Response<SyncResponse>
 
     @GET("/api/db/sync")
     suspend fun fetchServerData(
-        // @Header("Authorization") token: String
+        @Header("Authorization") token: String
     ): retrofit2.Response<SyncFetchResponse>
 
 

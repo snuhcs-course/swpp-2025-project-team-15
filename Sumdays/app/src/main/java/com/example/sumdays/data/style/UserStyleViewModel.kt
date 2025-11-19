@@ -51,6 +51,6 @@ class UserStyleViewModel(application: Application) : AndroidViewModel(applicatio
 
     // 추가: 모든 스타일 데이터를 삭제하는 함수
     fun deleteAllStyles() = viewModelScope.launch(Dispatchers.IO) {
-        dao.deleteAllStyles()
+        dao.clearAll()
     }
 }

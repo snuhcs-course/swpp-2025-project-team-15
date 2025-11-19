@@ -4,7 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.sumdays.data.DailyEntry
 import com.example.sumdays.data.style.UserStyle
 
 @Dao
@@ -35,7 +37,10 @@ interface UserStyleDao {
 
     // 5. 모든 스타일 삭제 (계정 탈퇴 시 등 - userId 없이 전체 삭제)
     @Query("DELETE FROM user_style")
-    suspend fun deleteAllStyles()
+    suspend fun clearAll()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(entries: List<UserStyle>)
 
 
     // 서버 sync 용도

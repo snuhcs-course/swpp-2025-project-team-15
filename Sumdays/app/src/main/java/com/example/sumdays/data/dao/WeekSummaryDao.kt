@@ -2,6 +2,7 @@ package com.example.sumdays.data.dao
 
 import androidx.room.*
 import com.example.sumdays.data.WeekSummaryEntity
+import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.statistics.WeekSummary
 
 @Dao
@@ -35,6 +36,9 @@ interface WeekSummaryDao {
 
     @Query("DELETE FROM weekly_summary")
     suspend fun clearAll()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(entries: List<WeekSummaryEntity>)
 
     // 통계 화면 초기 세팅용
     @Query("SELECT startDate FROM weekly_summary WHERE isDeleted = 0 ORDER BY startDate ASC")

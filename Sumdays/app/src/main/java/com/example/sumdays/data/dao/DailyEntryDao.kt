@@ -65,6 +65,12 @@ interface DailyEntryDao {
         _updateEntryDetails(date, diary, keywords, aiComment, emotionScore, emotionIcon, themeIcon) // 2. 업데이트
     }
 
+    @Query("DELETE FROM daily_entry")
+    suspend fun clearAll()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(entries: List<DailyEntry>)
+
 
     // ✅ 4️⃣ 해당 날짜의 일기 삭제
 

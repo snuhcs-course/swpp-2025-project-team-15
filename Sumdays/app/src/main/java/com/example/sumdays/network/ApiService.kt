@@ -19,10 +19,10 @@ import retrofit2.http.PUT
 import retrofit2.http.Streaming
 
 interface ApiService {
-    @POST("/api/login")
+    @POST("/api/auth/login")
     fun login(@Body request: LoginRequest): Call<LoginResponse>
     // ★★★ 회원가입 API 함수 추가 ★★★
-    @POST("api/signup")
+    @POST("/api/auth/signup")
     fun signup(@Body request: SignupRequest): Call<SignupResponse>
 
     // 1. 닉네임 변경

@@ -10,6 +10,11 @@ import com.example.sumdays.settings.prefs.UserStatsPrefs
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.example.sumdays.network.ApiClient
+import com.example.sumdays.network.ChangePasswordRequest
+import com.example.sumdays.network.ChangePasswordResponse
+import com.example.sumdays.network.UpdateNicknameRequest
+import com.example.sumdays.network.UpdateNicknameResponse
 
 class AccountSettingsActivity : AppCompatActivity() {
 
@@ -17,10 +22,6 @@ class AccountSettingsActivity : AppCompatActivity() {
     private lateinit var userStatsPrefs: UserStatsPrefs
 
     // Retrofit API 서비스 객체와 세션 매니저
-    private val apiService: AuthApiService by lazy {
-        RetrofitClient.authApiService
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsAccountBinding.inflate(layoutInflater)
@@ -86,7 +87,7 @@ class AccountSettingsActivity : AppCompatActivity() {
         val request = UpdateNicknameRequest(newNickname)
 
         // 3. 서버 호출 (PUT /api/user/nickname)
-        apiService.updateNickname("Bearer $token", request).enqueue(object : Callback<UpdateNicknameResponse> {
+        ApiClient.api.updateNickname("Bearer $token", request).enqueue(object : Callback<UpdateNicknameResponse> {
             override fun onResponse(call: Call<UpdateNicknameResponse>, response: Response<UpdateNicknameResponse>) {
                 if (response.isSuccessful) {
                     val updateResponse = response.body()
@@ -140,7 +141,7 @@ class AccountSettingsActivity : AppCompatActivity() {
         val request = ChangePasswordRequest(currentPassword, newPassword)
 
         // 3. 서버 호출 (PUT /api/auth/password)
-        apiService.changePassword("Bearer $token", request).enqueue(object : Callback<ChangePasswordResponse> {
+        ApiClient.api.changePassword("Bearer $token", request).enqueue(object : Callback<ChangePasswordResponse> {
             override fun onResponse(call: Call<ChangePasswordResponse>, response: Response<ChangePasswordResponse>) {
                 if (response.isSuccessful) {
                     val changeResponse = response.body()

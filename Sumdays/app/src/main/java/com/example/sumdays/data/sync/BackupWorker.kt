@@ -43,6 +43,7 @@ class BackupWorker(
                 )
                 return@withContext Result.failure(serverFailData)
             }
+            val tokenHeader = "Bearer ${token}"
 
             // 1. dao 초기화
             val db = AppDatabase.getDatabase(applicationContext)
@@ -79,7 +80,7 @@ class BackupWorker(
             // 3. 서버에 요청하기
             val syncRequest : SyncRequest = buildSyncRequest(deletedMemoIds, deletedStyleIds, deletedEntryDates, deletedSummaryStartDates,
                 editedMemos, editedStyles, editedEntries, editedSummaries)
-            val syncResponseBody = ApiClient.api.syncData(token,syncRequest).body()
+            val syncResponseBody = ApiClient.api.syncData(tokenHeader,syncRequest).body()
 
             // 4-1. 성공 -> flag 해제
             if (syncResponseBody != null && syncResponseBody.status == "success"){

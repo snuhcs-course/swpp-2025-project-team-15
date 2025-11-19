@@ -76,9 +76,10 @@ class InitialSyncWorker(
                 )
                 return@withContext Result.failure(serverFailData)
             }
+            val tokenHeader = "Bearer ${token}"
 
             // 1) 서버에서 전체 데이터 가져오기
-            val response = ApiClient.api.fetchServerData(token)
+            val response = ApiClient.api.fetchServerData(tokenHeader)
             if (!response.isSuccessful || response.body() == null) {
                 return@withContext Result.failure()
             }

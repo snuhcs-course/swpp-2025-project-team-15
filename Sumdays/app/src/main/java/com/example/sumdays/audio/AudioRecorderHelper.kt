@@ -12,7 +12,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.sumdays.network.ApiService // ★★★ ApiService import 추가 ★★★
-import com.example.sumdays.network.RetrofitClient // ★★★ RetrofitClient import 추가 ★★★
 import com.example.sumdays.network.STTResponse // ★★★ STTResponse import 추가 ★★★
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody

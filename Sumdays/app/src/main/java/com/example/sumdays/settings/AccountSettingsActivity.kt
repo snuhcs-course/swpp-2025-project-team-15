@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.sumdays.auth.SessionManager
 import com.example.sumdays.databinding.ActivitySettingsAccountBinding
 import com.example.sumdays.network.*
-import com.example.sumdays.network.RetrofitClient
 import com.example.sumdays.settings.prefs.UserStatsPrefs
 import retrofit2.Call
 import retrofit2.Callback

@@ -7,10 +7,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.sumdays.auth.SessionManager
-import com.example.sumdays.network.AuthApiService
-import com.example.sumdays.network.LoginRequest
-import com.example.sumdays.network.LoginResponse
-import com.example.sumdays.network.RetrofitClient
 import io.mockk.*
 import org.junit.After
 import org.junit.Assert.*

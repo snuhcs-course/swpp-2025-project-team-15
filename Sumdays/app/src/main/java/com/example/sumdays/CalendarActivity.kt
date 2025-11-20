@@ -74,11 +74,7 @@ class CalendarActivity : AppCompatActivity() {
     private fun setStatisticBtnListener() {
         val btnStats = findViewById<ImageButton>(R.id.statistic_btn)
         val btnUpdate = findViewById<ImageButton>(R.id.update_btn)
-<<<<<<< HEAD
-=======
         val btnInit = findViewById<ImageButton>(R.id.init_btn)
-
->>>>>>> d95db34 (init - test ok)
         btnStats.setOnClickListener {
             val intent = Intent(this, StatisticsActivity::class.java)
             startActivity(intent)

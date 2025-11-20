@@ -92,6 +92,7 @@ class DailySumActivity : AppCompatActivity() {
 
         // ✅ 드래그-머지 지원 어댑터로 교체
         memoMergeAdapter = MemoMergeAdapter(
+            this,
             initialMemoList,
             lifecycleScope,
             ::showAllMergedSheet,

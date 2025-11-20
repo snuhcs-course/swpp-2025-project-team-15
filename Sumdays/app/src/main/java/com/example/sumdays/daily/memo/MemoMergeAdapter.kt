@@ -27,8 +27,10 @@ import com.example.sumdays.settings.prefs.UserStatsPrefs
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import java.io.InputStreamReader
+import android.content.Context
 
 class MemoMergeAdapter(
+    private val context: Context, //toast 띄우기 위해서 추가
     private val memoList: MutableList<Memo>,
     private val scope: CoroutineScope,
     private val onAllMergesDone: () -> Unit,
@@ -79,6 +81,9 @@ class MemoMergeAdapter(
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
+        holder.itemView.alpha = 1.0f
+        holder.itemView.scaleX = 1.0f
+        holder.itemView.scaleY = 1.0f
         val memo = memoList[position]
         holder.bind(memo)
 
@@ -158,41 +163,64 @@ class MemoMergeAdapter(
         )
 
         scope.launch(Dispatchers.IO) {
+            try {
+                // 1) 먼저 UI에서 fromIndex 제거 → **이게 먼저 되어야 스트리밍 UI 업데이트가 안전해짐**
+                var targetIndex: Int
+                withContext(Dispatchers.Main) {
+                    memoList.removeAt(fromIndex)
+                    notifyItemRemoved(fromIndex)
 
-            // 1) 먼저 UI에서 fromIndex 제거 → **이게 먼저 되어야 스트리밍 UI 업데이트가 안전해짐**
-            var targetIndex: Int
-            withContext(Dispatchers.Main) {
-                memoList.removeAt(fromIndex)
-                notifyItemRemoved(fromIndex)
+                    // 제거 후에야 올바른 targetIndex 계산 가능
+                    targetIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
+                }
 
-                // 제거 후에야 올바른 targetIndex 계산 가능
-                targetIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
-            }
+                // 2) 스트리밍 병합 시작
+                val finalMergedText = mergeTextByIds(mergedIds, endFlag = false) { partial ->
 
-            // 2) 스트리밍 병합 시작
-            val finalMergedText = mergeTextByIds(mergedIds, endFlag = false) { partial ->
-
-                scope.launch(Dispatchers.Main) {
-                    // ✅ 안전성 체크 꼭 필요
-                    if (targetIndex in memoList.indices) {
-                        memoList[targetIndex] = memoList[targetIndex].copy(content = partial)
-                        notifyItemChanged(targetIndex, partial)
+                    scope.launch(Dispatchers.Main) {
+                        // ✅ 안전성 체크 꼭 필요
+                        if (targetIndex in memoList.indices) {
+                            memoList[targetIndex] = memoList[targetIndex].copy(content = partial)
+                            notifyItemChanged(targetIndex, partial)
+                        }
                     }
                 }
-            }
 
-            // 3) ID 업데이트
-            mergedIds.forEach { updateIdMap(it, mergedIds) }
+                // 3) ID 업데이트
+                mergedIds.forEach { updateIdMap(it, mergedIds) }
 
-            // 4) 스트림 종료 후 최종 내용 고정
-            withContext(Dispatchers.Main) {
-                if (targetIndex in memoList.indices) {
-                    memoList[targetIndex] = memoList[targetIndex].copy(content = finalMergedText)
-                    notifyItemChanged(targetIndex, finalMergedText)
+                // 4) 스트림 종료 후 최종 내용 고정
+                withContext(Dispatchers.Main) {
+                    if (targetIndex in memoList.indices) {
+                        memoList[targetIndex] =
+                            memoList[targetIndex].copy(content = finalMergedText)
+                        notifyItemChanged(targetIndex, finalMergedText)
+                    }
+
+                    undoStack.addLast(record)
+                    maybeNotifyAllMerged()
                 }
+            } catch (e: Exception) {
+                // ★★★ 3. 예외 발생 시 복구(Rollback) 로직 ★★★
+                Log.e("MemoMergeAdapter", "Merge failed", e)
 
-                undoStack.addLast(record)
-                maybeNotifyAllMerged()
+                withContext(Dispatchers.Main) {
+                    // 1. 토스트 메시지 표시
+                    Toast.makeText(context, "메모 합치기 실패", Toast.LENGTH_SHORT).show()
+
+                    // 2. UI 및 데이터 복구
+                    // 삭제했던 'from' 메모를 원래 위치에 다시 삽입
+                    if (fromIndex <= memoList.size) {
+                        memoList.add(fromIndex, record.fromMemo)
+                        notifyItemInserted(fromIndex)
+                    }
+
+                    // 합쳐지던 'to' 메모(스트리밍으로 내용이 변했을 수 있음)를 원래대로 되돌림
+                    if (toIndex in memoList.indices) {
+                        memoList[toIndex] = record.toMemoBefore
+                        notifyItemChanged(toIndex)
+                    }
+                }
             }
         }
     }

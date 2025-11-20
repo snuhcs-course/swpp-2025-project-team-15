@@ -27,6 +27,8 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import java.io.InputStreamReader
 import android.content.Context
+import android.widget.Toast
+
 
 class MemoMergeAdapter(
     private val context: Context, //toast 띄우기 위해서 추가

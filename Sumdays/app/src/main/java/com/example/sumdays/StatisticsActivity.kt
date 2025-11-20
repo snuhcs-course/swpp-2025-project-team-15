@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.ui.TreeTiledDrawable
+import com.example.sumdays.utils.setupEdgeToEdge
 
 class StatisticsActivity : AppCompatActivity() {
 
@@ -60,6 +61,10 @@ class StatisticsActivity : AppCompatActivity() {
                 maybePrependMore()
             }
         })
+
+        // 상태바, 네비게이션바 같은 색으로
+        val rootView = findViewById<View>(R.id.statistics_root)
+        setupEdgeToEdge(rootView)
     }
 
     /** 리스트 상단 가까이 오면 앞쪽으로 아이템을 붙여 위로 무한 확장 */

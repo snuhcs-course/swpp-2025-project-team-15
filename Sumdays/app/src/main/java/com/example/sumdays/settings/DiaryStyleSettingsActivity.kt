@@ -2,11 +2,13 @@ package com.example.sumdays.settings
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sumdays.R
 import com.example.sumdays.databinding.ActivitySettingsDiaryStyleBinding
 import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.data.style.UserStyleViewModel
@@ -14,6 +16,7 @@ import com.example.sumdays.settings.prefs.UserStatsPrefs
 import com.example.sumdays.settings.ui.CenterScaleOnScrollListener
 import com.example.sumdays.settings.ui.HorizontalMarginItemDecoration
 import com.example.sumdays.settings.ui.StyleCardAdapter
+import com.example.sumdays.utils.setupEdgeToEdge
 import kotlinx.coroutines.*
 
 open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainScope() {
@@ -39,6 +42,10 @@ open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by M
         setupRecycler()
         observeStyles()
         setupSelectButton()
+
+        // 상태바, 네비게이션바 같은 색으로
+        val rootView = findViewById<View>(R.id.setting_dairy_style_root)
+        setupEdgeToEdge(rootView)
     }
 
     override fun onDestroy() {

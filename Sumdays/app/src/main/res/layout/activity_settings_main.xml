@@ -4,15 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#282d35"
+    android:id="@+id/setting_main_root"
     android:fitsSystemWindows="true"
     tools:context=".CalendarActivity">
 
-    <!-- 배경색 추가 -->
-    <View
-        android:id="@+id/background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#282d35" />
 
     <ScrollView
         android:padding="20dp"

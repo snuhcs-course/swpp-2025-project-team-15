@@ -99,11 +99,40 @@ class DailyWriteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_daily_write)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.write)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        /*
+        val root = findViewById<View>(R.id.write)
+        val inputArea = findViewById<View>(R.id.input_area)
+        val recyclerView = findViewById<RecyclerView>(R.id.memo_list_view)
+
+        ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
+            val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val isKeyboardVisible = imeHeight > 0
+
+            if (isKeyboardVisible) {
+                // 입력창을 키보드 위로 즉시 이동
+                inputArea.translationY = -imeHeight.toFloat()
+
+                // 리스트도 자연스럽게 아래로 스크롤
+                recyclerView.post {
+                    recyclerView.scrollToPosition(memoAdapter.itemCount - 1)
+                }
+
+            } else {
+                // 키보드 내려가면 원위치
+                inputArea.translationY = 0f
+            }
+
+            insets
+        }
+        */
+
 
         // 모든 뷰 초기화
         initViews()
@@ -316,16 +345,14 @@ class DailyWriteActivity : AppCompatActivity() {
         editText.setText(memo.content)
 
         builder.setView(dialogView)
-            .setPositiveButton("수정") { dialog, id ->
-                val newContent = editText.text.toString()
-                if (newContent.isNotEmpty()) {
-                    val updatedMemo = memo.copy(content = newContent)
-                    memoViewModel.update(updatedMemo)
-                }
-            }
-            .setNegativeButton("삭제") { dialog, id ->
+            .setPositiveButton("삭제") { dialog, id ->
                 memoViewModel.delete(memo)
                 dialog.dismiss()
+            }
+            .setNegativeButton("수정") { dialog, id ->
+                val newContent = editText.text.toString()
+                val updatedMemo = memo.copy(content = newContent)
+                memoViewModel.update(updatedMemo)
             }
             .setNeutralButton("취소") { dialog, id ->
                 dialog.dismiss()

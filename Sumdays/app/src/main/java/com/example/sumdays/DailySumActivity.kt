@@ -27,6 +27,8 @@ import com.example.sumdays.data.dao.UserStyleDao
 import com.example.sumdays.settings.prefs.UserStatsPrefs
 import com.bumptech.glide.Glide
 import com.example.sumdays.utils.setupEdgeToEdge
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 class DailySumActivity : AppCompatActivity() {
 
@@ -45,6 +47,13 @@ class DailySumActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sum)
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.sum_layout)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
 
         // ★★★ 2. Prefs 및 DAO 초기화 ★★★
         userStatsPrefs = UserStatsPrefs(this)
@@ -86,7 +95,6 @@ class DailySumActivity : AppCompatActivity() {
 
         // 2. MemoMergeAdapter는 MutableList<Memo>를 기대하므로 변환합니다.
         val initialMemoList: MutableList<Memo> = receivedMemoList.toMutableList()
-
 
         recyclerView = findViewById(R.id.memo_list_view)
         recyclerView.layoutManager = LinearLayoutManager(this)

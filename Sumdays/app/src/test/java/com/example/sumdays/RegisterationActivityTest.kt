@@ -3,10 +3,6 @@ package com.example.sumdays
 import android.widget.Button
 import com.google.android.material.textfield.TextInputEditText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.sumdays.network.AuthApiService
-import com.example.sumdays.network.RetrofitClient
-import com.example.sumdays.network.SignupRequest
-import com.example.sumdays.network.SignupResponse
 import io.mockk.*
 import org.junit.After
 import org.junit.Assert.*

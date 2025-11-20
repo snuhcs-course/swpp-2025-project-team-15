@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import com.example.sumdays.data.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -11,7 +12,7 @@ import kotlinx.coroutines.runBlocking
 class UserStyleViewModel(application: Application) : AndroidViewModel(application) {
 
     // StyleDatabase 인스턴스에서 DAO를 가져옵니다.
-    private val dao = StyleDatabase.getDatabase(application).userStyleDao()
+    private val dao = AppDatabase.getDatabase(application).userStyleDao()
 
     /**
      * 특정 사용자 ID에 해당하는 모든 스타일 목록을 LiveData로 반환합니다.
@@ -51,7 +52,7 @@ class UserStyleViewModel(application: Application) : AndroidViewModel(applicatio
 
     // 추가: 모든 스타일 데이터를 삭제하는 함수
     fun deleteAllStyles() = viewModelScope.launch(Dispatchers.IO) {
-        dao.deleteAllStyles()
+        dao.clearAll()
     }
 
     // 추가: 스타일 업데이트

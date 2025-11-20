@@ -8,23 +8,22 @@ import androidx.core.view.WindowInsetsCompat
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.sumdays.auth.SessionManager
+import com.example.sumdays.data.sync.InitialSyncWorker
 import com.example.sumdays.databinding.ActivityLoginBinding
-import com.example.sumdays.network.AuthApiService
-import com.example.sumdays.network.LoginRequest
-import com.example.sumdays.network.LoginResponse
-import com.example.sumdays.network.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import com.example.sumdays.settings.prefs.UserStatsPrefs
+import com.example.sumdays.network.ApiClient
+import com.example.sumdays.network.LoginRequest
+import com.example.sumdays.network.LoginResponse
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     // RetrofitClient가 미리 만들어 둔 API 서비스 객체를 바로 가져와 사용합니다.
-    private val apiService: AuthApiService by lazy {
-        RetrofitClient.authApiService
-    }
     private lateinit var userStatsPrefs: UserStatsPrefs
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +76,7 @@ class LoginActivity : AppCompatActivity() {
         val loginRequest = LoginRequest(email, password)
 
         // 3. Retrofit을 사용하여 서버에 로그인 요청을 보냅니다.
-        apiService.login(loginRequest).enqueue(object : Callback<LoginResponse> {
+        ApiClient.api.login(loginRequest).enqueue(object : Callback<LoginResponse> {
 
             // 4. 서버로부터 응답을 받았을 때 호출됩니다.
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
@@ -95,6 +94,10 @@ class LoginActivity : AppCompatActivity() {
                         loginResponse.nickname?.let {
                             userStatsPrefs.saveNickname(it)
                         }
+
+                        // 초기화하고 이동
+                        val request = OneTimeWorkRequestBuilder<InitialSyncWorker>().build()
+                        WorkManager.getInstance(applicationContext).enqueue(request)
 
                         // 메인 화면으로 이동
                         val intent = Intent(this@LoginActivity, CalendarActivity::class.java)

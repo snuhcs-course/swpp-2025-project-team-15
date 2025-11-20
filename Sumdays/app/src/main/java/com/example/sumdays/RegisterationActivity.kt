@@ -8,10 +8,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.sumdays.databinding.ActivityLoginBinding
 import com.example.sumdays.databinding.ActivityRegisterationBinding
-import com.example.sumdays.network.AuthApiService
-import com.example.sumdays.network.RetrofitClient
-import com.example.sumdays.network.SignupRequest
 import com.example.sumdays.network.SignupResponse
+import com.example.sumdays.network.SignupRequest
+
+import com.example.sumdays.network.ApiClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -19,9 +19,6 @@ import retrofit2.Response
 class RegisterationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterationBinding
-    private val apiService: AuthApiService by lazy {
-        RetrofitClient.authApiService
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +53,7 @@ class RegisterationActivity : AppCompatActivity() {
 
         val signupRequest = SignupRequest(nickname, email, password)
 
-        apiService.signup(signupRequest).enqueue(object : Callback<SignupResponse> {
+        ApiClient.api.signup(signupRequest).enqueue(object : Callback<SignupResponse> {
             override fun onResponse(call: Call<SignupResponse>, response: Response<SignupResponse>) {
                 if (response.isSuccessful) {
                     val signupResponse = response.body()

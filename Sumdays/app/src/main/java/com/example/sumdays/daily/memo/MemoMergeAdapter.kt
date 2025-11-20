@@ -14,14 +14,13 @@ import android.view.View
 import android.view.View.DragShadowBuilder
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
 import com.example.sumdays.daily.memo.MemoMergeUtils.convertStylePromptToMap
 import com.example.sumdays.daily.memo.MemoMergeUtils.extractMergedText
 import com.example.sumdays.data.style.StylePrompt
 import com.example.sumdays.data.style.UserStyle
-import com.example.sumdays.data.style.UserStyleDao
+import com.example.sumdays.data.dao.UserStyleDao
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.settings.prefs.UserStatsPrefs
 import com.google.gson.Gson

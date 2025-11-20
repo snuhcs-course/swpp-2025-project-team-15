@@ -15,5 +15,7 @@ data class Memo(
     @ColumnInfo(name = "timestamp") val timestamp: String,
     @ColumnInfo(name = "date") val date: String,
     @ColumnInfo(name = "memo_order") val order: Int,
-    @ColumnInfo(name = "type", defaultValue = "text") val type: String = "text"
+    @ColumnInfo(name = "type", defaultValue = "text") val type: String = "text",
+    @ColumnInfo(name = "isEdited", defaultValue = "0") val isEdited: Boolean = false,
+    @ColumnInfo(name = "isDeleted", defaultValue = "0") val isDeleted: Boolean = false
 ) : Parcelable

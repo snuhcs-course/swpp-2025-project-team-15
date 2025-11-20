@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.widget.ImageButton
 import android.widget.TextView
@@ -23,7 +24,16 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import com.example.sumdays.data.viewModel.CalendarViewModel
 import androidx.activity.viewModels
 import androidx.lifecycle.LiveData
-
+import com.example.sumdays.data.sync.BackupScheduler
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import com.example.sumdays.data.AppDatabase
+import com.example.sumdays.data.style.StylePrompt
+import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.sync.InitialSyncWorker
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.example.sumdays.auth.SessionManager
 
 class CalendarActivity : AppCompatActivity() {
 
@@ -36,6 +46,7 @@ class CalendarActivity : AppCompatActivity() {
     private val viewModel: CalendarViewModel by viewModels()
     var currentStatusMap: Map<String, Pair<Boolean, String?>> = emptyMap()
     private var currentMonthLiveData: LiveData<Map<String, Pair<Boolean, String?>>>? = null
+
 
     // 캘린더 언어 설정
     private var currentLanguage: CalendarLanguage = CalendarLanguage.KOREAN
@@ -62,10 +73,28 @@ class CalendarActivity : AppCompatActivity() {
 
     private fun setStatisticBtnListener() {
         val btnStats = findViewById<ImageButton>(R.id.statistic_btn)
+        val btnUpdate = findViewById<ImageButton>(R.id.update_btn)
+<<<<<<< HEAD
+=======
+        val btnInit = findViewById<ImageButton>(R.id.init_btn)
+
+>>>>>>> d95db34 (init - test ok)
         btnStats.setOnClickListener {
             val intent = Intent(this, StatisticsActivity::class.java)
             startActivity(intent)
             overridePendingTransition(0, 0)
+        }
+        btnUpdate.setOnClickListener {
+            // 서버 db로 update
+
+            val token = SessionManager.getToken()
+            // Log.d("testtest","${token}")
+            BackupScheduler.triggerManualBackup()
+            Toast.makeText(this, "수동 백업을 시작합니다", Toast.LENGTH_SHORT).show()
+        }
+        btnInit.setOnClickListener {
+            val request = OneTimeWorkRequestBuilder<InitialSyncWorker>().build()
+            WorkManager.getInstance(applicationContext).enqueue(request)
         }
     }
 

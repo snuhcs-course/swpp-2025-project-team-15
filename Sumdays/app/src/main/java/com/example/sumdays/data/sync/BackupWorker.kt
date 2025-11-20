@@ -1,0 +1,228 @@
+package com.example.sumdays.data.sync
+
+import android.content.Context
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
+import com.example.sumdays.data.AppDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import android.util.Log
+import com.example.sumdays.data.DailyEntry
+import com.example.sumdays.data.style.StylePrompt
+import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.statistics.WeekSummary
+import com.google.gson.Gson
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+import org.json.JSONArray
+import kotlinx.coroutines.launch
+import androidx.lifecycle.lifecycleScope
+import com.example.sumdays.network.ApiClient
+import com.google.gson.GsonBuilder
+import retrofit2.Response
+import androidx.work.workDataOf
+import com.example.sumdays.auth.SessionManager
+
+
+class BackupWorker(
+    context: Context,
+    params: WorkerParameters
+) : CoroutineWorker(context, params) {
+
+    override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
+
+        try {
+            Log.d("BackupWork","dowork (front to back")
+
+            // 먼저 로그인 되어있는지 검사
+            val token = SessionManager.getToken()
+            if(token == null) {
+                val serverFailData = workDataOf(
+                    "type" to "token_error",
+                    "message" to "token이 유효하지 않음"
+                )
+                return@withContext Result.failure(serverFailData)
+            }
+            val tokenHeader = "Bearer ${token}"
+
+            // 1. dao 초기화
+            val db = AppDatabase.getDatabase(applicationContext)
+            val memoDao = db.memoDao()
+            val userStyleDao = db.userStyleDao()
+            val dailyEntryDao = db.dailyEntryDao()
+            val weekSummaryDao = db.weekSummaryDao()
+
+            // testCode
+            /*
+            memoDao.clearAll()
+            userStyleDao.clearAll()
+            dailyEntryDao.clearAll()
+            weekSummaryDao.clearAll()
+            testEntityInsert(true, true, true, false)
+            */
+
+            // 2. edited, deleted 객체 가져오기 (memo, userStyle, dailyEntry, weekSummary)
+            // 2-1. Memo
+            val deletedMemoIds =  memoDao.getDeletedMemos().map { it.id }
+            val editedMemos = memoDao.getEditedMemos()
+            // 2-2. Style
+            val deletedStyleIds = userStyleDao.getDeletedStyles().map { it.styleId }
+            val editedStyles = userStyleDao.getEditedStyles()
+            // 2-3. Entry
+            val deletedEntryDates = dailyEntryDao.getDeletedEntries().map { it.date }
+            val editedEntries = dailyEntryDao.getEditedEntries()
+            // 2-4. Summary
+            val deletedSummaryStartDates = weekSummaryDao.getDeletedSummaries().map { it.startDate }
+            val editedSummaryEntities = weekSummaryDao.getEditedSummaries()
+            val editedSummaries = editedSummaryEntities.map {it.weekSummary}
+
+
+            // 3. 서버에 요청하기
+            val syncRequest : SyncRequest = buildSyncRequest(deletedMemoIds, deletedStyleIds, deletedEntryDates, deletedSummaryStartDates,
+                editedMemos, editedStyles, editedEntries, editedSummaries)
+            val syncResponseBody = ApiClient.api.syncData(tokenHeader,syncRequest).body()
+
+            // 4-1. 성공 -> flag 해제
+            if (syncResponseBody != null && syncResponseBody.status == "success"){
+                val editedMemoIds = editedMemos.map { it.id }
+                val editedStyleIds = editedStyles.map { it.styleId }
+                val editedEntryDates = editedEntries.map { it.date }
+                val editedSummaryStartDates = editedSummaries.map { it.startDate }
+
+                memoDao.resetDeletedFlags(deletedMemoIds)
+                memoDao.resetEditedFlags(editedMemoIds)
+                userStyleDao.resetDeletedFlags(deletedStyleIds)
+                userStyleDao.resetEditedFlags(editedStyleIds)
+                dailyEntryDao.resetDeletedFlags(deletedEntryDates)
+                dailyEntryDao.resetEditedFlags(editedEntryDates)
+                weekSummaryDao.resetDeletedFlags(deletedSummaryStartDates)
+                weekSummaryDao.resetEditedFlags(editedSummaryStartDates)
+
+                // test code
+                /* 0. testCode
+                memoDao.clearAll()
+                userStyleDao.clearAll()
+                dailyEntryDao.clearAll()
+                weekSummaryDao.clearAll()
+                */
+                ///
+
+                return@withContext Result.success()
+            }
+            // 4-2. 실패
+            else {
+                val serverFailData = workDataOf(
+                    "type" to "server_error",
+                    "message" to (syncResponseBody?.message ?: "서버 응답 없음")
+                )
+                return@withContext Result.failure(serverFailData)
+            }
+        } catch (e: Exception) {
+            val exceptionData = workDataOf(
+                "type" to "exception",
+                "message" to (e.message ?: "알 수 없는 오류")
+            )
+            return@withContext Result.failure(exceptionData)
+        }
+    }
+
+    private fun logTest(syncRequest: SyncRequest) {
+        val gson = GsonBuilder().setPrettyPrinting().create()
+        val json = gson.toJson(syncRequest)
+        Log.d("SyncRequest", json)
+    }
+
+    private suspend fun testEntityInsert(memo : Boolean, userStyle : Boolean, dailyEntry: Boolean, weekSummary: Boolean) {
+        // test code
+        val db = AppDatabase.getDatabase(applicationContext)
+        if (memo) {
+            val exampleMemo = com.example.sumdays.daily.memo.Memo(
+                date = "2025-11-19",
+                order = 3,
+                content = "테스트 메모 - 백업 검증용",
+                timestamp = "21:33"
+            )
+            db.memoDao().insert(exampleMemo)
+        }
+        if (dailyEntry) {
+            val exampleEntry = com.example.sumdays.data.DailyEntry(
+                date = "2025-11-14",
+                diary = "오늘은 Room 백업 기능을 테스트했다.",
+                keywords = "테스트;백업;Room",
+                aiComment = "테스트용으로 삽입된 일기입니다.",
+                emotionScore = 0.87,
+                emotionIcon = "😊",
+                themeIcon = "🌙",
+                isEdited = true,
+                isDeleted = false
+            )
+            db.dailyEntryDao().updateEntry(
+                date = exampleEntry.date,
+                diary = exampleEntry.diary,
+                keywords = exampleEntry.keywords,
+                aiComment = exampleEntry.aiComment,
+                emotionScore = exampleEntry.emotionScore,
+                emotionIcon = exampleEntry.emotionIcon,
+                themeIcon = exampleEntry.themeIcon
+            )
+        }
+        if (weekSummary) {
+            val exampleSummary = WeekSummary(
+                startDate = "2025-11-03",
+                endDate = "2025-11-09",
+                diaryCount = 5,
+                emotionAnalysis = com.example.sumdays.statistics.EmotionAnalysis(
+                    distribution = mapOf("positive" to 3, "neutral" to 1, "negative" to 1),
+                    dominantEmoji = "😄",
+                    emotionScore = 0.78f,
+                    trend = "increasing"
+                ),
+                highlights = listOf(
+                    com.example.sumdays.statistics.Highlight(
+                        date = "2025-11-05",
+                        summary = "긍정적인 감정이 지속된 한 주였다."
+                    ),
+                    com.example.sumdays.statistics.Highlight(
+                        date = "2025-11-07",
+                        summary = "테스트 데이터를 기반으로 주간 요약을 생성했다."
+                    )
+                ),
+                insights = com.example.sumdays.statistics.Insights(
+                    advice = "감정의 흐름을 잘 유지해 보세요.",
+                    emotionCycle = "감정 변동이 완화되는 경향"
+                ),
+                summary = com.example.sumdays.statistics.SummaryDetails(
+                    emergingTopics = listOf("테스트", "백업", "RoomDB"),
+                    overview = "테스트 주간의 주요 활동을 정리함.",
+                    title = "테스트 주간 요약"
+                )
+            )
+            db.weekSummaryDao().upsert(exampleSummary)
+        }
+        if (userStyle) {
+            val exampleUserStyle = UserStyle(
+                styleName = "시니컬 스타일",
+                styleVector = listOf(0.12f, -0.03f, 0.88f, 0.45f),
+                styleExamples = listOf(
+                    "세상일 다 그런 거지.",
+                    "기대하지 않으면 실망도 없지.",
+                    "어차피 다 똑같잖아."
+                ),
+                stylePrompt = StylePrompt(
+                    common_phrases = listOf("그런 거지", "어차피", "그래봤자"),
+                    emotional_tone = "냉소적이고 거리감 있는",
+                    formality = "비격식체",
+                    irony_or_sarcasm = "자주 사용함",
+                    lexical_choice = "일상적 단어, 약간의 비꼼 포함",
+                    pacing = "느릿하고 여유로운 리듬",
+                    sentence_endings = listOf("지", "잖아", "거지"),
+                    sentence_length = "짧은 문장이 많음",
+                    sentence_structure = "단문 위주, 간결함",
+                    slang_or_dialect = "일부 구어체 사용",
+                    tone = "시니컬함과 무심함이 섞인 어조"
+                ),
+            )
+            db.userStyleDao().insertStyle(exampleUserStyle)
+        }
+    }
+}

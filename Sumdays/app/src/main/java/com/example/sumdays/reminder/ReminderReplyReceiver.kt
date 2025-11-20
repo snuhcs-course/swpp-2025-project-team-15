@@ -18,7 +18,7 @@ import java.util.Calendar
 import java.util.Locale
 
 import android.util.Log
-import com.example.sumdays.daily.memo.MemoDatabase
+import com.example.sumdays.data.AppDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -84,7 +84,7 @@ class ReminderReplyReceiver : BroadcastReceiver() {
     }
     private fun addMemo(context: Context, memoText : String) {
 
-        val db = MemoDatabase.getDatabase(context)
+        val db = AppDatabase .getDatabase(context)
         val memoDao = db.memoDao()
         val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Calendar.getInstance().time)
         val date = LocalDate.now().toString()

@@ -25,6 +25,34 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageButton
+        android:id="@+id/init_btn"
+        android:src="@drawable/ic_stats"
+        android:background="@android:color/transparent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="70dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="데이터 초기화" />
+
+    <ImageButton
+        android:id="@+id/update_btn"
+        android:src="@drawable/ic_sync"
+        android:background="@android:color/transparent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="데이터 동기화" />
+
+
+
+
+
     <LinearLayout
         android:id="@+id/month_header"
         android:layout_width="match_parent"

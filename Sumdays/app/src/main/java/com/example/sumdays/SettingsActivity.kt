@@ -2,6 +2,8 @@ package com.example.sumdays
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sumdays.databinding.ActivitySettingsMainBinding
 import com.example.sumdays.settings.AccountSettingsActivity
@@ -10,16 +12,24 @@ import com.example.sumdays.settings.NotificationSettingsActivity
 import com.example.sumdays.settings.prefs.UserStatsPrefs
 import org.threeten.bp.LocalDate
 import androidx.lifecycle.ViewModelProvider
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import kotlinx.coroutines.*
 import com.example.sumdays.auth.SessionManager
 import com.example.sumdays.LoginActivity
+import com.example.sumdays.data.sync.BackupScheduler
+import com.example.sumdays.data.sync.InitialSyncWorker
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsMainBinding
     private lateinit var viewModel: DailyEntryViewModel
     private lateinit var userStatsPrefs: UserStatsPrefs
+
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -155,6 +165,17 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.accountBlock.setOnClickListener {
             startActivity(Intent(this@SettingsActivity, AccountSettingsActivity::class.java))
+        }
+
+        backupBtn.setOnClickListener {
+            BackupScheduler.triggerManualBackup()
+            Toast.makeText(this@SettingsActivity, "수동 백업을 시작합니다", Toast.LENGTH_SHORT).show()
+        }
+
+        initBtn.setOnClickListener {
+            val request = OneTimeWorkRequestBuilder<InitialSyncWorker>().build()
+            WorkManager.getInstance(applicationContext).enqueue(request)
+            Toast.makeText(this@SettingsActivity, "초기화 동기화를 시작합니다", Toast.LENGTH_SHORT).show()
         }
     }
 }

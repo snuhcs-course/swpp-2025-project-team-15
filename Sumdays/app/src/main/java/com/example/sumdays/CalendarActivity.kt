@@ -73,24 +73,11 @@ class CalendarActivity : AppCompatActivity() {
 
     private fun setStatisticBtnListener() {
         val btnStats = findViewById<ImageButton>(R.id.statistic_btn)
-        val btnUpdate = findViewById<ImageButton>(R.id.update_btn)
-        val btnInit = findViewById<ImageButton>(R.id.init_btn)
+
         btnStats.setOnClickListener {
             val intent = Intent(this, StatisticsActivity::class.java)
             startActivity(intent)
             overridePendingTransition(0, 0)
-        }
-        btnUpdate.setOnClickListener {
-            // 서버 db로 update
-
-            val token = SessionManager.getToken()
-            // Log.d("testtest","${token}")
-            BackupScheduler.triggerManualBackup()
-            Toast.makeText(this, "수동 백업을 시작합니다", Toast.LENGTH_SHORT).show()
-        }
-        btnInit.setOnClickListener {
-            val request = OneTimeWorkRequestBuilder<InitialSyncWorker>().build()
-            WorkManager.getInstance(applicationContext).enqueue(request)
         }
     }
 

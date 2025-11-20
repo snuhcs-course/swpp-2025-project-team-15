@@ -12,7 +12,7 @@ const db = require('../db/db');
 exports.login = async (req, res) => {
     const { email, password } = req.body;
 
-    console.log(`[로그인 시도] 이메일: ${email}`);
+    // console.log(`[로그인 시도] 이메일: ${email}`);
 
     // 입력 값 유효성 검사
     if (!email || !password) {
@@ -30,7 +30,7 @@ exports.login = async (req, res) => {
         // no exist 
         if (!user) {
             // 사용자가 존재하지 않는 경우
-            console.log(`[로그인 실패] 존재하지 않는 이메일: ${email}`);
+            // console.log(`[로그인 실패] 존재하지 않는 이메일: ${email}`);
             // 보안을 위해 "이메일이 없음" 대신 "정보가 일치하지 않음"으로 응답합니다.
             return res.status(401).json({
                 success: false,
@@ -43,7 +43,7 @@ exports.login = async (req, res) => {
 
         if (isPasswordMatch) {
             // 비밀번호 일치 (로그인 성공)
-            console.log(`[로그인 성공] 사용자 ID: ${user.id}`);
+            // console.log(`[로그인 성공] 사용자 ID: ${user.id}`);
 
             // JWT 페이로드(Payload) 생성
             const payload = {
@@ -64,7 +64,7 @@ exports.login = async (req, res) => {
 
         } else {
             // 비밀번호 불일치
-            console.log(`[로그인 실패] 비밀번호 불일치: ${email}, ${password}, ${user.password_hash}`);
+            // console.log(`[로그인 실패] 비밀번호 불일치: ${email}, ${password}, ${user.password_hash}`);
             return res.status(401).json({
                 success: false,
                 message: '이메일 또는 비밀번호가 올바르지 않습니다.'
@@ -72,7 +72,7 @@ exports.login = async (req, res) => {
         }
 
     } catch (error) {
-        console.error('[서버 오류] 로그인 처리 중 에러 발생:', error);
+        // console.error('[서버 오류] 로그인 처리 중 에러 발생:', error);
         res.status(500).json({
             success: false,
             message: '서버 내부 오류가 발생했습니다.'
@@ -83,7 +83,7 @@ exports.login = async (req, res) => {
 // ★★★ POST /api/signup: 회원가입 요청을 처리하는 엔드포인트 추가 ★★★
 exports.signup = async (req, res) => {
     const { nickname, email, password } = req.body;
-    console.log(`[회원가입 시도] 이메일: ${email}`);
+    // console.log(`[회원가입 시도] 이메일: ${email}`);
 
     // 1. 입력 값 유효성 검사
     if (!nickname || !email || !password) {
@@ -104,11 +104,11 @@ exports.signup = async (req, res) => {
         const sql = 'INSERT INTO users (nickname, email, password_hash) VALUES (?, ?, ?)';
         await db.query(sql, [nickname, email, hashedPassword]);
 
-        console.log(`[회원가입 성공] 이메일: ${email}`);
+        // console.log(`[회원가입 성공] 이메일: ${email}`);
         res.status(201).json({ success: true, message: '회원가입이 성공적으로 완료되었습니다.' });
 
     } catch (error) {
-        console.error('[서버 오류] 회원가입 처리 중 에러 발생:', error);
+        // console.error('[서버 오류] 회원가입 처리 중 에러 발생:', error);
         res.status(500).json({ success: false, message: '서버 내부 오류가 발생했습니다.' });
     } 
 };

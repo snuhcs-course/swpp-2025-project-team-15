@@ -7,6 +7,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import android.content.Intent
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -20,6 +21,7 @@ import com.example.sumdays.settings.prefs.UserStatsPrefs
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.network.LoginRequest
 import com.example.sumdays.network.LoginResponse
+import com.example.sumdays.utils.setupEdgeToEdge
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -41,6 +43,7 @@ class LoginActivity : AppCompatActivity() {
         userStatsPrefs = UserStatsPrefs(this)
 
         setupListeners()
+
     }
 
     private fun setupListeners() {

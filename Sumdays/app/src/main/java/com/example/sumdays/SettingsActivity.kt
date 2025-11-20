@@ -2,6 +2,7 @@ package com.example.sumdays
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +21,7 @@ import com.example.sumdays.auth.SessionManager
 import com.example.sumdays.LoginActivity
 import com.example.sumdays.data.sync.BackupScheduler
 import com.example.sumdays.data.sync.InitialSyncWorker
+import com.example.sumdays.utils.setupEdgeToEdge
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -56,6 +58,10 @@ class SettingsActivity : AppCompatActivity() {
 
         setSettingsBtnListener()
         setNavigationBtnListener()
+
+        // 상태바, 네비게이션바 같은 색으로
+        val rootView = findViewById<View>(R.id.setting_main_root)
+        setupEdgeToEdge(rootView)
     }
 
 //    private fun calculateAndDisplayStreak() {

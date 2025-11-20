@@ -26,6 +26,7 @@ import com.example.sumdays.data.AppDatabase
 import com.example.sumdays.data.dao.UserStyleDao
 import com.example.sumdays.settings.prefs.UserStatsPrefs
 import com.bumptech.glide.Glide
+import com.example.sumdays.utils.setupEdgeToEdge
 
 class DailySumActivity : AppCompatActivity() {
 
@@ -101,6 +102,10 @@ class DailySumActivity : AppCompatActivity() {
         )
         recyclerView.itemAnimator = null // streaming시 메모 깜빡임 방지
         recyclerView.adapter = memoMergeAdapter
+
+        // 상태바, 네비게이션바 같은 색으로
+        val rootView = findViewById<View>(R.id.sum_layout)
+        setupEdgeToEdge(rootView)
     }
 
     private fun showLoading(isLoading: Boolean) {

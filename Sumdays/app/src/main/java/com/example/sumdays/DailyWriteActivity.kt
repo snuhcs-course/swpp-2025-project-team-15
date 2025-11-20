@@ -44,6 +44,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
+import com.example.sumdays.utils.setupEdgeToEdge
 
 // 일기 작성 및 수정 화면을 담당하는 액티비티
 class DailyWriteActivity : AppCompatActivity() {
@@ -119,6 +120,10 @@ class DailyWriteActivity : AppCompatActivity() {
 
         // 하단 네비게이션 바 설정
         setupNavigationBar()
+
+        // 상태바, 네비게이션 같은 색
+        val rootView = findViewById<View>(R.id.write)
+        setupEdgeToEdge(rootView)
     }
 
     // ★★★ ImageOcrHelper 관련 함수/변수 전체 삭제 ★★★

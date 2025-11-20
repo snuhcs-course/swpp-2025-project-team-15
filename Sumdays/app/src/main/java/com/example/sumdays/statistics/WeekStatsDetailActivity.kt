@@ -14,6 +14,7 @@ import com.example.sumdays.DailyWriteActivity
 import com.example.sumdays.R
 import com.example.sumdays.SettingsActivity
 import com.example.sumdays.databinding.ActivityWeekStatsDetailBinding // View Binding 사용 가정
+import com.example.sumdays.utils.setupEdgeToEdge
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -46,6 +47,10 @@ class WeekStatsDetailActivity : AppCompatActivity() {
 
         setupViews()
         setupListeners()
+
+        // 상태바, 네비게이션 같은 색
+        val rootView = findViewById<View>(R.id.main_detail)
+        setupEdgeToEdge(rootView)
     }
 
     private fun setupViews() {

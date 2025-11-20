@@ -57,17 +57,26 @@ interface UserStyleDao {
     @Query("UPDATE user_style SET isEdited = 0, isDeleted = 0 WHERE styleId IN (:ids)")
     suspend fun resetEditedFlags(ids: List<Long>)
 
-    // 수정해야함
-    // 6. 스타일 수정
-    // 6. 스타일 수정
     @Update
-    suspend fun updateStyle(style: UserStyle)
+    suspend fun updateStyleRaw(style: UserStyle)
 
+    suspend fun updateStyle(style: UserStyle) {
+        updateStyleRaw(
+            style.copy(
+                isEdited = true,      // 수정됨 표시
+                isDeleted = false     // 수정하는 순간에는 살아있는 스타일로 간주
+            )
+        )
+    }
     // 7. 모든 스타일 이름 조회 (자동 이름 증가에 필요)
-    @Query("SELECT styleName FROM user_style")
+    @Query("SELECT styleName FROM user_style WHERE isDeleted = 0")
     suspend fun getAllStyleNames(): List<String>
 
     // 8. 샘플 다이어리 조회
-    @Query("UPDATE user_style SET sampleDiary = :diary WHERE styleId = :id")
+    @Query("""
+        UPDATE user_style 
+        SET sampleDiary = :diary, isEdited = 1 
+        WHERE styleId = :id AND isDeleted = 0
+    """)
     suspend fun updateSampleDiary(id: Long, diary: String)
 }

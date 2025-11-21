@@ -24,6 +24,7 @@ import com.example.sumdays.data.DailyEntry
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import com.example.sumdays.daily.diary.AnalysisRepository
 import com.example.sumdays.databinding.ActivityDailyReadBinding
+import com.example.sumdays.utils.setupEdgeToEdge
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 // import java.time.LocalDate // (LocalDate 사용 부분 삭제됨)
@@ -56,6 +57,10 @@ class DailyReadActivity : AppCompatActivity() {
         // setupPhotoGallery() // 삭제
         setupClickListeners()
         observeEntry() // currentDate가 초기화된 후 호출
+
+        // 상태바, 네비게이션 같은 색
+        val rootView = findViewById<View>(R.id.main)
+        setupEdgeToEdge(rootView)
     }
 
     private fun setupNavigationBar() {

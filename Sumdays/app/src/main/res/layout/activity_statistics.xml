@@ -6,6 +6,23 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
+    <ImageView
+        android:id="@+id/statistics_background_1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/statistics_background_morning"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"/>
+
+    <ImageView
+        android:id="@+id/statistics_background_2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/statistics_background_evening"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
+        android:alpha="0"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:clipChildren="false"

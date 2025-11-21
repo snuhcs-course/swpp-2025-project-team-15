@@ -23,11 +23,20 @@ class StatisticsActivity : AppCompatActivity() {
     private lateinit var treeDrawable: TreeTiledDrawable
     private var totalScrollY = 0
 
+    private var maxScrollForTransition = 10000f  // 어느 정도 스크롤하면 완전히 bg2로 변할지
+
+    private var backgroundList = mutableListOf<Int>(
+        R.drawable.statistics_background_morning,
+        R.drawable.statistics_background_evening)
+
     private lateinit var adapter: LeafAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_statistics)
+
+        val bg1 = findViewById<ImageView>(R.id.statistics_background_1)
+        val bg2 = findViewById<ImageView>(R.id.statistics_background_2)
 
         recyclerView = findViewById(R.id.recyclerView)
 
@@ -55,7 +64,17 @@ class StatisticsActivity : AppCompatActivity() {
         // 4) 스크롤 리스너: 위로 갈수록 prepend로 확장
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
-                totalScrollY += dy
+                totalScrollY += -dy
+
+                if (totalScrollY < 0) totalScrollY = 0
+                if (totalScrollY > maxScrollForTransition) totalScrollY = maxScrollForTransition.toInt()
+                // 0 ~ maxScrollForTransition 범위로 clamp
+                val t = (totalScrollY / maxScrollForTransition).coerceIn(0f, 1f)
+
+                // 배경 알파 조절
+                bg1.alpha = 1f - t   // 점점 사라짐
+                bg2.alpha = t        // 점점 나타남
+
                 treeDrawable.setScroll(totalScrollY.toFloat(), rv.width)
                 maybePrependMore()
             }
@@ -92,7 +111,7 @@ class StatisticsActivity : AppCompatActivity() {
         private val items = mutableListOf<LeafItem>()
         private var nextIndex: Int
 
-        private var currentWeeklyStatsNumber: Int = 20
+        private var currentWeeklyStatsNumber: Int = 30
         private var maxLeafIndex: Int
 
         init {
@@ -137,14 +156,24 @@ class StatisticsActivity : AppCompatActivity() {
 
             val leafLP = holder.buttonWeeklyStats.layoutParams as FrameLayout.LayoutParams
 
+            val foxLP = holder.foxOnBranchImage.layoutParams as FrameLayout.LayoutParams
+
             val isLeft = (leafIndex % 2 == 0)
 
             val isGrapeRow = (leafIndex % 5 == 0)
 
             val isOnlyBranch = (leafIndex > currentWeeklyStatsNumber)
 
+            if (leafIndex == currentWeeklyStatsNumber){
+                holder.foxOnBranchImage.visibility = View.VISIBLE
+            }
+            else {
+                holder.foxOnBranchImage.visibility = View.GONE
+            }
+
             if (isLeft) {
                 leafLP.gravity = Gravity.START
+                foxLP.gravity = Gravity.START
                 if (isOnlyBranch){
                     holder.buttonWeeklyStats.setImageResource(R.drawable.branch_left)
                     holder.buttonWeeklyStats.isEnabled = false
@@ -160,6 +189,7 @@ class StatisticsActivity : AppCompatActivity() {
             }
             else {
                 leafLP.gravity = Gravity.END
+                foxLP.gravity = Gravity.END
                 if (isOnlyBranch){
                     holder.buttonWeeklyStats.setImageResource(R.drawable.branch_right)
                     holder.buttonWeeklyStats.isEnabled = false
@@ -180,6 +210,7 @@ class StatisticsActivity : AppCompatActivity() {
 
         class VH(view: View) : RecyclerView.ViewHolder(view) {
             val buttonWeeklyStats: ImageButton = view.findViewById(R.id.btnWeeklyStats)
+            val foxOnBranchImage: ImageView = view.findViewById(R.id.fox_on_branch)
 
             fun dp(v: Int): Int =
                 (itemView.resources.displayMetrics.density * v + 0.5f).toInt()

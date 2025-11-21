@@ -15,4 +15,12 @@
         android:src="@drawable/leaf_right"
         />
 
+    <ImageView
+        android:id="@+id/fox_on_branch"
+        android:layout_width="120dp"
+        android:layout_height="100dp"
+        android:src="@drawable/fox_on_branch"
+        android:translationY="-70dp"/>
+
+
 </FrameLayout>

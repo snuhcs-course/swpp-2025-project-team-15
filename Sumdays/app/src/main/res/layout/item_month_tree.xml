@@ -21,7 +21,7 @@
         android:contentDescription="포도 빛 효과" />
 
     <View
-        android:id="@+id/statistics_background"
+        android:id="@+id/statistics_background_1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/statistics_background" />

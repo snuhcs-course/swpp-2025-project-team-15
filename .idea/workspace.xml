@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0e1f41c8-f7db-4c93-abfb-5cdd3d2f2f7c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/swpp-2025-project-team-15.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/swpp-2025-project-team-15.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sumdays/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Sumdays/.idea/deploymentTargetSelector.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sumdays/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Sumdays/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sumdays/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Sumdays/.idea/misc.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,9 +20,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "kimon2002"
+  }
 }]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/snuhcs-course/swpp-2025-project-team-15.git",
+    "accountId": "27988a0f-4dc9-4f8e-9937-a8ccf544c4cf"
+  }
+}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="35aIrkn4HKqZchCKphUTCuDDvk4" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -35,7 +49,7 @@
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "featrue/room-unify",
+    "git-widget-placeholder": "main",
     "last_opened_file_path": "C:/Users/Aliosoft/swpp-2025-project-team-15"
   }
 }]]></component>

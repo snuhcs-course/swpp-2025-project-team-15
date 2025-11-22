@@ -455,6 +455,8 @@ class StatisticsActivity : AppCompatActivity() {
             if (isLeft) {
                 leafLP.gravity = Gravity.START
                 foxLP.gravity = Gravity.START
+                indexLP.gravity = Gravity.START
+                dateLP.gravity = Gravity.START
                 if (isOnlyBranch){
                     holder.buttonWeeklyStats.setImageResource(R.drawable.branch_left)
                     holder.buttonWeeklyStats.isEnabled = false
@@ -485,6 +487,8 @@ class StatisticsActivity : AppCompatActivity() {
             else { // isRight
                 leafLP.gravity = Gravity.END
                 foxLP.gravity = Gravity.END
+                indexLP.gravity = Gravity.END
+                dateLP.gravity = Gravity.END
                 if (isOnlyBranch){
                     holder.buttonWeeklyStats.setImageResource(R.drawable.branch_right)
                     holder.buttonWeeklyStats.isEnabled = false
@@ -496,20 +500,20 @@ class StatisticsActivity : AppCompatActivity() {
                     holder.buttonWeeklyStats.isEnabled = true
 
                     indexLP.topMargin = holder.dp(48)
-                    indexLP.leftMargin = holder.dp(315)
+                    indexLP.rightMargin = holder.dp(50)
 
                     dateLP.topMargin = holder.dp(100)
-                    dateLP.leftMargin = holder.dp(280)
+                    dateLP.rightMargin = holder.dp(40)
                 }
                 else {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_right)
                     holder.buttonWeeklyStats.isEnabled = true
 
                     indexLP.topMargin = holder.dp(16)
-                    indexLP.leftMargin = holder.dp(300)
+                    indexLP.rightMargin = holder.dp(75)
 
                     dateLP.topMargin = holder.dp(65)
-                    dateLP.leftMargin = holder.dp(280)
+                    dateLP.rightMargin = holder.dp(40)
                 }
             }
             holder.buttonWeeklyStats.layoutParams = leafLP

@@ -106,6 +106,17 @@ class StatisticsActivity : AppCompatActivity() {
             }
         })
 
+        val itemHeightPx =
+            (resources.displayMetrics.density * 160 + 0.5f).toInt()
+
+        val scrollDistanceY = (dummyCount-2) * itemHeightPx
+
+        // Activity가 뷰 초기화를 마친 후 스크롤을 실행하도록 post를 사용합니다.
+        recyclerView.post {
+            // 애니메이션 없이 가장 최신 데이터 위치(포지션 10)로 이동
+            recyclerView.scrollBy(0, -scrollDistanceY)
+        }
+
         // 상태바, 네비게이션바 같은 색으로
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         setupEdgeToEdge(recyclerView)

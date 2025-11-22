@@ -28,7 +28,7 @@ data class WeekSummary(
 data class EmotionAnalysis(
     val distribution: Map<String, Int>, // 감정 분포 (positive, neutral, negative)
     val dominantEmoji: String,
-    val emotionScore: Double,
+    val emotionScore: Float,
     val trend: String? = null // 감정 추이 (increasing, decreasing)
 ): Parcelable
 

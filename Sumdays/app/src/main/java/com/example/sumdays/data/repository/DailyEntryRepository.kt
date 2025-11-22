@@ -20,6 +20,12 @@ class DailyEntryRepository (
         return dao.getEntry(date)
     }
 
+    // ⭐ 2-1. 일기 내용 조회 (Worker용 Suspend 반환)
+    // Flow가 아니라 String을 바로 반환하므로 Worker 루프 내에서 안전하게 사용 가능
+    suspend fun getEntrySnapshot(date: String): DailyEntry? {
+        return dao.getEntrySnapshot(date)
+    }
+
     // 3. 모든 작성 날짜 조회 (스케줄러/통계용)
     suspend fun getAllWrittenDates(): List<String> {
         return dao.getAllWrittenDates()
@@ -54,6 +60,11 @@ class DailyEntryRepository (
             emotionIcon = emotionIcon,
             themeIcon = themeIcon
         )
+    }
+
+    // ⭐ [추가] 기간 내 일기 조회 함수
+    suspend fun getEntriesBetween(startDate: String, endDate: String): List<DailyEntry> {
+        return dao.getEntriesBetween(startDate, endDate)
     }
 
     // 백업 관련 함수들 (필요 시 ViewModel에서 호출)

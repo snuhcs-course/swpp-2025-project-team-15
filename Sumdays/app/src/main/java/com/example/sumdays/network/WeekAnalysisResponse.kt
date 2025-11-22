@@ -1,5 +1,10 @@
 package com.example.sumdays.network
 
+import com.example.sumdays.statistics.EmotionAnalysis
+import com.example.sumdays.statistics.Highlight
+import com.example.sumdays.statistics.Insights
+import com.example.sumdays.statistics.SummaryDetails
+import com.example.sumdays.statistics.WeekSummary
 import com.google.gson.annotations.SerializedName
 
 data class WeekAnalysisResponse(
@@ -23,7 +28,19 @@ data class WeekAnalysisResult(
 
     @SerializedName("summary")
     val summary: NetworkSummaryDetails
-)
+){
+    fun toWeekSummary(startDate: String, endDate: String, diaryCount: Int): WeekSummary {
+        return WeekSummary(
+            startDate = startDate,
+            endDate = endDate,
+            diaryCount = diaryCount,
+            emotionAnalysis = this.emotionAnalysis.toDomain(),
+            highlights = this.highlights.map { it.toDomain() },
+            insights = this.insights.toDomain(),
+            summary = this.summary.toDomain()
+        )
+    }
+}
 
 // --- 하위 DTO 클래스들 ---
 
@@ -39,7 +56,9 @@ data class NetworkEmotionAnalysis(
 
     @SerializedName("trend")
     val trend: String? // "decreasing"
-)
+){
+    fun toDomain() = EmotionAnalysis(distribution, dominantEmoji, emotionScore, trend)
+}
 
 data class NetworkHighlight(
     @SerializedName("date")
@@ -47,7 +66,9 @@ data class NetworkHighlight(
 
     @SerializedName("summary")
     val summary: String
-)
+) {
+    fun toDomain() = Highlight(date, summary)
+}
 
 data class NetworkInsights(
     @SerializedName("advice")
@@ -55,7 +76,9 @@ data class NetworkInsights(
 
     @SerializedName("emotion_cycle")
     val emotionCycle: String
-)
+) {
+    fun toDomain() = Insights(advice, emotionCycle)
+}
 
 data class NetworkSummaryDetails(
     @SerializedName("emerging_topics")
@@ -66,4 +89,6 @@ data class NetworkSummaryDetails(
 
     @SerializedName("title")
     val title: String
-)
+) {
+    fun toDomain() = SummaryDetails(emergingTopics, overview, title)
+}

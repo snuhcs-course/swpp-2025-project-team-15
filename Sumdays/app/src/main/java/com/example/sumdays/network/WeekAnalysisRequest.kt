@@ -12,7 +12,7 @@ data class DiaryItem(
     val date: String,          // "2025-10-13"
 
     @SerializedName("diary")
-    val diary: String,         // 일기 본문
+    val diary: String?,         // 일기 본문
 
     @SerializedName("emoji")
     val emoji: String?,        // "📚" (nullable 가능성 대비)

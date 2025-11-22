@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -12,6 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sumdays.R
 import com.example.sumdays.databinding.ActivityWeekStatsDetailBinding
+import com.example.sumdays.utils.setupEdgeToEdge
 import org.threeten.bp.DayOfWeek
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
@@ -45,6 +47,10 @@ class WeekStatsDetailActivity : AppCompatActivity() {
 
         setupListeners()
         setupReportViews()
+
+        // 상태바, 네비게이션바 같은 색으로
+        val rootView = findViewById<View>(R.id.main_detail)
+        setupEdgeToEdge(rootView)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -25,8 +25,16 @@ import com.example.sumdays.statistics.WeekSummary
 import com.example.sumdays.ui.TreeTiledDrawable
 import com.example.sumdays.utils.setupEdgeToEdge
 import android.content.Context
+import androidx.lifecycle.ViewModelProvider
+import com.example.sumdays.data.viewModel.DailyEntryViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.threeten.bp.LocalDate
 
 class StatisticsActivity : AppCompatActivity() {
+    private lateinit var viewModel: DailyEntryViewModel
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var lm: LinearLayoutManager
@@ -34,6 +42,10 @@ class StatisticsActivity : AppCompatActivity() {
     // ⭐ 버튼 변수 추가
     private lateinit var btnMoveToLatestLeaf: ImageButton
     private lateinit var btnMoveToBottom: ImageButton
+    private lateinit var tvStrikeCount: TextView
+    private lateinit var tvLeafCount: TextView
+    private lateinit var tvGrapeCount: TextView
+    private lateinit var btnBack: ImageButton
 
     private var bgScrollY = 0f      // 배경 전환용
     private var treeScrollY = 0f    // 나무 줄기 타일용
@@ -60,6 +72,7 @@ class StatisticsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_statistics)
+        viewModel = ViewModelProvider(this).get(DailyEntryViewModel::class.java)
 
         val bg1 = findViewById<ImageView>(R.id.statistics_background_1)
         val bg2 = findViewById<ImageView>(R.id.statistics_background_2)
@@ -105,6 +118,8 @@ class StatisticsActivity : AppCompatActivity() {
         )
         recyclerView.background = treeDrawable
 
+        initHeaderViews()
+
         // 4) 스크롤 리스너: 위로 갈수록 prepend로 확장
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
@@ -142,6 +157,84 @@ class StatisticsActivity : AppCompatActivity() {
                 recyclerView.scrollBy(0, itemHeightPx * (dummyCount+10))
             }
         }
+    }
+
+    private fun initHeaderViews() {
+        // 뷰 참조
+        btnBack = findViewById(R.id.btn_back)
+        tvStrikeCount = findViewById(R.id.tv_strike_count)
+        tvLeafCount = findViewById(R.id.tv_leaf_count)
+        tvGrapeCount = findViewById(R.id.tv_grape_count)
+
+        // 1. 뒤로 가기 버튼 기능
+        btnBack.setOnClickListener {
+            finish()
+        }
+
+        // 2. ⭐ 지표 계산 및 표시
+        updateStatisticsHeader()
+    }
+
+    private fun updateStatisticsHeader() {
+
+        // 1. 연속 일기 작성 횟수 (스트라이크) - 임시 값
+        calculateAndDisplayStreak()
+
+        // 2. 나뭇잎(주간 요약) 개수
+        val leafCount = weekSummaries.size // 전체 생성된 주간 요약 개수
+
+        // 3. 포도 개수
+        val grapeCount = leafCount/5
+
+        // UI 업데이트
+        tvLeafCount.text = "🍃: ${leafCount}" // 60개 이상
+        tvGrapeCount.text = "🍇: ${grapeCount}"
+    }
+
+        private fun calculateAndDisplayStreak() {
+        // CoroutineScope를 사용하여 백그라운드 (IO 스레드)에서 DB 접근 및 계산 수행
+        CoroutineScope(Dispatchers.IO).launch {
+
+            // 1. Room에서 모든 작성 날짜(String)를 가져옵니다.
+            val allDates = viewModel.getAllWrittenDates()
+
+            // 2. Strike 횟수를 계산합니다.
+            val streak = calculateCurrentStreak(allDates) // 아래 정의할 계산 함수 호출
+
+            // 4. Main 스레드에서 UI 업데이트 (선택 사항: 계산된 값을 화면에 바로 반영)
+            withContext(Dispatchers.Main) {
+                tvStrikeCount.text = "🔥: ${streak}"
+            }
+        }
+    }
+
+        fun calculateCurrentStreak(dates: List<String>): Int {
+        if (dates.isEmpty()) return 0
+
+        // 날짜 문자열을 LocalDate 객체로 변환하고 중복 제거, 내림차순 정렬
+        val uniqueDates = dates.toSet()
+            .map { LocalDate.parse(it) }
+            .sortedDescending()
+
+        var currentStreak = 0
+        var currentDate = LocalDate.now()
+        var isTodayWritten = uniqueDates.any { it.isEqual(currentDate) }
+
+        // 1. 오늘 날짜부터 시작하여 연속성 검사
+        while (true) {
+            if (uniqueDates.contains(currentDate)) {
+                currentStreak++
+            } else if (!isTodayWritten && currentDate.isEqual(LocalDate.now())) {
+                // 오늘 날짜이고, 오늘 일기가 작성되지 않았다면 스킵하고 어제로 이동
+                // (이 로직은 사실상 uniqueDates.contains(currentDate)에서 처리됨)
+            } else {
+                // 연속성이 끊어지면 종료
+                break
+            }
+            currentDate = currentDate.minusDays(1) // 이전 날짜로 이동
+        }
+
+        return currentStreak
     }
 
     private fun handleScrollForBackground(bg1: ImageView, bg2: ImageView, dy: Int, rvWidth: Int) {

@@ -24,6 +24,7 @@ import com.example.sumdays.statistics.WeekStatsDetailActivity
 import com.example.sumdays.statistics.WeekSummary
 import com.example.sumdays.ui.TreeTiledDrawable
 import com.example.sumdays.utils.setupEdgeToEdge
+import android.content.Context
 
 class StatisticsActivity : AppCompatActivity() {
 
@@ -335,6 +336,18 @@ class StatisticsActivity : AppCompatActivity() {
             val isLeft = (leafIndex % 2 == 0)
             val isGrapeRow = (leafIndex % 5 == 0)
 
+            // ⭐ 1. 인덱스 설정 (나뭇잎 위)
+            holder.leafIndexText.text = leafIndex.toString()
+
+            // ⭐ 2. 시작 날짜 설정 (데이터가 있을 때만 표시)
+            if (hasData && weekSummary != null) {
+                holder.leafStartDateText.text = weekSummary.startDate
+                holder.leafStartDateText.visibility = View.VISIBLE
+            } else {
+                holder.leafStartDateText.text = ""
+                holder.leafStartDateText.visibility = View.GONE
+            }
+
             // 여우 마스코트는 가장 최신 데이터(index 1) 위에 배치
            if (leafIndex == currentStatsNumber) {
                 holder.foxOnBranchImage.visibility = View.VISIBLE
@@ -343,20 +356,37 @@ class StatisticsActivity : AppCompatActivity() {
                 holder.foxOnBranchImage.visibility = View.GONE
             }
 
+            val indexLP = holder.leafIndexText.layoutParams as FrameLayout.LayoutParams
+            val dateLP = holder.leafStartDateText.layoutParams as FrameLayout.LayoutParams
+
             if (isLeft) {
                 leafLP.gravity = Gravity.START
                 foxLP.gravity = Gravity.START
                 if (isOnlyBranch){
                     holder.buttonWeeklyStats.setImageResource(R.drawable.branch_left)
                     holder.buttonWeeklyStats.isEnabled = false
+                    holder.leafStartDateText.text = ""
+                    holder.leafIndexText.text = ""
                 }
                 else if (isGrapeRow) {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_left)
                     holder.buttonWeeklyStats.isEnabled = true
+
+                    indexLP.topMargin = holder.dp(48)
+                    indexLP.leftMargin = holder.dp(50)
+
+                    dateLP.topMargin = holder.dp(100)
+                    dateLP.leftMargin = holder.dp(40)
                 }
                 else {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_left)
                     holder.buttonWeeklyStats.isEnabled = true
+
+                    indexLP.topMargin = holder.dp(16)
+                    indexLP.leftMargin = holder.dp(75)
+
+                    dateLP.topMargin = holder.dp(65)
+                    dateLP.leftMargin = holder.dp(40)
                 }
             }
             else { // isRight
@@ -365,14 +395,28 @@ class StatisticsActivity : AppCompatActivity() {
                 if (isOnlyBranch){
                     holder.buttonWeeklyStats.setImageResource(R.drawable.branch_right)
                     holder.buttonWeeklyStats.isEnabled = false
+                    holder.leafStartDateText.text = ""
+                    holder.leafIndexText.text = ""
                 }
                 else if (isGrapeRow) {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_right)
                     holder.buttonWeeklyStats.isEnabled = true
+
+                    indexLP.topMargin = holder.dp(48)
+                    indexLP.leftMargin = holder.dp(315)
+
+                    dateLP.topMargin = holder.dp(100)
+                    dateLP.leftMargin = holder.dp(280)
                 }
                 else {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_right)
                     holder.buttonWeeklyStats.isEnabled = true
+
+                    indexLP.topMargin = holder.dp(16)
+                    indexLP.leftMargin = holder.dp(300)
+
+                    dateLP.topMargin = holder.dp(65)
+                    dateLP.leftMargin = holder.dp(280)
                 }
             }
             holder.buttonWeeklyStats.layoutParams = leafLP
@@ -399,6 +443,8 @@ class StatisticsActivity : AppCompatActivity() {
         class VH(view: View) : RecyclerView.ViewHolder(view) {
             val buttonWeeklyStats: ImageButton = view.findViewById(R.id.btnWeeklyStats)
             val foxOnBranchImage: ImageView = view.findViewById(R.id.fox_on_branch)
+            val leafIndexText: TextView = view.findViewById(R.id.text_leaf_index)
+            val leafStartDateText: TextView = view.findViewById(R.id.text_leaf_startdate)
 
             fun dp(v: Int): Int =
                 (itemView.resources.displayMetrics.density * v + 0.5f).toInt()

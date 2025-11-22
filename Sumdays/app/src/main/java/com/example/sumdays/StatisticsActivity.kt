@@ -22,13 +22,22 @@ class StatisticsActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var lm: LinearLayoutManager
     private lateinit var treeDrawable: TreeTiledDrawable
-    private var totalScrollY = 0
+    private var totalScrollY = 0f
 
-    private var maxScrollForTransition = 10000f  // 어느 정도 스크롤하면 완전히 bg2로 변할지
+    private var segmentScroll = 8000f  // 어느 정도 스크롤하면 완전히 bg2로 변할지
 
-    private var backgroundList = mutableListOf<Int>(
+    private var backgrounds = listOf<Int>(
         R.drawable.statistics_background_morning,
-        R.drawable.statistics_background_evening)
+        R.drawable.statistics_background_evening,
+        R.drawable.statistics_background_stratosphere,
+        R.drawable.statistics_background_space)
+
+    // 전체 스크롤 범위 = (배경 개수 - 1) * segmentScroll
+    private val maxScrollForTransition: Float
+        get() = segmentScroll * (backgrounds.size - 1)
+
+    // 현재 어떤 구간(배경 i ↔ i+1)을 쓰고 있는지
+    private var currentSegmentIndex: Int = -1
 
     private lateinit var adapter: LeafAdapter
 
@@ -38,6 +47,15 @@ class StatisticsActivity : AppCompatActivity() {
 
         val bg1 = findViewById<ImageView>(R.id.statistics_background_1)
         val bg2 = findViewById<ImageView>(R.id.statistics_background_2)
+
+        // 초기 배경은 리스트 첫 번째로
+        if (backgrounds.isNotEmpty()) {
+            bg1.setImageResource(backgrounds[0])
+            bg2.setImageResource(backgrounds.getOrNull(1) ?: backgrounds[0])
+            bg1.alpha = 1f
+            bg2.alpha = 0f
+            currentSegmentIndex = 0
+        }
 
         recyclerView = findViewById(R.id.recyclerView)
 
@@ -65,26 +83,55 @@ class StatisticsActivity : AppCompatActivity() {
         // 4) 스크롤 리스너: 위로 갈수록 prepend로 확장
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
-                totalScrollY += -dy
-
-                if (totalScrollY < 0) totalScrollY = 0
-                if (totalScrollY > maxScrollForTransition) totalScrollY = maxScrollForTransition.toInt()
-                // 0 ~ maxScrollForTransition 범위로 clamp
-                val t = (totalScrollY / maxScrollForTransition).coerceIn(0f, 1f)
-
-                // 배경 알파 조절
-                bg1.alpha = 1f - t   // 점점 사라짐
-                bg2.alpha = t        // 점점 나타남
-
-                treeDrawable.setScroll(totalScrollY.toFloat(), rv.width)
+                handleScrollForBackground(bg1, bg2, dy, rv.width)
                 maybePrependMore()
             }
         })
 
         // 상태바, 네비게이션바 같은 색으로
-        val rootView = findViewById<View>(R.id.statistics_root)
-        setupEdgeToEdge(rootView)
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        setupEdgeToEdge(recyclerView)
     }
+
+    private fun handleScrollForBackground(bg1: ImageView, bg2: ImageView, dy: Int, rvWidth: Int) {
+        // 위로 스크롤: dy < 0 → totalScrollY 증가
+        // 아래로 스크롤: dy > 0 → totalScrollY 감소
+        totalScrollY += -dy
+
+        // 0 ~ maxScrollForTransition 사이로 clamp
+        totalScrollY = totalScrollY.coerceIn(0f, maxScrollForTransition)
+
+        // 나무 줄기 스크롤은 그대로
+        treeDrawable.setScroll(-totalScrollY, rvWidth)
+
+        if (backgrounds.size <= 1) return  // 배경 하나면 전환할 게 없음
+
+        val progress = totalScrollY / segmentScroll      // 0 ~ (N-1)
+        val segmentIndex = progress.toInt().coerceIn(0, backgrounds.size - 2)
+        val localRawT = (progress - segmentIndex).coerceIn(0f, 1f)
+
+        if (segmentIndex != currentSegmentIndex) {
+            bg1.setImageResource(backgrounds[segmentIndex])
+            bg2.setImageResource(backgrounds[segmentIndex + 1])
+            currentSegmentIndex = segmentIndex
+        }
+
+        // 각 세그먼트 내에서만 "짧은 전환"
+        val transitionWidth = 0.2f
+        val start = 0.5f - transitionWidth / 2f
+        val end   = 0.5f + transitionWidth / 2f
+
+        val localSharpT = when {
+            localRawT <= start -> 0f
+            localRawT >= end   -> 1f
+            else -> (localRawT - start) / (end - start)
+        }
+
+        bg1.alpha = 1f - localSharpT
+        bg2.alpha = localSharpT
+
+    }
+
 
     /** 리스트 상단 가까이 오면 앞쪽으로 아이템을 붙여 위로 무한 확장 */
     private fun maybePrependMore() {
@@ -116,7 +163,7 @@ class StatisticsActivity : AppCompatActivity() {
         private val items = mutableListOf<LeafItem>()
         private var nextIndex: Int
 
-        private var currentWeeklyStatsNumber: Int = 30
+        private var currentWeeklyStatsNumber: Int = 60
         private var maxLeafIndex: Int
 
         init {

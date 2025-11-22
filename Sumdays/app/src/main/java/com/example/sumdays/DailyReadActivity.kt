@@ -152,7 +152,7 @@ class DailyReadActivity : AppCompatActivity() {
         binding.diaryContentEditText.setText(entry?.diary ?: "")
         binding.diaryContentTextView.text = entry?.diary ?: ""
         binding.commentIcon.text = entry?.themeIcon ?: "🤔"
-        binding.keywordsText.text = entry?.keywords ?: ""
+        binding.keywordsText.text = entry?.keywords?.replace(";", ", ")
         binding.commentText.text = entry?.aiComment ?: "코멘트가 없습니다."
 
         // 감정 점수 로직 수정 (유지)

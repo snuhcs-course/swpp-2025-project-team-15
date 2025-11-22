@@ -49,7 +49,7 @@
                     <ImageButton
                         android:id="@+id/backupBtn"
                         android:src="@drawable/cloud_done"
-                        android:tint="#FFFFFF"
+                        app:tint="#FFFFFF"
                         android:background="@android:color/transparent"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
@@ -61,7 +61,7 @@
                     <ImageButton
                         android:id="@+id/initBtn"
                         android:src="@drawable/cloud_download"
-                        android:tint="#FFFFFF"
+                        app:tint="#FFFFFF"
                         android:background="@android:color/transparent"
                         android:layout_width="32dp"
                         android:layout_height="32dp"

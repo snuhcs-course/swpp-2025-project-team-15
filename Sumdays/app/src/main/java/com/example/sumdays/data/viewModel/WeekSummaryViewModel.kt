@@ -72,7 +72,8 @@ class WeekSummaryViewModel (
                 ),
                 highlights = listOf(
                     Highlight(date = startDate, summary = "테스트 하이라이트 $i - 1"),
-                    Highlight(date = endDate, summary = "테스트 하이라이트 $i - 2")
+                    Highlight(date = endDate, summary = "테스트 하이라이트2 $i - 1"),
+                    Highlight(date = baseDate.plusWeeks(i.toLong()).plusDays(4).toString(), summary = "테스트 하이라이트 $i - 2")
                 ),
                 insights = Insights(
                     advice = "테스트 조언 $i: 꾸준함이 중요합니다.",

@@ -47,7 +47,7 @@ class DailyEntryRepository (
         diary: String? = null,
         keywords: String? = null,
         aiComment: String? = null,
-        emotionScore: Double? = null,
+        emotionScore: Float? = null,
         emotionIcon: String? = null,
         themeIcon: String? = null
     ) {

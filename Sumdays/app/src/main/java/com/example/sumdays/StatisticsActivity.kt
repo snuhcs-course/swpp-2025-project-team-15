@@ -30,6 +30,9 @@ class StatisticsActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var lm: LinearLayoutManager
     private lateinit var treeDrawable: TreeTiledDrawable
+    // ⭐ 버튼 변수 추가
+    private lateinit var btnMoveToLatestLeaf: ImageButton
+    private lateinit var btnMoveToBottom: ImageButton
 
     private var bgScrollY = 0f      // 배경 전환용
     private var treeScrollY = 0f    // 나무 줄기 타일용
@@ -74,6 +77,9 @@ class StatisticsActivity : AppCompatActivity() {
         weekSummaries = createDummyWeekSummaries(dummyCount)
 
         recyclerView = findViewById(R.id.recyclerView)
+        // ⭐⭐ 버튼 초기화 (실제 레이아웃 ID 사용 필요)
+        btnMoveToLatestLeaf = findViewById(R.id.btn_move_to_latest_leaf)
+        btnMoveToBottom = findViewById(R.id.btn_move_to_bottom_leaf)
 
         // 1) 레이아웃 매니저: 바닥에서 시작
         lm = LinearLayoutManager(this, RecyclerView.VERTICAL, false).apply {
@@ -120,6 +126,21 @@ class StatisticsActivity : AppCompatActivity() {
         // 상태바, 네비게이션바 같은 색으로
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         setupEdgeToEdge(recyclerView)
+
+        // ⭐⭐ 5. 버튼 클릭 리스너 설정 ⭐⭐
+        btnMoveToLatestLeaf.setOnClickListener {
+            recyclerView.post {
+                recyclerView.scrollBy(0, -itemHeightPx * (dummyCount+10))
+                recyclerView.scrollBy(0, itemHeightPx * 7)
+            }
+        }
+
+        // 제일 밑으로 이동
+        btnMoveToBottom.setOnClickListener {
+            recyclerView.post {
+                recyclerView.scrollBy(0, itemHeightPx * (dummyCount+10))
+            }
+        }
     }
 
     private fun handleScrollForBackground(bg1: ImageView, bg2: ImageView, dy: Int, rvWidth: Int) {

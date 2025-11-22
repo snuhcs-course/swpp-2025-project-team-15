@@ -209,8 +209,8 @@ class StatisticsActivity : AppCompatActivity() {
     private fun createDummyWeekSummary(index: Int): WeekSummary {
         // index 1이 가장 최신, index 60이 가장 오래된 더미 데이터
         val year = 2025
-        val month = (index / 4) % 12 + 1 // 대략적인 월
-        val day = (index % 4) * 7 + 1    // 대략적인 일
+        val month = 11 // 대략적인 월
+        val day = 24    // 대략적인 일
 
         val startDate = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
 

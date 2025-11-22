@@ -50,7 +50,7 @@ data class DailyEntryPayload(
     val diary: String?,
     val keywords: String?,
     val aiComment: String?,
-    val emotionScore: Double?,
+    val emotionScore: Float?,
     val emotionIcon: String?,
     val themeIcon: String?
 )

@@ -74,6 +74,11 @@ interface ApiService {
         // 2. images: MultipartBody.Part 리스트 (파일명과 함께 전송)
         @Part images: List<MultipartBody.Part>
     ): Call<StyleExtractionResponse>
+
+    // ⭐ [신규] 주간 요약 요청
+    // WeekAnalysisRequest와 WeekAnalysisResponse는 같은 패키지에 있다고 가정
+    @POST("/api/ai/summarize-week")
+    suspend fun summarizeWeek(@Body request: WeekAnalysisRequest): retrofit2.Response<WeekAnalysisResponse>
 }
 
 // 응답 DTO (nullable 권장)

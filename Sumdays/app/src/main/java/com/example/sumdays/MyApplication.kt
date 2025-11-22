@@ -4,12 +4,17 @@ import android.app.Application
 import com.example.sumdays.daily.memo.MemoRepository
 import com.example.sumdays.data.AppDatabase
 import com.example.sumdays.data.sync.BackupScheduler
+import com.example.sumdays.data.repository.WeekSummaryRepository
 
 //데이터베이스와 저장소(Repository)를 초기화, 싱글톤 패턴을 위한 애플리케이션 클래스
 class MyApplication : Application() {
     // Lazy를 사용하여 데이터베이스와 리포지토리를 필요할 때만 초기화
     private val database by lazy { AppDatabase.getDatabase(this) }
     val repository by lazy { MemoRepository(database.memoDao()) }
+
+    // ⭐ 추가: 통계 화면용 Repository 초기화
+    // (AppDatabase에 weekSummaryDao()와 dailyEntryDao()가 정의되어 있다고 가정합니다)
+    val weekSummaryRepository by lazy { WeekSummaryRepository(database.weekSummaryDao()) }
 
     override fun onCreate() {
         super.onCreate()

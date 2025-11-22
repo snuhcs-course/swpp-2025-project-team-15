@@ -22,7 +22,10 @@ class StatisticsActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var lm: LinearLayoutManager
     private lateinit var treeDrawable: TreeTiledDrawable
-    private var totalScrollY = 0f
+
+    private var bgScrollY = 0f      // 배경 전환용
+    private var treeScrollY = 0f    // 나무 줄기 타일용
+
 
     private var segmentScroll = 8000f  // 어느 정도 스크롤하면 완전히 bg2로 변할지
 
@@ -94,43 +97,46 @@ class StatisticsActivity : AppCompatActivity() {
     }
 
     private fun handleScrollForBackground(bg1: ImageView, bg2: ImageView, dy: Int, rvWidth: Int) {
-        // 위로 스크롤: dy < 0 → totalScrollY 증가
-        // 아래로 스크롤: dy > 0 → totalScrollY 감소
-        totalScrollY += -dy
+        // ---------- 1) 배경 전환용 스크롤 (위로 올릴수록 값 증가) ----------
+        // 위로 스크롤: dy < 0 → bgScrollY 증가
+        // 아래로 스크롤: dy > 0 → bgScrollY 감소
+        bgScrollY += -dy
+        bgScrollY = bgScrollY.coerceIn(0f, maxScrollForTransition)
 
-        // 0 ~ maxScrollForTransition 사이로 clamp
-        totalScrollY = totalScrollY.coerceIn(0f, maxScrollForTransition)
+        if (backgrounds.size > 1) {
+            val progress = bgScrollY / segmentScroll      // 0 ~ (N-1)
+            val segmentIndex = progress.toInt().coerceIn(0, backgrounds.size - 2)
+            val localRawT = (progress - segmentIndex).coerceIn(0f, 1f)
 
-        // 나무 줄기 스크롤은 그대로
-        treeDrawable.setScroll(-totalScrollY, rvWidth)
+            if (segmentIndex != currentSegmentIndex) {
+                bg1.setImageResource(backgrounds[segmentIndex])
+                bg2.setImageResource(backgrounds[segmentIndex + 1])
+                currentSegmentIndex = segmentIndex
+            }
 
-        if (backgrounds.size <= 1) return  // 배경 하나면 전환할 게 없음
+            // 각 세그먼트 내에서만 "짧은 전환"
+            val transitionWidth = 0.2f
+            val start = 0.5f - transitionWidth / 2f
+            val end   = 0.5f + transitionWidth / 2f
 
-        val progress = totalScrollY / segmentScroll      // 0 ~ (N-1)
-        val segmentIndex = progress.toInt().coerceIn(0, backgrounds.size - 2)
-        val localRawT = (progress - segmentIndex).coerceIn(0f, 1f)
+            val localSharpT = when {
+                localRawT <= start -> 0f
+                localRawT >= end   -> 1f
+                else -> (localRawT - start) / (end - start)
+            }
 
-        if (segmentIndex != currentSegmentIndex) {
-            bg1.setImageResource(backgrounds[segmentIndex])
-            bg2.setImageResource(backgrounds[segmentIndex + 1])
-            currentSegmentIndex = segmentIndex
+            bg1.alpha = 1f - localSharpT
+            bg2.alpha = localSharpT
         }
 
-        // 각 세그먼트 내에서만 "짧은 전환"
-        val transitionWidth = 0.2f
-        val start = 0.5f - transitionWidth / 2f
-        val end   = 0.5f + transitionWidth / 2f
-
-        val localSharpT = when {
-            localRawT <= start -> 0f
-            localRawT >= end   -> 1f
-            else -> (localRawT - start) / (end - start)
-        }
-
-        bg1.alpha = 1f - localSharpT
-        bg2.alpha = localSharpT
-
+        // ---------- 2) 나무 줄기 스크롤 (RecyclerView와 같은 방향) ----------
+        // RecyclerView는 dy<0 이면 "위로 스크롤" → 아이템들이 아래로 이동
+        // 우리가 그 전에 잘 되던 때처럼, 나무도 dy를 그대로 누적시키면
+        // 가지/잎이랑 같은 느낌으로 같이 움직여 보인다.
+        treeScrollY += dy
+        treeDrawable.setScroll(treeScrollY, rvWidth)
     }
+
 
 
     /** 리스트 상단 가까이 오면 앞쪽으로 아이템을 붙여 위로 무한 확장 */

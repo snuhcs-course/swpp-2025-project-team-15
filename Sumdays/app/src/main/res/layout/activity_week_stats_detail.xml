@@ -1,17 +1,13 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:fitsSystemWindows="true"
+    android:background="@android:color/white"
     android:id="@+id/main_detail">
 
-    <View
-        android:id="@+id/background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#282d35" />
-
+    <!-- 1. 헤더 (뒤로가기 버튼) -->
     <LinearLayout
         android:id="@+id/header_layout"
         android:layout_width="match_parent"
@@ -25,183 +21,326 @@
             android:id="@+id/back_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_arrow_back_white"
-            android:contentDescription="뒤로가기"
+            android:src="@drawable/ic_arrow_back"
             android:background="?attr/selectableItemBackgroundBorderless"/>
 
         <TextView
-            android:id="@+id/week_title_text_view"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="주간 통계 상세 분석"
-            android:textColor="@color/white"
-            android:textSize="20sp"
+            android:layout_weight="1"
+            android:text="주간 보고서"
+            android:textSize="48sp"
             android:textStyle="bold"
-            android:layout_marginStart="16dp"/>
-
+            android:textColor="@android:color/black"
+            android:gravity="center_horizontal"
+            android:layout_marginStart="-32dp"
+            android:fontFamily="@font/siu"/> <!-- 뒤로가기 버튼 공간 확보 -->
     </LinearLayout>
+
+    <!-- 2. 구분선 (헤더 아래) -->
+    <View
+        android:id="@+id/divider_top"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@drawable/crayon_divider_horizontal"
+        app:layout_constraintTop_toBottomOf="@id/header_layout"/>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/header_layout"
+        app:layout_constraintTop_toBottomOf="@id/divider_top"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="0dp">
 
-            <TextView
-                android:id="@+id/week_range_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:layout_marginBottom="10dp"
-                android:textStyle="italic"
-                android:text="2025-10-13 ~ 2025-10-19 | 공부, 긴장, 성취감" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:background="@drawable/rounded_corners"
-            >
-
-            <TextView
-                style="@style/SectionTitle"
-                android:text="일기 작성 횟수"
-                android:textColor="@color/white"
-                android:layout_marginTop="0dp"/>
-
+            <!-- 3. 기간 정보 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp">
-
+                android:orientation="horizontal">
                 <TextView
-                    android:id="@+id/diary_count_ratio"
+                    android:layout_marginStart="16dp"
+                    android:fontFamily="@font/siu"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
+                    android:text="기간"
+                    android:textSize="25sp"
+                    android:textColor="@android:color/black"
+                    android:textStyle="bold"/>
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="58dp"
+                    android:background="@drawable/crayon_divider_vertical"
+                    />
+                <TextView
+                    android:id="@+id/week_range_text_view"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="@font/siu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="25sp"
+                    android:textColor="@android:color/black"
+                    tools:text="2025-10-13 ~ 2025-10-19" />
+            </LinearLayout>
+
+            <!-- 4. 구분선 (기간 아래) -->
+            <View
+                android:id="@+id/divider_period"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:background="@drawable/crayon_divider_horizontal"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- 5. 요일 표시 영역 (월-금, 토-일) -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!-- 5.1. 요일 이름 및 날짜 (월-금) -->
+                <LinearLayout
+                    android:id="@+id/day_row_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <!-- 요일 TextView 5개가 동적으로 추가되어야 함 -->
+                    <FrameLayout
+                        android:id="@+id/day_frame"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/shape_fox_orange_border">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="8dp"
+                            android:text="월"
+                            android:fontFamily="@font/siu"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginStart="25dp"
+                            android:textColor="@android:color/black"
+                            android:textSize="25sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+                    <FrameLayout
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/shape_fox_orange_border">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="8dp"
+                            android:text="화"
+                            android:fontFamily="@font/siu"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginStart="25dp"
+                            android:textColor="@android:color/black"
+                            android:textSize="25sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+                    <FrameLayout
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/shape_fox_orange_border">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="8dp"
+                            android:text="수"
+                            android:fontFamily="@font/siu"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginStart="25dp"
+                            android:textColor="@android:color/black"
+                            android:textSize="25sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+                    <FrameLayout
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/shape_fox_orange_border">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="8dp"
+                            android:text="목"
+                            android:fontFamily="@font/siu"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginStart="25dp"
+                            android:textColor="@android:color/black"
+                            android:textSize="25sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+                    <FrameLayout
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/shape_fox_orange_border">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="8dp"
+                            android:text="금"
+                            android:fontFamily="@font/siu"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginStart="25dp"
+                            android:textColor="@android:color/black"
+                            android:textSize="25sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+
+                </LinearLayout>
+
+                <!-- 5.2. 요일 이름 및 날짜 (토-일) -->
+                <LinearLayout
+                    android:id="@+id/day_row_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_below="@id/day_row_1">
+                    <!-- 요일 TextView 2개가 동적으로 추가되어야 함 -->
+                    <FrameLayout
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/shape_fox_orange_border">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="8dp"
+                            android:text="토"
+                            android:fontFamily="@font/siu"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginStart="25dp"
+                            android:textColor="@android:color/black"
+                            android:textSize="25sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+                    <FrameLayout
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/shape_fox_orange_border">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="8dp"
+                            android:text="일"
+                            android:fontFamily="@font/siu"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginStart="25dp"
+                            android:textColor="@android:color/black"
+                            android:textSize="25sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+                </LinearLayout>
+
+                <!-- 5.3. 훌륭해요 원형 마커 (요약 섹션 바로 위) -->
+                <FrameLayout
+
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_below="@+id/day_row_2"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="16dp">
+
+                    <View
+                        android:id="@+id/excellent_circle_bg"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:background="@drawable/shape_excellent_red_circle" />
+
+                </FrameLayout>
+            </RelativeLayout>
+
+            <!-- 6. 구분선 (요일 아래) -->
+            <View
+                android:id="@+id/divider_days"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:background="@drawable/crayon_divider_horizontal"
+                android:layout_marginTop="16dp"/>
+
+            <!-- 7. 요약 / 피드백 테이블 영역 -->
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="3"
+                android:rowCount="2">
+
+                <!-- Row 1: 요약 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/siu"
+                    android:text="요약"
+                    android:textSize="25sp"
                     android:textStyle="bold"
-                    android:layout_marginEnd="16dp"
-                    android:text="5/7"/>
+                    android:textColor="@android:color/black"
+                    android:layout_columnWeight="0.1"
+                    android:padding="8dp"/>
 
-
-                <ProgressBar
-                    android:id="@+id/diary_count_progress"
-                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="58dp"
+                    android:background="@drawable/crayon_divider_vertical"
+                    android:layout_columnWeight="0"/>
+                <TextView
+                    android:id="@+id/summary_content_text_view"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/siu"
                     android:layout_width="0dp"
-                    android:layout_height="16dp"
-                    android:layout_weight="1"
-                    android:max="7"
-                    android:progress="5"
-                    android:progressTint="@color/violet_dark" /> </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="0.9"
+                    android:padding="8dp"
+                    tools:text="주간 요약 내용이 여기에 들어갑니다. 감정 추이, 주요 토픽 등을 종합적으로 나타냅니다."/>
 
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/rounded_corners">
-            <TextView
-                style="@style/SectionTitle"
-                android:text="이번 주 요약"
-                android:textColor="@color/white"
-                android:layout_marginTop="0dp" />
-            <TextView android:id="@+id/overview_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/rounded_corners">
+                <!-- 구분선 -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@drawable/crayon_divider_horizontal"
+                    android:layout_columnSpan="3"
+                    />
 
-            <TextView
-                style="@style/SectionTitle"
-                android:text="이번 주 감정 분석"
-                android:textColor="@color/white"
-                android:layout_marginTop="0dp"/>
-            <TextView android:id="@+id/dominant_emoji_text_view" android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white"/>
+                <!-- Row 2: 피드백 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="피드백"
+                    android:fontFamily="@font/siu"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_columnWeight="0.1"
+                    android:padding="8dp"/>
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="58dp"
+                    android:background="@drawable/crayon_divider_vertical"
+                    android:layout_columnWeight="0"/>
+                <TextView
+                    android:id="@+id/feedback_content_text_view"
+                    android:textColor="@color/black"
+                    android:layout_width="0dp"
+                    android:fontFamily="@font/siu"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="0.9"
+                    android:padding="8dp"
+                    tools:text="AI가 제공하는 감정 관리 및 성장 관련 통찰 조언이 들어갑니다."/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@drawable/crayon_divider_horizontal"
+                    android:layout_columnSpan="3"
+                    />
 
-            <ImageView
-                android:id="@+id/thermometer_icon"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="0dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/comment_title"
-                tools:src="@drawable/ic_thermometer_high" />
-
-            <!-- ★★★ 감정 점수 (visibility="gone" 삭제) ★★★ -->
-            <TextView
-                android:id="@+id/emotion_score"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toEndOf="@id/thermometer_icon"
-                app:layout_constraintStart_toStartOf="@id/thermometer_icon"
-                app:layout_constraintTop_toBottomOf="@id/thermometer_icon"
-                tools:text="감정 온도: 30°C" />
-
-            <TextView
-                android:id="@+id/emotion_trend_text_view"
-                android:text="추세: 안정적"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textStyle="italic"
-                android:layout_marginTop="4dp"
-                android:textColor="@color/white"/>
-
-            <com.github.mikephil.charting.charts.BarChart
-                android:id="@+id/emotion_analysis_bar_chart"
-                android:layout_width="match_parent"
-                android:layout_height="120dp"
-                android:layout_marginTop="8dp" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/rounded_corners">
-            <TextView
-                style="@style/SectionTitle"
-                android:text="조언 한마디"
-                android:textColor="@color/white"
-                android:layout_marginTop="0dp" />
-            <TextView
-                android:id="@+id/advice_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white"/>
-            <TextView
-                android:id="@+id/emotion_cycle_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:layout_marginTop="8dp" />
-        </LinearLayout>
-
+            </GridLayout>
 
         </LinearLayout>
     </ScrollView>

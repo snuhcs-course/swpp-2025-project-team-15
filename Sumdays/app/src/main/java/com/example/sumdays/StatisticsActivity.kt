@@ -1,5 +1,6 @@
 package com.example.sumdays
 
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.Gravity
@@ -10,23 +11,44 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sumdays.statistics.EmotionAnalysis
+import com.example.sumdays.statistics.Highlight
+import com.example.sumdays.statistics.Insights
+import com.example.sumdays.statistics.SummaryDetails
+import com.example.sumdays.statistics.WeekStatsDetailActivity
+import com.example.sumdays.statistics.WeekSummary
 import com.example.sumdays.ui.TreeTiledDrawable
 import com.example.sumdays.utils.setupEdgeToEdge
+import android.content.Context
+import androidx.lifecycle.ViewModelProvider
+import com.example.sumdays.data.viewModel.DailyEntryViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.threeten.bp.LocalDate
 
 class StatisticsActivity : AppCompatActivity() {
+    private lateinit var viewModel: DailyEntryViewModel
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var lm: LinearLayoutManager
     private lateinit var treeDrawable: TreeTiledDrawable
+    // ⭐ 버튼 변수 추가
+    private lateinit var btnMoveToLatestLeaf: ImageButton
+    private lateinit var btnMoveToBottom: ImageButton
+    private lateinit var tvStrikeCount: TextView
+    private lateinit var tvLeafCount: TextView
+    private lateinit var tvGrapeCount: TextView
+    private lateinit var btnBack: ImageButton
 
     private var bgScrollY = 0f      // 배경 전환용
     private var treeScrollY = 0f    // 나무 줄기 타일용
-
-
     private var segmentScroll = 8000f  // 어느 정도 스크롤하면 완전히 bg2로 변할지
 
     private var backgrounds = listOf<Int>(
@@ -42,11 +64,15 @@ class StatisticsActivity : AppCompatActivity() {
     // 현재 어떤 구간(배경 i ↔ i+1)을 쓰고 있는지
     private var currentSegmentIndex: Int = -1
 
+    // ⭐️ WeekSummary 데이터 목록 (최대 인덱스 최신 데이터)
+    private lateinit var weekSummaries: List<WeekSummary>
+
     private lateinit var adapter: LeafAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_statistics)
+        viewModel = ViewModelProvider(this).get(DailyEntryViewModel::class.java)
 
         val bg1 = findViewById<ImageView>(R.id.statistics_background_1)
         val bg2 = findViewById<ImageView>(R.id.statistics_background_2)
@@ -60,7 +86,14 @@ class StatisticsActivity : AppCompatActivity() {
             currentSegmentIndex = 0
         }
 
+        // ⭐️ 더미 데이터 생성 및 저장 (60개 주간 데이터)
+        val dummyCount = 60
+        weekSummaries = createDummyWeekSummaries(dummyCount)
+
         recyclerView = findViewById(R.id.recyclerView)
+        // ⭐⭐ 버튼 초기화 (실제 레이아웃 ID 사용 필요)
+        btnMoveToLatestLeaf = findViewById(R.id.btn_move_to_latest_leaf)
+        btnMoveToBottom = findViewById(R.id.btn_move_to_bottom_leaf)
 
         // 1) 레이아웃 매니저: 바닥에서 시작
         lm = LinearLayoutManager(this, RecyclerView.VERTICAL, false).apply {
@@ -69,10 +102,12 @@ class StatisticsActivity : AppCompatActivity() {
         recyclerView.layoutManager = lm
         recyclerView.overScrollMode = View.OVER_SCROLL_NEVER
 
-        // 2) 어댑터: 처음엔 적당한 개수만 (예: 200개)
-        adapter = LeafAdapter { index ->
-            Toast.makeText(this, "Leaf $index clicked!", Toast.LENGTH_SHORT).show()
-        }
+        // 2) 어댑터: 데이터 및 콜백 전달
+        // adapter = LeafAdapter { index -> ... } // 기존
+        adapter = LeafAdapter(
+            weekSummaries = weekSummaries, // WeekSummary 데이터 전달
+            currentStatsNumber = dummyCount
+        )
         recyclerView.adapter = adapter
         // stackFromEnd=true 덕분에 setAdapter 후 자동으로 "바닥"에 붙음
 
@@ -83,6 +118,8 @@ class StatisticsActivity : AppCompatActivity() {
         )
         recyclerView.background = treeDrawable
 
+        initHeaderViews()
+
         // 4) 스크롤 리스너: 위로 갈수록 prepend로 확장
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
@@ -91,9 +128,113 @@ class StatisticsActivity : AppCompatActivity() {
             }
         })
 
+        val itemHeightPx =
+            (resources.displayMetrics.density * 160 + 0.5f).toInt()
+
+        val scrollDistanceY = (dummyCount-2) * itemHeightPx
+
+        // Activity가 뷰 초기화를 마친 후 스크롤을 실행하도록 post를 사용합니다.
+        recyclerView.post {
+            // 애니메이션 없이 가장 최신 데이터 위치(포지션 10)로 이동
+            recyclerView.scrollBy(0, -scrollDistanceY)
+        }
+
         // 상태바, 네비게이션바 같은 색으로
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         setupEdgeToEdge(recyclerView)
+
+        // ⭐⭐ 5. 버튼 클릭 리스너 설정 ⭐⭐
+        btnMoveToLatestLeaf.setOnClickListener {
+            recyclerView.post {
+                recyclerView.scrollBy(0, -itemHeightPx * (dummyCount+10))
+                recyclerView.scrollBy(0, itemHeightPx * 7)
+            }
+        }
+
+        // 제일 밑으로 이동
+        btnMoveToBottom.setOnClickListener {
+            recyclerView.post {
+                recyclerView.scrollBy(0, itemHeightPx * (dummyCount+10))
+            }
+        }
+    }
+
+    private fun initHeaderViews() {
+        // 뷰 참조
+        btnBack = findViewById(R.id.btn_back)
+        tvStrikeCount = findViewById(R.id.tv_strike_count)
+        tvLeafCount = findViewById(R.id.tv_leaf_count)
+        tvGrapeCount = findViewById(R.id.tv_grape_count)
+
+        // 1. 뒤로 가기 버튼 기능
+        btnBack.setOnClickListener {
+            finish()
+        }
+
+        // 2. ⭐ 지표 계산 및 표시
+        updateStatisticsHeader()
+    }
+
+    private fun updateStatisticsHeader() {
+
+        // 1. 연속 일기 작성 횟수 (스트라이크) - 임시 값
+        calculateAndDisplayStreak()
+
+        // 2. 나뭇잎(주간 요약) 개수
+        val leafCount = weekSummaries.size // 전체 생성된 주간 요약 개수
+
+        // 3. 포도 개수
+        val grapeCount = leafCount/5
+
+        // UI 업데이트
+        tvLeafCount.text = "🍃: ${leafCount}" // 60개 이상
+        tvGrapeCount.text = "🍇: ${grapeCount}"
+    }
+
+        private fun calculateAndDisplayStreak() {
+        // CoroutineScope를 사용하여 백그라운드 (IO 스레드)에서 DB 접근 및 계산 수행
+        CoroutineScope(Dispatchers.IO).launch {
+
+            // 1. Room에서 모든 작성 날짜(String)를 가져옵니다.
+            val allDates = viewModel.getAllWrittenDates()
+
+            // 2. Strike 횟수를 계산합니다.
+            val streak = calculateCurrentStreak(allDates) // 아래 정의할 계산 함수 호출
+
+            // 4. Main 스레드에서 UI 업데이트 (선택 사항: 계산된 값을 화면에 바로 반영)
+            withContext(Dispatchers.Main) {
+                tvStrikeCount.text = "🔥: ${streak}"
+            }
+        }
+    }
+
+        fun calculateCurrentStreak(dates: List<String>): Int {
+        if (dates.isEmpty()) return 0
+
+        // 날짜 문자열을 LocalDate 객체로 변환하고 중복 제거, 내림차순 정렬
+        val uniqueDates = dates.toSet()
+            .map { LocalDate.parse(it) }
+            .sortedDescending()
+
+        var currentStreak = 0
+        var currentDate = LocalDate.now()
+        var isTodayWritten = uniqueDates.any { it.isEqual(currentDate) }
+
+        // 1. 오늘 날짜부터 시작하여 연속성 검사
+        while (true) {
+            if (uniqueDates.contains(currentDate)) {
+                currentStreak++
+            } else if (!isTodayWritten && currentDate.isEqual(LocalDate.now())) {
+                // 오늘 날짜이고, 오늘 일기가 작성되지 않았다면 스킵하고 어제로 이동
+                // (이 로직은 사실상 uniqueDates.contains(currentDate)에서 처리됨)
+            } else {
+                // 연속성이 끊어지면 종료
+                break
+            }
+            currentDate = currentDate.minusDays(1) // 이전 날짜로 이동
+        }
+
+        return currentStreak
     }
 
     private fun handleScrollForBackground(bg1: ImageView, bg2: ImageView, dy: Int, rvWidth: Int) {
@@ -138,7 +279,6 @@ class StatisticsActivity : AppCompatActivity() {
     }
 
 
-
     /** 리스트 상단 가까이 오면 앞쪽으로 아이템을 붙여 위로 무한 확장 */
     private fun maybePrependMore() {
         val firstPos = lm.findFirstVisibleItemPosition()
@@ -158,25 +298,84 @@ class StatisticsActivity : AppCompatActivity() {
         }
     }
 
+    // --- WeekSummary Dummy Data 생성 함수 ---
 
+    private fun createDummyWeekSummary(index: Int): WeekSummary {
+        // index 1이 가장 최신, index 60이 가장 오래된 더미 데이터
+        val year = 2025
+        val month = 11 // 대략적인 월
+        val day = 24    // 대략적인 일
+
+        val startDate = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
+
+        val emotions = listOf("positive", "neutral", "negative")
+        val dominantEmoji = when (index % 3) {
+            0 -> "😊" // 긍정
+            1 -> "😐" // 중립
+            else -> "😠" // 부정
+        }
+
+        val topics = listOf("운동", "공부", "취미", "업무", "여행", "휴식", "식단")
+        val topic = topics[index % topics.size]
+
+        return WeekSummary(
+            startDate = startDate,
+            endDate = startDate, // 단순 더미 데이터이므로 시작일과 동일하게 설정
+            diaryCount = 3 + (index % 4),
+            emotionAnalysis = EmotionAnalysis(
+                distribution = mapOf(
+                    emotions[0] to 60 + index,
+                    emotions[1] to 30 + (index % 10),
+                    emotions[2] to 10 + (index % 5)
+                ),
+                dominantEmoji = dominantEmoji,
+                emotionScore = 0.5f + (index % 10) * 0.05f,
+                trend = if (index % 2 == 0) "increasing" else "decreasing"
+            ),
+            highlights = listOf(
+                Highlight(date = startDate, summary = "이번 주는 $topic 주제로 열심히 살았습니다."),
+                Highlight(date = startDate, summary = "마무리 일기 요약입니다.")
+            ),
+            insights = Insights(
+                advice = "스트레스를 관리하며 $topic 을 꾸준히 하는 것이 중요합니다.",
+                emotionCycle = if (index % 2 == 0) "주중 감정 기복이 적었습니다." else "주말 감정 기복이 컸습니다."
+            ),
+            summary = SummaryDetails(
+                emergingTopics = listOf(topic, "성장", "회고"),
+                overview = "주간 $index 째 요약입니다. $topic 에 집중한 한 주였습니다.",
+                title = "$topic 라이프 - ${dominantEmoji} 주간 기록"
+            )
+        )
+    }
+
+    private fun createDummyWeekSummaries(count: Int): List<WeekSummary> {
+        // 인덱스 1~count 만큼의 데이터를 생성하여 반환 (index 1이 list[0]에 해당)
+        return (1..count).map { index ->
+            createDummyWeekSummary(index)
+        }
+    }
+
+
+    /** 어댑터 클래스: WeekSummary 데이터를 받도록 수정 */
     private class LeafAdapter(
-        private val onLeafClick: (Int) -> Unit
+        private val weekSummaries: List<WeekSummary>, // WeekSummary 데이터 목록 (index 1부터 순서대로)
+        private val currentStatsNumber: Int
     ) : RecyclerView.Adapter<LeafAdapter.VH>() {
 
-        // 각 아이템이 "자기 번호"를 갖고 있게
         private data class LeafItem(val index: Int)
 
         private val items = mutableListOf<LeafItem>()
         private var nextIndex: Int
 
-        private var currentWeeklyStatsNumber: Int = 60
         private var maxLeafIndex: Int
 
         init {
-            maxLeafIndex = currentWeeklyStatsNumber + 10
-            // 맨 아래가 1번이 되도록 세팅:
-            // position: 0(맨 위) -> index 큰 값
-            // position: last(맨 아래) -> index 1
+            // maxLeafIndex는 데이터 개수 + 여분 가지 (10개)
+            maxLeafIndex = currentStatsNumber + 10
+
+            // 맨 아래(가장 최신 기록)가 index 1이 되도록 세팅
+            // items[0] = LeafItem(maxLeafIndex) (가장 오래된 가지)
+            // items[maxLeafIndex - 1] = LeafItem(1) (가장 최신 기록)
             for (i in maxLeafIndex downTo 1) {
                 items.add(LeafItem(i))
             }
@@ -210,24 +409,48 @@ class StatisticsActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: VH, position: Int) {
-            val leafIndex = items[position].index
+            val leafIndex = items[position].index // 70(위) ~ 1(아래)
+
+            // LeafItem의 index가 실제 통계 데이터 범위(1~60) 내에 있는지 확인
+            val hasData = leafIndex <= currentStatsNumber && leafIndex >= 1
+            val weekSummary = if (hasData) {
+                // weekSummaries는 index 1부터 순서대로 저장되어 있으므로, index-1을 사용
+                weekSummaries.getOrNull(leafIndex - 1)
+            } else {
+                null
+            }
+
+            // isOnlyBranch: 데이터가 없거나, 잎이 없는 단순 가지 (index > 60)
+            val isOnlyBranch = !hasData
 
             val leafLP = holder.buttonWeeklyStats.layoutParams as FrameLayout.LayoutParams
-
             val foxLP = holder.foxOnBranchImage.layoutParams as FrameLayout.LayoutParams
 
             val isLeft = (leafIndex % 2 == 0)
-
             val isGrapeRow = (leafIndex % 5 == 0)
 
-            val isOnlyBranch = (leafIndex > currentWeeklyStatsNumber)
+            // ⭐ 1. 인덱스 설정 (나뭇잎 위)
+            holder.leafIndexText.text = leafIndex.toString()
 
-            if (leafIndex == currentWeeklyStatsNumber){
+            // ⭐ 2. 시작 날짜 설정 (데이터가 있을 때만 표시)
+            if (hasData && weekSummary != null) {
+                holder.leafStartDateText.text = weekSummary.startDate
+                holder.leafStartDateText.visibility = View.VISIBLE
+            } else {
+                holder.leafStartDateText.text = ""
+                holder.leafStartDateText.visibility = View.GONE
+            }
+
+            // 여우 마스코트는 가장 최신 데이터(index 1) 위에 배치
+           if (leafIndex == currentStatsNumber) {
                 holder.foxOnBranchImage.visibility = View.VISIBLE
             }
             else {
                 holder.foxOnBranchImage.visibility = View.GONE
             }
+
+            val indexLP = holder.leafIndexText.layoutParams as FrameLayout.LayoutParams
+            val dateLP = holder.leafStartDateText.layoutParams as FrameLayout.LayoutParams
 
             if (isLeft) {
                 leafLP.gravity = Gravity.START
@@ -235,40 +458,86 @@ class StatisticsActivity : AppCompatActivity() {
                 if (isOnlyBranch){
                     holder.buttonWeeklyStats.setImageResource(R.drawable.branch_left)
                     holder.buttonWeeklyStats.isEnabled = false
+                    holder.leafStartDateText.text = ""
+                    holder.leafIndexText.text = ""
                 }
                 else if (isGrapeRow) {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_left)
                     holder.buttonWeeklyStats.isEnabled = true
+
+                    indexLP.topMargin = holder.dp(48)
+                    indexLP.leftMargin = holder.dp(50)
+
+                    dateLP.topMargin = holder.dp(100)
+                    dateLP.leftMargin = holder.dp(40)
                 }
                 else {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_left)
                     holder.buttonWeeklyStats.isEnabled = true
+
+                    indexLP.topMargin = holder.dp(16)
+                    indexLP.leftMargin = holder.dp(75)
+
+                    dateLP.topMargin = holder.dp(65)
+                    dateLP.leftMargin = holder.dp(40)
                 }
             }
-            else {
+            else { // isRight
                 leafLP.gravity = Gravity.END
                 foxLP.gravity = Gravity.END
                 if (isOnlyBranch){
                     holder.buttonWeeklyStats.setImageResource(R.drawable.branch_right)
                     holder.buttonWeeklyStats.isEnabled = false
+                    holder.leafStartDateText.text = ""
+                    holder.leafIndexText.text = ""
                 }
                 else if (isGrapeRow) {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_right)
                     holder.buttonWeeklyStats.isEnabled = true
+
+                    indexLP.topMargin = holder.dp(48)
+                    indexLP.leftMargin = holder.dp(315)
+
+                    dateLP.topMargin = holder.dp(100)
+                    dateLP.leftMargin = holder.dp(280)
                 }
                 else {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_right)
                     holder.buttonWeeklyStats.isEnabled = true
+
+                    indexLP.topMargin = holder.dp(16)
+                    indexLP.leftMargin = holder.dp(300)
+
+                    dateLP.topMargin = holder.dp(65)
+                    dateLP.leftMargin = holder.dp(280)
                 }
             }
             holder.buttonWeeklyStats.layoutParams = leafLP
+            holder.foxOnBranchImage.layoutParams = foxLP
 
-            holder.buttonWeeklyStats.setOnClickListener { onLeafClick(leafIndex) }
+            // ⭐️ 버튼 클릭 리스너 업데이트 (데이터가 있을 때만 호출)
+            if (hasData && weekSummary != null) {
+                holder.buttonWeeklyStats.setOnClickListener {
+                    val intent = Intent(holder.itemView.context, WeekStatsDetailActivity::class.java)
+
+                    // ⭐ WeekSummary 객체를 Parcelable로 담아 전달
+                    // WeekSummary 클래스가 Parcelable을 상속하고 있어야 이 코드가 정상 작동합니다.
+                    intent.putExtra("week_summary", weekSummary)
+
+                    holder.itemView.context.startActivity(intent)
+                }
+                holder.buttonWeeklyStats.isEnabled = true
+            } else {
+                holder.buttonWeeklyStats.setOnClickListener(null)
+                holder.buttonWeeklyStats.isEnabled = false
+            }
         }
 
         class VH(view: View) : RecyclerView.ViewHolder(view) {
             val buttonWeeklyStats: ImageButton = view.findViewById(R.id.btnWeeklyStats)
             val foxOnBranchImage: ImageView = view.findViewById(R.id.fox_on_branch)
+            val leafIndexText: TextView = view.findViewById(R.id.text_leaf_index)
+            val leafStartDateText: TextView = view.findViewById(R.id.text_leaf_startdate)
 
             fun dp(v: Int): Int =
                 (itemView.resources.displayMetrics.density * v + 0.5f).toInt()

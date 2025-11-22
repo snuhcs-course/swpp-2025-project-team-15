@@ -37,4 +37,96 @@
         android:layout_height="match_parent"
         android:clipChildren="false"
         android:clipToPadding="false" />
+
+    <LinearLayout
+        android:id="@+id/statistics_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="#80000000"
+        android:layout_gravity="top"
+        android:gravity="center_vertical">
+
+    <!-- 1.1. 뒤로 가기 버튼 -->
+    <ImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_arrow_back_white"
+        android:background="@android:color/transparent"
+        android:contentDescription="뒤로 가기"
+        android:padding="8dp"/>
+
+    <!-- 1.2. 지표 컨테이너 -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginEnd="16dp"
+
+        >
+
+        <!-- A. 스트라이크 (Strike) -->
+        <TextView
+            android:id="@+id/tv_strike_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔥 15"
+            android:textSize="18sp"
+            android:textColor="@android:color/white"
+            android:layout_marginEnd="16dp"/>
+
+        <!-- B. 잎 개수 (Week Summary Count) -->
+        <TextView
+            android:id="@+id/tv_leaf_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🍃 45"
+            android:textSize="18sp"
+            android:textColor="@android:color/white"
+            android:layout_marginEnd="16dp"/>
+
+        <!-- C. 포도 개수 (Month Summary Count) -->
+        <TextView
+            android:id="@+id/tv_grape_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🍇 3"
+            android:textSize="18sp"
+            android:textColor="@android:color/white"/>
+
+    </LinearLayout>
+</LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="80dp">
+
+        <ImageButton
+        android:id="@+id/btn_move_to_latest_leaf"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/ic_arrow_up"
+        android:background="@drawable/shape_circle_button"
+        android:elevation="4dp"
+        android:contentDescription="최신 잎으로 이동" />
+
+        <ImageButton
+            android:id="@+id/btn_move_to_bottom_leaf"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:src="@drawable/ic_arrow_down"
+            android:background="@drawable/shape_circle_button"
+            android:elevation="4dp"
+            android:contentDescription="가장 오래된 기록으로 이동" />
+
+    </LinearLayout>
 </FrameLayout>

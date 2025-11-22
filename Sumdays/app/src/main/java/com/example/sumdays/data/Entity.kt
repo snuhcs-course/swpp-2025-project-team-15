@@ -14,7 +14,8 @@ data class DailyEntry(
     val emotionIcon: String?,              // 감정 이모지
     val themeIcon: String?,                // 테마 이모지
     val isEdited: Boolean = false,
-    val isDeleted: Boolean = false
+    val isDeleted: Boolean = false,
+    val photoUrls: String? = null
 )
 
 @Entity(tableName = "weekly_summary")

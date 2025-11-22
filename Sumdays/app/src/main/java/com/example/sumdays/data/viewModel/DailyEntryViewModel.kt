@@ -36,7 +36,8 @@ class DailyEntryViewModel(application: Application) : AndroidViewModel(applicati
         aiComment: String? = null,
         emotionScore: Double? = null,
         emotionIcon: String? = null,
-        themeIcon: String? = null
+        themeIcon: String? = null,
+        photoUrls: String? = null
     ) = viewModelScope.launch {
         dao.updateEntry(
             date = date,
@@ -45,7 +46,8 @@ class DailyEntryViewModel(application: Application) : AndroidViewModel(applicati
             aiComment = aiComment,
             emotionScore = emotionScore,
             emotionIcon = emotionIcon,
-            themeIcon = themeIcon
+            themeIcon = themeIcon ,
+            photoUrls = photoUrls
         )
     }
 

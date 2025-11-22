@@ -177,8 +177,23 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!-- 3. 사진첩 (RecyclerView) (삭제됨) -->
-
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/photo_gallery_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:minHeight="80dp"
+        android:orientation="horizontal"
+        android:visibility="visible"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/diary_scroll_view"
+        app:layout_constraintBottom_toTopOf="@+id/comment_card"
+        android:paddingStart="40dp"
+        android:paddingEnd="40dp"
+        android:clipToPadding="false"
+        tools:listitem="@layout/item_photo_gallery" />
     <!-- 4. 일기 내용 ScrollView (코멘트 카드 위에 고정) -->
     <ScrollView
         android:id="@+id/diary_scroll_view"
@@ -189,7 +204,7 @@
         android:layout_marginEnd="40dp"
         android:layout_marginBottom="16dp"
         android:fillViewport="true"
-        app:layout_constraintBottom_toTopOf="@+id/comment_card"
+        app:layout_constraintBottom_toTopOf="@+id/photo_gallery_recycler_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/analysis_header_layout">

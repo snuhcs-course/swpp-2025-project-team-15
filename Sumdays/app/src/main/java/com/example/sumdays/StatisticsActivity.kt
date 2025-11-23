@@ -27,6 +27,10 @@ import com.example.sumdays.utils.setupEdgeToEdge
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
+import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
+import com.example.sumdays.data.viewModel.WeekSummaryViewModel
+import com.example.sumdays.data.viewModel.WeekSummaryViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,6 +39,12 @@ import org.threeten.bp.LocalDate
 
 class StatisticsActivity : AppCompatActivity() {
     private lateinit var viewModel: DailyEntryViewModel
+    // ⭐ 1. WeekSummaryViewModel 초기화 (실제 통계 데이터용)
+    private val weekSummaryViewModel: WeekSummaryViewModel by viewModels {
+        WeekSummaryViewModelFactory(
+            (application as MyApplication).weekSummaryRepository
+        )
+    }
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var lm: LinearLayoutManager
@@ -65,7 +75,7 @@ class StatisticsActivity : AppCompatActivity() {
     private var currentSegmentIndex: Int = -1
 
     // ⭐️ WeekSummary 데이터 목록 (최대 인덱스 최신 데이터)
-    private lateinit var weekSummaries: List<WeekSummary>
+    private var weekSummaries: List<WeekSummary> = emptyList()
 
     private lateinit var adapter: LeafAdapter
 
@@ -87,8 +97,8 @@ class StatisticsActivity : AppCompatActivity() {
         }
 
         // ⭐️ 더미 데이터 생성 및 저장 (60개 주간 데이터)
-        val dummyCount = 60
-        weekSummaries = createDummyWeekSummaries(dummyCount)
+//        val dummyCount = 60
+//        weekSummaries = createDummyWeekSummaries(dummyCount)
 
         recyclerView = findViewById(R.id.recyclerView)
         // ⭐⭐ 버튼 초기화 (실제 레이아웃 ID 사용 필요)
@@ -104,11 +114,11 @@ class StatisticsActivity : AppCompatActivity() {
 
         // 2) 어댑터: 데이터 및 콜백 전달
         // adapter = LeafAdapter { index -> ... } // 기존
-        adapter = LeafAdapter(
-            weekSummaries = weekSummaries, // WeekSummary 데이터 전달
-            currentStatsNumber = dummyCount
-        )
-        recyclerView.adapter = adapter
+//        adapter = LeafAdapter(
+//            weekSummaries = weekSummaries, // WeekSummary 데이터 전달
+//            currentStatsNumber = dummyCount
+//        )
+//        recyclerView.adapter = adapter
         // stackFromEnd=true 덕분에 setAdapter 후 자동으로 "바닥"에 붙음
 
         // 3) 배경: 무한 타일
@@ -128,35 +138,67 @@ class StatisticsActivity : AppCompatActivity() {
             }
         })
 
-        val itemHeightPx =
-            (resources.displayMetrics.density * 160 + 0.5f).toInt()
-
-        val scrollDistanceY = (dummyCount-2) * itemHeightPx
-
-        // Activity가 뷰 초기화를 마친 후 스크롤을 실행하도록 post를 사용합니다.
-        recyclerView.post {
-            // 애니메이션 없이 가장 최신 데이터 위치(포지션 10)로 이동
-            recyclerView.scrollBy(0, -scrollDistanceY)
-        }
-
         // 상태바, 네비게이션바 같은 색으로
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         setupEdgeToEdge(recyclerView)
 
-        // ⭐⭐ 5. 버튼 클릭 리스너 설정 ⭐⭐
-        btnMoveToLatestLeaf.setOnClickListener {
-            recyclerView.post {
-                recyclerView.scrollBy(0, -itemHeightPx * (dummyCount+10))
-                recyclerView.scrollBy(0, itemHeightPx * 7)
-            }
-        }
+        // ⭐⭐⭐ 데이터 로딩 및 의존 코드 실행 구간 ⭐⭐⭐
+        lifecycleScope.launch {
+            // 1. 더미 데이터 생성 코드 대체 -> DB에서 데이터 로딩
+            // val dummyCount = 60
+            // weekSummaries = createDummyWeekSummaries(dummyCount)
 
-        // 제일 밑으로 이동
-        btnMoveToBottom.setOnClickListener {
+            // 비동기로 DB 데이터 가져오기
+            weekSummaries = loadWeekSummariesFromDB()
+
+            // 가져온 데이터의 실제 개수 (이게 dummyCount 역할)
+            val currentDataCount = weekSummaries.size
+
+            // 2. 어댑터 연결 (데이터가 준비된 후 실행)
+            adapter = LeafAdapter(
+                weekSummaries = weekSummaries,
+                currentStatsNumber = currentDataCount
+            )
+            recyclerView.adapter = adapter
+
+            // 3. 헤더 업데이트 (데이터 개수 반영)
+            updateStatisticsHeader()
+
+            // 4. 초기 스크롤 위치 설정 (데이터 개수 기반)
+            // (사용자님의 원래 스크롤 로직 그대로 사용)
+            val itemHeightPx = (resources.displayMetrics.density * 160 + 0.5f).toInt()
+
+            // 데이터가 너무 적어 음수가 되는 것을 방지 (최소 0)
+            val scrollDistanceY = (currentDataCount - 2).coerceAtLeast(0) * itemHeightPx
+
             recyclerView.post {
-                recyclerView.scrollBy(0, itemHeightPx * (dummyCount+10))
+                if (scrollDistanceY > 0) {
+                    recyclerView.scrollBy(0, -scrollDistanceY)
+                }
+            }
+
+            // 5. 버튼 클릭 리스너 (데이터 개수 기반)
+            btnMoveToLatestLeaf.setOnClickListener {
+                recyclerView.post {
+                    recyclerView.scrollBy(0, -itemHeightPx * (currentDataCount + 10))
+                    recyclerView.scrollBy(0, itemHeightPx * 7)
+                }
+            }
+
+            btnMoveToBottom.setOnClickListener {
+                recyclerView.post {
+                    recyclerView.scrollBy(0, itemHeightPx * (currentDataCount + 10))
+                }
             }
         }
+    }
+
+    // ⭐ DB 데이터 로딩 헬퍼 함수
+    private suspend fun loadWeekSummariesFromDB(): List<WeekSummary> = withContext(Dispatchers.IO) {
+        // 1. 날짜 목록 가져오기
+        val dates = weekSummaryViewModel.getAllDatesAsc()
+        // 2. WeekSummary 객체로 변환
+        val summaries = dates.mapNotNull { weekSummaryViewModel.getSummary(it) }
+        summaries
     }
 
     private fun initHeaderViews() {
@@ -170,9 +212,6 @@ class StatisticsActivity : AppCompatActivity() {
         btnBack.setOnClickListener {
             finish()
         }
-
-        // 2. ⭐ 지표 계산 및 표시
-        updateStatisticsHeader()
     }
 
     private fun updateStatisticsHeader() {
@@ -300,60 +339,60 @@ class StatisticsActivity : AppCompatActivity() {
 
     // --- WeekSummary Dummy Data 생성 함수 ---
 
-    private fun createDummyWeekSummary(index: Int): WeekSummary {
-        // index 1이 가장 최신, index 60이 가장 오래된 더미 데이터
-        val year = 2025
-        val month = 11 // 대략적인 월
-        val day = 24    // 대략적인 일
+//    private fun createDummyWeekSummary(index: Int): WeekSummary {
+//        // index 1이 가장 최신, index 60이 가장 오래된 더미 데이터
+//        val year = 2025
+//        val month = 11 // 대략적인 월
+//        val day = 24    // 대략적인 일
+//
+//        val startDate = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
+//
+//        val emotions = listOf("positive", "neutral", "negative")
+//        val dominantEmoji = when (index % 3) {
+//            0 -> "😊" // 긍정
+//            1 -> "😐" // 중립
+//            else -> "😠" // 부정
+//        }
+//
+//        val topics = listOf("운동", "공부", "취미", "업무", "여행", "휴식", "식단")
+//        val topic = topics[index % topics.size]
+//
+//        return WeekSummary(
+//            startDate = startDate,
+//            endDate = startDate, // 단순 더미 데이터이므로 시작일과 동일하게 설정
+//            diaryCount = 3 + (index % 4),
+//            emotionAnalysis = EmotionAnalysis(
+//                distribution = mapOf(
+//                    emotions[0] to 60 + index,
+//                    emotions[1] to 30 + (index % 10),
+//                    emotions[2] to 10 + (index % 5)
+//                ),
+//                dominantEmoji = dominantEmoji,
+//                emotionScore = 0.5f + (index % 10) * 0.05f,
+//                trend = if (index % 2 == 0) "increasing" else "decreasing"
+//            ),
+//            highlights = listOf(
+//                Highlight(date = startDate, summary = "이번 주는 $topic 주제로 열심히 살았습니다."),
+//                Highlight(date = startDate, summary = "마무리 일기 요약입니다.")
+//            ),
+//            insights = Insights(
+//                advice = "스트레스를 관리하며 $topic 을 꾸준히 하는 것이 중요합니다.",
+//                emotionCycle = if (index % 2 == 0) "주중 감정 기복이 적었습니다." else "주말 감정 기복이 컸습니다."
+//            ),
+//            summary = SummaryDetails(
+//                emergingTopics = listOf(topic, "성장", "회고"),
+//                overview = "주간 $index 째 요약입니다. $topic 에 집중한 한 주였습니다.",
+//                title = "$topic 라이프 - ${dominantEmoji} 주간 기록"
+//            )
+//        )
+//    }
 
-        val startDate = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
-
-        val emotions = listOf("positive", "neutral", "negative")
-        val dominantEmoji = when (index % 3) {
-            0 -> "😊" // 긍정
-            1 -> "😐" // 중립
-            else -> "😠" // 부정
-        }
-
-        val topics = listOf("운동", "공부", "취미", "업무", "여행", "휴식", "식단")
-        val topic = topics[index % topics.size]
-
-        return WeekSummary(
-            startDate = startDate,
-            endDate = startDate, // 단순 더미 데이터이므로 시작일과 동일하게 설정
-            diaryCount = 3 + (index % 4),
-            emotionAnalysis = EmotionAnalysis(
-                distribution = mapOf(
-                    emotions[0] to 60 + index,
-                    emotions[1] to 30 + (index % 10),
-                    emotions[2] to 10 + (index % 5)
-                ),
-                dominantEmoji = dominantEmoji,
-                emotionScore = 0.5f + (index % 10) * 0.05f,
-                trend = if (index % 2 == 0) "increasing" else "decreasing"
-            ),
-            highlights = listOf(
-                Highlight(date = startDate, summary = "이번 주는 $topic 주제로 열심히 살았습니다."),
-                Highlight(date = startDate, summary = "마무리 일기 요약입니다.")
-            ),
-            insights = Insights(
-                advice = "스트레스를 관리하며 $topic 을 꾸준히 하는 것이 중요합니다.",
-                emotionCycle = if (index % 2 == 0) "주중 감정 기복이 적었습니다." else "주말 감정 기복이 컸습니다."
-            ),
-            summary = SummaryDetails(
-                emergingTopics = listOf(topic, "성장", "회고"),
-                overview = "주간 $index 째 요약입니다. $topic 에 집중한 한 주였습니다.",
-                title = "$topic 라이프 - ${dominantEmoji} 주간 기록"
-            )
-        )
-    }
-
-    private fun createDummyWeekSummaries(count: Int): List<WeekSummary> {
-        // 인덱스 1~count 만큼의 데이터를 생성하여 반환 (index 1이 list[0]에 해당)
-        return (1..count).map { index ->
-            createDummyWeekSummary(index)
-        }
-    }
+//    private fun createDummyWeekSummaries(count: Int): List<WeekSummary> {
+//        // 인덱스 1~count 만큼의 데이터를 생성하여 반환 (index 1이 list[0]에 해당)
+//        return (1..count).map { index ->
+//            createDummyWeekSummary(index)
+//        }
+//    }
 
 
     /** 어댑터 클래스: WeekSummary 데이터를 받도록 수정 */
@@ -455,6 +494,8 @@ class StatisticsActivity : AppCompatActivity() {
             if (isLeft) {
                 leafLP.gravity = Gravity.START
                 foxLP.gravity = Gravity.START
+                indexLP.gravity = Gravity.START
+                dateLP.gravity = Gravity.START
                 if (isOnlyBranch){
                     holder.buttonWeeklyStats.setImageResource(R.drawable.branch_left)
                     holder.buttonWeeklyStats.isEnabled = false
@@ -485,6 +526,8 @@ class StatisticsActivity : AppCompatActivity() {
             else { // isRight
                 leafLP.gravity = Gravity.END
                 foxLP.gravity = Gravity.END
+                indexLP.gravity = Gravity.END
+                dateLP.gravity = Gravity.END
                 if (isOnlyBranch){
                     holder.buttonWeeklyStats.setImageResource(R.drawable.branch_right)
                     holder.buttonWeeklyStats.isEnabled = false
@@ -496,20 +539,20 @@ class StatisticsActivity : AppCompatActivity() {
                     holder.buttonWeeklyStats.isEnabled = true
 
                     indexLP.topMargin = holder.dp(48)
-                    indexLP.leftMargin = holder.dp(315)
+                    indexLP.rightMargin = holder.dp(50)
 
                     dateLP.topMargin = holder.dp(100)
-                    dateLP.leftMargin = holder.dp(280)
+                    dateLP.rightMargin = holder.dp(40)
                 }
                 else {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_right)
                     holder.buttonWeeklyStats.isEnabled = true
 
                     indexLP.topMargin = holder.dp(16)
-                    indexLP.leftMargin = holder.dp(300)
+                    indexLP.rightMargin = holder.dp(75)
 
                     dateLP.topMargin = holder.dp(65)
-                    dateLP.leftMargin = holder.dp(280)
+                    dateLP.rightMargin = holder.dp(40)
                 }
             }
             holder.buttonWeeklyStats.layoutParams = leafLP

@@ -77,6 +77,9 @@ class WeekStatsDetailActivity : AppCompatActivity() {
         dayRow1.removeAllViews()
         dayRow2.removeAllViews()
 
+        dayRow1.weightSum = 5.0f
+        dayRow2.weightSum = 5.0f // 5칸 중 2칸만 채우고 나머지는 공백으로 남김
+
         // 요일 이름 (Kotlin의 DayOfWeek 순서를 따름)
         val dayNames = listOf("월", "화", "수", "목", "금", "토", "일")
 
@@ -105,7 +108,7 @@ class WeekStatsDetailActivity : AppCompatActivity() {
             val layoutParams = LinearLayout.LayoutParams(
                 0,
                 200,
-                if (i < 5) 1.0f else 0.5f // 월-금은 1.0f, 토-일은 0.5f (공간을 나눠야 함)
+                1.0f
             ).apply {
                 // 간격 확보 (선택 사항)
                 marginStart = 4.dp

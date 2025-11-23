@@ -150,7 +150,7 @@ class BackupWorker(
                 diary = "오늘은 Room 백업 기능을 테스트했다.",
                 keywords = "테스트;백업;Room",
                 aiComment = "테스트용으로 삽입된 일기입니다.",
-                emotionScore = 0.87f,
+                emotionScore = 0.87,
                 emotionIcon = "😊",
                 themeIcon = "🌙",
                 isEdited = true,

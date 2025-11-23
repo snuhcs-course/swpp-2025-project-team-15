@@ -10,7 +10,7 @@ data class DailyEntry(
     val diary: String?,                    // 일기 내용
     val keywords: String?,                 // 키워드 (;로 구분된 문자열)
     val aiComment: String?,                // AI 코멘트
-    val emotionScore: Float?,             // 감정 점수
+    val emotionScore: Double?,             // 감정 점수
     val emotionIcon: String?,              // 감정 이모지
     val themeIcon: String?,                // 테마 이모지
     val isEdited: Boolean = false,

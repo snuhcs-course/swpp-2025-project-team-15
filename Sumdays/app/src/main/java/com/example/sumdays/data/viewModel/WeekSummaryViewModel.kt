@@ -67,7 +67,7 @@ class WeekSummaryViewModel (
                         "negative" to Random.nextInt(0, 20)
                     ),
                     dominantEmoji = dominantEmoji,
-                    emotionScore = Random.nextFloat(), // 0.0 ~ 1.0
+                    emotionScore = 0.0, // 0.0 ~ 1.0
                     trend = trend
                 ),
                 highlights = listOf(

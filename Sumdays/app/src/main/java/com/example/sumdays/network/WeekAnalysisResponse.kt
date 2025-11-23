@@ -52,7 +52,7 @@ data class NetworkEmotionAnalysis(
     val dominantEmoji: String,
 
     @SerializedName("emotion_score")
-    val emotionScore: Float,
+    val emotionScore: Double,
 
     @SerializedName("trend")
     val trend: String? // "decreasing"

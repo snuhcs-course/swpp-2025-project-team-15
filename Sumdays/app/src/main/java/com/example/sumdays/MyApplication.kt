@@ -7,6 +7,7 @@ import com.example.sumdays.data.sync.BackupScheduler
 import com.example.sumdays.data.repository.WeekSummaryRepository
 import com.example.sumdays.data.repository.DailyEntryRepository
 import com.example.sumdays.statistics.WeekSummaryScheduler
+import com.jakewharton.threetenabp.AndroidThreeTen
 
 //데이터베이스와 저장소(Repository)를 초기화, 싱글톤 패턴을 위한 애플리케이션 클래스
 class MyApplication : Application() {
@@ -22,6 +23,7 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        AndroidThreeTen.init(this)
         BackupScheduler.scheduleAutoBackup()
         WeekSummaryScheduler.scheduleWeeklyTask(this)
     }

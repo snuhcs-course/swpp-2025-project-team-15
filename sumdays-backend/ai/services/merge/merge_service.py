@@ -15,10 +15,6 @@ def embed_sentences(sentences):
     return l2norm(E)
 
 def choose_best_sentence(candidates, style_vec):
-    """
-    candidates: list[str] (여기서는 '단락' 후보들)
-    style_vec: (D,)
-    """
     if not candidates:
         return None
 
@@ -36,7 +32,7 @@ def count_sentences(text: str) -> int:
     return len(sentences)
 
 ### ---- merge function (메모 단위 후보 생성/선택) ---- ###
-def merge_rerank(memos, style_prompt, style_examples, style_vector, num_candidates: int = 1):
+def merge_rerank(memos, style_prompt, style_examples, style_vector, num_candidates: int = 3, temparature: float = 0.8):
 
     # 프롬프트 작성용 정리
     if isinstance(style_prompt, dict):
@@ -140,7 +136,7 @@ Output format (IMPORTANT):
                 {"role": "system", "content": system_msg},
                 {"role": "user",  "content": prompt}
             ],
-            temperature=0.8,
+            temperature=temparature,
             max_tokens=512,
         )
 
@@ -170,7 +166,7 @@ Output format (IMPORTANT):
     return accumulated_diary
 
 ### ---- merge function for streaming ---- ###
-def merge_stream(memos, style_prompt, style_examples):
+def merge_stream(memos, style_prompt, style_examples, temparature: float = 0.8):
 
     # 프롬프트 작성용 정리
     if isinstance(style_prompt, dict):
@@ -210,13 +206,6 @@ You are currently writing the diary ONE MEMO AT A TIME, memo by memo.
         current_diary_block = (
             accumulated_diary if accumulated_diary.strip()
             else "(nothing yet)"
-        )
-
-        # 첫 메모가 아니면, 단락 간에 공백 한 줄이 있도록 유도
-        start_hint = (
-            "This paragraph SHOULD start with a new line, continuing naturally from the current diary.\n"
-            if accumulated_diary.strip() else
-            "This will be the first paragraph of the diary.\n"
         )
 
         prompt = f"""
@@ -263,7 +252,7 @@ LENGTH RULE FOR THIS MEMO:
 - It should feel concise and natural, not repetitive.
 - It should primarily focus on the events and feelings from the FOCUS MEMO.
 
-{start_hint}
+
 Now write ONE diary-style paragraph for ONLY this focus memo.
 Output only the sentences of the paragraph, with no explanations and no numbering.
 """
@@ -275,7 +264,7 @@ Output only the sentences of the paragraph, with no explanations and no numberin
                 {"role": "system", "content": system_msg},
                 {"role": "user",  "content": prompt},
             ],
-            temperature=0.8,
+            temperature=temparature,
             max_tokens=512,
         )
 

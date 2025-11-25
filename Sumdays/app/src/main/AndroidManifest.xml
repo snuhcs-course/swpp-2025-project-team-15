@@ -58,6 +58,8 @@
             android:exported="false" />
         <activity android:name=".settings.NotificationSettingsActivity"
             android:exported="false" />
+        <activity android:name=".settings.LabsSettingsActivity"
+            android:exported="false" />
 
         <activity
             android:name=".settings.StyleExtractionActivity"

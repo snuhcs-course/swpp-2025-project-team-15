@@ -1,9 +1,7 @@
 package com.example.sumdays.data.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
+import androidx.room.*
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.sumdays.data.DailyEntry
@@ -14,9 +12,9 @@ interface UserStyleDao {
 
     // 1. 새 스타일 저장 (AI 추출 성공 시)
     @Insert
-    suspend fun insertStyleRaw(style: UserStyle)
-    suspend fun insertStyle(style: UserStyle){
-        insertStyleRaw(style.copy(isEdited = true, isDeleted = false))
+    suspend fun insertStyleRaw(style: UserStyle) : Long
+    suspend fun insertStyle(style: UserStyle) : Long{
+        return insertStyleRaw(style.copy(isEdited = true, isDeleted = false))
     }
 
     // 2. 모든 스타일 목록 조회 (SettingsActivity에서 사용)
@@ -58,4 +56,27 @@ interface UserStyleDao {
     // ✅ 9️⃣ 백업 후 — 수정 플래그 초기화
     @Query("UPDATE user_style SET isEdited = 0, isDeleted = 0 WHERE styleId IN (:ids)")
     suspend fun resetEditedFlags(ids: List<Long>)
+
+    @Update
+    suspend fun updateStyleRaw(style: UserStyle)
+
+    suspend fun updateStyle(style: UserStyle) {
+        updateStyleRaw(
+            style.copy(
+                isEdited = true,      // 수정됨 표시
+                isDeleted = false     // 수정하는 순간에는 살아있는 스타일로 간주
+            )
+        )
+    }
+    // 7. 모든 스타일 이름 조회 (자동 이름 증가에 필요)
+    @Query("SELECT styleName FROM user_style WHERE isDeleted = 0")
+    suspend fun getAllStyleNames(): List<String>
+
+    // 8. 샘플 다이어리 조회
+    @Query("""
+        UPDATE user_style 
+        SET sampleDiary = :diary, isEdited = 1 
+        WHERE styleId = :id AND isDeleted = 0
+    """)
+    suspend fun updateSampleDiary(id: Long, diary: String)
 }

@@ -27,6 +27,8 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import java.io.InputStreamReader
 import android.content.Context
+import android.widget.Toast
+
 
 class MemoMergeAdapter(
     private val context: Context, //toast 띄우기 위해서 추가
@@ -76,7 +78,17 @@ class MemoMergeAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val v = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_memo, parent, false)
+
+        val memoText = v.findViewById<TextView>(R.id.memo_text)
+        val params = memoText.layoutParams
+        params.width = dp(parent.context, 190)   // ⬅ 여기만 180dp로 고정
+        memoText.layoutParams = params
+
         return VH(v)
+    }
+
+    private fun dp(context: Context, dp: Int): Int {
+        return (dp * context.resources.displayMetrics.density).toInt()
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {

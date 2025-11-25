@@ -13,6 +13,10 @@ interface DailyEntryDao {
     @Query("SELECT * FROM daily_entry WHERE date = :date AND isDeleted = 0")
     fun getEntry(date: String): Flow<DailyEntry?>
 
+    // ✅ 1-1. Suspend 반환 (Worker/Repository 내부 로직용 - Flow 아님)
+    @Query("SELECT * FROM daily_entry WHERE date = :date AND isDeleted = 0")
+    suspend fun getEntrySnapshot(date: String): DailyEntry?
+
     @Query("SELECT date FROM daily_entry WHERE diary IS NOT NULL AND diary != '' AND isDeleted = 0 ORDER BY date DESC")
     fun getAllWrittenDates(): List<String> // 일기 내용이 비어있지 않은 모든 날짜를 최신순으로 조회
 
@@ -84,6 +88,10 @@ interface DailyEntryDao {
 
     @Query("SELECT date, diary, themeIcon FROM daily_entry WHERE date BETWEEN :fromDate AND :toDate AND isDeleted = 0")
     fun getMonthlyEmojis(fromDate : String, toDate : String): Flow<List<EmojiData>>
+
+    // ⭐ [추가] 특정 기간 내의 모든 일기 가져오기
+    @Query("SELECT * FROM daily_entry WHERE date >= :startDate AND date <= :endDate")
+    suspend fun getEntriesBetween(startDate: String, endDate: String): List<DailyEntry>
 
     ////// To Server
     // ✅ 백업용 — 변경된(수정·삭제된) 일기만 가져오기

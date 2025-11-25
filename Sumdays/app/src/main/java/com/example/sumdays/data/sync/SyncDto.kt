@@ -72,7 +72,8 @@ data class UserStylePayload(
     val styleName: String,
     val styleVector: List<Float>,
     val styleExamples: List<String>,
-    val stylePrompt: Any // Gson이 JSON → Any 로 자동 매핑
+    val stylePrompt: Any, // Gson이 JSON → Any 로 자동 매핑
+    val sampleDiary: String
 )
 
 
@@ -123,7 +124,8 @@ fun buildSyncRequest(
             styleName = it.styleName,
             styleVector = it.styleVector,
             styleExamples = it.styleExamples,
-            stylePrompt = it.stylePrompt
+            stylePrompt = it.stylePrompt,
+            sampleDiary = it.sampleDiary
         )
     }
 

@@ -42,7 +42,6 @@ class InitialSyncWorker(
         val insights = gson.fromJson(
             gson.toJson(p.insights),
             Insights::class.java
-
         )
 
         val summary = gson.fromJson(
@@ -143,6 +142,7 @@ class InitialSyncWorker(
                         styleVector = p.styleVector,
                         styleExamples = p.styleExamples,
                         stylePrompt = stylePrompt,
+                        sampleDiary = p.sampleDiary,
                         isEdited = false,
                         isDeleted = false
                     )

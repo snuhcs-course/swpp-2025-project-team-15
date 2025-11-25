@@ -24,16 +24,13 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import com.example.sumdays.data.viewModel.CalendarViewModel
 import androidx.activity.viewModels
 import androidx.lifecycle.LiveData
-import com.example.sumdays.data.sync.BackupScheduler
-import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
-import com.example.sumdays.data.AppDatabase
-import com.example.sumdays.data.style.StylePrompt
-import com.example.sumdays.data.style.UserStyle
-import com.example.sumdays.data.sync.InitialSyncWorker
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import com.example.sumdays.auth.SessionManager
+import androidx.core.view.WindowCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
+import android.view.View
+import com.example.sumdays.utils.setupEdgeToEdge
+
 
 class CalendarActivity : AppCompatActivity() {
 
@@ -59,6 +56,10 @@ class CalendarActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_calendar)
+
+        //
+
+        //
         AndroidThreeTen.init(this)
 
         calendarViewPager = findViewById(R.id.calendarViewPager)
@@ -69,32 +70,19 @@ class CalendarActivity : AppCompatActivity() {
         setCustomCalendar()
         setStatisticBtnListener()
         setNavigationBar()
+
+        // 상태바, 네비게이션바 같은 색으로
+        val rootView = findViewById<View>(R.id.root_layout)
+        setupEdgeToEdge(rootView)
     }
 
     private fun setStatisticBtnListener() {
         val btnStats = findViewById<ImageButton>(R.id.statistic_btn)
-        val btnUpdate = findViewById<ImageButton>(R.id.update_btn)
-<<<<<<< HEAD
-=======
-        val btnInit = findViewById<ImageButton>(R.id.init_btn)
 
->>>>>>> d95db34 (init - test ok)
         btnStats.setOnClickListener {
             val intent = Intent(this, StatisticsActivity::class.java)
             startActivity(intent)
             overridePendingTransition(0, 0)
-        }
-        btnUpdate.setOnClickListener {
-            // 서버 db로 update
-
-            val token = SessionManager.getToken()
-            // Log.d("testtest","${token}")
-            BackupScheduler.triggerManualBackup()
-            Toast.makeText(this, "수동 백업을 시작합니다", Toast.LENGTH_SHORT).show()
-        }
-        btnInit.setOnClickListener {
-            val request = OneTimeWorkRequestBuilder<InitialSyncWorker>().build()
-            WorkManager.getInstance(applicationContext).enqueue(request)
         }
     }
 

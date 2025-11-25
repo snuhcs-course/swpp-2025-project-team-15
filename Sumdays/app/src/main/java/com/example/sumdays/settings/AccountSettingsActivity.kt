@@ -1,8 +1,10 @@
 package com.example.sumdays.settings
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.sumdays.R
 import com.example.sumdays.auth.SessionManager
 import com.example.sumdays.databinding.ActivitySettingsAccountBinding
 import com.example.sumdays.network.*
@@ -15,6 +17,7 @@ import com.example.sumdays.network.ChangePasswordRequest
 import com.example.sumdays.network.ChangePasswordResponse
 import com.example.sumdays.network.UpdateNicknameRequest
 import com.example.sumdays.network.UpdateNicknameResponse
+import com.example.sumdays.utils.setupEdgeToEdge
 
 class AccountSettingsActivity : AppCompatActivity() {
 
@@ -34,6 +37,10 @@ class AccountSettingsActivity : AppCompatActivity() {
 
         setupListeners()
         setupHeaderListener()
+
+        // 상태바, 네비게이션바 같은 색으로
+        val rootView = findViewById<View>(R.id.setting_account_root)
+        setupEdgeToEdge(rootView)
     }
 
     private fun setupHeaderListener() {

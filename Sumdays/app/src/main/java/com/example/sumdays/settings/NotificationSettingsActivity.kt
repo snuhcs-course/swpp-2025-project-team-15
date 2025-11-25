@@ -14,6 +14,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.view.View
+import com.example.sumdays.R
+import com.example.sumdays.utils.setupEdgeToEdge
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 
@@ -43,6 +46,10 @@ class NotificationSettingsActivity : AppCompatActivity() {
 
         // 화면 진입 시 알람 목록 로드 및 UI 업데이트
         loadAlarmSettings()
+
+        // 상태바, 네비게이션바 같은 색으로
+        val rootView = findViewById<View>(R.id.setting_notification_root)
+        setupEdgeToEdge(rootView)
     }
 
     // 정확한 알람 권한 확인 및 요청 함수

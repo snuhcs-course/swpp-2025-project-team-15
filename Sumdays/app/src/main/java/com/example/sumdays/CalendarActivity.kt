@@ -47,8 +47,6 @@ class CalendarActivity : AppCompatActivity() {
 
     // 캘린더 언어 설정
     private var currentLanguage: CalendarLanguage = CalendarLanguage.KOREAN
-
-    // ★ 오늘/이번달 기준 값을 한 번만 계산해서 재사용
     private val today: LocalDate by lazy { LocalDate.now() }
     private val currentYearMonth: YearMonth by lazy { YearMonth.from(today) }
 
@@ -56,10 +54,6 @@ class CalendarActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_calendar)
-
-        //
-
-        //
         AndroidThreeTen.init(this)
 
         calendarViewPager = findViewById(R.id.calendarViewPager)

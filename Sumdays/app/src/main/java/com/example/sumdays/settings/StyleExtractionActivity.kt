@@ -14,8 +14,8 @@ import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.data.style.UserStyleViewModel
 import com.example.sumdays.databinding.ActivityStyleExtractionBinding
 import com.example.sumdays.network.*
-import com.example.sumdays.utils.FileUtil // Uri에서 File 경로를 가져오는 유틸리티 클래스 가정
-import com.google.gson.Gson // StylePrompt 저장을 위해 Gson 사용
+import com.example.sumdays.utils.FileUtil
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

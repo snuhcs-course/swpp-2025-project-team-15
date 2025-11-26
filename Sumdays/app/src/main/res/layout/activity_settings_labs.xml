@@ -32,6 +32,7 @@
         android:layout_height="1dp"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="12dp"
+        android:layout_marginHorizontal="20dp"
         android:background="#444444"
         app:layout_constraintTop_toBottomOf="@id/descText"
         app:layout_constraintBottom_toTopOf="@+id/temperature_example_card"

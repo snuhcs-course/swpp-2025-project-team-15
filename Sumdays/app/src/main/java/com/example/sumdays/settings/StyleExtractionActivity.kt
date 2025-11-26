@@ -2,10 +2,14 @@ package com.example.sumdays.settings
 
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
+import com.example.sumdays.R
 import com.example.sumdays.daily.memo.MemoMergeUtils.convertStylePromptToMap
 import com.example.sumdays.daily.memo.MemoMergeUtils.extractMergedText
 import com.example.sumdays.daily.memo.MemoPayload
@@ -16,6 +20,7 @@ import com.example.sumdays.databinding.ActivityStyleExtractionBinding
 import com.example.sumdays.network.*
 import com.example.sumdays.settings.prefs.LabsPrefs
 import com.example.sumdays.utils.FileUtil
+import com.example.sumdays.utils.setupEdgeToEdge
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.*
@@ -62,6 +67,10 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
 
         setupHeader()
         setupListeners()
+
+        // 상태바, 네비게이션바 같은 색으로
+        val rootView = findViewById<View>(R.id.setting_style_extraction_root)
+        setupEdgeToEdge(rootView)
     }
 
     override fun onDestroy() {

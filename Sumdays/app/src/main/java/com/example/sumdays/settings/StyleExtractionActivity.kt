@@ -4,11 +4,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import com.example.sumdays.R
 import com.example.sumdays.daily.memo.MemoMergeUtils.convertStylePromptToMap
 import com.example.sumdays.daily.memo.MemoMergeUtils.extractMergedText
@@ -39,7 +41,11 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
     lateinit var binding: ActivityStyleExtractionBinding
     private lateinit var styleViewModel: UserStyleViewModel
     private val selectedImageUris = mutableListOf<Uri>() // 선택된 이미지 URI 목록
+    private var isBlocking = false
+    private var isExtracting = false
+    private var currentExtractCall: Call<StyleExtractionResponse>? = null
 
+    private lateinit var backCallback: OnBackPressedCallback
 
     // Activity 종료 시 코루틴 Job 취소
     private val job = Job()
@@ -67,6 +73,7 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
 
         setupHeader()
         setupListeners()
+        setBackCallback()
 
         // 상태바, 네비게이션바 같은 색으로
         val rootView = findViewById<View>(R.id.setting_style_extraction_root)
@@ -75,16 +82,50 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
 
     override fun onDestroy() {
         super.onDestroy()
+        currentExtractCall?.cancel()
         job.cancel()
+    }
+
+    private fun setBackCallback() {
+        backCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (isExtracting) {
+                    // 추출 중이면 → 강제 취소 + 토스트 + 종료
+                    Toast.makeText(
+                        this@StyleExtractionActivity,
+                        "스타일 추출이 취소되었습니다.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    isExtracting = false
+
+                    // Retrofit 콜 강제 취소
+                    currentExtractCall?.cancel()
+                    currentExtractCall = null
+
+                    // 코루틴 전부 취소
+                    job.cancel()
+
+                    finish()
+                } else {
+                    // 평소처럼 뒤로가기
+                    finish()
+                }
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, backCallback)
     }
 
     private fun setupHeader() {
         binding.header.headerTitle.text = "스타일 추출"
-        binding.header.headerBackIcon.setOnClickListener { finish() }
+        binding.header.headerBackIcon.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
     }
 
     private fun setupListeners() {
         binding.selectImagesButton.setOnClickListener {
+            if (isBlocking) return@setOnClickListener
             // 이미지/사진 파일 선택
             selectImagesLauncher.launch("image/*")
         }
@@ -117,6 +158,9 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
         binding.runExtractionButton.isEnabled = false
         binding.runExtractionButton.text = "스타일 분석 중..."
 
+        isExtracting = true
+        showLoading(true)
+
         launch(Dispatchers.IO) {
             try {
                 // 2. Multipart Part 구성
@@ -130,6 +174,8 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@StyleExtractionActivity, "파일 처리 중 오류 발생: ${e.message}", Toast.LENGTH_LONG).show()
+                    isExtracting = false
+                    showLoading(false)
                     resetUi()
                 }
             }
@@ -165,10 +211,11 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
     // 파라미터를 변경된 createTextPart의 결과(RequestBody)로 받도록 수정
     private fun callApi(diaryPart: RequestBody, imageParts: List<MultipartBody.Part>) {
         // ApiClient.api.extractStyle(diaryParts, imageParts) 호출 부분 수정
-        ApiClient.api.extractStyle(
+        currentExtractCall = ApiClient.api.extractStyle(
             diaryPart, // <--- 하나의 RequestBody 파트로 전달
             imageParts
         )
+        currentExtractCall!!
             .enqueue(object : Callback<StyleExtractionResponse> {
 
                 override fun onResponse(call: Call<StyleExtractionResponse>, response: Response<StyleExtractionResponse>) {
@@ -181,6 +228,8 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
                                 saveStyleData(styleResponse)
                                 withContext(Dispatchers.Main) {
                                     Toast.makeText(this@StyleExtractionActivity, "스타일 추출 완료! 설정 목록에서 확인하세요.", Toast.LENGTH_LONG).show()
+                                    isExtracting = false
+                                    showLoading(false)
                                     resetUi() // UI 활성화
                                     finish()
                                 }
@@ -188,6 +237,8 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
                                 // 서버 응답 실패 처리 (success: false 이거나 데이터 불완전)
                                 withContext(Dispatchers.Main) {
                                     // message가 있다면 출력하고, 없다면 "스타일 추출 실패" 출력
+                                    isExtracting = false
+                                    showLoading(false)
                                     resetUi() // UI 활성화
                                     Toast.makeText(
                                         this@StyleExtractionActivity,
@@ -196,10 +247,17 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
                                     ).show()
                                 }
                             }
-                        }  else {
+                        } else {
                             // HTTP 에러 처리
                             withContext(Dispatchers.Main) {
-                                Toast.makeText(this@StyleExtractionActivity, "서버 응답 오류 (코드: ${response.code()})", Toast.LENGTH_LONG).show()
+                                isExtracting = false
+                                showLoading(false)
+                                resetUi()
+                                Toast.makeText(
+                                    this@StyleExtractionActivity,
+                                    "서버 응답 오류 (코드: ${response.code()})",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                         }
                     }
@@ -207,6 +265,8 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
 
                 override fun onFailure(call: Call<StyleExtractionResponse>, t: Throwable) {
                     launch(Dispatchers.Main) {
+                        isExtracting = false
+                        showLoading(false)
                         resetUi()
                         Toast.makeText(this@StyleExtractionActivity, "네트워크 오류: ${t.message}", Toast.LENGTH_LONG).show()
                     }
@@ -252,6 +312,7 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
     // --- 5. UI 및 유틸리티 ---
 
     private fun resetUi() {
+        isExtracting = false
         binding.runExtractionButton.isEnabled = true
         binding.runExtractionButton.text = "스타일 추출 실행"
     }
@@ -291,4 +352,30 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
         }
     }
 
+    private fun showLoading(isLoading: Boolean) {
+        runOnUiThread {
+            isBlocking = isLoading
+
+            // UI 블로킹 처리
+            binding.runExtractionButton.isEnabled = !isLoading
+            binding.selectImagesButton.isEnabled = !isLoading
+            binding.diaryTextInput.isEnabled = !isLoading
+
+            if (isLoading) {
+                // 화면 잠금
+                binding.loadingOverlay.visibility = View.VISIBLE
+                binding.loadingGifView.visibility = View.VISIBLE
+
+                Glide.with(this)
+                    .asGif()
+                    .load(R.drawable.loading_animation)
+                    .into(binding.loadingGifView)
+            } else {
+                binding.loadingOverlay.visibility = View.GONE
+                binding.loadingGifView.visibility = View.GONE
+
+                Glide.with(this).clear(binding.loadingGifView)
+            }
+        }
+    }
 }

@@ -503,7 +503,7 @@ class StatisticsActivity : AppCompatActivity() {
 
             // ⭐ 2. 시작 날짜 설정 (데이터가 있을 때만 표시)
             if (hasData && weekSummary != null) {
-                holder.leafStartDateText.text = weekSummary.startDate
+                holder.leafStartDateText.text = "${weekSummary.startDate}\n~${weekSummary.endDate}"
                 holder.leafStartDateText.visibility = View.VISIBLE
             } else {
                 holder.leafStartDateText.text = ""
@@ -521,10 +521,13 @@ class StatisticsActivity : AppCompatActivity() {
             val indexLP = holder.leafIndexText.layoutParams as FrameLayout.LayoutParams
             val dateLP = holder.leafStartDateText.layoutParams as FrameLayout.LayoutParams
 
+            indexLP.gravity = Gravity.CENTER_HORIZONTAL
+            indexLP.leftMargin = 0
+            indexLP.rightMargin = 0
+
             if (isLeft) {
                 leafLP.gravity = Gravity.START
                 foxLP.gravity = Gravity.START
-                indexLP.gravity = Gravity.START
                 dateLP.gravity = Gravity.START
                 if (isOnlyBranch){
                     holder.buttonWeeklyStats.setImageResource(R.drawable.branch_left)
@@ -536,18 +539,12 @@ class StatisticsActivity : AppCompatActivity() {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_left)
                     holder.buttonWeeklyStats.isEnabled = true
 
-                    indexLP.topMargin = holder.dp(48)
-                    indexLP.leftMargin = holder.dp(50)
-
-                    dateLP.topMargin = holder.dp(100)
+                    dateLP.topMargin = holder.dp(110)
                     dateLP.leftMargin = holder.dp(40)
                 }
                 else {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_left)
                     holder.buttonWeeklyStats.isEnabled = true
-
-                    indexLP.topMargin = holder.dp(16)
-                    indexLP.leftMargin = holder.dp(75)
 
                     dateLP.topMargin = holder.dp(65)
                     dateLP.leftMargin = holder.dp(40)
@@ -556,7 +553,6 @@ class StatisticsActivity : AppCompatActivity() {
             else { // isRight
                 leafLP.gravity = Gravity.END
                 foxLP.gravity = Gravity.END
-                indexLP.gravity = Gravity.END
                 dateLP.gravity = Gravity.END
                 if (isOnlyBranch){
                     holder.buttonWeeklyStats.setImageResource(R.drawable.branch_right)
@@ -568,18 +564,12 @@ class StatisticsActivity : AppCompatActivity() {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_right)
                     holder.buttonWeeklyStats.isEnabled = true
 
-                    indexLP.topMargin = holder.dp(48)
-                    indexLP.rightMargin = holder.dp(50)
-
-                    dateLP.topMargin = holder.dp(100)
+                    dateLP.topMargin = holder.dp(110)
                     dateLP.rightMargin = holder.dp(40)
                 }
                 else {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_right)
                     holder.buttonWeeklyStats.isEnabled = true
-
-                    indexLP.topMargin = holder.dp(16)
-                    indexLP.rightMargin = holder.dp(75)
 
                     dateLP.topMargin = holder.dp(65)
                     dateLP.rightMargin = holder.dp(40)

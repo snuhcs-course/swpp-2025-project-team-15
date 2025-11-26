@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/statistics_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -129,4 +131,29 @@
             android:contentDescription="가장 오래된 기록으로 이동" />
 
     </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/canvas"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false" >
+
+        <View
+            android:id="@+id/loading_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#000000"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/loading_gif_view"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        tools:src="@drawable/sumdays_logo"
+        tools:visibility="visible" />
 </FrameLayout>

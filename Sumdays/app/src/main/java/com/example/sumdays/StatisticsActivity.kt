@@ -29,6 +29,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.example.sumdays.data.viewModel.WeekSummaryViewModel
 import com.example.sumdays.data.viewModel.WeekSummaryViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -56,6 +57,8 @@ class StatisticsActivity : AppCompatActivity() {
     private lateinit var tvLeafCount: TextView
     private lateinit var tvGrapeCount: TextView
     private lateinit var btnBack: ImageButton
+    private lateinit var loadingOverlay: View
+    private lateinit var loadingGifView: ImageView
 
     private var bgScrollY = 0f      // 배경 전환용
     private var treeScrollY = 0f    // 나무 줄기 타일용
@@ -82,6 +85,11 @@ class StatisticsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_statistics)
+
+        loadingOverlay = findViewById(R.id.loading_overlay)
+        loadingGifView = findViewById(R.id.loading_gif_view)
+        showLoading(true)
+
         viewModel = ViewModelProvider(this).get(DailyEntryViewModel::class.java)
 
         val bg1 = findViewById<ImageView>(R.id.statistics_background_1)
@@ -188,6 +196,28 @@ class StatisticsActivity : AppCompatActivity() {
                 recyclerView.post {
                     recyclerView.scrollBy(0, itemHeightPx * (currentDataCount + 10))
                 }
+            }
+        }
+        loadingOverlay.post {
+            showLoading(false)
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        runOnUiThread {
+            if (isLoading) {
+                loadingOverlay.visibility = View.VISIBLE
+                loadingGifView.visibility = View.VISIBLE
+                // Glide로 GIF 로드 (R.drawable.loading_animation.gif 파일이 있다고 가정)
+                Glide.with(this)
+                    .asGif()
+                    .load(R.drawable.loading_animation) // "loading_animation.gif" 파일 이름
+                    .into(loadingGifView)
+            } else {
+                loadingOverlay.visibility = View.GONE
+                loadingGifView.visibility = View.GONE
+                // Glide 로드 중지
+                Glide.with(this).clear(loadingGifView)
             }
         }
     }

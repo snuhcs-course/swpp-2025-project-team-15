@@ -47,6 +47,7 @@
         android:id="@+id/login_instruction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/gray_dark"
         android:layout_marginTop="80dp"
         android:text="Login to Sumdays"
         android:textSize="28dp"
@@ -59,6 +60,7 @@
 
     <TextView
         android:id="@+id/app_description"
+        android:textColor="@color/gray_dark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
@@ -88,6 +90,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
+        android:textColor="@color/gray_dark"
         android:ems="10"
         android:hint="아이디를 입력하세요"
         android:inputType="text"
@@ -104,6 +107,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:ems="10"
+        android:textColor="@color/gray_dark"
         android:hint="비밀번호를 입력하세요"
         android:inputType="textPassword"
         app:layout_constraintBottom_toBottomOf="parent"

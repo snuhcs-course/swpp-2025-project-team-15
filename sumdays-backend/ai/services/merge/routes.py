@@ -16,7 +16,7 @@ def merge_memo():
         ],
         "end_flag": true,
         "advanced_flag": true,
-        "temparature": 0.8,
+        "temperature": 0.8,
         "style_prompt": {...},
         "style_examples": {"adsf", "asdfaf", "FKSJD"}
     \}
@@ -26,15 +26,15 @@ def merge_memo():
         memos =  [m["content"] for m in sorted(data["memos"], key=lambda x: x["order"])]
         end_flag = data["end_flag"]
         advanced_flag = data["advanced_flag"]
-        temparature = data["temparature"]
+        temperature = data["temperature"]
         style_prompt = data["style_prompt"]
         style_examples = data["style_examples"]
         style_vector = data["style_vector"]
 
         if not end_flag:
-            if not advanced_flag:
+            if not advanced_flag or not style_vector:
                 def generate():
-                    for chunk in merge_stream(memos, style_prompt, style_examples, temparature=temparature):
+                    for chunk in merge_stream(memos, style_prompt, style_examples, temperature=temperature):
                         delta = chunk.choices[0].delta
                         content = delta.content or ""
                         if not content:
@@ -43,15 +43,15 @@ def merge_memo():
 
                 return Response(generate(), mimetype="text/plain; charset=utf-8")
             else:
-                return merge_rerank(memos, style_prompt, style_examples, style_vector, temparature=temparature)
+                return merge_rerank(memos, style_prompt, style_examples, style_vector, temperature=temperature)
         
         else:
             diary = ""
             
-            if advanced_flag:
-                diary = merge_rerank(memos, style_prompt, style_examples, style_vector, temparature=temparature)
+            if advanced_flag and style_vector:
+                diary = merge_rerank(memos, style_prompt, style_examples, style_vector, temperature=temperature)
             else: 
-                for chunk in merge_stream(memos, style_prompt, style_examples, temparature=temparature):
+                for chunk in merge_stream(memos, style_prompt, style_examples, temperature=temperature):
                     delta = chunk.choices[0].delta
                     content = delta.content or ""
                     if not content:

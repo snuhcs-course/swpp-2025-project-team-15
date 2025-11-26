@@ -14,6 +14,7 @@ import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.data.style.UserStyleViewModel
 import com.example.sumdays.databinding.ActivityStyleExtractionBinding
 import com.example.sumdays.network.*
+import com.example.sumdays.settings.prefs.LabsPrefs
 import com.example.sumdays.utils.FileUtil
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -250,6 +251,9 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
 
         val promptMap = convertStylePromptToMap(style.stylePrompt)
         val examples = style.styleExamples
+        val styleVector = style.styleVector
+        val advancedFlag = LabsPrefs.getAdvancedFlag(this@StyleExtractionActivity)
+        val temperature = LabsPrefs.getTemperature(this@StyleExtractionActivity)
 
         val memosPayload = listOf(
             MemoPayload(1, "아침에 일어나서 조금 멍했다.", 1),
@@ -261,7 +265,10 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
             memos = memosPayload,
             endFlag = true,
             stylePrompt = promptMap,
-            styleExamples = examples
+            styleExamples = examples,
+            styleVector = styleVector,
+            advancedFlag = advancedFlag,
+            temperature = temperature
         )
 
         return withContext(Dispatchers.IO) {

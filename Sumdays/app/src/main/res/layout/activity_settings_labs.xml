@@ -143,8 +143,6 @@
         <!-- 스위치 오른쪽 고정 -->
         <Switch
             android:id="@+id/accurate_style_switch"
-            android:thumbTint="#FFFFFF"
-            android:trackTint="#889C27B0"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"

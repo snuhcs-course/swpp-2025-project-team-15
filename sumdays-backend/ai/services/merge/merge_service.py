@@ -32,7 +32,7 @@ def count_sentences(text: str) -> int:
     return len(sentences)
 
 ### ---- merge function (메모 단위 후보 생성/선택) ---- ###
-def merge_rerank(memos, style_prompt, style_examples, style_vector, num_candidates: int = 3, temparature: float = 0.8):
+def merge_rerank(memos, style_prompt, style_examples, style_vector, num_candidates: int = 3, temperature: float = 0.8):
 
     # 프롬프트 작성용 정리
     if isinstance(style_prompt, dict):
@@ -136,7 +136,7 @@ Output format (IMPORTANT):
                 {"role": "system", "content": system_msg},
                 {"role": "user",  "content": prompt}
             ],
-            temperature=temparature,
+            temperature=temperature,
             max_tokens=512,
         )
 
@@ -166,7 +166,7 @@ Output format (IMPORTANT):
     return accumulated_diary
 
 ### ---- merge function for streaming ---- ###
-def merge_stream(memos, style_prompt, style_examples, temparature: float = 0.8):
+def merge_stream(memos, style_prompt, style_examples, temperature: float = 0.8):
 
     # 프롬프트 작성용 정리
     if isinstance(style_prompt, dict):
@@ -190,7 +190,7 @@ def merge_stream(memos, style_prompt, style_examples, temparature: float = 0.8):
         memo_sentence_counts.append((min_sent, max_sent))
     
     sentence_requirements = "\n".join(
-        f"Memo {i+1}: {min_s}-{max_s} sentences" 
+        f"- The rewritten paragraph for this memo should be between {min_s} and {max_s} sentences." 
         for i, (min_s, max_s) in enumerate(memo_sentence_counts)
     )
 
@@ -261,7 +261,7 @@ Output only the paragraphs, with no explanations, numbering, or labels.
             {"role": "system", "content": system_msg},
             {"role": "user",  "content": prompt},
         ],
-        temperature=temparature,
+        temperature=temperature,
         max_tokens=512 * len(memos),  # 메모 개수에 비례하게 토큰 수 조정
     )
 

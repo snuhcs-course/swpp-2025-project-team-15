@@ -10,7 +10,6 @@ class DailyEntryRepository (
     private val dao: DailyEntryDao
 ) {
     // 1. 일기 내용 저장 (DAO의 트랜잭션 함수 사용)
-    // 단순히 일기 텍스트만 저장할 때 사용합니다.
     suspend fun saveDiary(date: String, content: String) {
         dao.updateEntry(date = date, diary = content)
     }
@@ -20,8 +19,7 @@ class DailyEntryRepository (
         return dao.getEntry(date)
     }
 
-    // ⭐ 2-1. 일기 내용 조회 (Worker용 Suspend 반환)
-    // Flow가 아니라 String을 바로 반환하므로 Worker 루프 내에서 안전하게 사용 가능
+    // 2-1. 일기 내용 조회 (Worker용 Suspend 반환)
     suspend fun getEntrySnapshot(date: String): DailyEntry? {
         return dao.getEntrySnapshot(date)
     }
@@ -62,7 +60,7 @@ class DailyEntryRepository (
         )
     }
 
-    // ⭐ [추가] 기간 내 일기 조회 함수
+    //  기간 내 일기 조회 함수
     suspend fun getEntriesBetween(startDate: String, endDate: String): List<DailyEntry> {
         return dao.getEntriesBetween(startDate, endDate)
     }

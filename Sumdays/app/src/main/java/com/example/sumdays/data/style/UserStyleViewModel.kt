@@ -43,7 +43,6 @@ class UserStyleViewModel(application: Application) : AndroidViewModel(applicatio
 
     /**
      * ID를 통해 단일 스타일 데이터를 조회합니다.
-     * (활성 스타일 정보가 필요할 때 사용될 수 있습니다.)
      * LiveData가 아니므로 suspend 함수로 정의하고 호출하는 곳에서 결과를 기다립니다.
      */
     suspend fun getStyleById(styleId: Long): UserStyle? {

@@ -35,7 +35,7 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        // ✅ DB는 최초 호출 시 자동 생성 (onCreate 불필요)
+        //  DB는 최초 호출 시 자동 생성 (onCreate 불필요)
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(

@@ -13,7 +13,7 @@
         android:id="@+id/memo_text"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="15dp"
         android:gravity="center"
         android:includeFontPadding="false"
         android:text="내용"

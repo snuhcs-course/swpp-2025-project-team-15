@@ -28,7 +28,7 @@ class DailyEntryViewModel(application: Application) : AndroidViewModel(applicati
             .asLiveData()
     }
 
-    // ✅ 2️⃣ 부분 업데이트 (선택 인자 방식)
+    // 부분 업데이트 (선택 인자 방식)
     fun updateEntry(
         date: String,
         diary: String? = null,
@@ -49,7 +49,7 @@ class DailyEntryViewModel(application: Application) : AndroidViewModel(applicati
         )
     }
 
-    // ✅ 3️⃣ 모든 작성 날짜를 조회하는 함수 추가 (Strike 계산용)
+    // 모든 작성 날짜를 조회하는 함수 추가 (Strike 계산용)
     fun getAllWrittenDates(): List<String> {
         // ViewModelScope를 사용하지 않음: 호출하는 곳에서 코루틴을 관리하고 동기적으로 결과를 받음
         return dao.getAllWrittenDates()

@@ -18,7 +18,6 @@ interface UserStyleDao {
     }
 
     // 2. 모든 스타일 목록 조회 (SettingsActivity에서 사용)
-    // LiveData<List<UserStyle>>을 반환하여 단일 사용자에게 속한 모든 스타일을 표시
     @Query("SELECT * FROM user_style WHERE isDeleted = 0 ORDER BY styleId DESC")
     fun getAllStyles(): LiveData<List<UserStyle>>
 
@@ -45,15 +44,15 @@ interface UserStyleDao {
     @Query("SELECT * FROM user_style WHERE isDeleted = 1")
     suspend fun getDeletedStyles(): List<UserStyle>
 
-    // ✅ 7️⃣ 백업용 — 수정된(삭제되지 않은) 스타일만 조회
+    // 백업용 — 수정된(삭제되지 않은) 스타일만 조회
     @Query("SELECT * FROM user_style WHERE isEdited = 1 AND isDeleted = 0")
     suspend fun getEditedStyles(): List<UserStyle>
 
-    // ✅ 8️⃣ 백업 후 — 삭제된 항목 실제 제거
+    // 백업 후 — 삭제된 항목 실제 제거
     @Query("DELETE FROM user_style WHERE styleId IN (:ids)")
     suspend fun resetDeletedFlags(ids: List<Long>)
 
-    // ✅ 9️⃣ 백업 후 — 수정 플래그 초기화
+    // 백업 후 — 수정 플래그 초기화
     @Query("UPDATE user_style SET isEdited = 0, isDeleted = 0 WHERE styleId IN (:ids)")
     suspend fun resetEditedFlags(ids: List<Long>)
 
@@ -63,8 +62,8 @@ interface UserStyleDao {
     suspend fun updateStyle(style: UserStyle) {
         updateStyleRaw(
             style.copy(
-                isEdited = true,      // 수정됨 표시
-                isDeleted = false     // 수정하는 순간에는 살아있는 스타일로 간주
+                isEdited = true,
+                isDeleted = false
             )
         )
     }

@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
@@ -182,19 +183,25 @@ class StyleCardAdapter(
 
         private fun showRenameDialog(style: UserStyle) {
             val ctx = b.root.context
-            val input = android.widget.EditText(ctx).apply {
+            val inflater = LayoutInflater.from(ctx)
+            val view = inflater.inflate(R.layout.dialog_rename_style, null)
+
+            val input = view.findViewById<EditText>(R.id.edit_style_name_content).apply {
                 setText(style.styleName)
                 setSelection(text.length)
             }
+
             AlertDialog.Builder(ctx)
-                .setTitle("스타일 이름 변경")
-                .setView(input)
+                .setView(view)
                 .setPositiveButton("확인") { _, _ ->
-                    onRename(style, input.text.toString().ifBlank { defaultName(adapterPosition) })
+                    val newName = input.text.toString()
+                        .ifBlank { defaultName(adapterPosition) }
+                    onRename(style, newName)
                 }
                 .setNegativeButton("취소", null)
                 .show()
         }
+
 
         private fun defaultName(idx: Int) = "스타일 ${idx + 1}"
     }

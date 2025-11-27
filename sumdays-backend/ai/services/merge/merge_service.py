@@ -15,10 +15,6 @@ def embed_sentences(sentences):
     return l2norm(E)
 
 def choose_best_sentence(candidates, style_vec):
-    """
-    candidates: list[str] (여기서는 '단락' 후보들)
-    style_vec: (D,)
-    """
     if not candidates:
         return None
 
@@ -36,7 +32,7 @@ def count_sentences(text: str) -> int:
     return len(sentences)
 
 ### ---- merge function (메모 단위 후보 생성/선택) ---- ###
-def merge_rerank(memos, style_prompt, style_examples, style_vector, num_candidates: int = 1):
+def merge_rerank(memos, style_prompt, style_examples, style_vector, num_candidates: int = 3, temperature: float = 0.8):
 
     # 프롬프트 작성용 정리
     if isinstance(style_prompt, dict):
@@ -140,7 +136,7 @@ Output format (IMPORTANT):
                 {"role": "system", "content": system_msg},
                 {"role": "user",  "content": prompt}
             ],
-            temperature=0.8,
+            temperature=temperature,
             max_tokens=512,
         )
 
@@ -163,14 +159,14 @@ Output format (IMPORTANT):
 
         # 누적 일기에 단락 추가
         if accumulated_diary:
-            accumulated_diary += "\n\b" + best_paragraph.strip()
+            accumulated_diary += "\n\n" + best_paragraph.strip()
         else:
-            accumulated_diary = "\b" + best_paragraph.strip()
+            accumulated_diary = best_paragraph.strip()
 
     return accumulated_diary
 
 ### ---- merge function for streaming ---- ###
-def merge_stream(memos, style_prompt, style_examples):
+def merge_stream(memos, style_prompt, style_examples, temperature: float = 0.8):
 
     # 프롬프트 작성용 정리
     if isinstance(style_prompt, dict):
@@ -184,7 +180,19 @@ def merge_stream(memos, style_prompt, style_examples):
         style_examples_text = "- " + str(style_examples)
 
     indexed_memos_text = "\n".join(f"{i+1}. {m}" for i, m in enumerate(memos))
-    accumulated_diary = ""
+    
+    # 각 메모의 목표 문장 수 계산
+    memo_sentence_counts = []
+    for memo in memos:
+        base_sent = max(1, count_sentences(memo))
+        min_sent = max(1, math.ceil(base_sent * 1.3))
+        max_sent = max(min_sent, math.ceil(base_sent * 1.5))
+        memo_sentence_counts.append((min_sent, max_sent))
+    
+    sentence_requirements = "\n".join(
+        f"- The rewritten paragraph for this memo should be between {min_s} and {max_s} sentences." 
+        for i, (min_s, max_s) in enumerate(memo_sentence_counts)
+    )
 
     system_msg = """
 You are a diary-writing assistant.
@@ -195,47 +203,29 @@ Your priorities are, in this exact order:
 3) Then, softly adjust tone and style to match the user's profile.
 
 You MUST NOT invent events that are not clearly implied by the memos.
-Every paragraph you write must be grounded in the given focus memo.
-You are currently writing the diary ONE MEMO AT A TIME, memo by memo.
+Every paragraph you write must be grounded in the given memo.
 """
 
-    for idx, memo in enumerate(memos):
-        base_sent = max(1, count_sentences(memo))
-        min_sent = max(1, math.ceil(base_sent * 1.3))
-        max_sent = max(min_sent, math.ceil(base_sent * 1.5))
-
-        focus_memo_idx = idx + 1
-        focus_memo = memo
-
-        current_diary_block = (
-            accumulated_diary if accumulated_diary.strip()
-            else "(nothing yet)"
-        )
-
-        # 첫 메모가 아니면, 단락 간에 공백 한 줄이 있도록 유도
-        start_hint = (
-            "This paragraph SHOULD start with a new line, continuing naturally from the current diary.\n"
-            if accumulated_diary.strip() else
-            "This will be the first paragraph of the diary.\n"
-        )
-
-        prompt = f"""
+    prompt = f"""
 You are a diary writing assistant.
 
 You will be given:
-- ONE memo: a fragmented note the user wrote today
+- Multiple memos: fragmented notes the user wrote today
 - style profile: JSON describing the user's writing tone, phrasing preference, pacing, common expressions
 - style examples: several representative sentences the user has written before
-- the diary text that has already been written for previous memos
 
-Your PRIMARY job for THIS STEP:
-- Take the given memo and rewrite/expand it into a short diary-style paragraph.
-- Preserve the concrete events and facts from the memo (time, place, actions, feelings).
-- Do NOT invent new events that are not clearly implied by the memo.
-
-Your SECONDARY job:
+Your job:
+- Take each memo IN ORDER and rewrite/expand it into a diary-style paragraph.
+- Preserve the concrete events and facts from each memo (time, place, actions, feelings).
+- Do NOT invent new events that are not clearly implied by the memos.
 - Softly adjust the tone, rhythm, and sentence endings to match the style profile and examples.
-- Style should never override the factual content of the memo.
+- Style should never override the factual content of the memos.
+
+IMPORTANT FORMATTING:
+- Write ONE paragraph for EACH memo.
+- Start paragraph with one blank.
+- SEPARATE each paragraph with a newline (\\n).
+- Process memos in the given order (1, 2, 3, ...).
 
 ---
 
@@ -247,44 +237,36 @@ STYLE EXAMPLES (for tone only, NOT for events):
 
 ---
 
-ALL MEMOS (IN ORDER, WITH INDEX):
+ALL MEMOS (IN ORDER):
 {indexed_memos_text}
-
-CURRENT DIARY SO FAR (previous memos already processed):
-{current_diary_block}
-
-FOCUS MEMO FOR THIS STEP (memo #{focus_memo_idx}):
-\"\"\"{focus_memo}\"\"\"
 
 ---
 
-LENGTH RULE FOR THIS MEMO:
-- The rewritten paragraph for this memo should be between {min_sent} and {max_sent} sentences.
-- It should feel concise and natural, not repetitive.
-- It should primarily focus on the events and feelings from the FOCUS MEMO.
+LENGTH REQUIREMENTS (per memo):
+{sentence_requirements}
 
-{start_hint}
-Now write ONE diary-style paragraph for ONLY this focus memo.
-Output only the sentences of the paragraph, with no explanations and no numbering.
+Each paragraph should feel concise and natural, not repetitive.
+Each paragraph should primarily focus on the events and feelings from its corresponding memo.
+
+Now write diary-style paragraphs for ALL memos in order.
+Separate each paragraph with a newlines (\\n).
+Start paragraph with one blank.
+Output only the paragraphs, with no explanations, numbering, or labels.
 """
 
-        stream = client.chat.completions.create(
-            model=os.getenv("GPT_MODEL", "gpt-4.1-nano"),
-            stream=True,
-            messages=[
-                {"role": "system", "content": system_msg},
-                {"role": "user",  "content": prompt},
-            ],
-            temperature=0.8,
-            max_tokens=512,
-        )
+    stream = client.chat.completions.create(
+        model=os.getenv("GPT_MODEL", "gpt-4.1-nano"),
+        stream=True,
+        messages=[
+            {"role": "system", "content": system_msg},
+            {"role": "user",  "content": prompt},
+        ],
+        temperature=temperature,
+        max_tokens=512 * len(memos),  # 메모 개수에 비례하게 토큰 수 조정
+    )
 
-        memo_generated_text = ""
-
-        for chunk in stream:
-            delta = chunk.choices[0].delta
-            text = delta.content or ""
-            memo_generated_text += text
-            accumulated_diary += text
-
+    for chunk in stream:
+        delta = chunk.choices[0].delta
+        text = delta.content or ""
+        if text:
             yield chunk

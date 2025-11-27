@@ -71,40 +71,6 @@
                         android:contentDescription="닉네임 수정" />
 
                 </RelativeLayout>
-<!--                <LinearLayout-->
-<!--                    android:orientation="horizontal"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content">-->
-
-<!--                    <TextView-->
-<!--                        android:id="@+id/strike"-->
-<!--                        android:text="🔥 Strike: 12"-->
-<!--                        android:textSize="14sp"-->
-<!--                        android:textColor="#FFFFFF"-->
-<!--                        android:layout_marginTop="4dp"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content" />-->
-
-<!--                    <TextView-->
-<!--                        android:id="@+id/leaves"-->
-<!--                        android:text="🍃 leaves: 34"-->
-<!--                        android:textSize="14sp"-->
-<!--                        android:textColor="#FFFFFF"-->
-<!--                        android:layout_marginTop="4dp"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content" />-->
-
-<!--                    <TextView-->
-<!--                        android:id="@+id/grapes"-->
-<!--                        android:text="🍇 Grapes: 10"-->
-<!--                        android:textSize="14sp"-->
-<!--                        android:textColor="#FFFFFF"-->
-<!--                        android:layout_marginTop="4dp"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content" />-->
-
-<!--                </LinearLayout>-->
-
             </LinearLayout>
 
             <!-- 구분선 -->
@@ -114,8 +80,7 @@
                 android:layout_height="1dp"
                 android:background="#DDDDDD" />
 
-            <!-- 아래 항목들 (버튼 역할) -->
-
+            <!-- 세부 설정 페이지 버튼 -->
             <LinearLayout
                 android:id="@+id/notificationBlock"
                 style="@style/SettingsItemStyle" >
@@ -132,6 +97,17 @@
                 style="@style/SettingsItemStyle" >
                 <TextView
                     android:text="일기 스타일"
+                    style="@style/TextAppearance.App.Normal"
+                    android:textColor="#FFFFFF"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/labsBlock"
+                style="@style/SettingsItemStyle" >
+                <TextView
+                    android:text="실험실"
                     style="@style/TextAppearance.App.Normal"
                     android:textColor="#FFFFFF"
                     android:layout_width="match_parent"

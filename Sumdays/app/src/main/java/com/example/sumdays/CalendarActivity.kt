@@ -1,35 +1,32 @@
 // CalendarActivity.kt
 package com.example.sumdays
 
+import android.app.Activity
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.widget.ImageButton
-import android.widget.TextView
 import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import java.util.Locale
+import androidx.lifecycle.LiveData
 import androidx.viewpager2.widget.ViewPager2
 import com.example.sumdays.calendar.CalendarLanguage
 import com.example.sumdays.calendar.MonthAdapter
+import com.example.sumdays.data.viewModel.CalendarViewModel
+import com.example.sumdays.utils.setupEdgeToEdge
+import com.jakewharton.threetenabp.AndroidThreeTen
 import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
 import org.threeten.bp.format.DateTimeFormatter
-import com.jakewharton.threetenabp.AndroidThreeTen
-import com.example.sumdays.data.viewModel.CalendarViewModel
-import androidx.activity.viewModels
-import androidx.lifecycle.LiveData
-import androidx.core.view.WindowCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
-import android.view.View
-import com.example.sumdays.utils.setupEdgeToEdge
+import java.util.Locale
 
 
 class CalendarActivity : AppCompatActivity() {
@@ -68,6 +65,24 @@ class CalendarActivity : AppCompatActivity() {
         // 상태바, 네비게이션바 같은 색으로
         val rootView = findViewById<View>(R.id.root_layout)
         setupEdgeToEdge(rootView)
+
+        // 최초 실행 여부를 판단
+        val pref: SharedPreferences = getSharedPreferences("checkFirst", Activity.MODE_PRIVATE);
+        val checkFirst = pref.getBoolean("checkFirst", false);
+//        val checkFirst = false
+
+
+        // false일 경우 튜토리얼 최초 실행
+        if (!checkFirst) {
+            // 앱 최초 실행시 하고 싶은 작업
+            val editor = pref.edit()
+            editor.putBoolean("checkFirst", true)
+            editor.apply()
+            finish()
+
+            val intent: Intent = Intent(this, TutorialActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun setStatisticBtnListener() {

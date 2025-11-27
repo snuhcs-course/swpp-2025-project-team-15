@@ -26,6 +26,9 @@
             android:name=".LoginActivity"
             android:exported="false" />
         <activity
+            android:name=".TutorialActivity"
+            android:exported="false" />
+        <activity
             android:name=".DailyWriteActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan"

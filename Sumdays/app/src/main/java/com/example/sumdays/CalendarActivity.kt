@@ -74,11 +74,11 @@ class CalendarActivity : AppCompatActivity() {
 
         // 최초 실행 여부를 판단
         val pref: SharedPreferences = getSharedPreferences("checkFirst", Activity.MODE_PRIVATE);
-//        val checkFirst = pref.getBoolean("checkFirst", false);
-        val checkFirst = false
+        val checkFirst = pref.getBoolean("checkFirst", false);
+//        val checkFirst = false
 
 
-        // false일 경우 최초 실행
+        // false일 경우 튜토리얼 최초 실행
         if (!checkFirst) {
             // 앱 최초 실행시 하고 싶은 작업
             val editor = pref.edit()

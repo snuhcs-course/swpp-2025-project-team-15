@@ -40,6 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:translationY="-50dp"
         android:background="@null"
         android:text="next"
         android:textColor="@android:color/white" />
@@ -52,6 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
+        android:translationY="-50dp"
         android:background="@null"
         android:text="skip"
         android:textColor="@android:color/white" />

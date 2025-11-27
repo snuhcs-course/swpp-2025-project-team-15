@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:src="@drawable/tutorial_03_text"
         android:scaleType="fitCenter"
-        android:translationY="150dp"
+        android:translationY="100dp"
         tools:ignore="MissingConstraints" />
 
     <ImageView

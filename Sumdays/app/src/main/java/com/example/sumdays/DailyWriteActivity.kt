@@ -350,9 +350,13 @@ class DailyWriteActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
             .setNegativeButton("수정") { dialog, id ->
-                val newContent = editText.text.toString()
-                val updatedMemo = memo.copy(content = newContent)
-                memoViewModel.update(updatedMemo)
+                val newContent = editText.text.toString().trim()
+                if (newContent.isNotEmpty()) {
+                    val updatedMemo = memo.copy(content = newContent)
+                    memoViewModel.update(updatedMemo)
+                } else {
+                    Toast.makeText(this, "내용을 입력해 주세요.", Toast.LENGTH_SHORT).show()
+                }
             }
             .setNeutralButton("취소") { dialog, id ->
                 dialog.dismiss()
@@ -393,8 +397,6 @@ class DailyWriteActivity : AppCompatActivity() {
             audioRecorderHelper.checkPermissionAndToggleRecording()
         }
 
-        // photoIcon.setOnClickListener { ... } // ★★★ 삭제 ★★★
-
         // ★★★ EditText 포커스 리스너 (주석 해제 및 수정) ★★★
         memoInputEditText.setOnFocusChangeListener { view, hasFocus ->
             if (hasFocus) {
@@ -413,7 +415,6 @@ class DailyWriteActivity : AppCompatActivity() {
         }
     }
 
-    // ★★★ 이미지 분석 옵션 대화상자 삭제 ★★★
     // private fun showImageAnalysisOptions() { ... }
 
     // 하단 네비게이션 바의 버튼들 클릭 이벤트를 처리 (변경 없음)

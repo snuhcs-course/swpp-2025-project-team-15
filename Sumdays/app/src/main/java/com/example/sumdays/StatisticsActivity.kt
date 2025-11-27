@@ -530,10 +530,18 @@ class StatisticsActivity : AppCompatActivity() {
                 foxLP.gravity = Gravity.START
                 dateLP.gravity = Gravity.START
                 if (isOnlyBranch){
-                    holder.buttonWeeklyStats.setImageResource(R.drawable.branch_left)
-                    holder.buttonWeeklyStats.isEnabled = false
-                    holder.leafStartDateText.text = ""
-                    holder.leafIndexText.text = ""
+                    if (isGrapeRow){
+                        holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_left)
+                        holder.buttonWeeklyStats.isEnabled = false
+                        holder.leafStartDateText.text = ""
+                        holder.leafIndexText.text = ""
+                    }
+                    else{
+                        holder.buttonWeeklyStats.setImageResource(R.drawable.branch_left)
+                        holder.buttonWeeklyStats.isEnabled = false
+                        holder.leafStartDateText.text = ""
+                        holder.leafIndexText.text = ""
+                    }
                 }
                 else if (isGrapeRow) {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_left)
@@ -555,10 +563,18 @@ class StatisticsActivity : AppCompatActivity() {
                 foxLP.gravity = Gravity.END
                 dateLP.gravity = Gravity.END
                 if (isOnlyBranch){
-                    holder.buttonWeeklyStats.setImageResource(R.drawable.branch_right)
-                    holder.buttonWeeklyStats.isEnabled = false
-                    holder.leafStartDateText.text = ""
-                    holder.leafIndexText.text = ""
+                    if (isGrapeRow){
+                        holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_right)
+                        holder.buttonWeeklyStats.isEnabled = false
+                        holder.leafStartDateText.text = ""
+                        holder.leafIndexText.text = ""
+                    }
+                    else{
+                        holder.buttonWeeklyStats.setImageResource(R.drawable.branch_right)
+                        holder.buttonWeeklyStats.isEnabled = false
+                        holder.leafStartDateText.text = ""
+                        holder.leafIndexText.text = ""
+                    }
                 }
                 else if (isGrapeRow) {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_right)

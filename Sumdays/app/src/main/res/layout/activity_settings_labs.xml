@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#282D35"
+    android:id="@+id/setting_labs_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/header"
+        layout="@layout/include_settings_header"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <!-- 안내 텍스트 -->
+    <TextView
+        android:id="@+id/descText"
+        android:text="실험 기능을 사용해보세요."
+        android:textColor="#AAAAAA"
+        android:textSize="14sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginHorizontal="20dp"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="#444444"
+        app:layout_constraintTop_toBottomOf="@id/descText"
+        app:layout_constraintBottom_toTopOf="@+id/temperature_example_card"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Temperature 예시 일기 보여주는 박스 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/temperature_example_card"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="#363C45"
+        app:layout_constraintTop_toBottomOf="@id/descText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/temperature_example_text"
+            android:padding="16dp"
+            android:layout_marginHorizontal="10dp"
+            android:text="temperature에 따른 예시 일기 보여줌."
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textAlignment="center"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </androidx.cardview.widget.CardView>
+
+
+    <!-- Temperature 슬라이더 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/temperature_slider_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="20dp"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="#363C45"
+        app:cardElevation="2dp"
+        app:layout_constraintTop_toBottomOf="@id/temperature_example_card"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/temperature_title"
+                android:text="Temperature"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/temperature_subtext"
+                android:text="높을수록 더욱 창의적이고 표현이 풍부한 일기가 생성됩니다."
+                android:textColor="#AAAAAA"
+                android:textSize="13sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"/>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/temperature_slider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="0.2"
+                android:valueTo="0.9"
+                android:stepSize="0.1"
+                android:layout_marginTop="12dp"
+                app:haloColor="#FFFFFF"
+                app:thumbColor="#FFFFFF"
+                app:trackColor="#889C27B0"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- 더 정확한 스타일 적용 스위치 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/accurate_style_switch_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="#363C45"
+        app:cardElevation="2dp"
+        app:layout_constraintTop_toBottomOf="@id/temperature_slider_card"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/style_section"
+            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <!-- 스위치 오른쪽 고정 -->
+        <Switch
+            android:id="@+id/accurate_style_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- 제목 -->
+        <TextView
+            android:id="@+id/accurate_style_title"
+            android:text="더 정확한 스타일 적용"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/accurate_style_switch"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            android:layout_marginEnd="12dp"/>
+
+        <!-- 설명(2~3줄 가능) -->
+        <TextView
+            android:id="@+id/accurate_style_subtext"
+            android:text="일기 스타일이 더욱 정확하게 적용된 일기를 생성합니다. 활성화시 메모가 합쳐지는데 걸리는 시간이 약 3배 증가하며, 스트리밍 되지 않습니다."
+            android:textColor="#AAAAAA"
+            android:textSize="13sp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:layout_constraintStart_toStartOf="@id/accurate_style_title"
+            app:layout_constraintEnd_toStartOf="@id/accurate_style_switch"
+            app:layout_constraintTop_toBottomOf="@id/accurate_style_title"
+            app:layout_constraintHorizontal_bias="0"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

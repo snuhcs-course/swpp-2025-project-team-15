@@ -1,7 +1,5 @@
 package com.example.sumdays.utils
 
-// com.example.sumdays.utils.FileUtil.kt
-
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns

@@ -28,7 +28,6 @@ import com.google.gson.JsonObject
 import java.io.InputStreamReader
 import android.content.Context
 import android.widget.Toast
-import com.example.sumdays.settings.prefs.LabsPrefs
 
 
 class MemoMergeAdapter(
@@ -267,13 +266,11 @@ class MemoMergeAdapter(
 
         val stylePrompt: Map<String, Any>
         val styleExample: List<String>
-        val styleVector: List<Float>
 
         if (styleData != null) {
             // ✅ 활성 스타일이 있을 경우: Room DB의 실제 데이터 사용
             stylePrompt = convertStylePromptToMap(styleData.stylePrompt) // StylePrompt 객체를 Map으로 변환 필요
             styleExample = styleData.styleExamples
-            styleVector = styleData.styleVector
         } else {
             // ✅ 활성 스타일이 없을 경우: 더미 데이터 사용 (기존 test 데이터)
             stylePrompt = mapOf(
@@ -295,14 +292,9 @@ class MemoMergeAdapter(
                 "일기는 세상에 왜 있을까? 일기가 없으면 안 될까? 일기를 꼭 써야 되나??",
                 "눈물도 나오고 콧물도 나왔다"
             )
-            styleVector = emptyList()
         }
         Log.d("test", "TEST: 0")
-
-        val temperature = LabsPrefs.getTemperature(context)
-        val advancedFlag = LabsPrefs.getAdvancedFlag(context)
-
-        val request = MergeRequest(memos = memos, endFlag = endFlag, stylePrompt, styleExample, styleVector, advancedFlag, temperature )
+        val request = MergeRequest(memos = memos, endFlag = endFlag, stylePrompt, styleExample)
 
         if (endFlag) {
             // skip button => 마지막 완성 → JSON 반환

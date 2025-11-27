@@ -26,9 +26,6 @@
             android:name=".LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".TutorialActivity"
-            android:exported="false" />
-        <activity
             android:name=".DailyWriteActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan"
@@ -60,8 +57,6 @@
         <activity android:name=".settings.DiaryStyleSettingsActivity"
             android:exported="false" />
         <activity android:name=".settings.NotificationSettingsActivity"
-            android:exported="false" />
-        <activity android:name=".settings.LabsSettingsActivity"
             android:exported="false" />
 
         <activity

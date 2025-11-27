@@ -47,26 +47,4 @@
     <color name="colorPrimary">#6200EE</color>
 
     <color name="diary_btn">#E26A2C</color>
-
-    <!-- 선택되지 않은 점(선택 되지 않은 페이지 점) -->
-    <color name="dot_dark_screen">#272A35</color>
-
-    <!-- 선택된 점(해당 페이지 일 때) -->
-    <color name="dot_light_screen">#9B9C9E</color>
-
-    <array name="array_dot_active">
-        <item>@color/dot_light_screen</item>
-        <item>@color/dot_light_screen</item>
-        <item>@color/dot_light_screen</item>
-        <item>@color/dot_light_screen</item>
-        <item>@color/dot_light_screen</item>
-    </array>
-
-    <array name="array_dot_inactive">
-        <item>@color/dot_dark_screen</item>
-        <item>@color/dot_dark_screen</item>
-        <item>@color/dot_dark_screen</item>
-        <item>@color/dot_dark_screen</item>
-        <item>@color/dot_dark_screen</item>
-    </array>
 </resources>

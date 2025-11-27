@@ -2,7 +2,7 @@
 
 module.exports = async function verifyToken(req, res, next) {
   const jwt = require('jsonwebtoken');
-  const db = require('../db/db'); 
+  const {pool} = require('../db/db'); 
   const JWT_SECRET = process.env.JWT_SECRET || 'Sumdays_Project_Super_Secret_Key_!@#$%^&*()';
 
 
@@ -21,7 +21,7 @@ module.exports = async function verifyToken(req, res, next) {
     const decoded = jwt.verify(token, JWT_SECRET);
     
     // 해당 회원 존재하는지
-    const [rows] = await db.query('SELECT id FROM users WHERE id = ?', [decoded.userId]);
+    const [rows] = await pool.query('SELECT id FROM users WHERE id = ?', [decoded.userId]);
     if (rows.length === 0) {
       return res.status(401).json({ message: '존재하지 않는 사용자입니다.' });
     }

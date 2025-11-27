@@ -29,6 +29,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.example.sumdays.data.viewModel.WeekSummaryViewModel
 import com.example.sumdays.data.viewModel.WeekSummaryViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -56,6 +57,8 @@ class StatisticsActivity : AppCompatActivity() {
     private lateinit var tvLeafCount: TextView
     private lateinit var tvGrapeCount: TextView
     private lateinit var btnBack: ImageButton
+    private lateinit var loadingOverlay: View
+    private lateinit var loadingGifView: ImageView
 
     private var bgScrollY = 0f      // 배경 전환용
     private var treeScrollY = 0f    // 나무 줄기 타일용
@@ -82,6 +85,11 @@ class StatisticsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_statistics)
+
+        loadingOverlay = findViewById(R.id.loading_overlay)
+        loadingGifView = findViewById(R.id.loading_gif_view)
+        showLoading(true)
+
         viewModel = ViewModelProvider(this).get(DailyEntryViewModel::class.java)
 
         val bg1 = findViewById<ImageView>(R.id.statistics_background_1)
@@ -188,6 +196,28 @@ class StatisticsActivity : AppCompatActivity() {
                 recyclerView.post {
                     recyclerView.scrollBy(0, itemHeightPx * (currentDataCount + 10))
                 }
+            }
+        }
+        loadingOverlay.post {
+            showLoading(false)
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        runOnUiThread {
+            if (isLoading) {
+                loadingOverlay.visibility = View.VISIBLE
+                loadingGifView.visibility = View.VISIBLE
+                // Glide로 GIF 로드 (R.drawable.loading_animation.gif 파일이 있다고 가정)
+                Glide.with(this)
+                    .asGif()
+                    .load(R.drawable.loading_animation) // "loading_animation.gif" 파일 이름
+                    .into(loadingGifView)
+            } else {
+                loadingOverlay.visibility = View.GONE
+                loadingGifView.visibility = View.GONE
+                // Glide 로드 중지
+                Glide.with(this).clear(loadingGifView)
             }
         }
     }
@@ -473,7 +503,7 @@ class StatisticsActivity : AppCompatActivity() {
 
             // ⭐ 2. 시작 날짜 설정 (데이터가 있을 때만 표시)
             if (hasData && weekSummary != null) {
-                holder.leafStartDateText.text = weekSummary.startDate
+                holder.leafStartDateText.text = "${weekSummary.startDate}\n~${weekSummary.endDate}"
                 holder.leafStartDateText.visibility = View.VISIBLE
             } else {
                 holder.leafStartDateText.text = ""
@@ -491,33 +521,38 @@ class StatisticsActivity : AppCompatActivity() {
             val indexLP = holder.leafIndexText.layoutParams as FrameLayout.LayoutParams
             val dateLP = holder.leafStartDateText.layoutParams as FrameLayout.LayoutParams
 
+            indexLP.gravity = Gravity.CENTER_HORIZONTAL
+            indexLP.leftMargin = 0
+            indexLP.rightMargin = 0
+
             if (isLeft) {
                 leafLP.gravity = Gravity.START
                 foxLP.gravity = Gravity.START
-                indexLP.gravity = Gravity.START
                 dateLP.gravity = Gravity.START
                 if (isOnlyBranch){
-                    holder.buttonWeeklyStats.setImageResource(R.drawable.branch_left)
-                    holder.buttonWeeklyStats.isEnabled = false
-                    holder.leafStartDateText.text = ""
-                    holder.leafIndexText.text = ""
+                    if (isGrapeRow){
+                        holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_left)
+                        holder.buttonWeeklyStats.isEnabled = false
+                        holder.leafStartDateText.text = ""
+                        holder.leafIndexText.text = ""
+                    }
+                    else{
+                        holder.buttonWeeklyStats.setImageResource(R.drawable.branch_left)
+                        holder.buttonWeeklyStats.isEnabled = false
+                        holder.leafStartDateText.text = ""
+                        holder.leafIndexText.text = ""
+                    }
                 }
                 else if (isGrapeRow) {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_left)
                     holder.buttonWeeklyStats.isEnabled = true
 
-                    indexLP.topMargin = holder.dp(48)
-                    indexLP.leftMargin = holder.dp(50)
-
-                    dateLP.topMargin = holder.dp(100)
+                    dateLP.topMargin = holder.dp(110)
                     dateLP.leftMargin = holder.dp(40)
                 }
                 else {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_left)
                     holder.buttonWeeklyStats.isEnabled = true
-
-                    indexLP.topMargin = holder.dp(16)
-                    indexLP.leftMargin = holder.dp(75)
 
                     dateLP.topMargin = holder.dp(65)
                     dateLP.leftMargin = holder.dp(40)
@@ -526,30 +561,31 @@ class StatisticsActivity : AppCompatActivity() {
             else { // isRight
                 leafLP.gravity = Gravity.END
                 foxLP.gravity = Gravity.END
-                indexLP.gravity = Gravity.END
                 dateLP.gravity = Gravity.END
                 if (isOnlyBranch){
-                    holder.buttonWeeklyStats.setImageResource(R.drawable.branch_right)
-                    holder.buttonWeeklyStats.isEnabled = false
-                    holder.leafStartDateText.text = ""
-                    holder.leafIndexText.text = ""
+                    if (isGrapeRow){
+                        holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_right)
+                        holder.buttonWeeklyStats.isEnabled = false
+                        holder.leafStartDateText.text = ""
+                        holder.leafIndexText.text = ""
+                    }
+                    else{
+                        holder.buttonWeeklyStats.setImageResource(R.drawable.branch_right)
+                        holder.buttonWeeklyStats.isEnabled = false
+                        holder.leafStartDateText.text = ""
+                        holder.leafIndexText.text = ""
+                    }
                 }
                 else if (isGrapeRow) {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_right)
                     holder.buttonWeeklyStats.isEnabled = true
 
-                    indexLP.topMargin = holder.dp(48)
-                    indexLP.rightMargin = holder.dp(50)
-
-                    dateLP.topMargin = holder.dp(100)
+                    dateLP.topMargin = holder.dp(110)
                     dateLP.rightMargin = holder.dp(40)
                 }
                 else {
                     holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_right)
                     holder.buttonWeeklyStats.isEnabled = true
-
-                    indexLP.topMargin = holder.dp(16)
-                    indexLP.rightMargin = holder.dp(75)
 
                     dateLP.topMargin = holder.dp(65)
                     dateLP.rightMargin = holder.dp(40)

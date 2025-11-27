@@ -17,10 +17,7 @@ class WeekSummaryViewModel (
     private val repository: WeekSummaryRepository
 ) : ViewModel() {
 
-    // 💡 모든 WeekSummary 데이터를 비동기로 로드하는 Flow나 LiveData를 여기에 추가할 수 있습니다.
-    // 현재는 ID(날짜) 기반의 단일 호출만 구현합니다.
 
-    // ⭐⭐ 테스트용 플래그: true면 더미 데이터 사용, false면 실제 DB 사용 ⭐⭐
     private val USE_DUMMY_DATA = true
 
     // 더미 데이터를 메모리에 캐싱하기 위한 맵 (날짜 -> 요약)
@@ -34,7 +31,7 @@ class WeekSummaryViewModel (
 
 
     // ------------------------------------------------------------------------
-// 🧪 더미 데이터 생성 로직 (테스트용)
+//  더미 데이터 생성 로직 (테스트용)
 // ------------------------------------------------------------------------
     private fun generateDummyData() {
         val dummyCount = 60 // 생성할 데이터 개수
@@ -89,18 +86,18 @@ class WeekSummaryViewModel (
         }
     }
 
-    /**
-     * 주간 통계 데이터를 저장/업데이트합니다.
-     */
+
+    // 주간 통계 데이터를 저장/업데이트합니다.
+
     fun upsert(summary: WeekSummary) {
         viewModelScope.launch {
             repository.upsertWeekSummary(summary)
         }
     }
 
-    /**
-     * 특정 주간의 통계 데이터를 가져옵니다. (단일 호출이므로 LiveData로 감싸지 않습니다.)
-     */
+
+    // 특정 주간의 통계 데이터를 가져옵니다. (단일 호출이므로 LiveData로 감싸지 않습니다.)
+
     suspend fun getSummary(startDate: String): WeekSummary? {
         if (USE_DUMMY_DATA) {
             return dummyCache[startDate]
@@ -108,9 +105,9 @@ class WeekSummaryViewModel (
         return repository.getWeekSummary(startDate)
     }
 
-    /**
-     * 통계 화면 초기 세팅을 위해 저장된 모든 주간 날짜 목록을 가져옵니다.
-     */
+
+    // 통계 화면 초기 세팅을 위해 저장된 모든 주간 날짜 목록을 가져옵니다.
+
     suspend fun getAllDatesAsc(): List<String> {
         if (USE_DUMMY_DATA) {
             return dummyCache.keys.sorted()

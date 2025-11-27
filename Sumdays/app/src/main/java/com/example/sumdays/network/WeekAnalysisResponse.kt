@@ -42,7 +42,7 @@ data class WeekAnalysisResult(
     }
 }
 
-// --- 하위 DTO 클래스들 ---
+// 하위 DTO 클래스들
 
 data class NetworkEmotionAnalysis(
     @SerializedName("distribution")

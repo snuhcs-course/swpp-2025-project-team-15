@@ -44,14 +44,14 @@ interface WeekSummaryDao {
     @Query("SELECT startDate FROM weekly_summary WHERE isDeleted = 0 ORDER BY startDate ASC")
     suspend fun getAllDatesAsc(): List<String>
 
-    // ✅ 백업용 — 변경된 (수정/삭제된) 데이터만 가져오기
+    // 백업용 — 변경된 (수정/삭제된) 데이터만 가져오기
     @Query("SELECT * FROM weekly_summary WHERE isDeleted = 1")
     suspend fun getDeletedSummaries(): List<WeekSummaryEntity>
 
     @Query("SELECT * FROM weekly_summary WHERE isEdited = 1 AND isDeleted = 0")
     suspend fun getEditedSummaries(): List<WeekSummaryEntity>
 
-    // ✅ 백업 후 플래그 초기화
+    // 백업 후 플래그 초기화
     @Query("DELETE FROM weekly_summary WHERE startDate IN (:dates)")
     suspend fun resetDeletedFlags(dates: List<String>)
 

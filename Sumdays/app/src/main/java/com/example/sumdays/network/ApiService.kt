@@ -19,31 +19,34 @@ import retrofit2.http.PUT
 import retrofit2.http.Streaming
 
 interface ApiService {
+    // 로그인 
     @POST("/api/auth/login")
     fun login(@Body request: LoginRequest): Call<LoginResponse>
-    // ★★★ 회원가입 API 함수 추가 ★★★
+    
+    // 회원가입
     @POST("/api/auth/signup")
     fun signup(@Body request: SignupRequest): Call<SignupResponse>
 
-    // 1. 닉네임 변경
+    // 닉네임 변경
     @PUT("api/auth/nickname")
     fun updateNickname(@Header("Authorization") token: String, @Body request: UpdateNicknameRequest): Call<UpdateNicknameResponse>
 
-    // 2. 비밀번호 변경
+    // 비밀번호 변경
     @PUT("api/auth/password")
     fun changePassword(@Header("Authorization") token: String, @Body request: ChangePasswordRequest): Call<ChangePasswordResponse>
 
+    // 백업 
     @POST("/api/db/sync")
     suspend fun syncData(
         @Header("Authorization") token: String,
         @Body body: SyncRequest
     ): retrofit2.Response<SyncResponse>
-
+    
+    // 동기화
     @GET("/api/db/sync")
     suspend fun fetchServerData(
         @Header("Authorization") token: String
     ): retrofit2.Response<SyncFetchResponse>
-
 
     @POST("/api/ai/merge")
     suspend fun mergeMemos(@Body req: MergeRequest): retrofit2.Response<com.google.gson.JsonObject>
@@ -51,16 +54,14 @@ interface ApiService {
     @POST("/api/ai/merge")
     fun mergeMemosStream(@Body request: MergeRequest): Call<ResponseBody>
     @Multipart
-    @POST("/api/ai/stt/memo") // 서버의 STT 엔드포인트 경로
+    @POST("/api/ai/stt/memo")
     fun transcribeAudio(
-        // 'audio'는 서버에서 파일을 받을 때 사용할 필드 이름
         @Part audio: MultipartBody.Part
     ): Call<STTResponse>
     @Multipart
     @POST("/api/ai/ocr/memo")
     fun extractTextFromImage(
         @Part image: MultipartBody.Part,
-        // ★★★ 'type' 필드 추가 (RequestBody 형태) ★★★
         @Part("type") type: RequestBody
     ): Call<OcrResponse>
     @POST("/api/ai/analyze")
@@ -75,7 +76,7 @@ interface ApiService {
         @Part images: List<MultipartBody.Part>
     ): Call<StyleExtractionResponse>
 
-    // ⭐ [신규] 주간 요약 요청
+    // [신규] 주간 요약 요청
     // WeekAnalysisRequest와 WeekAnalysisResponse는 같은 패키지에 있다고 가정
     @POST("/api/ai/summarize-week")
     suspend fun summarizeWeek(@Body request: WeekAnalysisRequest): retrofit2.Response<WeekAnalysisResponse>

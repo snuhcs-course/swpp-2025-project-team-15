@@ -10,16 +10,12 @@ import java.io.InputStream
 
 object FileUtil {
 
-    /**
-     * Content URI로부터 실제 File 객체를 생성하여 반환합니다.
-     * Content Resolver를 통해 파일을 복사하여 임시 File 객체를 만듭니다.
-     */
     fun getFileFromUri(context: Context, uri: Uri): File? {
         val fileName = getFileName(context, uri) ?: return null
         val file = File(context.cacheDir, fileName)
 
         try {
-            // Content Resolver를 통해 InputStream을 열고, 임시 파일에 복사합니다.
+            // Content Resolver를 통해 InputStream을 열고, 임시 파일에 복사
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
                 FileOutputStream(file).use { outputStream ->
                     inputStream.copyTo(outputStream)
@@ -35,9 +31,6 @@ object FileUtil {
         }
     }
 
-    /**
-     * Content URI에서 파일 이름을 추출합니다.
-     */
     private fun getFileName(context: Context, uri: Uri): String? {
         if (uri.scheme == "content") {
             context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->

@@ -9,11 +9,11 @@ import com.example.sumdays.data.AppDatabase
 @Dao
 interface DailyEntryDao {
 
-    // ✅ 1️⃣ 특정 날짜의 엔트리(일기) 가져오기
+    // 특정 날짜의 엔트리(일기) 가져오기
     @Query("SELECT * FROM daily_entry WHERE date = :date AND isDeleted = 0")
     fun getEntry(date: String): Flow<DailyEntry?>
 
-    // ✅ 1-1. Suspend 반환 (Worker/Repository 내부 로직용 - Flow 아님)
+    // Suspend 반환 (Worker/Repository 내부 로직용 - Flow 아님)
     @Query("SELECT * FROM daily_entry WHERE date = :date AND isDeleted = 0")
     suspend fun getEntrySnapshot(date: String): DailyEntry?
 
@@ -22,15 +22,15 @@ interface DailyEntryDao {
 
 
     /////////// update
-    // 1. (비공개) 날짜가 없으면 초기값으로 삽입하는 함수
+    // 1. 날짜가 없으면 초기값으로 삽입하는 함수
     @Query("""
     INSERT OR IGNORE INTO daily_entry 
     (date, diary, keywords, aiComment, emotionScore, emotionIcon, themeIcon, isEdited, isDeleted)
     VALUES (:date, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0)
     """)
-    suspend fun _insertInitialEntry(date: String) // internal 또는 private
+    suspend fun _insertInitialEntry(date: String)
 
-    // 2. (비공개) 항목을 업데이트하는 함수
+    // 2. 항목을 업데이트하는 함수
     @Query("""
     UPDATE daily_entry
     SET 
@@ -44,7 +44,7 @@ interface DailyEntryDao {
         isDeleted = 0
     WHERE date = :date
     """)
-    suspend fun _updateEntryDetails( // internal 또는 private
+    suspend fun _updateEntryDetails(
         date: String,
         diary: String? = null,
         keywords: String? = null,
@@ -54,7 +54,7 @@ interface DailyEntryDao {
         themeIcon: String? = null
     )
 
-    // 3. (공개) 두 함수를 트랜잭션으로 묶어 호출
+    // 3. 두 함수를 트랜잭션으로 묶어 호출
     @Transaction
     suspend fun updateEntry(
         date: String,
@@ -76,12 +76,12 @@ interface DailyEntryDao {
     suspend fun insertAll(entries: List<DailyEntry>)
 
 
-    // ✅ 4️⃣ 해당 날짜의 일기 삭제
+    // 해당 날짜의 일기 삭제
 
     @Query("UPDATE daily_entry SET isDeleted = 1, isEdited = 1 WHERE date = :date")
     suspend fun markAsDeleted(date: String)
 
-    // ✅ deleteEntry → soft delete로 변경
+    // deleteEntry → soft delete로 변경
     suspend fun deleteEntry(date : String) {
         markAsDeleted(date)
     }
@@ -89,19 +89,19 @@ interface DailyEntryDao {
     @Query("SELECT date, diary, themeIcon FROM daily_entry WHERE date BETWEEN :fromDate AND :toDate AND isDeleted = 0")
     fun getMonthlyEmojis(fromDate : String, toDate : String): Flow<List<EmojiData>>
 
-    // ⭐ [추가] 특정 기간 내의 모든 일기 가져오기
+    // [추가] 특정 기간 내의 모든 일기 가져오기
     @Query("SELECT * FROM daily_entry WHERE date >= :startDate AND date <= :endDate")
     suspend fun getEntriesBetween(startDate: String, endDate: String): List<DailyEntry>
 
     ////// To Server
-    // ✅ 백업용 — 변경된(수정·삭제된) 일기만 가져오기
+    // 백업용 — 변경된(수정·삭제된) 일기만 가져오기
     @Query("SELECT * FROM daily_entry WHERE isDeleted = 1")
     suspend fun getDeletedEntries(): List<DailyEntry>
 
     @Query("SELECT * FROM daily_entry WHERE isEdited = 1 AND isDeleted = 0")
     suspend fun getEditedEntries(): List<DailyEntry>
 
-    // ✅ 백업 후 flag 초기화 (deleted, edited)
+    // 백업 후 flag 초기화 (deleted, edited)
     @Query("DELETE FROM daily_entry WHERE date IN (:dates)")
     suspend fun resetDeletedFlags(dates: List<String>)
 

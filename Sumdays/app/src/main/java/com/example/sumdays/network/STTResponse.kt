@@ -2,7 +2,7 @@ package com.example.sumdays.network
 
 import com.google.gson.annotations.SerializedName
 
-// ★★★ STT API 응답 데이터 클래스 추가 ★★★
+
 data class STTResponse(
     val success: Boolean,
     @SerializedName("transcribed_text") val transcribedText: String?,

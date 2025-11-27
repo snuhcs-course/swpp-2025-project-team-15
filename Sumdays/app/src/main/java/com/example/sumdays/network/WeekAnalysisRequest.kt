@@ -15,7 +15,7 @@ data class DiaryItem(
     val diary: String?,         // 일기 본문
 
     @SerializedName("emoji")
-    val emoji: String?,        // "📚" (nullable 가능성 대비)
+    val emoji: String?,        // (nullable 가능성 대비)
 
     @SerializedName("emotion_score")
     val emotionScore: Double?  // 0.2 (nullable 가능성 대비)

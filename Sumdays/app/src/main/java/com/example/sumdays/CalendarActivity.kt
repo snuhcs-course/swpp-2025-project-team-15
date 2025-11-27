@@ -104,7 +104,6 @@ class CalendarActivity : AppCompatActivity() {
     /** setCustomCalendar: 달력의 스크롤, 버튼에 의한 달 전환과 현재 월을 표시 */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setCustomCalendar() {
-        // ★ MonthAdapter에 최대 허용 월/날짜 전달 (미래 차단 & 셀 흐리기 용)
         monthAdapter = MonthAdapter(activity = this)
         calendarViewPager.adapter = monthAdapter
 

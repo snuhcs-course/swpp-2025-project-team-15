@@ -124,7 +124,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
-
+            <LinearLayout
+                android:id="@+id/tutorialBlock"
+                style="@style/SettingsItemStyle" >
+                <TextView
+                    android:text="튜토리얼 다시보기"
+                    style="@style/TextAppearance.App.Normal"
+                    android:textColor="#FFFFFF"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
             <LinearLayout
                 android:id="@+id/logoutBlock"
                 style="@style/SettingsItemStyle">

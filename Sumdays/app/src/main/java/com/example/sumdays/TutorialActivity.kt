@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -23,8 +24,9 @@ class TutorialActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager
     private lateinit var pagerAdapter: TutorialPagerAdapter
     private lateinit var dotsLayout: LinearLayout
-    private lateinit var btnSkip: Button
-    private lateinit var btnNext: Button
+    private lateinit var btnSkip: ImageButton
+    private lateinit var btnNext: ImageButton
+    private lateinit var btnPrev: ImageButton
 
     private lateinit var dots: Array<TextView?>
     private lateinit var layouts: IntArray
@@ -39,6 +41,8 @@ class TutorialActivity : AppCompatActivity() {
         dotsLayout = findViewById(R.id.layoutDots)
         btnSkip = findViewById(R.id.btn_skip)
         btnNext = findViewById(R.id.btn_next)
+        btnPrev = findViewById(R.id.btn_prev)
+
 
         // 페이지 레이아웃들
         layouts = intArrayOf(
@@ -51,9 +55,6 @@ class TutorialActivity : AppCompatActivity() {
 
         // 하단 점 초기화
         addBottomDots(0)
-
-        // 상태바 투명
-        changeStatusBarColor()
 
         // ViewPager 세팅
         pagerAdapter = TutorialPagerAdapter()
@@ -77,6 +78,14 @@ class TutorialActivity : AppCompatActivity() {
             }
         }
 
+        btnPrev.setOnClickListener {
+            val prev = getItem(-1)
+            if (prev >= 0) {
+                // 마지막 페이지 전까지는 다음 페이지로
+                viewPager.currentItem = prev
+            }
+        }
+
         onBackPressedDispatcher.addCallback(
             this,
             object : androidx.activity.OnBackPressedCallback(true) {
@@ -88,7 +97,6 @@ class TutorialActivity : AppCompatActivity() {
     }
 
     private fun launchMain() {
-        startActivity(Intent(this, CalendarActivity::class.java))
         finish()
     }
 
@@ -142,14 +150,6 @@ class TutorialActivity : AppCompatActivity() {
         ) {}
 
         override fun onPageScrollStateChanged(state: Int) {}
-    }
-
-    // 상태바 투명 처리
-    private fun changeStatusBarColor() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = Color.TRANSPARENT
-        }
     }
 
     // ViewPager 어댑터

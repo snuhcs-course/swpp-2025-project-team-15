@@ -69,5 +69,14 @@
         <item name="android:layout_marginBottom">12dp</item>
     </style>
 
+    <style name="Theme.Sumdays.TutorialDialog" parent="Theme.First">
+        <!-- 바깥은 약간 어둡게, 안쪽은 흰색 팝업 느낌 -->
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
+
+        <!-- 배경 흰색 + 둥근 모서리 drawable 쓰면 더 예쁨 (있으면) -->
+        <item name="android:windowBackground">@drawable/bg_tutorial_popup</item>
+    </style>
 
 </resources>

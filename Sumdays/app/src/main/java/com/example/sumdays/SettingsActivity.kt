@@ -100,6 +100,10 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(Intent(this@SettingsActivity, LabsSettingsActivity::class.java))
         }
 
+        binding.tutorialBlock.setOnClickListener {
+            startActivity(Intent(this@SettingsActivity, TutorialActivity::class.java))
+        }
+
         // backup 관련 버튼
         backupBtn.setOnClickListener {
             BackupScheduler.triggerManualBackup()

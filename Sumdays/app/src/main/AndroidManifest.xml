@@ -26,8 +26,9 @@
             android:name=".LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".TutorialActivity"
-            android:exported="false" />
+            android:name="com.example.sumdays.TutorialActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Sumdays.TutorialDialog" />
         <activity
             android:name=".DailyWriteActivity"
             android:exported="true"

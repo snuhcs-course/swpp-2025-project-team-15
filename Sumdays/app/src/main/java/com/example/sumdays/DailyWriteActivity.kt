@@ -345,11 +345,7 @@ class DailyWriteActivity : AppCompatActivity() {
         editText.setText(memo.content)
 
         builder.setView(dialogView)
-            .setPositiveButton("삭제") { dialog, id ->
-                memoViewModel.delete(memo)
-                dialog.dismiss()
-            }
-            .setNegativeButton("수정") { dialog, id ->
+            .setPositiveButton("수정") { dialog, id ->
                 val newContent = editText.text.toString().trim()
                 if (newContent.isNotEmpty()) {
                     val updatedMemo = memo.copy(content = newContent)
@@ -357,6 +353,10 @@ class DailyWriteActivity : AppCompatActivity() {
                 } else {
                     Toast.makeText(this, "내용을 입력해 주세요.", Toast.LENGTH_SHORT).show()
                 }
+            }
+            .setNegativeButton("삭제") { dialog, id ->
+                memoViewModel.delete(memo)
+                dialog.dismiss()
             }
             .setNeutralButton("취소") { dialog, id ->
                 dialog.dismiss()

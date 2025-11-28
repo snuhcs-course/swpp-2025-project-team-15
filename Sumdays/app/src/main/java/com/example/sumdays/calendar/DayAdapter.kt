@@ -115,11 +115,12 @@ class DayAdapter(
             }
             if (isToday) {
                 val density = itemView.context.resources.displayMetrics.density
-                val size = (20 * density).toInt() // 32dp 크기로 고정 (원하는 크기로 조절 가능)
+                val width = (20 * density).toInt()  // 가로 20dp
+                val height = (17 * density).toInt() // 세로 14dp (원하는 만큼 줄이세요)
 
                 val params = tvDayNumber.layoutParams
-                params.width = size
-                params.height = size
+                params.width = width
+                params.height = height
                 tvDayNumber.layoutParams = params
 
                 val drawable = GradientDrawable()

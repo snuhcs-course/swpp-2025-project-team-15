@@ -6,6 +6,7 @@ import com.example.sumdays.data.DailyEntry
 import com.example.sumdays.data.EmojiData
 import kotlinx.coroutines.flow.Flow
 import com.example.sumdays.data.AppDatabase
+
 @Dao
 interface DailyEntryDao {
 
@@ -25,8 +26,8 @@ interface DailyEntryDao {
     // 1. 날짜가 없으면 초기값으로 삽입하는 함수
     @Query("""
     INSERT OR IGNORE INTO daily_entry 
-    (date, diary, keywords, aiComment, emotionScore, emotionIcon, themeIcon, isEdited, isDeleted)
-    VALUES (:date, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0)
+    (date, diary, keywords, aiComment, emotionScore, emotionIcon, themeIcon, photoUrls, isEdited, isDeleted)
+    VALUES (:date, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0)
     """)
     suspend fun _insertInitialEntry(date: String)
 
@@ -40,6 +41,7 @@ interface DailyEntryDao {
         emotionScore = COALESCE(:emotionScore, emotionScore),
         emotionIcon = COALESCE(:emotionIcon, emotionIcon),
         themeIcon = COALESCE(:themeIcon, themeIcon),
+        photoUrls = COALESCE(:photoUrls, photoUrls),
         isEdited = 1,
         isDeleted = 0
     WHERE date = :date
@@ -51,7 +53,8 @@ interface DailyEntryDao {
         aiComment: String? = null,
         emotionScore: Double? = null,
         emotionIcon: String? = null,
-        themeIcon: String? = null
+        themeIcon: String? = null,
+        photoUrls: String? = null // ★★★ 파라미터 추가 ★★★
     )
 
     // 3. 두 함수를 트랜잭션으로 묶어 호출
@@ -63,10 +66,12 @@ interface DailyEntryDao {
         aiComment: String? = null,
         emotionScore: Double? = null,
         emotionIcon: String? = null,
-        themeIcon: String? = null
+        themeIcon: String? = null,
+        photoUrls: String? = null // ★★★ 파라미터 추가 ★★★
     ) {
         _insertInitialEntry(date) // 1. 먼저 삽입 시도 (무시될 수 있음)
-        _updateEntryDetails(date, diary, keywords, aiComment, emotionScore, emotionIcon, themeIcon) // 2. 업데이트
+        // ★★★ photoUrls 전달 ★★★
+        _updateEntryDetails(date, diary, keywords, aiComment, emotionScore, emotionIcon, themeIcon, photoUrls) // 2. 업데이트
     }
 
     @Query("DELETE FROM daily_entry")
@@ -107,6 +112,4 @@ interface DailyEntryDao {
 
     @Query("UPDATE daily_entry SET isEdited = 0, isDeleted = 0 WHERE date IN (:dates)")
     suspend fun resetEditedFlags(dates: List<String>)
-
-
 }

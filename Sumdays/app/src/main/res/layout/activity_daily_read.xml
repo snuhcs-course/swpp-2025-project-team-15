@@ -61,7 +61,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="메모 보기"
-            android:backgroundTint="#E26A2C"
+            android:backgroundTint="#8B008B"
             android:minHeight="0dp"
             android:paddingVertical="8dp"
             app:layout_constraintBottom_toBottomOf="parent"

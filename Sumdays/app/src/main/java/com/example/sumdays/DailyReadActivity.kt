@@ -35,6 +35,9 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import androidx.recyclerview.widget.RecyclerView
+import java.io.File
+import java.io.FileOutputStream
+import java.util.UUID
 
 class DailyReadActivity : AppCompatActivity() {
 
@@ -95,26 +98,33 @@ class DailyReadActivity : AppCompatActivity() {
     private fun initializeImagePicker() {
         pickImageLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri != null) {
-                // 1. 영구적인 읽기 권한 가져오기 (중요)
-                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                contentResolver.takePersistableUriPermission(uri, flag)
-
-                addPhoto(uri)
+                saveImageToAppStorageAndAdd(uri)
             }
+        }
+    }
+    private fun saveImageToAppStorageAndAdd(sourceUri: Uri) {
+        try {
+            val fileName = "diary_img_${System.currentTimeMillis()}_${UUID.randomUUID()}.jpg"
+            val destinationFile = File(filesDir, fileName)
+            contentResolver.openInputStream(sourceUri)?.use { inputStream ->
+                FileOutputStream(destinationFile).use { outputStream -> inputStream.copyTo(outputStream) }
+            }
+            addPhoto(Uri.fromFile(destinationFile))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "이미지 저장 실패", Toast.LENGTH_SHORT).show()
         }
     }
     private fun addPhoto(uri: Uri) {
         currentPhotoUris.add(uri)
-        updatePhotoGallery() // 어댑터 갱신
-        savePhotoUrls() // DB 저장
+        updatePhotoGalleryUI()
+        savePhotoUrls()
     }
-
-    private fun updatePhotoGallery() {
-        // 사진 리스트 뒤에 '추가' 버튼 아이템을 붙임 ([Photo] [Photo] ... [Add])
+    private fun updatePhotoGalleryUI() {
         val items = currentPhotoUris.map { GalleryItem.Photo(it.toString()) } + GalleryItem.Add
         photoGalleryAdapter.submitList(items)
+        binding.photoGalleryRecyclerView.visibility = View.VISIBLE
     }
-
     private fun savePhotoUrls() {
         val dateKey = repoKeyFormatter.format(currentDate.time)
         val photoUrlsString = currentPhotoUris.joinToString(",") { it.toString() }
@@ -153,32 +163,28 @@ class DailyReadActivity : AppCompatActivity() {
         binding.diaryContentTextView.text = entry?.diary ?: ""
         binding.commentIcon.text = entry?.themeIcon ?: "🤔"
         binding.keywordsText.text = entry?.keywords?.replace(";", ", ")
-        binding.commentText.text = entry?.aiComment ?: "코멘트가 없습니다."
+        binding.commentText.text = entry?.aiComment ?: ""
 
         // 감정 점수 로직 수정 (유지)
         val score = entry?.emotionScore ?: 0.0 // 점수 가져오기 (기본값 0.0)
 
         // 1. 온도계 아이콘 설정
-        val thermometerResId = when {
-            score > 0.5 -> R.drawable.ic_thermometer_high       // ( 0.5 ~  1.0] : 빨간색
-            score > 0.0 -> R.drawable.ic_thermometer_medium     // ( 0.0 ~  0.5] : 주황색
-            score > -0.5 -> R.drawable.ic_thermometer_low       // (-0.5 ~  0.0] : 하늘색
-            else -> R.drawable.ic_thermometer_very_low          // [-1.0 ~ -0.5] : 파란색
+        val FoxFaceResId = when {
+            score >= 0.6 -> R.drawable.fox_face_level_5
+            score >= 0.2 -> R.drawable.fox_face_level_4
+            score >= -0.2 -> R.drawable.fox_face_level_3
+            score >= -0.6 -> R.drawable.fox_face_level_2
+            else -> R.drawable.fox_face_level_1
         }
-        binding.thermometerIcon.setImageResource(thermometerResId)
+        binding.foxFaceImage.setImageResource(FoxFaceResId)
 
-        // 2. 온도 텍스트 설정 (score * 100)
-        val temperature = score * 100
-        binding.emotionScore.text = String.format(Locale.getDefault(), "감정 온도 %.0f°C", temperature)
-        binding.emotionScore.visibility = View.VISIBLE // GONE이었던 것을 보이도록
         currentPhotoUris.clear()
         entry?.photoUrls?.let { urls ->
             if (urls.isNotEmpty()) {
                 currentPhotoUris.addAll(urls.split(",").map { Uri.parse(it) })
             }
         }
-        updatePhotoGallery() // 어댑터에 데이터 제출 (사진 + Add버튼)
-        binding.photoGalleryRecyclerView.visibility = View.VISIBLE
+        updatePhotoGalleryUI()
     }
 
     private fun initializeDate() {
@@ -219,14 +225,50 @@ class DailyReadActivity : AppCompatActivity() {
             onPhotoClick = { photoUrl ->
                 showPhotoDialog(photoUrl)
             },
+            onPhotoLongClick = { position -> // ★ 롱 클릭 시 삭제 다이얼로그 호출
+                showDeleteConfirmDialog(position)
+            },
             onAddClick = {
-                // 추가 버튼 클릭 시 이미지 선택기 실행
                 pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             }
         )
         binding.photoGalleryRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@DailyReadActivity, LinearLayoutManager.HORIZONTAL, false)
             adapter = photoGalleryAdapter
+        }
+    }
+    private fun showDeleteConfirmDialog(position: Int) {
+        AlertDialog.Builder(this)
+            .setTitle("사진 삭제")
+            .setMessage("이 사진을 삭제하시겠습니까?")
+            .setPositiveButton("삭제") { dialog, _ ->
+                deletePhoto(position)
+                dialog.dismiss()
+            }
+            .setNegativeButton("취소") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun deletePhoto(position: Int) {
+        if (position in currentPhotoUris.indices) {
+            val uriToDelete = currentPhotoUris[position]
+
+            // 1. 앱 내부 저장소 파일이면 실제 파일 삭제 시도
+            if (uriToDelete.scheme == "file") {
+                val file = File(uriToDelete.path!!)
+                if (file.exists()) {
+                    file.delete()
+                }
+            }
+
+            // 2. 리스트에서 제거 및 UI/DB 업데이트
+            currentPhotoUris.removeAt(position)
+            updatePhotoGalleryUI()
+            savePhotoUrls()
+
+            Toast.makeText(this, "사진이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -351,55 +393,41 @@ class DailyReadActivity : AppCompatActivity() {
 
     class PhotoGalleryAdapter(
         private val onPhotoClick: (String) -> Unit,
+        private val onPhotoLongClick: (Int) -> Unit, // ★ 롱 클릭 콜백 추가
         private val onAddClick: () -> Unit
     ) : ListAdapter<GalleryItem, RecyclerView.ViewHolder>(GalleryDiffCallback()) {
 
-        companion object {
-            private const val VIEW_TYPE_PHOTO = 1
-            private const val VIEW_TYPE_ADD = 2
-        }
-
-        override fun getItemViewType(position: Int): Int {
-            return when (getItem(position)) {
-                is GalleryItem.Photo -> VIEW_TYPE_PHOTO
-                is GalleryItem.Add -> VIEW_TYPE_ADD
-            }
-        }
-
+        companion object { private const val VIEW_TYPE_PHOTO = 1; private const val VIEW_TYPE_ADD = 2 }
+        override fun getItemViewType(position: Int) = when (getItem(position)) { is GalleryItem.Photo -> VIEW_TYPE_PHOTO; is GalleryItem.Add -> VIEW_TYPE_ADD }
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             val inflater = LayoutInflater.from(parent.context)
             return when (viewType) {
-                VIEW_TYPE_PHOTO -> {
-                    val view = inflater.inflate(R.layout.item_photo_gallery, parent, false)
-                    PhotoViewHolder(view)
-                }
-                VIEW_TYPE_ADD -> {
-                    val view = inflater.inflate(R.layout.item_photo_gallery_add, parent, false)
-                    AddViewHolder(view)
-                }
+                VIEW_TYPE_PHOTO -> PhotoViewHolder(inflater.inflate(R.layout.item_photo_gallery, parent, false))
+                VIEW_TYPE_ADD -> AddViewHolder(inflater.inflate(R.layout.item_photo_gallery_add, parent, false))
                 else -> throw IllegalArgumentException("Invalid view type")
             }
         }
-
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             when (val item = getItem(position)) {
-                is GalleryItem.Photo -> (holder as PhotoViewHolder).bind(item.url, onPhotoClick)
+                is GalleryItem.Photo -> (holder as PhotoViewHolder).bind(item.url, position, onPhotoClick, onPhotoLongClick) // ★ position, 롱클릭 전달
                 is GalleryItem.Add -> (holder as AddViewHolder).bind(onAddClick)
             }
         }
 
         class PhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             private val imageView: ImageView = itemView.findViewById(R.id.gallery_image)
-            fun bind(url: String, onClick: (String) -> Unit) {
+            fun bind(url: String, position: Int, onClick: (String) -> Unit, onLongClick: (Int) -> Unit) {
                 Glide.with(itemView.context).load(Uri.parse(url)).centerCrop().into(imageView)
                 itemView.setOnClickListener { onClick(url) }
+                // ★ 롱 클릭 리스너 설정 ★
+                itemView.setOnLongClickListener {
+                    onLongClick(position)
+                    true // 이벤트 소비 (클릭 이벤트 발생 방지)
+                }
             }
         }
-
         class AddViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            fun bind(onClick: () -> Unit) {
-                itemView.setOnClickListener { onClick() }
-            }
+            fun bind(onClick: () -> Unit) { itemView.setOnClickListener { onClick() } }
         }
     }
 
@@ -407,17 +435,8 @@ class DailyReadActivity : AppCompatActivity() {
         data class Photo(val url: String) : GalleryItem()
         object Add : GalleryItem()
     }
-
     class GalleryDiffCallback : DiffUtil.ItemCallback<GalleryItem>() {
-        override fun areItemsTheSame(oldItem: GalleryItem, newItem: GalleryItem): Boolean {
-            return when {
-                oldItem is GalleryItem.Photo && newItem is GalleryItem.Photo -> oldItem.url == newItem.url
-                oldItem is GalleryItem.Add && newItem is GalleryItem.Add -> true
-                else -> false
-            }
-        }
-        override fun areContentsTheSame(oldItem: GalleryItem, newItem: GalleryItem): Boolean {
-            return oldItem == newItem
-        }
+        override fun areItemsTheSame(oldItem: GalleryItem, newItem: GalleryItem) = (oldItem is GalleryItem.Photo && newItem is GalleryItem.Photo && oldItem.url == newItem.url) || (oldItem is GalleryItem.Add && newItem is GalleryItem.Add)
+        override fun areContentsTheSame(oldItem: GalleryItem, newItem: GalleryItem) = oldItem == newItem
     }
 }

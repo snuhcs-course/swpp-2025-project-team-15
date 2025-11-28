@@ -182,13 +182,31 @@ class NotificationSettingsActivity : AppCompatActivity() {
     }
 
     private fun saveOrUpdateAlarm(position: Int?, newTime: String) {
+        val currentTimes = reminderPrefs.getAlarmTimes().toMutableList()
+
+        // 1. 중복 검사 로직
+        // 이미 저장된 리스트(currentTimes)에 새로 설정하려는 시간(newTime)이 있는지 확인합니다.
+        if (currentTimes.contains(newTime)) {
+            // (1) 새 알람 추가인데 이미 있는 경우 -> 중복 차단
+            if (position == null) {
+                Toast.makeText(this, "이미 $newTime 에 설정된 알람이 있습니다.", Toast.LENGTH_SHORT).show()
+                return
+            }
+            // (2) 수정 중인데, 자기 자신이 아닌 다른 알람과 겹치는 경우 -> 중복 차단
+            // position 위치의 값(원래 시간)이 newTime(바꿀 시간)과 다르면, 다른 알람과 겹친다는 뜻입니다.
+            else if (currentTimes[position] != newTime) {
+                Toast.makeText(this, "이미 $newTime 에 설정된 알람이 있습니다.", Toast.LENGTH_SHORT).show()
+                return
+            }
+            // 참고: 수정 중인데 자기 자신과 같은 시간(12:00 -> 12:00)인 경우는 그대로 진행(통과)
+        }
+
+        // 2. 권한 확인 (중복이 아닐 때만 실행)
         if (!checkExactAlarmPermission(this)) {
-            // 권한 요청으로 넘어갔으므로 알람 등록을 중단합니다.
             return
         }
 
-        val currentTimes = reminderPrefs.getAlarmTimes().toMutableList()
-
+        // 3. 저장 로직
         if (position == null) {
             // 추가 모드
             currentTimes.add(newTime)
@@ -199,12 +217,10 @@ class NotificationSettingsActivity : AppCompatActivity() {
             Toast.makeText(this, "$newTime 으로 알림이 수정되었습니다.", Toast.LENGTH_SHORT).show()
         }
 
-        // 1. Prefs에 새 목록 저장
+        // 4. 반영
         reminderPrefs.setAlarmTimes(currentTimes)
-        // 2. UI 및 스케줄러 업데이트
         loadAlarmSettings()
 
-        // 권한 확인 후 안전하게 호출
         if (reminderPrefs.isMasterOn()) {
             ReminderScheduler.scheduleAllReminders(this)
         }

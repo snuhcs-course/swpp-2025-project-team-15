@@ -78,5 +78,10 @@
         <!-- 배경 흰색 + 둥근 모서리 drawable 쓰면 더 예쁨 (있으면) -->
         <item name="android:windowBackground">@drawable/bg_tutorial_popup</item>
     </style>
-
+    <style name="Theme.WhiteNumberPicker" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:colorControlNormal">#FFFFFF</item> <!-- 구분선 색상 -->
+        <item name="android:textColorPrimary">#FFFFFF</item> <!-- 선택된 텍스트 색상 -->
+        <item name="android:textColorSecondary">#80FFFFFF</item> <!-- 선택되지 않은 텍스트 색상 -->
+        <item name="android:textSize">20sp</item>
+    </style>
 </resources>

@@ -1,4 +1,3 @@
-// CalendarActivity.kt
 package com.example.sumdays
 
 import android.app.Activity
@@ -9,8 +8,10 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.NumberPicker // [변경] 기본 위젯 import
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
@@ -22,15 +23,18 @@ import com.example.sumdays.calendar.CalendarLanguage
 import com.example.sumdays.calendar.MonthAdapter
 import com.example.sumdays.data.viewModel.CalendarViewModel
 import com.example.sumdays.utils.setupEdgeToEdge
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.jakewharton.threetenabp.AndroidThreeTen
+// import com.shawnlin.numberpicker.NumberPicker [삭제]
 import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
 import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.temporal.ChronoUnit
 import java.util.Locale
-
 
 class CalendarActivity : AppCompatActivity() {
 
+    // ... (기존 변수 선언 동일) ...
     private lateinit var calendarViewPager: ViewPager2
     private lateinit var tvMonthYear: TextView
     private lateinit var monthAdapter: MonthAdapter
@@ -40,12 +44,9 @@ class CalendarActivity : AppCompatActivity() {
     private val viewModel: CalendarViewModel by viewModels()
     var currentStatusMap: Map<String, Pair<Boolean, String?>> = emptyMap()
     private var currentMonthLiveData: LiveData<Map<String, Pair<Boolean, String?>>>? = null
-
-
-    // 캘린더 언어 설정
     private var currentLanguage: CalendarLanguage = CalendarLanguage.KOREAN
     private val today: LocalDate by lazy { LocalDate.now() }
-    private val currentYearMonth: YearMonth by lazy { YearMonth.from(today) }
+    private val CENTER_POSITION = Int.MAX_VALUE / 2
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,31 +63,29 @@ class CalendarActivity : AppCompatActivity() {
         setStatisticBtnListener()
         setNavigationBar()
 
-        // 상태바, 네비게이션바 같은 색으로
+        tvMonthYear.setOnClickListener {
+            showYearMonthPicker()
+        }
+
         val rootView = findViewById<View>(R.id.root_layout)
         setupEdgeToEdge(rootView)
 
-        // 최초 실행 여부를 판단
-        val pref: SharedPreferences = getSharedPreferences("checkFirst", Activity.MODE_PRIVATE);
-        val checkFirst = pref.getBoolean("checkFirst", false);
-//        val checkFirst = false
+        val pref: SharedPreferences = getSharedPreferences("checkFirst", Activity.MODE_PRIVATE)
+        val checkFirst = pref.getBoolean("checkFirst", false)
 
-
-        // false일 경우 튜토리얼 최초 실행
         if (!checkFirst) {
-            // 앱 최초 실행시 하고 싶은 작업
             val editor = pref.edit()
             editor.putBoolean("checkFirst", true)
             editor.apply()
-
-            val intent: Intent = Intent(this, TutorialActivity::class.java)
+            finish()
+            val intent = Intent(this, TutorialActivity::class.java)
             startActivity(intent)
         }
     }
 
+    // ... (setStatisticBtnListener, setNavigationBar, setCustomCalendar 등 기존 함수 동일) ...
     private fun setStatisticBtnListener() {
         val btnStats = findViewById<ImageButton>(R.id.statistic_btn)
-
         btnStats.setOnClickListener {
             val intent = Intent(this, StatisticsActivity::class.java)
             startActivity(intent)
@@ -115,13 +114,11 @@ class CalendarActivity : AppCompatActivity() {
         }
     }
 
-    /** setCustomCalendar: 달력의 스크롤, 버튼에 의한 달 전환과 현재 월을 표시 */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setCustomCalendar() {
         monthAdapter = MonthAdapter(activity = this)
         calendarViewPager.adapter = monthAdapter
 
-        // 0. 언어에 따른 헤더 설정
         val headerLayout = findViewById<LinearLayout>(R.id.day_of_week_header)
         headerLayout.removeAllViews()
 
@@ -145,19 +142,15 @@ class CalendarActivity : AppCompatActivity() {
             headerLayout.addView(tv)
         }
 
-        // 1. Scroll로 달 전환: 중앙에서 시작
-        val startPosition = Int.MAX_VALUE / 2
-        calendarViewPager.setCurrentItem(startPosition, false)
-
+        calendarViewPager.setCurrentItem(CENTER_POSITION, false)
         calendarViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 updateMonthYearTitle(position)
-                observeMonthlyData(position) // 월 변경 시 데이터 구독 갱신
+                observeMonthlyData(position)
             }
         })
 
-        // 2. 이전/다음 달 버튼으로 달 전환 (미래 달 진입 방지)
         btnPrevMonth.setOnClickListener {
             val currentItem = calendarViewPager.currentItem
             calendarViewPager.setCurrentItem(currentItem - 1, true)
@@ -168,12 +161,10 @@ class CalendarActivity : AppCompatActivity() {
             calendarViewPager.setCurrentItem(nextPos, true)
         }
 
-        // 현재 월 표시 & 데이터 구독
-        updateMonthYearTitle(startPosition)
-        observeMonthlyData(startPosition)
+        updateMonthYearTitle(CENTER_POSITION)
+        observeMonthlyData(CENTER_POSITION)
     }
 
-    /** 특정 position(월)에 해당하는 데이터를 구독 */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun observeMonthlyData(position: Int) {
         val targetMonth = getTargetMonthForPosition(position)
@@ -188,7 +179,6 @@ class CalendarActivity : AppCompatActivity() {
         }
     }
 
-    /** 입력 받은 position 위치의 달/년도 계산하여 반환함 */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun updateMonthYearTitle(position: Int) {
         val targetMonth = getTargetMonthForPosition(position)
@@ -200,10 +190,57 @@ class CalendarActivity : AppCompatActivity() {
         tvMonthYear.text = targetMonth.format(formatter)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getTargetMonthForPosition(position: Int): YearMonth {
         val baseYearMonth = YearMonth.now()
-        val startPosition = Int.MAX_VALUE / 2
-        val monthDiff = position - startPosition
+        val monthDiff = position - CENTER_POSITION
         return baseYearMonth.plusMonths(monthDiff.toLong())
+    }
+
+    // -------------------------------------------------------------
+    // [수정된 함수] 기본 NumberPicker를 사용하도록 변경
+    // -------------------------------------------------------------
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun showYearMonthPicker() {
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.dialog_year_month_picker, null)
+        dialog.setContentView(view)
+
+        // XML에서 기본 위젯(<NumberPicker>)을 사용했으므로 타입도 맞춰줍니다.
+        val npYear = view.findViewById<NumberPicker>(R.id.np_year)
+        val npMonth = view.findViewById<NumberPicker>(R.id.np_month)
+        val btnConfirm = view.findViewById<Button>(R.id.btn_confirm)
+
+        // 초기값 계산
+        val currentPosition = calendarViewPager.currentItem
+        val currentTarget = getTargetMonthForPosition(currentPosition)
+
+        // 연도 설정 (2000 ~ 2099)
+        npYear.minValue = 2000
+        npYear.maxValue = 2099
+        npYear.value = currentTarget.year
+        npYear.wrapSelectorWheel = false // 연도는 뺑뺑이 안 돌게
+
+        // 월 설정 (1 ~ 12)
+        npMonth.minValue = 1
+        npMonth.maxValue = 12
+        npMonth.value = currentTarget.monthValue
+        npMonth.wrapSelectorWheel = true // 월은 12에서 1로 돌아가게
+
+        btnConfirm.setOnClickListener {
+            val selectedYear = npYear.value
+            val selectedMonth = npMonth.value
+
+            val targetYearMonth = YearMonth.of(selectedYear, selectedMonth)
+            val baseYearMonth = YearMonth.now()
+
+            val monthDiff = ChronoUnit.MONTHS.between(baseYearMonth, targetYearMonth)
+            val newPosition = CENTER_POSITION + monthDiff.toInt()
+
+            calendarViewPager.setCurrentItem(newPosition, false)
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 }

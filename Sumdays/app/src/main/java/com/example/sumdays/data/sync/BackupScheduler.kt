@@ -4,7 +4,7 @@ import androidx.work.*
 import java.util.concurrent.TimeUnit
 
 object BackupScheduler {
-    // 🔹 3시간마다 자동 백업
+    // 3시간마다 자동 백업
     fun scheduleAutoBackup() {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.UNMETERED) // Wi-Fi 연결 시만 수행
@@ -24,7 +24,7 @@ object BackupScheduler {
             )
     }
 
-    // 🔹 수동 백업 (즉시 한 번 실행)
+    // 수동 백업 (즉시 한 번 실행)
     fun triggerManualBackup() {
         val request = OneTimeWorkRequestBuilder<BackupWorker>().build()
         WorkManager.getInstance().enqueue(request)

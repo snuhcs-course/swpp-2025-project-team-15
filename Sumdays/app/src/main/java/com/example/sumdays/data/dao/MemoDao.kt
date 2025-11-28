@@ -8,7 +8,6 @@ import androidx.room.*
 @Dao
 interface MemoDao {
 
-    // ✅ 새로운 메모를 데이터베이스에 삽입
     // insert 시 새로 생성된 메모이므로 isEdited = true, isDeleted = false
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRaw(memo: Memo)

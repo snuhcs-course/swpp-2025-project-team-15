@@ -10,7 +10,7 @@ const mergeController = {
      */
     merge: async (req, res) => {
         try {
-            const { memos, style_prompt, style_examples, end_flag } = req.body;
+            const { memos, style_prompt, style_examples, style_vector, end_flag, advanced_flag, temperature } = req.body;
 
             if (!memos || !Array.isArray(memos) || memos.length < 2) {
                 return res.status(400).json({
@@ -27,12 +27,11 @@ const mergeController = {
             }
 
             memos.sort((a, b) => a.order - b.order);
-            style_vector = [0.1, 0.1]
                       
             if (!end_flag) {
                 const response = await axios.post(
                     `${PYTHON_SERVER_URL}/merge/`, 
-                    { memos, style_prompt, style_examples, style_vector, end_flag },
+                    { memos, style_prompt, style_examples, style_vector, end_flag, advanced_flag, temperature },
                     {responseType: "stream"}
                 );
 
@@ -49,7 +48,7 @@ const mergeController = {
             } else {
                 const response = await axios.post(
                     `${PYTHON_SERVER_URL}/merge/`, 
-                    { memos, style_prompt, style_examples, style_vector, end_flag }
+                    { memos, style_prompt, style_examples, style_vector, end_flag, advanced_flag, temperature }
                 );
 
                 if (!response.data) {

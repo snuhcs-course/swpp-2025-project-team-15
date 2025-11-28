@@ -66,7 +66,6 @@ class DailyReadActivity : AppCompatActivity() {
         setupClickListeners()
         observeEntry() // currentDate가 초기화된 후 호출
 
-        // 상태바, 네비게이션 같은 색
         val rootView = findViewById<View>(R.id.main)
         setupEdgeToEdge(rootView)
     }
@@ -142,11 +141,10 @@ class DailyReadActivity : AppCompatActivity() {
     }
 
     /**
-     * UI 업데이트 함수 (수정됨)
+     * UI 업데이트 함수
      */
     private fun updateUI(entry: DailyEntry?) {
 
-        // "오늘" 날짜 표시 로직
         val isToday = isSameDay(currentDate, Calendar.getInstance())
 
         if (isToday) {
@@ -196,11 +194,6 @@ class DailyReadActivity : AppCompatActivity() {
             }
         } catch (e: Exception) { /* ... */ }
     }
-
-    // private fun setupPhotoGallery() { ... } // 삭제
-
-    // private fun showPhotoDialog(photoUrl: String) { ... } // 삭제
-
     private fun setupClickListeners() {
         binding.dateText.setOnClickListener {
             showDatePickerDialog()

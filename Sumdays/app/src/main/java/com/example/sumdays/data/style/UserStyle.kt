@@ -16,7 +16,7 @@ data class UserStyle(
 ) {
     companion object {
         val Default = UserStyle(
-            styleId = 0L,                // DB에 존재하지 않음을 의미
+            styleId = 0L,
             styleName = "기본 스타일",
             styleVector = emptyList(),
             styleExamples = listOf(

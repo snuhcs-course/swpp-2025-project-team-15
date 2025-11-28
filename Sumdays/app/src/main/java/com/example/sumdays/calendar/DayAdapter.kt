@@ -19,11 +19,11 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.DayOfWeek
 import org.threeten.bp.YearMonth
 import com.example.sumdays.DailyWriteActivity
+import android.graphics.drawable.GradientDrawable
 
 class DayAdapter(
     private val days: List<DateCell>,
     private val activity: CalendarActivity,
-    // ★ 추가: 미래 날짜 판별용 기준
     private val today: LocalDate = LocalDate.now(),
     private val maxYearMonth: YearMonth = YearMonth.now()
 ) : RecyclerView.Adapter<DayAdapter.DayViewHolder>() {
@@ -113,8 +113,26 @@ class DayAdapter(
                 tvDayNumber.alpha = 1.0f
                 tvCircle.alpha = 1.0f
             }
+            if (isToday) {
+                val density = itemView.context.resources.displayMetrics.density
+                val size = (20 * density).toInt() // 32dp 크기로 고정 (원하는 크기로 조절 가능)
 
-            // ★ 핵심: 미래 날짜는 접근(클릭) 차단 + 채도 낮춤
+                val params = tvDayNumber.layoutParams
+                params.width = size
+                params.height = size
+                tvDayNumber.layoutParams = params
+
+                val drawable = GradientDrawable()
+                drawable.shape = GradientDrawable.RECTANGLE
+                drawable.setColor(Color.WHITE)
+                drawable.cornerRadius = 5 * density // 10dp 둥근 모서리 (값 조절 가능)
+
+                tvDayNumber.background = drawable
+
+                // 글자색 검은색, 굵게
+                tvDayNumber.setTextColor(Color.BLACK)
+                tvDayNumber.setTypeface(null, Typeface.BOLD)
+            }
             if (isFutureDay) {
                 itemView.isClickable = false
                 itemView.isFocusable = false

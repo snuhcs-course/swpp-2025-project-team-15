@@ -174,7 +174,7 @@ class BackupWorker(
                 emotionAnalysis = com.example.sumdays.statistics.EmotionAnalysis(
                     distribution = mapOf("positive" to 3, "neutral" to 1, "negative" to 1),
                     dominantEmoji = "😄",
-                    emotionScore = 0.78f,
+                    emotionScore = 0.78,
                     trend = "increasing"
                 ),
                 highlights = listOf(

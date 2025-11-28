@@ -47,9 +47,10 @@
         android:id="@+id/login_instruction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/gray_dark"
         android:layout_marginTop="80dp"
-        android:text="Login to Sumdays"
-        android:textSize="28dp"
+        android:text="Sumdays"
+        android:textSize="33dp"
         android:textStyle="bold"
 
         app:layout_constraintStart_toStartOf="@id/white_rec_background"
@@ -59,10 +60,11 @@
 
     <TextView
         android:id="@+id/app_description"
+        android:textColor="@color/gray_dark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:text="Quick &amp; Simple way to record your days"
+        android:text="당신의 하루를 가장 쉽게 기록하는 방법"
         android:textSize="12dp"
 
         app:layout_constraintStart_toStartOf="@id/login_instruction"
@@ -88,6 +90,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
+        android:textColor="@color/gray_dark"
         android:ems="10"
         android:hint="아이디를 입력하세요"
         android:inputType="text"
@@ -104,6 +107,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:ems="10"
+        android:textColor="@color/gray_dark"
         android:hint="비밀번호를 입력하세요"
         android:inputType="textPassword"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -112,13 +116,15 @@
         app:layout_constraintTop_toBottomOf="@+id/idInput_EditText" />
 
     <!--Changed Button -> ImageButton-->
-    <ImageButton
+    <Button
         android:id="@+id/login_button"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_marginTop="26dp"
         android:ems="10"
-        android:src="@drawable/login_btn"
+        android:text="로그인"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="@+id/passwordInput_EditText"
         app:layout_constraintStart_toStartOf="@+id/passwordInput_EditText"
         app:layout_constraintTop_toBottomOf="@+id/passwordInput_EditText" />
@@ -129,7 +135,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="40dp"
         android:padding="8dp"
-        android:text="Don't have an account? Sign Up"
+        android:text="계정이 없으신가요? 지금 가입해보세요"
         android:textColor="@color/design_default_color_primary"
         app:layout_constraintEnd_toEndOf="@+id/login_button"
         app:layout_constraintStart_toStartOf="@+id/login_button"

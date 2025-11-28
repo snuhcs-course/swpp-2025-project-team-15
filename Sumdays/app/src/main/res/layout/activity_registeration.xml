@@ -91,6 +91,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginTop="24dp"
+                app:backgroundTint="#8B008B"
                 android:text="계정 생성하기" />
 
         </LinearLayout>

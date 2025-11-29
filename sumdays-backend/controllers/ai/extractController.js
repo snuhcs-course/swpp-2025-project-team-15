@@ -22,13 +22,6 @@ const extractController = {
                 }
             }
 
-            if (!Array.isArray(diaries) || diaries.length < 1) {
-                return res.status(400).json({
-                    success: false,
-                    message: "[extractController.extractStyle] Error: diaries must be an array (can be combined with images)."
-                });
-            }
-
             const formData = new FormData();
             formData.append("diaries", JSON.stringify(diaries));
 

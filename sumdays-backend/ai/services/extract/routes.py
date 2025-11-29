@@ -5,7 +5,7 @@ import json
 
 extract_bp = Blueprint("extract", __name__, url_prefix="/extract")
 image_service = ImageService()
-MIN_DIARY_NUM = 3
+MIN_DIARY_NUM = 5
 
 @extract_bp.route("/style", methods=["POST"])
 def extract_style_route():

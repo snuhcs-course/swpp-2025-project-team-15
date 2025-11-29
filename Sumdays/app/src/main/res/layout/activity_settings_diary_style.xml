@@ -17,7 +17,7 @@
         android:id="@+id/descText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="사용자의 고유한 일기 스타일을 추출하여 AI 일기 작성에 반영합니다. 최소 5개 이상의 텍스트/이미지 일기를 준비해주세요."
+        android:text="사용자의 고유한 말투나 문체를 추출하여 AI 일기 작성에 반영합니다. 최소 5개 이상의 텍스트/이미지를 준비해주세요."
         android:textColor="#AAAAAA"
         android:textSize="14sp"
         android:layout_marginTop="6dp"

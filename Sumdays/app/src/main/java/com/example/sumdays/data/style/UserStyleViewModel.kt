@@ -14,6 +14,19 @@ class UserStyleViewModel(application: Application) : AndroidViewModel(applicatio
     // StyleDatabase 인스턴스에서 DAO를 가져옵니다.
     private val dao = AppDatabase.getDatabase(application).userStyleDao()
 
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            // DB가 비어 있으면 기본 스타일 자동 삽입
+            val existing = dao.getAllStylesDirect()
+            if (existing.isEmpty()) {
+                val context = getApplication<Application>()
+                dao.insertStyle(UserStyle.createDefault1(context))
+                dao.insertStyle(UserStyle.createDefault2(context))
+                dao.insertStyle(UserStyle.createDefault3(context))
+            }
+        }
+    }
+
     /**
      * 특정 사용자 ID에 해당하는 모든 스타일 목록을 LiveData로 반환합니다.
      * DiaryStyleSettingsActivity에서 스타일 목록을 표시하는 데 사용됩니다.

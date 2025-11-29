@@ -66,9 +66,13 @@ You are currently writing the diary ONE MEMO AT A TIME, memo by memo.
 """
 
     for idx, memo in enumerate(memos):
-        base_sent = max(1, count_sentences(memo))
-        min_sent = max(1, math.ceil(base_sent * 1.3))
-        max_sent = max(min_sent, math.ceil(base_sent * 1.5))
+        # 길이제한: 글자수로
+        base_len = len(memo.strip())
+        min_len = int(base_len * 1.3)
+        max_len = int(base_len * 1.8)
+
+        if min_len < 10: min_len = 10
+        if max_len < 15: max_len = 20
 
         current_diary_block = (
             accumulated_diary if accumulated_diary.strip()
@@ -118,7 +122,7 @@ FOCUS MEMO FOR THIS STEP (memo #{focus_memo_idx}):
 ---
 
 LENGTH RULE FOR THIS MEMO:
-- The rewritten paragraph for this memo should be between {min_sent} and {max_sent} sentences.
+- The rewritten paragraph for this memo should be between{min_len} and {max_len} characters (including spaces).
 - It should feel concise and natural, not repetitive.
 - It should primarily focus on the events and feelings from the FOCUS MEMO.
 
@@ -181,17 +185,21 @@ def merge_stream(memos, style_prompt, style_examples, temperature: float = 0.8):
 
     indexed_memos_text = "\n".join(f"{i+1}. {m}" for i, m in enumerate(memos))
     
-    # 각 메모의 목표 문장 수 계산
-    memo_sentence_counts = []
+    # 각 메모의 목표 글자 수 계산
+    memo_char_requirements = []
     for memo in memos:
-        base_sent = max(1, count_sentences(memo))
-        min_sent = max(1, math.ceil(base_sent * 1.3))
-        max_sent = max(min_sent, math.ceil(base_sent * 1.5))
-        memo_sentence_counts.append((min_sent, max_sent))
+        base_len = len(memo.strip())
+        min_len = int(base_len * 1.3)
+        max_len = int(base_len * 1.8)
+        
+        if min_len < 10: min_len = 10
+        if max_len < 15: max_len = 20
+        
+        memo_char_requirements.append((min_len, max_len))
     
-    sentence_requirements = "\n".join(
-        f"- The rewritten paragraph for this memo should be between {min_s} and {max_s} sentences." 
-        for i, (min_s, max_s) in enumerate(memo_sentence_counts)
+    length_requirements = "\n".join(
+        f"- The rewritten paragraph for this memo should be between {min_l} and {max_l} characters." 
+        for i, (min_l, max_l) in enumerate(memo_char_requirements)
     )
 
     system_msg = """
@@ -224,7 +232,7 @@ Your job:
 IMPORTANT FORMATTING:
 - Write ONE paragraph for EACH memo.
 - Start paragraph with one blank.
-- SEPARATE each paragraph with a newline (\\n).
+- SEPARATE each paragraph with a single newline (\\n).
 - Process memos in the given order (1, 2, 3, ...).
 
 ---
@@ -243,14 +251,12 @@ ALL MEMOS (IN ORDER):
 ---
 
 LENGTH REQUIREMENTS (per memo):
-{sentence_requirements}
+{length_requirements}
 
 Each paragraph should feel concise and natural, not repetitive.
 Each paragraph should primarily focus on the events and feelings from its corresponding memo.
 
 Now write diary-style paragraphs for ALL memos in order.
-Separate each paragraph with a newlines (\\n).
-Start paragraph with one blank.
 Output only the paragraphs, with no explanations, numbering, or labels.
 """
 

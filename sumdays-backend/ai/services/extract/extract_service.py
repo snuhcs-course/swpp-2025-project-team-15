@@ -50,12 +50,7 @@ def extract_style_examples(diaries, style_vector, n=4):
 def extract_style(diaries):
     style_vector = compute_style_vector(diaries)
     style_examples = extract_style_examples(diaries, style_vector, n=4)
-    style_prompt_raw = compute_style_profile_text(diaries)
-
-    try:
-        style_prompt = json.loads(style_prompt_raw)
-    except:
-        style_prompt = {"style_summary": style_prompt_raw}
+    style_prompt = compute_style_profile_text(diaries)
 
     return {
         "style_vector": style_vector,

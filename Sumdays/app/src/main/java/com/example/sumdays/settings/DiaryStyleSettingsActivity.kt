@@ -2,6 +2,7 @@ package com.example.sumdays.settings
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -111,9 +112,28 @@ open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by M
 
     private fun observeStyles() {
         styleViewModel.getAllStyles().observe(this) { list ->
-            adapter.submit(list, userStatsPrefs.getActiveStyleId())
-            // 데이터 바뀌면 선택 버튼 라벨 업데이트
-            updateSelectButtonText()
+
+            // 활성화된 스타일이 없으면 기본 스타일 자동 선택
+            var activeId = userStatsPrefs.getActiveStyleId()
+
+//            Log.d("STYLE_DEBUG",
+//                "observeStyles() 실행됨\n" +
+//                        " - activeId(pref): $activeId\n" +
+//                        " - list size: ${list.size}\n" +
+//                        " - styleIds: ${list.joinToString { it.styleId.toString() }}\n" +
+//                        " - currentSnapPos: $currentSnapPos\n"
+//            )
+
+            if (activeId == 0L && list.isNotEmpty()) {
+                val firstStyle = list.first()
+                userStatsPrefs.saveActiveStyleId(firstStyle.styleId)
+                activeId = firstStyle.styleId
+            }
+
+            adapter.submit(list, activeId)
+            binding.styleRecycler.post {
+                updateSelectButtonText()
+            }
 
             // 처음 들어왔을 때만 스크롤 이동
             if (!hasInitialScroll) {
@@ -155,7 +175,7 @@ open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by M
     fun saveActiveStyle(styleId: Long) = launch(Dispatchers.IO) {
         val current = userStatsPrefs.getActiveStyleId()
         if (current == styleId) {
-            userStatsPrefs.clearActiveStyleId()
+            userStatsPrefs.saveActiveStyleId(1L)
         } else {
             userStatsPrefs.saveActiveStyleId(styleId)
         }

@@ -29,17 +29,12 @@ class StyleCardAdapter(
     companion object {
         private const val TYPE_STYLE = 0
         private const val TYPE_ADD = 1
+        private const val DEFAULT_STYLE_MAX_ID = 3L
     }
 
     fun submit(list: List<UserStyle>, activeStyleId: Long?) {
         items.clear()
-
-        // 기본 스타일 항상 첫 번째
-        items.add(UserStyle.Default)
-
-        // DB 스타일은 기본 스타일과 ID 충돌 없도록
-        items.addAll(list.filter { it.styleId != 0L })
-
+        items.addAll(list)
         this.activeId = activeStyleId
         notifyDataSetChanged()
     }
@@ -69,11 +64,8 @@ class StyleCardAdapter(
 
         fun bind(style: UserStyle) {
             // 기본 스타일 메뉴 삭제
-            if (style.styleId == 0L) {
-                b.moreButton.visibility = View.INVISIBLE
-            } else {
-                b.moreButton.visibility = View.VISIBLE
-            }
+            val isDefault = style.styleId <= DEFAULT_STYLE_MAX_ID
+            b.moreButton.visibility = if (isDefault) View.INVISIBLE else View.VISIBLE
 
             // 항상 초기 상태는 앞면
             b.front.visibility = View.VISIBLE
@@ -102,27 +94,23 @@ class StyleCardAdapter(
             // 프롬프트
             val p = style.stylePrompt
             b.promptBody.text = buildString {
-                p.tone.let { append("• Tone: $it\n") }
-                p.formality.let { append("• Formality: $it\n") }
-                p.sentence_length.let { append("• Sentence Length: $it\n") }
-                p.sentence_structure.let { append("• Structure: $it\n") }
-
-                p.sentence_endings.takeIf { it.isNotEmpty() }?.let {
-                    append("• Endings: ${it.joinToString(", ")}\n")
-                }
-
-                p.lexical_choice.let { append("• Word Choice: $it\n") }
-
-                p.common_phrases.takeIf { it.isNotEmpty() }?.let {
-                    append("• Common Phrases: ${it.joinToString(", ")}\n")
-                }
-
-                p.emotional_tone.let { append("• Emotional Tone: $it\n") }
-                p.irony_or_sarcasm.let { append("• Irony/Sarcasm: $it\n") }
-                p.slang_or_dialect.let { append("• Slang/Dialect: $it\n") }
-                p.pacing.let { append("• Pacing: $it\n") }
+                // 0. 스타일 컨셉
+                p.character_concept.let { append("• 스타일 컨셉: $it\n") }
+                // 1. 기본 언어 구조
+                p.tone.let { append("• 톤/분위기: $it\n") }
+                p.formality.let { append("• 말투의 격식: $it\n") }
+                p.sentence_length.let { append("• 문장 길이: $it\n") }
+                p.sentence_structure.let { append("• 문장 구조: $it\n") }
+                p.pacing.let { append("• 글 흐름: $it\n") }
+                // 2. 캐릭터 시그니처
+                p.sentence_endings.takeIf { it.isNotEmpty() }?.let { append("• 종결 어미: ${it.joinToString(", ")}\n") }
+                p.speech_quirks.let { append("• 말투 버릇: $it\n") }
+                p.punctuation_style.let { append("• 문장부호 스타일: $it\n") }
+                p.special_syntax.let { append("• 특수 문법/밈: $it\n") }
+                // 3. 어휘
+                p.lexical_choice.let { append("• 어휘 선택: $it\n") }
+                p.emotional_tone.let { append("• 감정 표현 방식: $it\n") }
             }
-
 
             // flip
             b.flipContainer.setOnClickListener {

@@ -14,11 +14,13 @@ import org.threeten.bp.LocalDate
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import com.example.sumdays.auth.SessionManager
 import com.example.sumdays.data.sync.BackupScheduler
 import com.example.sumdays.data.sync.InitialSyncWorker
 import com.example.sumdays.settings.LabsSettingsActivity
+import com.example.sumdays.statistics.WeekSummaryWorker
 import com.example.sumdays.utils.setupEdgeToEdge
 
 class SettingsActivity : AppCompatActivity() {
@@ -102,6 +104,20 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.tutorialBlock.setOnClickListener {
             startActivity(Intent(this@SettingsActivity, TutorialActivity::class.java))
+        }
+
+        binding.summaryBlock.setOnClickListener {
+            val inputData = workDataOf("IS_TEST_MODE" to false) // true로 설정하면 더미 데이터 생성
+
+            // 2. OneTimeWorkRequest 생성 (즉시 실행)
+            val workRequest = OneTimeWorkRequestBuilder<WeekSummaryWorker>()
+                .setInputData(inputData)
+                .build()
+
+            // 3. WorkManager에 큐 삽입
+            WorkManager.getInstance(applicationContext).enqueue(workRequest)
+
+            Toast.makeText(this@SettingsActivity, "주간 통계 생성 요청됨", Toast.LENGTH_SHORT).show()
         }
 
         // backup 관련 버튼

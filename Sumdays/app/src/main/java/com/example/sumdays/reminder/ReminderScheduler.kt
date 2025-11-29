@@ -47,14 +47,11 @@ object ReminderScheduler {
             }
         }
 
-        // 3. 매일 반복 알람 등록 (setRepeating 대신 setExactAndAllowWhileIdle + 재등록 권장)
-        // 여기서는 매일 반복의 정확성을 위해 setExactAndAllowWhileIdle을 사용하고 리시버에서 다음날 알람을 재등록하는 방식이 권장되지만,
-        // 단순 반복을 위해 setRepeating을 사용합니다.
+        // 3. 매일 반복 알람 등록 (RTC_WAKEUP 사용)
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                // S(31) 이상에서는 canScheduleExactAlarms() 확인 로직을 외부에서 먼저 수행해야 하지만,
-                // 로직 실패 시 발생할 수 있는 SecurityException을 여기서 처리합니다.
+                // API 31~
                 alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
                     calendar.timeInMillis,
@@ -84,14 +81,11 @@ object ReminderScheduler {
     }
 
     fun rescheduleNextDayReminder(context: Context, hour: Int, minute: Int, requestCode: Int) {
-        // 기존 scheduleSingleReminder를 다시 호출하면
-        // scheduleSingleReminder 내부의 "이미 지난 시간이라면 내일 알람으로 설정" 로직이
-        // 자동으로 다음 날 알람을 정확하게 잡아줍니다.
         scheduleSingleReminder(context, hour, minute, requestCode)
     }
 
     /**
-     * 모든 알람을 취소합니다. (OFF 기능 구현의 핵심)
+     * 모든 알람을 취소합니다.
      */
     fun cancelAllReminders(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -117,7 +111,7 @@ object ReminderScheduler {
      * 저장된 모든 시간 목록을 바탕으로 알람을 등록합니다.
      */
     fun scheduleAllReminders(context: Context) {
-        // 1. 기존 알람 전체 취소 (중복 등록 방지)
+        // 1. 기존 알람 전체 취소
         cancelAllReminders(context)
 
         val prefs = ReminderPrefs(context)

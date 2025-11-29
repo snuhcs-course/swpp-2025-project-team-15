@@ -18,12 +18,11 @@ class ReminderReceiver : BroadcastReceiver() {
     companion object {
         const val CHANNEL_ID = "daily_reminder"
         const val KEY_TEXT_REPLY = "memo_reply"
-        // 알림 ID를 고정값이 아닌 Request Code를 이용해 고유하게 설정하는 것을 권장
         const val NOTIFICATION_ID_BASE = 1000
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        // --- 1. 알람 정보 추출 ---
+        // 1. 알람 정보 추출
         val hour = intent.getIntExtra(ReminderScheduler.EXTRA_HOUR, -1)
         val minute = intent.getIntExtra(ReminderScheduler.EXTRA_MINUTE, -1)
         val requestCode = intent.getIntExtra(ReminderScheduler.EXTRA_REQUEST_CODE, -1)
@@ -45,13 +44,12 @@ class ReminderReceiver : BroadcastReceiver() {
             context.packageManager.getLaunchIntentForPackage(context.packageName)
         val pendingIntent = PendingIntent.getActivity(
             context,
-            requestCode, // 알림 ID와 PendingIntent 요청 코드를 동일하게 설정하면 관리 용이
+            requestCode,
             activityIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         // 메모 추가 action (ReplyReceiver로 전달)
-        // Note: 리플라이 PendingIntent의 requestCode는 알람과 달라야 충돌 방지
         val replyIntent = Intent(context, ReminderReplyReceiver::class.java).apply {
             // ReplyReceiver가 어떤 알람에서 왔는지 식별할 수 있도록 requestCode 전달
             putExtra(ReminderScheduler.EXTRA_REQUEST_CODE, requestCode)
@@ -59,7 +57,7 @@ class ReminderReceiver : BroadcastReceiver() {
 
         val replyPendingIntent = PendingIntent.getBroadcast(
             context,    
-            requestCode + 100, // 다른 코드 사용
+            requestCode + 100,
             replyIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
@@ -95,8 +93,7 @@ class ReminderReceiver : BroadcastReceiver() {
         Log.d("Receiver", "알림 표시 완료: $hour:$minute (ID: $notificationId)")
 
 
-        // --- 5. 다음 날 알람 재등록 (핵심 로직) ---
-        // 알람이 울린 직후, 다음 날 같은 시간으로 다시 알람을 등록합니다.
+        // 5. 다음 날 알람 재등록
         ReminderScheduler.rescheduleNextDayReminder(context, hour, minute, requestCode)
 
         Log.d("Receiver", "다음 날 알람 재등록 요청 완료: $hour:$minute")

@@ -3,7 +3,7 @@ package com.example.sumdays.statistics
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
-// 주간 요약 데이터를 담을 클래스 (초록 블록 상징)
+// 주간 요약 데이터를 담을 클래스
 // 'ai/summarize-week' API의 result 객체 전체를 파싱
 @Parcelize
 data class WeekSummary(

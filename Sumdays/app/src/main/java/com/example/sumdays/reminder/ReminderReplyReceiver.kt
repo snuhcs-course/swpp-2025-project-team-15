@@ -29,15 +29,12 @@ class ReminderReplyReceiver : BroadcastReceiver() {
         }
 
         // 2. 알림 ID 계산하기
-        // ReminderReceiver에서 넘겨준 requestCode를 받아서 ID를 재구성합니다.
         val requestCode = intent.getIntExtra(ReminderScheduler.EXTRA_REQUEST_CODE, -1)
 
         if (requestCode != -1) {
-            // ReminderReceiver에서 생성할 때 썼던 규칙: (BASE + requestCode)
             val notificationId = ReminderReceiver.NOTIFICATION_ID_BASE + requestCode
 
             // 3. 기존 알림 삭제
-            // 기존 ID를 찾아 cancel()을 호출합니다.
             NotificationManagerCompat.from(context).cancel(notificationId)
 
             Log.d("ReplyReceiver", "알림 삭제 완료 (ID: $notificationId)")

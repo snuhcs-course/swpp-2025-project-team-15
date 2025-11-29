@@ -30,7 +30,7 @@ class WeekStatsDetailActivityTest {
         val emotionAnalysis = EmotionAnalysis(
             distribution = mapOf("positive" to 5, "neutral" to 2),
             dominantEmoji = "🌟",
-            emotionScore = 0.8f,
+            emotionScore = 0.8,
             trend = "increasing"
         )
 
@@ -94,7 +94,7 @@ class WeekStatsDetailActivityTest {
         // 1. Arrange: 최소 데이터로 실행
         val emptyData = WeekSummary(
             "2025-01-01", "2025-01-07", 0,
-            EmotionAnalysis(emptyMap(), "", 0f, ""),
+            EmotionAnalysis(emptyMap(), "", 0.0, ""),
             emptyList(),
             Insights("", ""),
             SummaryDetails(emptyList(), "", "")

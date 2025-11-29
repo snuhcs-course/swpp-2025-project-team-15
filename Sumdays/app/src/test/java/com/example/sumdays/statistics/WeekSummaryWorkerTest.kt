@@ -143,7 +143,32 @@ class WeekSummaryWorkerTest {
     // 1. 테스트 모드 (IS_TEST_MODE = true)
     // ─────────────────────────────────────────────────────────────
 
+    @Test
+    fun test_mode_get_dummy() = runBlocking {
+        // Given
+        mockToday(LocalDate.of(2025, 10, 20))
 
+        val inputData = Data.Builder()
+            .putBoolean("IS_TEST_MODE", true)
+            .build()
+        val worker = createWorker(inputData)
+
+        coEvery { mockWeekSummaryRepository.upsertWeekSummary(any()) } returns Unit
+
+        // When
+        val result = worker.doWork()
+
+        // Then
+        assertTrue("결과가 Retry입니다. 콘솔의 [TestLog]를 확인하세요.", result is ListenableWorker.Result.Success)
+
+        val slot = slot<WeekSummary>()
+        coVerify(exactly = 1) { mockWeekSummaryRepository.upsertWeekSummary(capture(slot)) }
+
+        val savedSummary = slot.captured
+        assertEquals(7, savedSummary.diaryCount)
+        assertEquals("테스트 주간 보고서", savedSummary.summary.title)
+        assertEquals("🧪", savedSummary.emotionAnalysis.dominantEmoji)
+    }
 
     // ─────────────────────────────────────────────────────────────
     // 2. 일기 개수 부족 (3개 미만)
@@ -176,14 +201,61 @@ class WeekSummaryWorkerTest {
     // 3. 정상 동작 (API 성공 -> DB 저장)
     // ─────────────────────────────────────────────────────────────
 
+    @Test
+    fun sufficient_entry_return_success() = runBlocking {
+        // Given: 2025-10-20 (월)
+        mockToday(LocalDate.of(2025, 10, 20))
 
+        val date1 = "2025-10-13"
+        val date2 = "2025-10-14"
+        val date3 = "2025-10-15"
+        val dates = listOf(date1, date2, date3)
+
+        coEvery { mockDailyEntryRepository.getAllWrittenDates() } returns dates
+
+        coEvery { mockDailyEntryRepository.getEntrySnapshot(date1) } returns createDailyEntry(date = date1, diary = "일기1", emotionScore = 0.2, emotionIcon = "😢")
+        coEvery { mockDailyEntryRepository.getEntrySnapshot(date2) } returns createDailyEntry(date = date2, diary = "일기2", emotionScore = 0.5, emotionIcon = "😐")
+        coEvery { mockDailyEntryRepository.getEntrySnapshot(date3) } returns createDailyEntry(date = date3, diary = "일기3", emotionScore = 0.8, emotionIcon = "😊")
+
+        val mockNetworkResult = WeekAnalysisResult(
+            emotionAnalysis = NetworkEmotionAnalysis(
+                distribution = mapOf("positive" to 5, "neutral" to 1, "negative" to 1),
+                dominantEmoji = "😊",
+                emotionScore = 0.8,
+                trend = "increasing"),
+            highlights = listOf(NetworkHighlight(date1, "요약1"), NetworkHighlight(date3, "요약3")),
+            insights = NetworkInsights("조언", "사이클"),
+            summary = NetworkSummaryDetails(listOf("키워드"), "개요", "성공적인 한 주")
+        )
+
+        val mockResponse = Response.success(WeekAnalysisResponse(success = true, result = mockNetworkResult))
+
+        coEvery { mockApiService.summarizeWeek(any()) } returns mockResponse
+        coEvery { mockWeekSummaryRepository.upsertWeekSummary(any()) } returns Unit
+
+        val worker = createWorker()
+
+        // When
+        val result = worker.doWork()
+
+        // Then
+        assertTrue("결과가 Retry입니다. 콘솔의 [TestLog]를 확인하세요.", result is ListenableWorker.Result.Success)
+
+        val slot = slot<WeekSummary>()
+        coVerify(exactly = 1) { mockWeekSummaryRepository.upsertWeekSummary(capture(slot)) }
+
+        val savedSummary = slot.captured
+        assertEquals(3, savedSummary.diaryCount)
+        assertEquals("성공적인 한 주", savedSummary.summary.title)
+        assertEquals("😊", savedSummary.emotionAnalysis.dominantEmoji)
+    }
 
     // ─────────────────────────────────────────────────────────────
     // 4. API 실패 및 예외 처리
     // ─────────────────────────────────────────────────────────────
 
     @Test
-    fun fail_api_call_return_retry() = runBlocking {
+    fun api_call_fail_return_retry() = runBlocking {
         // Given
         mockToday(LocalDate.of(2025, 10, 20))
 

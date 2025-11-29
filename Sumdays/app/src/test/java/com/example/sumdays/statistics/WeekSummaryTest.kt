@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.sumdays.TestApplication
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -16,7 +17,7 @@ import org.robolectric.annotation.Config
  * Line Coverage 100%를 달성합니다.
  */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE]) // 샘플 코드와 동일한 SDK 설정
+@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE], application = TestApplication::class) // 샘플 코드와 동일한 SDK 설정
 class WeekSummaryTest {
 
     // --- 헬퍼 함수: 테스트용 샘플 데이터 생성 ---
@@ -24,7 +25,7 @@ class WeekSummaryTest {
     private fun createSampleEmotionAnalysis(trend: String? = "Increasing") = EmotionAnalysis(
         distribution = mapOf("positive" to 5, "neutral" to 2, "negative" to 0),
         dominantEmoji = "😃",
-        emotionScore = 0.8f,
+        emotionScore = 0.8,
         trend = trend // null 포함 테스트를 위해 파라미터화
     )
 
@@ -125,7 +126,7 @@ class WeekSummaryTest {
         val analysis = createSampleEmotionAnalysis("Stable")
 
         assertThat(analysis.dominantEmoji, `is`("😃"))
-        assertThat(analysis.emotionScore, `is`(0.8f))
+        assertThat(analysis.emotionScore, `is`(0.8))
         assertThat(analysis.trend, `is`("Stable"))
         assertThat(analysis.distribution.keys.size, `is`(3))
     }

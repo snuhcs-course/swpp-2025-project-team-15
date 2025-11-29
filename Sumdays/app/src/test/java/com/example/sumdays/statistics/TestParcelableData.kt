@@ -18,7 +18,7 @@ data class SummaryDetails(
 data class EmotionAnalysis(
     val distribution: Map<String, Int>,
     val dominantEmoji: String,
-    val emotionScore: Float,
+    val emotionScore: Double,
     val trend: String? = null
 ) : Parcelable
 

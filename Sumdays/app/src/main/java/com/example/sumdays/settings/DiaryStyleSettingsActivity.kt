@@ -116,16 +116,13 @@ open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by M
             // 활성화된 스타일이 없으면 기본 스타일 자동 선택
             var activeId = userStatsPrefs.getActiveStyleId()
 
-            Log.d("STYLE_DEBUG",
-                "activeId(pref): $activeId (${activeId::class.java.simpleName})\n"
-            )
-            Log.d("STYLE_DEBUG",
-                "observeStyles() 실행됨\n" +
-                        " - activeId(pref): $activeId\n" +
-                        " - list size: ${list.size}\n" +
-                        " - styleIds: ${list.joinToString { it.styleId.toString() }}\n" +
-                        " - currentSnapPos: $currentSnapPos\n"
-            )
+//            Log.d("STYLE_DEBUG",
+//                "observeStyles() 실행됨\n" +
+//                        " - activeId(pref): $activeId\n" +
+//                        " - list size: ${list.size}\n" +
+//                        " - styleIds: ${list.joinToString { it.styleId.toString() }}\n" +
+//                        " - currentSnapPos: $currentSnapPos\n"
+//            )
 
             if (activeId == 0L && list.isNotEmpty()) {
                 val firstStyle = list.first()

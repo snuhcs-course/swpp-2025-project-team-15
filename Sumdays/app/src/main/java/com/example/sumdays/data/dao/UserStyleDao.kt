@@ -18,7 +18,7 @@ interface UserStyleDao {
     }
 
     // 2. 모든 스타일 목록 조회 (SettingsActivity에서 사용)
-    @Query("SELECT * FROM user_style WHERE isDeleted = 0 ORDER BY styleId DESC")
+    @Query("SELECT * FROM user_style WHERE isDeleted = 0 ORDER BY styleId ASC")
     fun getAllStyles(): LiveData<List<UserStyle>>
 
     // 3. 스타일 삭제

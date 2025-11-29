@@ -259,42 +259,37 @@ class MemoMergeAdapter(
 
         // ★★★ 2️. 활성 스타일 데이터 로드 또는 더미 데이터 사용 ★★★
         val activeStyleId = userStatsPrefs.getActiveStyleId()
-        val styleData = if (activeStyleId != null) {
-            // Room에서 활성 스타일 데이터 조회 (IO 스레드에서 suspend 호출)
-            userStyleDao.getStyleById(activeStyleId)
-        } else {
-            UserStyle.Default // 기본 스타일
-        }
-
+        val styleData = userStyleDao.getStyleById(activeStyleId)
         val stylePrompt: Map<String, Any>
         val styleExample: List<String>
         val styleVector: List<Float>
 
         if (styleData != null) {
-            // ✅ 활성 스타일이 있을 경우: Room DB의 실제 데이터 사용
+            // 활성 스타일이 있을 경우: Room DB의 실제 데이터 사용
             stylePrompt = convertStylePromptToMap(styleData.stylePrompt) // StylePrompt 객체를 Map으로 변환 필요
             styleExample = styleData.styleExamples
             styleVector = styleData.styleVector
         } else {
-            // ✅ 활성 스타일이 없을 경우: 더미 데이터 사용 (기존 test 데이터)
+            // 활성 스타일이 없을 경우: 더미 데이터 사용 (기존 test 데이터)
             stylePrompt = mapOf(
-                "common_phrases" to listOf("자고 싶어", "그냥 없었다", "왜 있을까?"),
-                "emotional_tone" to "감정 표현이 강하며 다채롭고 직접적, 때로는 불평과 슬픔이 섞임",
-                "formality" to "반말, 구어체, 친근하고 자연스러운 말투",
-                "irony_or_sarcasm" to "없음",
-                "lexical_choice" to "구어체적 어휘와 감정을 드러내는 단어가 주를 이룸",
-                "pacing" to "빠름, 감정을 빠르게 전달하는 리듬",
-                "sentence_endings" to listOf("~!", "~지롱~", "!!", "??"),
-                "sentence_length" to "짧음",
-                "sentence_structure" to "단문 위주, 감정을 직설적으로 표현하는 구조",
-                "slang_or_dialect" to "반말, 일부 인터넷체적 어법 사용",
-                "tone" to "경쾌하고 자주 감정을 드러내는, 일상적이고 솔직한 분위기"
+                "character_concept" to "일상적인 삶을 살아가는 평범한 사람. 소소한 일상을 관찰하고 기록하는 성향을 가진 인물.",
+                "emotional_tone" to "감정이 드러나지 않고 중립적인 톤으로, 일상적인 사건을 기록하는 데 집중한다.",
+                "formality" to "비격식적인 대화체로, 자연스러운 흐름을 유지하며 친근한 느낌을 준다.",
+                "lexical_choice" to "일상적인 단어와 표현을 사용하여 친근함을 느끼게 한다.",
+                "pacing" to "느긋하고 여유로운 흐름, 빠르지 않게 사건을 나열.",
+                "punctuation_style" to "기본적인 문장 부호 사용, 복잡한 구두점은 없다.",
+                "sentence_endings" to listOf("~었다.", "~했다.", "~었다고 생각했다."),
+                "sentence_length" to "중간 길이의 문장들이 많으며, 간결하게 표현되어 있다.",
+                "sentence_structure" to "주어-서술어 구조가 명확하며, 문장이 단순하고 직관적이다.",
+                "special_syntax" to "일상적인 표현을 그대로 사용하며, 특별한 구문은 없음.",
+                "speech_quirks" to "특별한 말투의 버릇은 없으며, 대화체적인 표현이 자연스럽다.",
+                "tone" to "담담하고 차분한 어조로 일상의 소소한 사건들을 서술."
             )
             styleExample = listOf(
-                "자고 싶어! 졸려! 나는 아무것도 하기 싫지롱~",
-                "오늘은 일기 쓸게 아무리 생각해도 없다",
-                "일기는 세상에 왜 있을까? 일기가 없으면 안 될까? 일기를 꼭 써야 되나??",
-                "눈물도 나오고 콧물도 나왔다"
+                "일어나서 물을 한 잔 마셨다",
+                "조용히 하루가 지나갔다",
+                "일기를 쓰고 자야겠다고 생각했다",
+                "창문을 여니 바깥 공기가 들어왔다"
             )
             styleVector = emptyList()
         }

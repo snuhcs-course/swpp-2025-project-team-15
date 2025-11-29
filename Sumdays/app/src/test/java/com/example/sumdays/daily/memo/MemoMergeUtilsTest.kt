@@ -11,17 +11,18 @@ class MemoMergeUtilsTest {
     fun convertStylePromptToMap_convertsAllFieldsCorrectly() {
         // given
         val prompt = StylePrompt(
-            tone = "일상적이고 솔직한 톤",
-            formality = "구어체",
-            sentence_length = "짧음",
-            sentence_structure = "단문 위주",
-            sentence_endings = listOf("~다", "~네", "~야"),
-            lexical_choice = "편안하고 일상적인 단어",
-            common_phrases = listOf("그냥", "아무래도"),
-            emotional_tone = "약간 무기력",
-            irony_or_sarcasm = "거의 없음",
-            slang_or_dialect = "반말",
-            pacing = "보통"
+            character_concept = "일상적인 삶을 살아가는 평범한 직장인으로, 규칙적인 생활 패턴과 소소한 행복을 추구하는 성격을 가진 캐릭터.",
+            emotional_tone = "편안하고 소소한 일상의 즐거움과 아쉬움을 표현",
+            formality = "비격식적이고 친근한 표현",
+            lexical_choice = "일상적인 어휘 사용, 전문 용어 없음, 친근한 표현",
+            pacing = "부드럽고 자연스러운 흐름",
+            punctuation_style = "기본적인 문장부호 사용, 과도한 구두점 사용 없음",
+            sentence_endings = listOf("~다", "~았다", "~었다"),
+            sentence_length = "중간 길이의 문장으로 구성",
+            sentence_structure = "주어-서술어-목적어 구조로 간결하게 서술",
+            special_syntax = "특별한 구문 사용 없음",
+            speech_quirks = "간결하고 명료한 표현, 감정의 과장 없음",
+            tone = "담담하고 소박한 일상 회고"
         )
 
         // when

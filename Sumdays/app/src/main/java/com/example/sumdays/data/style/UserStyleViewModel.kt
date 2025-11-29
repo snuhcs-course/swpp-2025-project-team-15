@@ -19,7 +19,9 @@ class UserStyleViewModel(application: Application) : AndroidViewModel(applicatio
             // DB가 비어 있으면 기본 스타일 자동 삽입
             val existing = dao.getAllStylesDirect()
             if (existing.isEmpty()) {
-                dao.insertStyle(UserStyle.Default)
+                dao.insertStyle(UserStyle.Default_1)
+                dao.insertStyle(UserStyle.Default_2)
+                dao.insertStyle(UserStyle.Default_3)
             }
         }
     }

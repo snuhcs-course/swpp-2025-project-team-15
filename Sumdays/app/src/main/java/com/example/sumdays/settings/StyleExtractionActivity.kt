@@ -326,9 +326,9 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
         val temperature = LabsPrefs.getTemperature(this@StyleExtractionActivity)
 
         val memosPayload = listOf(
-            MemoPayload(1, "아침에 일어나서 조금 멍했다.", 1),
-            MemoPayload(2, "카페에서 라떼를 마셨다.", 2),
-            MemoPayload(3, "오늘 하루는 조용히 지나간 것 같다.", 3)
+            MemoPayload(1, "아침에 늦잠을 자서 밥을 굶었다.", 1),
+            MemoPayload(2, "점심에는 라면을 먹었다. 맛있었다.", 2),
+            MemoPayload(3, "저녁에는 삼겹살을 구워먹었다. 즐거운 하루였다.", 3)
         )
 
         val request = MergeRequest(

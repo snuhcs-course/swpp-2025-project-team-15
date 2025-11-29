@@ -94,27 +94,23 @@ class StyleCardAdapter(
             // 프롬프트
             val p = style.stylePrompt
             b.promptBody.text = buildString {
-                p.tone.let { append("• Tone: $it\n") }
-                p.formality.let { append("• Formality: $it\n") }
-                p.sentence_length.let { append("• Sentence Length: $it\n") }
-                p.sentence_structure.let { append("• Structure: $it\n") }
-
-                p.sentence_endings.takeIf { it.isNotEmpty() }?.let {
-                    append("• Endings: ${it.joinToString(", ")}\n")
-                }
-
-                p.lexical_choice.let { append("• Word Choice: $it\n") }
-
-                p.common_phrases.takeIf { it.isNotEmpty() }?.let {
-                    append("• Common Phrases: ${it.joinToString(", ")}\n")
-                }
-
-                p.emotional_tone.let { append("• Emotional Tone: $it\n") }
-                p.irony_or_sarcasm.let { append("• Irony/Sarcasm: $it\n") }
-                p.slang_or_dialect.let { append("• Slang/Dialect: $it\n") }
-                p.pacing.let { append("• Pacing: $it\n") }
+                // 0. 스타일 컨셉
+                p.character_concept.let { append("• 스타일 컨셉: $it\n") }
+                // 1. 기본 언어 구조
+                p.tone.let { append("• 톤/분위기: $it\n") }
+                p.formality.let { append("• 말투의 격식: $it\n") }
+                p.sentence_length.let { append("• 문장 길이: $it\n") }
+                p.sentence_structure.let { append("• 문장 구조: $it\n") }
+                p.pacing.let { append("• 글 흐름: $it\n") }
+                // 2. 캐릭터 시그니처
+                p.sentence_endings.takeIf { it.isNotEmpty() }?.let { append("• 종결 어미: ${it.joinToString(", ")}\n") }
+                p.speech_quirks.let { append("• 말투 버릇: $it\n") }
+                p.punctuation_style.let { append("• 문장부호 스타일: $it\n") }
+                p.special_syntax.let { append("• 특수 문법/밈: $it\n") }
+                // 3. 어휘
+                p.lexical_choice.let { append("• 어휘 선택: $it\n") }
+                p.emotional_tone.let { append("• 감정 표현 방식: $it\n") }
             }
-
 
             // flip
             b.flipContainer.setOnClickListener {

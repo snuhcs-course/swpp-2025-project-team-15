@@ -34,24 +34,22 @@ class LoginActivityTest {
     private lateinit var activity: LoginActivity
     private lateinit var apiMock: ApiService
     private lateinit var callMock: Call<LoginResponse>
-
-    // 추가된 Mock 객체들
     private lateinit var mockUserStatsPrefs: UserStatsPrefs
     private lateinit var mockWorkManager: WorkManager
 
     @Before
     fun setup() {
-        // 1. Static Mocking (ApiClient, SessionManager, WorkManager)
+        // Static Mocking
         mockkObject(ApiClient)
         mockkObject(SessionManager)
-        mockkStatic(WorkManager::class) // WorkManager 정적 메서드 모킹
+        mockkStatic(WorkManager::class)
 
         apiMock = mockk()
         callMock = mockk()
         mockWorkManager = mockk()
         mockUserStatsPrefs = mockk(relaxed = true)
 
-        // 2. 동작 정의
+        // 동작 정의
         every { ApiClient.api } returns apiMock
         every { SessionManager.saveSession(any(), any()) } just Runs
 
@@ -59,13 +57,12 @@ class LoginActivityTest {
         every { WorkManager.getInstance(any<Context>()) } returns mockWorkManager
         every { mockWorkManager.enqueue(any<WorkRequest>()) } returns mockk<Operation>()
 
-        // 3. Activity 생성
+        // Activity 생성
         val controller = Robolectric.buildActivity(LoginActivity::class.java)
         controller.create() // onCreate 실행
         activity = controller.get()
 
-        // 4. [중요] private val userStatsPrefs 필드를 Mock 객체로 교체 (Reflection)
-        // LoginActivity가 내부에서 직접 생성하므로, 테스트를 위해 가짜 객체로 바꿔치기해야 함
+        // private val userStatsPrefs 필드를 Mock 객체로 교체
         val field = LoginActivity::class.java.getDeclaredField("userStatsPrefs")
         field.isAccessible = true
         field.set(activity, mockUserStatsPrefs)
@@ -83,8 +80,6 @@ class LoginActivityTest {
      */
     @Test
     fun success_response_triggers_navigation_to_CalendarActivity() {
-        // [수정] R.id가 실제 XML과 일치한다고 가정합니다.
-        // ImageButton -> Button 으로 변경 (MaterialButton은 Button의 자식)
         val emailField = activity.findViewById<EditText>(R.id.idInput_EditText) ?: activity.findViewById(R.id.idInput_EditText)
         val passwordField = activity.findViewById<EditText>(R.id.passwordInput_EditText) ?: activity.findViewById(R.id.password_input_edit_text)
         val loginButton = activity.findViewById<Button>(R.id.login_button)
@@ -99,7 +94,7 @@ class LoginActivityTest {
         val response = LoginResponse(
             success = true,
             message = "Login success",
-            userId = 1, // String or Int 확인 필요 (코드에선 String으로 추정되나 기존 테스트는 Int 사용 중, 여기선 유연하게 처리)
+            userId = 1,
             token = "mockToken",
             nickname = "mockNickname"
         )
@@ -133,7 +128,7 @@ class LoginActivityTest {
     fun failure_response_triggers_toast() {
         val emailField = activity.findViewById<EditText>(R.id.idInput_EditText) ?: activity.findViewById(R.id.idInput_EditText)
         val passwordField = activity.findViewById<EditText>(R.id.passwordInput_EditText) ?: activity.findViewById(R.id.password_input_edit_text)
-        val loginButton = activity.findViewById<Button>(R.id.login_button) // ImageButton -> Button
+        val loginButton = activity.findViewById<Button>(R.id.login_button)
 
         emailField.setText("wrong@example.com")
         passwordField.setText("badpass")
@@ -183,6 +178,6 @@ class LoginActivityTest {
 
         val toast = ShadowToast.getTextOfLatestToast()
         assertNotNull("Toast 메시지가 표시되지 않았습니다.", toast)
-        assertTrue(toast.contains("네트워크 오류")) // LoginActivity 소스 코드의 메시지와 일치
+        assertTrue(toast.contains("네트워크 오류"))
     }
 }

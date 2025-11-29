@@ -50,10 +50,10 @@ class StatisticsActivityTest {
 
     @Before
     fun setup() {
-        // 1. 코루틴 Dispatcher 설정
+        // 코루틴 Dispatcher 설정
         Dispatchers.setMain(UnconfinedTestDispatcher())
 
-        // 2. Static Mocking
+        // Static Mocking
         mockkStatic(Glide::class)
         mockkStatic(LocalDate::class)
         mockkStatic(Log::class)
@@ -69,15 +69,14 @@ class StatisticsActivityTest {
         every { mockRequestManager.asGif() } returns mockRequestBuilder
         every { mockRequestBuilder.load(any<Int>()) } returns mockRequestBuilder
 
-        // 3. Mock Repository 생성
+        // Mock Repository 생성
         mockWeekSummaryRepository = mockk(relaxed = true)
         mockDailyEntryRepository = mockk(relaxed = true)
         mockDailyEntryViewModel = mockk(relaxed = true)
 
-        // 4. [핵심] MyApplication에 Mock Repository 강제 주입
+        // MyApplication에 Mock Repository 강제 주입
         val app = ApplicationProvider.getApplicationContext<MyApplication>()
 
-        // by lazy 필드($delegate)까지 고려하여 주입
         injectMockIntoApplication(app, "weekSummaryRepository", mockWeekSummaryRepository)
         injectMockIntoApplication(app, "dailyEntryRepository", mockDailyEntryRepository)
     }
@@ -88,23 +87,17 @@ class StatisticsActivityTest {
         unmockkAll()
     }
 
-    /**
-     * [강력한 주입 헬퍼]
-     * 1. 일반 필드 검색
-     * 2. Kotlin 'by lazy' 필드(fieldName$delegate) 검색 및 Lazy wrapper 처리
-     * 3. 상위 클래스 탐색
-     */
     private fun injectMockIntoApplication(target: Any, fieldName: String, mockValue: Any) {
         var clazz: Class<*>? = target.javaClass
         while (clazz != null) {
-            // 1. 일반 필드 시도
+            // 일반 필드 시도
             try {
                 val field = clazz.getDeclaredField(fieldName)
                 field.isAccessible = true
                 field.set(target, mockValue)
                 return
             } catch (e: NoSuchFieldException) {
-                // 2. Delegate 필드 시도 (by lazy)
+                // Delegate 필드 시도 (by lazy)
                 try {
                     val delegateField = clazz.getDeclaredField("$fieldName\$delegate")
                     delegateField.isAccessible = true
@@ -119,8 +112,6 @@ class StatisticsActivityTest {
                 throw RuntimeException("Failed to inject $fieldName", e)
             }
         }
-        // 필드를 못 찾았지만, TestApplication 구조상 필드가 없을 수도 있음 (예: get() 메서드만 있는 경우)
-        // 이 경우 테스트를 강제 종료하지 않고 경고만 남기거나 무시 (VM Factory Mocking으로 방어)
         println("WARNING: Could not find field '$fieldName' in ${target.javaClass}. DB access might occur if ViewModels use it.")
     }
 
@@ -146,25 +137,25 @@ class StatisticsActivityTest {
     }
 
     private fun createActivity(): StatisticsActivity {
-        // [중요] Repository가 주입되지 않았을 경우를 대비해 VM Factory/Data도 Mocking
+        // Repository가 주입되지 않았을 경우를 대비해 VM Factory/Data도 Mocking
 
-        // 1. WeekSummaryViewModel 데이터
+        // WeekSummaryViewModel 데이터
         coEvery { mockWeekSummaryRepository.getAllWrittenDatesAsc() } returns listOf("2025-11-10", "2025-11-17")
         coEvery { mockWeekSummaryRepository.getWeekSummary("2025-11-10") } returns createDummyWeekSummary("2025-11-10")
         coEvery { mockWeekSummaryRepository.getWeekSummary("2025-11-17") } returns createDummyWeekSummary("2025-11-17")
 
-        // 2. DailyEntryViewModel 데이터
+        // DailyEntryViewModel 데이터
         mockToday(LocalDate.of(2025, 11, 29))
         coEvery { mockDailyEntryViewModel.getAllWrittenDates() } returns listOf("2025-11-29", "2025-11-28", "2025-11-27")
 
-        // 3. Activity 생성
+        // Activity 생성
         val controller = Robolectric.buildActivity(StatisticsActivity::class.java)
         val activity = controller.create().get()
 
-        // 4. DailyEntryViewModel 강제 교체 (Activity가 생성한 진짜 VM 덮어쓰기)
+        // DailyEntryViewModel 강제 교체
         injectField(activity, "viewModel", mockDailyEntryViewModel)
 
-        // 5. WeekSummaryViewModel 강제 교체 (by viewModels delegate)
+        // WeekSummaryViewModel 강제 교체
         val mockWeekSummaryViewModel = mockk<WeekSummaryViewModel>(relaxed = true)
         // 위에서 정의한 Repo 동작을 VM이 호출하도록 연결하거나, VM 자체를 스터빙
         coEvery { mockWeekSummaryViewModel.getAllDatesAsc() } returns listOf("2025-11-10", "2025-11-17")
@@ -173,14 +164,14 @@ class StatisticsActivityTest {
         // delegate 필드 교체
         injectDelegate(activity, "weekSummaryViewModel", mockWeekSummaryViewModel)
 
-        // 6. Lifecycle 진행
+        // Lifecycle 진행
         controller.start().resume().visible()
         Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
 
         return activity
     }
 
-    // Activity 내부 필드 주입용 단순 헬퍼
+    // Activity 내부 필드 주입용 헬퍼
     private fun injectField(target: Any, fieldName: String, value: Any) {
         try {
             val field = target::class.java.getDeclaredField(fieldName)
@@ -189,10 +180,9 @@ class StatisticsActivityTest {
         } catch (e: Exception) { e.printStackTrace() }
     }
 
-    // Activity 내부 delegate 주입용 헬퍼 (by viewModels)
+    // Activity 내부 delegate 주입용 헬퍼
     private fun injectDelegate(target: Any, propertyName: String, value: Any) {
         try {
-            // Kotlin delegate 필드명 규칙: "propertyName$delegate"
             val field = target::class.java.getDeclaredField("$propertyName\$delegate")
             field.isAccessible = true
             // Lazy<T>로 감싸서 주입
@@ -200,27 +190,6 @@ class StatisticsActivityTest {
         } catch (e: Exception) { e.printStackTrace() }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 테스트 케이스
-    // ─────────────────────────────────────────────────────────────
-
-//    @Test
-//    fun onCreate_loadsData_andUpdatesHeaderStats() {
-//        val activity = createActivity()
-//
-//        val recyclerView = activity.findViewById<RecyclerView>(R.id.recyclerView)
-//        assertNotNull("RecyclerView가 null입니다.", recyclerView)
-//
-//        // Adapter 확인 (데이터 2개 + 여분 10개 = 12)
-//        assertNotNull("Adapter가 연결되지 않았습니다.", recyclerView.adapter)
-//        assertEquals(12, recyclerView.adapter?.itemCount)
-//
-//        val tvLeafCount = activity.findViewById<TextView>(R.id.tv_leaf_count)
-//        val tvStrikeCount = activity.findViewById<TextView>(R.id.tv_strike_count)
-//
-//        assertEquals("🍃: 2", tvLeafCount.text.toString())
-//        assertEquals("🔥: 3", tvStrikeCount.text.toString())
-//    }
 
     @Test
     fun calculateStreak_logicCheck() {
@@ -248,7 +217,6 @@ class StatisticsActivityTest {
         val activity = createActivity()
         val recyclerView = activity.findViewById<RecyclerView>(R.id.recyclerView)
 
-        //
         // 레이아웃 강제 수행
         recyclerView.measure(
             View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY),

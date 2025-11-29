@@ -33,13 +33,3 @@ data class Highlight(
     val date: String,
     val summary: String
 ) : Parcelable
-
-@Parcelize
-data class WeekSummaryForMonth(
-    val emotionScore: Float,
-    val dominantEmoji: String,
-    val topics: List<String>,
-    val title: String,
-    val summary: String,
-    val dateRange: String
-) : Parcelable

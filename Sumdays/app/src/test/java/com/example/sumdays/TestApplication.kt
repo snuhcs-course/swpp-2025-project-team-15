@@ -20,17 +20,14 @@ class TestApplication : MyApplication(), Configuration.Provider {
     val mockViewModel: MemoViewModel = mock()
 
     override fun onCreate() {
-        // 주의: super.onCreate()를 호출하지 않습니다.
-        // 실제 MyApplication의 onCreate에는 BackupScheduler 등 실제 로직이 포함되어 있어
-        // 테스트 환경에서 충돌을 일으킬 수 있습니다.
 
-        // 1. 테스트용 WorkManager 설정 (SynchronousExecutor를 사용하여 즉시 실행)
+        // 테스트용 WorkManager 설정 (SynchronousExecutor를 사용하여 즉시 실행)
         val config = Configuration.Builder()
             .setMinimumLoggingLevel(android.util.Log.DEBUG)
             .setExecutor(SynchronousExecutor())
             .build()
 
-        // 2. 테스트용 WorkManager 강제 초기화
+        // 테스트용 WorkManager 강제 초기화
         WorkManagerTestInitHelper.initializeTestWorkManager(this, config)
     }
 

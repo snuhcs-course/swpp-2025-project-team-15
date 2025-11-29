@@ -22,11 +22,10 @@ class WeekStatsDetailActivityTest {
 
     /**
      * 테스트 시나리오 1: Intent로 전달된 WeekSummary 데이터가 화면 뷰에 올바르게 바인딩되는지 검증
-     * (Robolectric을 사용하여 뷰의 속성을 직접 확인)
      */
     @Test
     fun activity_displays_correct_data_from_intent() {
-        // 1. Arrange: 테스트용 더미 WeekSummary 데이터 생성
+        // Arrange: 테스트용 더미 WeekSummary 데이터 생성
         val emotionAnalysis = EmotionAnalysis(
             distribution = mapOf("positive" to 5, "neutral" to 2),
             dominantEmoji = "🌟",
@@ -65,21 +64,21 @@ class WeekStatsDetailActivityTest {
             putExtra("week_summary", mockWeekSummary)
         }
 
-        // 2. Act: Activity 실행 (Robolectric 환경)
+        // Act: Activity 실행
         ActivityScenario.launch<WeekStatsDetailActivity>(intent).use { scenario ->
             scenario.onActivity { activity ->
 
-                // 3. Assert: 뷰를 직접 찾아 값을 검증 (Espresso 대신 findViewById 사용)
+                // Assert: 뷰를 직접 찾아 값을 검증
 
-                // A. 날짜 범위 표시 확인
+                // 날짜 범위 표시 확인
                 val rangeText: TextView = activity.findViewById(R.id.week_range_text_view)
                 assertThat(rangeText.text.toString(), `is`("2025-10-13 ~ 2025-10-19"))
 
-                // B. 요약 내용(Overview) 확인
+                // 요약 내용(Overview) 확인
                 val overviewText: TextView = activity.findViewById(R.id.summary_content_text_view)
                 assertThat(overviewText.text.toString(), `is`("이번 주는 매우 생산적이었습니다."))
 
-                // C. 조언 내용(Advice) 확인
+                // 조언 내용(Advice) 확인
                 val adviceText: TextView = activity.findViewById(R.id.feedback_content_text_view)
                 assertThat(adviceText.text.toString(), `is`("꾸준함이 중요합니다."))
             }
@@ -91,7 +90,6 @@ class WeekStatsDetailActivityTest {
      */
     @Test
     fun back_button_finishes_activity() {
-        // 1. Arrange: 최소 데이터로 실행
         val emptyData = WeekSummary(
             "2025-01-01", "2025-01-07", 0,
             EmotionAnalysis(emptyMap(), "", 0.0, ""),
@@ -106,11 +104,11 @@ class WeekStatsDetailActivityTest {
 
         ActivityScenario.launch<WeekStatsDetailActivity>(intent).use { scenario ->
             scenario.onActivity { activity ->
-                // 2. Act: 뒤로가기 버튼 클릭
+                // Act: 뒤로가기 버튼 클릭
                 val backButton: ImageButton = activity.findViewById(R.id.back_button)
                 backButton.performClick()
 
-                // 3. Assert: 액티비티가 종료 상태인지 확인
+                // Assert: 액티비티가 종료 상태인지 확인
                 assertThat(activity.isFinishing, `is`(true))
             }
         }

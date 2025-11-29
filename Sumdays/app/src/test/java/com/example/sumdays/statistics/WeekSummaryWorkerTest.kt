@@ -44,8 +44,6 @@ import java.util.concurrent.Executor
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = TestApplication::class)
 class WeekSummaryWorkerTest {
-
-    // mockContext는 제거하고 mockApplication을 직접 사용합니다.
     private lateinit var mockApplication: MyApplication
     private lateinit var mockWorkerParams: WorkerParameters
 
@@ -55,7 +53,7 @@ class WeekSummaryWorkerTest {
 
     @Before
     fun setup() {
-        // 1. Static & Object Mocking
+        // Static & Object Mocking
         mockkObject(ApiClient)
 
         mockkStatic(LocalDate::class)
@@ -76,17 +74,16 @@ class WeekSummaryWorkerTest {
         }
         every { Log.d(any(), any()) } returns 0
 
-        // 2. Mock 생성
+        // Mock 생성
         mockApiService = mockk(relaxed = true)
-        mockApplication = mockk(relaxed = true) // MyApplication Mock
+        mockApplication = mockk(relaxed = true)
         mockDailyEntryRepository = mockk(relaxed = true)
         mockWeekSummaryRepository = mockk(relaxed = true)
         mockWorkerParams = mockk(relaxed = true)
 
-        // 3. 의존성 연결
+        // 의존성 연결
         every { ApiClient.api } returns mockApiService
 
-        // [중요] Application Mock이 Context 역할을 수행하므로 applicationContext 호출 시 자기 자신 반환
         every { mockApplication.applicationContext } returns mockApplication
         every { mockApplication.dailyEntryRepository } returns mockDailyEntryRepository
         every { mockApplication.weekSummaryRepository } returns mockWeekSummaryRepository
@@ -102,8 +99,7 @@ class WeekSummaryWorkerTest {
 
     private fun createWorker(inputData: Data = Data.EMPTY): WeekSummaryWorker {
         every { mockWorkerParams.inputData } returns inputData
-        // [수정 핵심] Worker 생성자에 mockContext가 아닌 mockApplication을 전달
-        // 이렇게 하면 Worker 내부의 'applicationContext as MyApplication' 캐스팅이 성공합니다.
+        // Worker 생성자에 mockApplication을 전달
         return WeekSummaryWorker(mockApplication, mockWorkerParams)
     }
 

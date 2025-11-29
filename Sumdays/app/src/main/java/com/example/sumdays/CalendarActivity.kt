@@ -34,7 +34,6 @@ import java.util.Locale
 
 class CalendarActivity : AppCompatActivity() {
 
-    // ... (기존 변수 선언 동일) ...
     private lateinit var calendarViewPager: ViewPager2
     private lateinit var tvMonthYear: TextView
     private lateinit var monthAdapter: MonthAdapter
@@ -82,8 +81,6 @@ class CalendarActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
-
-    // ... (setStatisticBtnListener, setNavigationBar, setCustomCalendar 등 기존 함수 동일) ...
     private fun setStatisticBtnListener() {
         val btnStats = findViewById<ImageButton>(R.id.statistic_btn)
         btnStats.setOnClickListener {
@@ -196,22 +193,16 @@ class CalendarActivity : AppCompatActivity() {
         val monthDiff = position - CENTER_POSITION
         return baseYearMonth.plusMonths(monthDiff.toLong())
     }
-
-    // -------------------------------------------------------------
-    // [수정된 함수] 기본 NumberPicker를 사용하도록 변경
-    // -------------------------------------------------------------
     @RequiresApi(Build.VERSION_CODES.O)
     private fun showYearMonthPicker() {
         val dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.dialog_year_month_picker, null)
         dialog.setContentView(view)
 
-        // XML에서 기본 위젯(<NumberPicker>)을 사용했으므로 타입도 맞춰줍니다.
         val npYear = view.findViewById<NumberPicker>(R.id.np_year)
         val npMonth = view.findViewById<NumberPicker>(R.id.np_month)
         val btnConfirm = view.findViewById<Button>(R.id.btn_confirm)
 
-        // 초기값 계산
         val currentPosition = calendarViewPager.currentItem
         val currentTarget = getTargetMonthForPosition(currentPosition)
 
@@ -219,7 +210,7 @@ class CalendarActivity : AppCompatActivity() {
         npYear.minValue = 2000
         npYear.maxValue = 2099
         npYear.value = currentTarget.year
-        npYear.wrapSelectorWheel = false // 연도는 뺑뺑이 안 돌게
+        npYear.wrapSelectorWheel = false
 
         // 월 설정 (1 ~ 12)
         npMonth.minValue = 1

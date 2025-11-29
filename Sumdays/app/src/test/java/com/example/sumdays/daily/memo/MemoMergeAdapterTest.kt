@@ -7,7 +7,7 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.test.core.app.ApplicationProvider
 import com.example.sumdays.R
-import com.example.sumdays.data.style.UserStyleDao
+import com.example.sumdays.data.dao.UserStyleDao
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.network.ApiService
 import com.example.sumdays.settings.prefs.UserStatsPrefs
@@ -97,7 +97,8 @@ class MemoMergeAdapterTest {
             onAllMergesDone = onAllDone,
             useStableIds = false,
             userStatsPrefs = prefs,
-            userStyleDao = dao
+            userStyleDao = dao,
+            context = ApplicationProvider.getApplicationContext()
         )
     }
 

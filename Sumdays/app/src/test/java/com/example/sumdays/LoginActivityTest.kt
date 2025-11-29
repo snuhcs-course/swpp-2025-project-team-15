@@ -7,6 +7,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.sumdays.auth.SessionManager
+import com.example.sumdays.network.ApiClient
 import io.mockk.*
 import org.junit.After
 import org.junit.Assert.*
@@ -20,22 +21,25 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import org.robolectric.shadows.ShadowToast
+import com.example.sumdays.network.LoginResponse
+import com.example.sumdays.network.ApiService
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [34])
+@Config(sdk = [34],
+    application = TestApplication::class)
 class LoginActivityTest {
 
     private lateinit var activity: LoginActivity
-    private lateinit var apiMock: AuthApiService
+    private lateinit var apiMock: ApiService
     private lateinit var callMock: Call<LoginResponse>
 
     @Before
     fun setup() {
         // RetrofitClient mock
-        mockkObject(RetrofitClient)
+        mockkObject(ApiClient)
         apiMock = mockk()
         callMock = mockk()
-        every { RetrofitClient.authApiService } returns apiMock
+        every { ApiClient.api } returns apiMock
 
         // SessionManager mock
         mockkObject(SessionManager)

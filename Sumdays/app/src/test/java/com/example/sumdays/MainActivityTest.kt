@@ -30,6 +30,8 @@ import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34],
+    application = TestApplication::class)
 class MainActivityTest {
 
     @Before

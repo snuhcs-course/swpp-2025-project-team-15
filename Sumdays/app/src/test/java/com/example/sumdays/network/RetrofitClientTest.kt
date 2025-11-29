@@ -9,17 +9,17 @@ class RetrofitClientTest {
 
     @Test
     fun authApiService_isNotNull_andIsSingleton() {
-        val instance1 = RetrofitClient.authApiService
-        val instance2 = RetrofitClient.authApiService
+        val instance1 = ApiClient.api
+        val instance2 = ApiClient.api
 
         assertThat(instance1 === instance2, `is`(true))
     }
 
     @Test
     fun authApiService_isProxyImplementingAuthApiService() {
-        val instance = RetrofitClient.authApiService
+        val instance = ApiClient.api
         val interfaces = instance.javaClass.interfaces.map { it.name }
 
-        assertThat(interfaces.contains(AuthApiService::class.java.name), `is`(true))
+        assertThat(interfaces.contains(ApiService::class.java.name), `is`(true))
     }
 }

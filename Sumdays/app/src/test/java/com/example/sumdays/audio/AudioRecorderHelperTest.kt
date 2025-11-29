@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.media.AudioRecord
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.sumdays.TestApplication
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.network.ApiService
 import com.example.sumdays.network.STTResponse
@@ -19,7 +20,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-@Config(sdk = [34])
+@Config(sdk = [34],
+    application = TestApplication::class)
 @RunWith(RobolectricTestRunner::class)
 class AudioRecorderHelperTest {
 

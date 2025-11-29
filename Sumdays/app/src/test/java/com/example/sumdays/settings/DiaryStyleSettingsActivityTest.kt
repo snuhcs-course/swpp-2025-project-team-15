@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Looper
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
+import com.example.sumdays.TestApplication
 import com.example.sumdays.data.style.StylePrompt
 import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.data.style.UserStyleViewModel
@@ -21,7 +22,8 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(
-    sdk = [34]
+    sdk = [34],
+    application = TestApplication::class
 )
 class DiaryStyleSettingsActivityTest {
 

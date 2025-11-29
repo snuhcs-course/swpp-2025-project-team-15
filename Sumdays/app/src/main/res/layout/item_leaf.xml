@@ -21,9 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginStart="75dp"
-        android:fontFamily="@font/siu"
+        android:fontFamily="@font/odaesan"
         android:textSize="32sp"
-        android:textStyle="bold"
         android:textColor="@android:color/holo_orange_dark"
         tools:text="60" />
 

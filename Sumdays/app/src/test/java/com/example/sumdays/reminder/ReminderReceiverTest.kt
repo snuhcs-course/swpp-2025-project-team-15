@@ -10,6 +10,7 @@ import android.os.Build
 import android.app.Application // ★ Application 타입 사용을 위해 추가
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.sumdays.TestApplication
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,7 +29,7 @@ import kotlin.test.assertTrue
  * BroadcastReceiver의 onReceive 메소드 내의 모든 분기(Line Coverage 100%)를 커버합니다.
  */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE]) // 34 (샘플 설정 차용)
+@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE],application = TestApplication::class) // 34 (샘플 설정 차용)
 @LooperMode(LooperMode.Mode.PAUSED)
 class ReminderReceiverTest {
 

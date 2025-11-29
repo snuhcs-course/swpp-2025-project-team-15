@@ -32,7 +32,7 @@ class DaoLogicTest {
 
         override suspend fun _updateEntryDetails(
             date: String, diary: String?, keywords: String?, aiComment: String?,
-            emotionScore: Double?, emotionIcon: String?, themeIcon: String?
+            emotionScore: Double?, emotionIcon: String?, themeIcon: String?, photoUrls: String?
         ) {
             updateCalledCount++
             lastUpdateParams = mapOf(
@@ -40,10 +40,48 @@ class DaoLogicTest {
             )
         }
 
+        override suspend fun clearAll() {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun insertAll(entries: List<DailyEntry>) {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun markAsDeleted(date: String) {
+            TODO("Not yet implemented")
+        }
+
         override fun getEntry(date: String): Flow<DailyEntry?> = flowOf(null)
+        override suspend fun getEntrySnapshot(date: String): DailyEntry? {
+            TODO("Not yet implemented")
+        }
+
         override fun getAllWrittenDates(): List<String> = emptyList()
         override suspend fun deleteEntry(date: String) { deletedDate = date }
         override fun getMonthlyEmojis(fromDate: String, toDate: String): Flow<List<EmojiData>> = flowOf(emptyList())
+        override suspend fun getEntriesBetween(
+            startDate: String,
+            endDate: String
+        ): List<DailyEntry> {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun getDeletedEntries(): List<DailyEntry> {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun getEditedEntries(): List<DailyEntry> {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun resetDeletedFlags(dates: List<String>) {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun resetEditedFlags(dates: List<String>) {
+            TODO("Not yet implemented")
+        }
     }
 
     @Test
@@ -89,8 +127,31 @@ class DaoLogicTest {
             return if (storedEntity?.startDate == startDate) storedEntity else null
         }
 
+        override suspend fun markAsDeleted(startDate: String) {
+            TODO("Not yet implemented")
+        }
+
         override suspend fun clearAll() { storedEntity = null }
+        override suspend fun insertAll(entries: List<WeekSummaryEntity>) {
+            TODO("Not yet implemented")
+        }
+
         override suspend fun getAllDatesAsc(): List<String> = emptyList()
+        override suspend fun getDeletedSummaries(): List<WeekSummaryEntity> {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun getEditedSummaries(): List<WeekSummaryEntity> {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun resetDeletedFlags(dates: List<String>) {
+            TODO("Not yet implemented")
+        }
+
+        override suspend fun resetEditedFlags(dates: List<String>) {
+            TODO("Not yet implemented")
+        }
     }
 
     @Test

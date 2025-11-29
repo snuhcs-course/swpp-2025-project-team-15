@@ -32,7 +32,7 @@ import android.view.View
 @RunWith(RobolectricTestRunner::class)
 @Config(
     sdk = [Build.VERSION_CODES.O], // LocalDate 사용 가능
-    application = MyApplication::class,
+    application = TestApplication::class,
     packageName = "com.example.sumdays"
 )
 class DailyWriteActivityTest {

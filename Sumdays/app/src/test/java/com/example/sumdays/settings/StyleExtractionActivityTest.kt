@@ -5,6 +5,7 @@ import android.os.Looper
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.sumdays.TestApplication
 import com.example.sumdays.daily.memo.MemoMergeUtils
 import com.example.sumdays.data.style.StylePrompt
 import com.example.sumdays.data.style.UserStyle
@@ -35,7 +36,7 @@ import retrofit2.Response
 import java.io.File
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [28])
+@Config(sdk = [28],application = TestApplication::class)
 class StyleExtractionActivityTest {
 
     private val testDispatcher = StandardTestDispatcher()

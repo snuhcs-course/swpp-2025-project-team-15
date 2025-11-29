@@ -83,7 +83,8 @@ class MemoMergeAdapter(
         val memoText = v.findViewById<TextView>(R.id.memo_text)
         val params = memoText.layoutParams
         params.width = dp(parent.context, 190)
-        params.height = dp(parent.context, 40)// ⬅ 여기만 180dp로 고정
+        // params.height = dp(parent.context, 40)// ⬅ 여기만 180dp로 고정
+        memoText.minHeight = dp(parent.context, 40)
         memoText.layoutParams = params
 
         return VH(v)

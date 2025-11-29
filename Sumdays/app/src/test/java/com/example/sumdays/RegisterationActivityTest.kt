@@ -3,6 +3,10 @@ package com.example.sumdays
 import android.widget.Button
 import com.google.android.material.textfield.TextInputEditText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.sumdays.network.ApiClient
+import com.example.sumdays.network.ApiService
+import com.example.sumdays.network.SignupResponse
+import com.example.sumdays.network.SignupRequest
 import io.mockk.*
 import org.junit.After
 import org.junit.Assert.*
@@ -18,20 +22,21 @@ import retrofit2.Callback
 import retrofit2.Response
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [34])
+@Config(sdk = [34],
+    application = TestApplication::class)
 class RegisterationActivityTest {
 
     private lateinit var activity: RegisterationActivity
-    private lateinit var apiMock: AuthApiService
+    private lateinit var apiMock: ApiService
     private lateinit var callMock: Call<SignupResponse>
 
     @Before
     fun setup() {
         // RetrofitClient.authApiService 모킹
-        mockkObject(RetrofitClient)
+        mockkObject(ApiClient)
         apiMock = mockk()
         callMock = mockk()
-        every { RetrofitClient.authApiService } returns apiMock
+        every { ApiClient.api } returns apiMock
 
         // Robolectric으로 Activity 생성
         activity = Robolectric.buildActivity(RegisterationActivity::class.java)

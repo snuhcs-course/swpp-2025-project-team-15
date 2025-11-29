@@ -11,6 +11,7 @@ import com.example.sumdays.CalendarActivity
 import com.example.sumdays.DailyReadActivity
 import com.example.sumdays.DailyWriteActivity
 import com.example.sumdays.R
+import com.example.sumdays.TestApplication
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -25,7 +26,8 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE],
+    application = TestApplication::class)
 class DayAdapterTest {
 
     private lateinit var activity: CalendarActivity

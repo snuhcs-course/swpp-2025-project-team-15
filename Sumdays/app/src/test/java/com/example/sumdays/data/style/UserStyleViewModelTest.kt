@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
+import com.example.sumdays.TestApplication
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -19,8 +20,10 @@ import org.robolectric.annotation.Config
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import com.example.sumdays.data.dao.UserStyleDao
 
-
+@Config(sdk = [34],
+    application = TestApplication::class)
 class FakeUserStyleDao : UserStyleDao {
 
     private val list = mutableListOf<UserStyle>()
@@ -29,6 +32,10 @@ class FakeUserStyleDao : UserStyleDao {
     private fun notifyChange() {
         // 테스트에서는 동기 업데이트가 편하니 value 사용
         live.value = list.toList()
+    }
+
+    override suspend fun insertStyleRaw(style: UserStyle): Long {
+        TODO("Not yet implemented")
     }
 
     override suspend fun insertStyle(style: UserStyle): Long {
@@ -44,6 +51,10 @@ class FakeUserStyleDao : UserStyleDao {
         return live
     }
 
+    override suspend fun markAsDeleted(styleId: Long) {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun deleteStyle(style: UserStyle) {
         list.removeIf { it.styleId == style.styleId }
         notifyChange()
@@ -53,9 +64,32 @@ class FakeUserStyleDao : UserStyleDao {
         return list.find { it.styleId == styleId }
     }
 
-    override suspend fun deleteAllStyles() {
-        list.clear()
-        notifyChange()
+    override suspend fun clearAll() {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun insertAll(entries: List<UserStyle>) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getDeletedStyles(): List<UserStyle> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getEditedStyles(): List<UserStyle> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun resetDeletedFlags(ids: List<Long>) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun resetEditedFlags(ids: List<Long>) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateStyleRaw(style: UserStyle) {
+        TODO("Not yet implemented")
     }
 
     override suspend fun updateStyle(style: UserStyle) {

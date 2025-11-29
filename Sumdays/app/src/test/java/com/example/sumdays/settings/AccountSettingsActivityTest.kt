@@ -7,9 +7,10 @@ import android.widget.TextView
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.sumdays.R
+import com.example.sumdays.TestApplication
 import com.example.sumdays.auth.SessionManager
 import com.example.sumdays.network.*
-import com.example.sumdays.network.RetrofitClient
+import com.example.sumdays.network.ApiClient
 import com.example.sumdays.settings.prefs.UserStatsPrefs
 import io.mockk.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -32,7 +33,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE],application = TestApplication::class)
 class AccountSettingsActivityTest {
 
     @get:Rule
@@ -40,7 +41,7 @@ class AccountSettingsActivityTest {
 
     private lateinit var activity: AccountSettingsActivity
     private lateinit var mockUserStatsPrefs: UserStatsPrefs
-    private lateinit var mockApiService: AuthApiService
+    private lateinit var mockApiService: ApiService
     private lateinit var mockUpdateCall: Call<UpdateNicknameResponse>
     private lateinit var mockChangePassCall: Call<ChangePasswordResponse>
 
@@ -90,8 +91,8 @@ class AccountSettingsActivityTest {
 
         // 3. Mock Retrofit API Service
         mockApiService = mockk(relaxed = true)
-        mockkObject(RetrofitClient)
-        every { RetrofitClient.authApiService } returns mockApiService
+        mockkObject(ApiClient)
+        every { ApiClient.api } returns mockApiService
 
         // Mock Call 객체 초기화
         mockUpdateCall = mockk(relaxed = true)

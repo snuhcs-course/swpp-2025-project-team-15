@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import com.example.sumdays.TestApplication
 import io.mockk.CapturingSlot
 import io.mockk.confirmVerified
 import io.mockk.every
@@ -28,7 +29,8 @@ import java.util.concurrent.atomic.AtomicInteger
  * Robolectric + MockK tests for MemoDragAndDropCallback
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE],
+    application = TestApplication::class)
 class MemoDragAndDropCallbackTest {
 
     private lateinit var context: Context

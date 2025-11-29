@@ -8,8 +8,9 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.RemoteInput
 import androidx.test.core.app.ApplicationProvider
-import com.example.sumdays.daily.memo.MemoDao
-import com.example.sumdays.daily.memo.MemoDatabase
+import com.example.sumdays.TestApplication
+import com.example.sumdays.data.dao.MemoDao
+import com.example.sumdays.data.AppDatabase
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.After
@@ -27,13 +28,13 @@ import org.threeten.bp.LocalDate
 
 // Reminder 통합 테스트
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33])
+@Config(sdk = [33],application = TestApplication::class)
 class ReminderIntegrationTest {
 
     private lateinit var context: Context
     private lateinit var shadowAlarmManager: ShadowAlarmManager
     private lateinit var shadowNotificationManager: ShadowNotificationManager
-    private val mockDb = mockk<MemoDatabase>()
+    private val mockDb = mockk<AppDatabase>()
     private val mockDao = mockk<MemoDao>(relaxed = true)
 
     @Before
@@ -57,8 +58,8 @@ class ReminderIntegrationTest {
         shadowNotificationManager = Shadows.shadowOf(notificationManager)
 
         // 4. DB Mocking (ReplyReceiver용)
-        mockkObject(MemoDatabase.Companion)
-        every { MemoDatabase.getDatabase(any()) } returns mockDb
+        mockkObject(AppDatabase.Companion)
+        every { AppDatabase.getDatabase(any()) } returns mockDb
         every { mockDb.memoDao() } returns mockDao
     }
 

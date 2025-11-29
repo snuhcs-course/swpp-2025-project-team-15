@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.sumdays.R // R.id 사용을 위해 import
+import com.example.sumdays.TestApplication
 import com.example.sumdays.databinding.ItemAlarmTimeBinding
 import io.mockk.*
 import org.junit.Assert.*
@@ -16,7 +17,7 @@ import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE],application = TestApplication::class)
 class AlarmAdapterTest {
 
     private val mockOnTimeClicked = mockk<(position: Int, time: String) -> Unit>(relaxed = true)

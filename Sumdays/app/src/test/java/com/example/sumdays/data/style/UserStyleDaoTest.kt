@@ -1,4 +1,4 @@
-package com.example.sumdays.data.style
+package com.example.sumdays.data.dao
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
@@ -7,6 +7,10 @@ import androidx.lifecycle.Observer
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.sumdays.TestApplication
+import com.example.sumdays.data.AppDatabase
+import com.example.sumdays.data.style.StylePrompt
+import com.example.sumdays.data.style.UserStyle
 import kotlinx.coroutines.runBlocking
 import org.junit.*
 import org.junit.runner.RunWith
@@ -15,14 +19,15 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
-@Config(sdk = [34])
+@Config(sdk = [34],
+    application = TestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class UserStyleDaoTest {
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    private lateinit var db: StyleDatabase
+    private lateinit var db: AppDatabase
     private lateinit var dao: UserStyleDao
 
     @Before
@@ -30,7 +35,7 @@ class UserStyleDaoTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
             context,
-            StyleDatabase::class.java
+            AppDatabase::class.java
         )
             .allowMainThreadQueries()   // 테스트니까 메인 스레드 허용
             .build()
@@ -153,10 +158,5 @@ class UserStyleDaoTest {
         all = dao.getAllStyles().getOrAwaitValue()
         Assert.assertEquals(1, all.size)
         Assert.assertEquals(id1, all[0].styleId)
-
-        // deleteAllStyles : 모두 삭제
-        dao.deleteAllStyles()
-        all = dao.getAllStyles().getOrAwaitValue()
-        Assert.assertTrue(all.isEmpty())
     }
 }

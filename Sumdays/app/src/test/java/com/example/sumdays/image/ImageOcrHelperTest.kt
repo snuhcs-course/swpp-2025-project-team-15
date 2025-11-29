@@ -3,6 +3,7 @@ package com.example.sumdays.image
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import androidx.test.core.app.ApplicationProvider
+import com.example.sumdays.TestApplication
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.network.ApiService
 import com.example.sumdays.network.OcrResponse
@@ -24,7 +25,7 @@ import retrofit2.Response
 import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34], manifest = Config.NONE)
+@Config(sdk = [34], manifest = Config.NONE,application = TestApplication::class)
 class ImageOcrHelperTest {
 
     private lateinit var activity: AppCompatActivity

@@ -134,6 +134,7 @@ dependencies {
     testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("org.hamcrest:hamcrest-library:2.2")
+    testImplementation("androidx.work:work-testing:2.9.0")
 }
 
 configurations.all {

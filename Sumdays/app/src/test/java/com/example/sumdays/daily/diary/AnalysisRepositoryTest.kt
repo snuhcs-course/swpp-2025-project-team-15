@@ -1,6 +1,7 @@
 package com.example.sumdays.daily.diary
 
 import android.os.Build
+import com.example.sumdays.TestApplication
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.network.ApiService
@@ -20,7 +21,8 @@ import org.robolectric.annotation.Config
 import retrofit2.Response
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE],
+    application = TestApplication::class)
 class AnalysisRepositoryTest {
 
     private lateinit var apiMock: ApiService

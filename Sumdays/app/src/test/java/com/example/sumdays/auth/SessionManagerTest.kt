@@ -2,6 +2,7 @@ package com.example.sumdays.auth
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import com.example.sumdays.TestApplication
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -15,7 +16,8 @@ import java.security.KeyStore
 import javax.crypto.spec.SecretKeySpec
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [34],
+    application = TestApplication::class)
 class SessionManagerTest {
 
     private lateinit var context: Context

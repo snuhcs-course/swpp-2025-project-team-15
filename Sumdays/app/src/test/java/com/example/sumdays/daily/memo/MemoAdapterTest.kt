@@ -22,10 +22,12 @@ import java.util.concurrent.TimeUnit
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import org.junit.Rule
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sumdays.TestApplication
 
 // 실제 Android 런타임 환경에서 실행되도록 @RunWith(AndroidJUnit4::class) 사용
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [34])
+@Config(sdk = [34],
+    application = TestApplication::class)
 class MemoAdapterTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()

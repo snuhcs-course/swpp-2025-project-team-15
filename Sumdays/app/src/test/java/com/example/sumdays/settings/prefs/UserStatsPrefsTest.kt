@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.sumdays.TestApplication
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -20,7 +21,7 @@ import kotlin.test.assertNotNull
  */
 @RunWith(AndroidJUnit4::class)
 // 샘플 테스트의 환경 설정을 차용하여 SDK 버전 호환성 문제를 해결합니다.
-@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE]) // 34
+@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE],application = TestApplication::class) // 34
 @LooperMode(LooperMode.Mode.PAUSED)
 class UserStatsPrefsTest {
 

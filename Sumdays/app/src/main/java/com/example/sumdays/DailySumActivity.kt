@@ -37,7 +37,7 @@ class DailySumActivity : AppCompatActivity() {
     private lateinit var memoMergeAdapter: MemoMergeAdapter
     private val viewModel: DailyEntryViewModel by viewModels()
 
-    // ★★★ 1. Prefs 및 DAO 인스턴스 선언 ★★★
+    // Prefs 및 DAO 인스턴스 선언
     private lateinit var userStatsPrefs: UserStatsPrefs
     private lateinit var userStyleDao: UserStyleDao
     private lateinit var loadingOverlay: View
@@ -55,7 +55,7 @@ class DailySumActivity : AppCompatActivity() {
         }
 
 
-        // ★★★ 2. Prefs 및 DAO 초기화 ★★★
+        // Prefs 및 DAO 초기화
         userStatsPrefs = UserStatsPrefs(this)
         userStyleDao = AppDatabase.getDatabase(this).userStyleDao() // StyleDatabase를 통해 DAO 획득
 
@@ -63,11 +63,6 @@ class DailySumActivity : AppCompatActivity() {
         loadingOverlay = findViewById(R.id.loading_overlay)
         loadingGifView = findViewById(R.id.loading_gif_view)
         findViewById<TextView>(R.id.date_text_view).text = date
-
-//        findViewById<ImageView>(R.id.back_icon).setOnClickListener {
-//            startActivity(Intent(this, DailyWriteActivity::class.java).putExtra("date", date))
-//            finish()
-//        }
 
         findViewById<ImageView>(R.id.undo_icon).setOnClickListener {
             memoMergeAdapter.undoLastMerge()
@@ -84,7 +79,7 @@ class DailySumActivity : AppCompatActivity() {
                 }
         }
 
-        // 1. Intent에서 메모 리스트를 받습니다.
+        // Intent에서 메모 리스트를 받음
         val receivedMemoList: List<Memo> = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableArrayListExtra("memo_list", Memo::class.java) ?: emptyList()
         } else {
@@ -93,20 +88,19 @@ class DailySumActivity : AppCompatActivity() {
             intent.getParcelableArrayListExtra<Memo>("memo_list") ?: emptyList()
         }
 
-        // 2. MemoMergeAdapter는 MutableList<Memo>를 기대하므로 변환합니다.
+        // MemoMergeAdapter는 MutableList<Memo>를 기대하므로 변환함
         val initialMemoList: MutableList<Memo> = receivedMemoList.toMutableList()
 
         recyclerView = findViewById(R.id.memo_list_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // ✅ 드래그-머지 지원 어댑터로 교체
         memoMergeAdapter = MemoMergeAdapter(
             this,
             initialMemoList,
             lifecycleScope,
             ::showAllMergedSheet,
-            userStatsPrefs = userStatsPrefs,      // UserStatsPrefs 전달
-            userStyleDao = userStyleDao           // UserStyleDao 전달
+            userStatsPrefs = userStatsPrefs,
+            userStyleDao = userStyleDao
         )
         recyclerView.itemAnimator = null // streaming시 메모 깜빡임 방지
         recyclerView.adapter = memoMergeAdapter
@@ -121,10 +115,9 @@ class DailySumActivity : AppCompatActivity() {
             if (isLoading) {
                 loadingOverlay.visibility = View.VISIBLE
                 loadingGifView.visibility = View.VISIBLE
-                // Glide로 GIF 로드 (R.drawable.loading_animation.gif 파일이 있다고 가정)
                 Glide.with(this)
                     .asGif()
-                    .load(R.drawable.loading_animation) // "loading_animation.gif" 파일 이름
+                    .load(R.drawable.loading_animation)
                     .into(loadingGifView)
             } else {
                 loadingOverlay.visibility = View.GONE
@@ -145,7 +138,7 @@ class DailySumActivity : AppCompatActivity() {
         AnalysisRepository.requestAnalysis(date, mergedResult, viewModel)
     }
 
-    private var mergeSheetShowing = false  // ✅ 중복 방지용
+    private var mergeSheetShowing = false  // 중복 방지용
 
     private fun showAllMergedSheet() {
         if (mergeSheetShowing) return
@@ -177,10 +170,10 @@ class DailySumActivity : AppCompatActivity() {
         sheet.setOnDismissListener { mergeSheetShowing = false }
         sheet.show()
 
-        // 화면 폭의 90%로 설정 (원하면 0.95f 등으로 조절)
+        // 화면 폭의 90%로 설정
         val width = (resources.displayMetrics.widthPixels * 0.9f).toInt()
         sheet.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
-        // 중앙 정렬(기본이지만 혹시 몰라 명시)
+        // 중앙 정렬
         sheet.window?.setGravity(android.view.Gravity.CENTER)
     }
     override fun onDestroy() {

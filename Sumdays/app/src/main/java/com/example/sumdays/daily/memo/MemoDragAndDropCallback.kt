@@ -9,8 +9,8 @@ class MemoDragAndDropCallback(
     private val adapter: MemoAdapter,
     private val onMove: (fromPosition: Int, toPosition: Int) -> Unit,
     private val onDelete: (position: Int) -> Unit,
-    private val onDragStart: () -> Unit, // <-- 드래그 시작 콜백
-    private val onDragEnd: () -> Unit // <-- 드래그 종료 콜백
+    private val onDragStart: () -> Unit, // 드래그 시작 콜백
+    private val onDragEnd: () -> Unit // 드래그 종료 콜백
 ) : ItemTouchHelper.Callback() {
 
     // 드래그 방향 및 스와이프 방향 설정

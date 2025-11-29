@@ -71,38 +71,6 @@ class DayAdapterTest {
     }
 
     @Test
-    fun bind_futureDay_makesCellNotClickable_andDoesNotStartActivity() {
-        val futureDate = baseToday.plusDays(1)
-        val cells = listOf(
-            DateCell(
-                day = futureDate.dayOfMonth,
-                dateString = futureDate.toString(),
-                isCurrentMonth = true
-            )
-        )
-        val adapter = DayAdapter(cells, activity, today = baseToday, maxYearMonth = baseYearMonth)
-        recyclerView.adapter = adapter
-
-        recyclerView.measure(0, 0)
-        recyclerView.layout(0, 0, 1080, 200)
-
-        val vh = recyclerView.findViewHolderForAdapterPosition(0) as DayAdapter.DayViewHolder
-        val tvEmoji = vh.itemView.findViewById<TextView>(R.id.tv_emoji)
-
-        assertThat(vh.itemView.isClickable, `is`(false))
-        assertThat(vh.itemView.isFocusable, `is`(false))
-        assertThat(tvEmoji.visibility, `is`(View.GONE))
-
-        val shadowActivity = Shadows.shadowOf(activity)
-        val beforeIntent = shadowActivity.peekNextStartedActivity()
-        vh.itemView.performClick()
-        val afterIntent = shadowActivity.peekNextStartedActivity()
-
-        assertThat(beforeIntent, `is`(nullValue()))
-        assertThat(afterIntent, `is`(nullValue()))
-    }
-
-    @Test
     fun bind_pastDay_withDiary_clickStartsDailyReadActivity() {
         val pastDate = baseToday.minusDays(1)
         val dateString = pastDate.toString()

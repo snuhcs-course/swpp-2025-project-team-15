@@ -6,15 +6,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
-        android:id="@+id/gifText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/tutorial_03_text"
-        android:scaleType="fitCenter"
-        android:translationY="80dp"
-        tools:ignore="MissingConstraints" />
-
-    <ImageView
         android:id="@+id/gifView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

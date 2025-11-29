@@ -314,9 +314,9 @@ class DailyReadActivity : AppCompatActivity() {
     }
 
     private fun changeDate(amount: Int) {
-        if (amount > 0) { // "다음 날" 버튼을 눌렀을 때
+        if (amount > 0) {
             if (isAfterToday(currentDate)) {
-                return // 이미 오늘이거나 미래면 아무것도 하지 않음
+                return
             }
         }
         currentDate.add(Calendar.DAY_OF_MONTH, amount)
@@ -331,7 +331,6 @@ class DailyReadActivity : AppCompatActivity() {
 
     private fun isAfterToday(cal: Calendar): Boolean {
         val today = Calendar.getInstance()
-        // 년, 월, 일만 비교하기 위해 시간 초기화
         today.set(Calendar.HOUR_OF_DAY, 0)
         today.set(Calendar.MINUTE, 0)
         today.set(Calendar.SECOND, 0)
@@ -343,7 +342,6 @@ class DailyReadActivity : AppCompatActivity() {
         compareCal.set(Calendar.SECOND, 0)
         compareCal.set(Calendar.MILLISECOND, 0)
 
-        // 오늘과 같거나(equals) 오늘보다 뒤(after)인지 확인
         return compareCal.equals(today) || compareCal.after(today)
     }
 

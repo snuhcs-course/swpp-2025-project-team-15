@@ -32,7 +32,7 @@ import com.example.sumdays.settings.prefs.LabsPrefs
 
 
 class MemoMergeAdapter(
-    private val context: Context, //toast 띄우기 위해서 추가
+    private val context: Context, // toast 띄우기 위해서 추가
     private val memoList: MutableList<Memo>,
     private val scope: CoroutineScope,
     private val onAllMergesDone: () -> Unit,
@@ -83,7 +83,8 @@ class MemoMergeAdapter(
         val memoText = v.findViewById<TextView>(R.id.memo_text)
         val params = memoText.layoutParams
         params.width = dp(parent.context, 190)
-        params.height = dp(parent.context, 40)// ⬅ 여기만 180dp로 고정
+        // params.height = dp(parent.context, 40)// ⬅ 여기만 180dp로 고정
+        memoText.minHeight = dp(parent.context, 40)
         memoText.layoutParams = params
 
         return VH(v)
@@ -177,7 +178,7 @@ class MemoMergeAdapter(
 
         scope.launch(Dispatchers.IO) {
             try {
-                // 1) 먼저 UI에서 fromIndex 제거 → **이게 먼저 되어야 스트리밍 UI 업데이트가 안전해짐**
+                // 먼저 UI에서 fromIndex 제거 **이게 먼저 되어야 스트리밍 UI 업데이트가 안전해짐**
                 var targetIndex: Int
                 withContext(Dispatchers.Main) {
                     memoList.removeAt(fromIndex)
@@ -187,11 +188,11 @@ class MemoMergeAdapter(
                     targetIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
                 }
 
-                // 2) 스트리밍 병합 시작
+                // 스트리밍 병합 시작
                 val finalMergedText = mergeTextByIds(mergedIds, endFlag = false) { partial ->
 
                     scope.launch(Dispatchers.Main) {
-                        // ✅ 안전성 체크 꼭 필요
+                        // 안전성 체크 꼭 필요
                         if (targetIndex in memoList.indices) {
                             memoList[targetIndex] = memoList[targetIndex].copy(content = partial)
                             notifyItemChanged(targetIndex, partial)
@@ -199,10 +200,10 @@ class MemoMergeAdapter(
                     }
                 }
 
-                // 3) ID 업데이트
+                // ID 업데이트
                 mergedIds.forEach { updateIdMap(it, mergedIds) }
 
-                // 4) 스트림 종료 후 최종 내용 고정
+                // 스트림 종료 후 최종 내용 고정
                 withContext(Dispatchers.Main) {
                     if (targetIndex in memoList.indices) {
                         memoList[targetIndex] =
@@ -214,14 +215,14 @@ class MemoMergeAdapter(
                     maybeNotifyAllMerged()
                 }
             } catch (e: Exception) {
-                // ★★★ 3. 예외 발생 시 복구(Rollback) 로직 ★★★
+                // 예외 발생 시 복구(Rollback) 로직
                 Log.e("MemoMergeAdapter", "Merge failed", e)
 
                 withContext(Dispatchers.Main) {
-                    // 1. 토스트 메시지 표시
+                    // 토스트 메시지 표시
                     Toast.makeText(context, "메모 합치기 실패", Toast.LENGTH_SHORT).show()
 
-                    // 2. UI 및 데이터 복구
+                    // UI 및 데이터 복구
                     // 삭제했던 'from' 메모를 원래 위치에 다시 삽입
                     if (fromIndex <= memoList.size) {
                         memoList.add(fromIndex, record.fromMemo)
@@ -250,14 +251,14 @@ class MemoMergeAdapter(
         onPartial: (String) -> Unit = {}
     ): String {
 
-        // 1️. 서버에 보낼 Memo 리스트 구성
+        // 서버에 보낼 Memo 리스트 구성
         val memos = mutableListOf<MemoPayload>()
         mergedIds.forEach {
             val memo = originalMemoMap[it]
             memos.add(MemoPayload(memo!!.id,memo.content, memo.order))
         }
 
-        // ★★★ 2️. 활성 스타일 데이터 로드 또는 더미 데이터 사용 ★★★
+        // 활성 스타일 데이터 로드 또는 더미 데이터 사용
         val activeStyleId = userStatsPrefs.getActiveStyleId()
         val styleData = userStyleDao.getStyleById(activeStyleId)
         val stylePrompt: Map<String, Any>
@@ -308,7 +309,7 @@ class MemoMergeAdapter(
         }
 
         Log.d("test", "TEST: 1")
-        // 3️. API 호출
+        // API 호출
         val call = ApiClient.api.mergeMemosStream(request)
         val response = call.execute()
 
@@ -345,7 +346,7 @@ class MemoMergeAdapter(
         else
             rec.toIndexBefore
 
-        // 1) 타깃을 머지 전 내용으로 복구
+        // 타깃을 머지 전 내용으로 복구
         if (toCurrent in memoList.indices) {
             memoList[toCurrent] = rec.toMemoBefore
             notifyItemChanged(toCurrent)
@@ -354,7 +355,7 @@ class MemoMergeAdapter(
             return false
         }
 
-        // 2) from 메모를 원래 위치에 다시 삽입
+        // from 메모를 원래 위치에 다시 삽입
         val insertIndex = rec.fromIndexBefore.coerceIn(0, memoList.size)
         memoList.add(insertIndex, rec.fromMemo)
         notifyItemInserted(insertIndex)

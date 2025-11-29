@@ -36,17 +36,15 @@ object SessionManager {
     private lateinit var keyStore: KeyStore
 
     /**
-     * 이 함수를 Application 클래스나 MainActivity의 onCreate에서 최초 한 번만 호출해야 합니다.
+     * 이 함수를 Application 클래스나 MainActivity의 onCreate에서 최초 한 번만 호출해야 함
      */
     fun init(context: Context) {
         sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-        // AndroidKeyStore 인스턴스를 로드합니다.
         keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply {
             load(null)
         }
 
-        // KeyStore에 암호화 키가 없으면 새로 생성합니다.
         if (!keyStore.containsAlias(KEY_ALIAS)) {
             generateSecretKey()
         }
@@ -62,9 +60,8 @@ object SessionManager {
             setBlockModes(KeyProperties.BLOCK_MODE_GCM)
             setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
             setKeySize(256) // 256비트 AES 키
-            // API 23 이상에서만 사용 가능
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                setUserAuthenticationRequired(false) // 이 예제에서는 지문인증 등은 사용하지 않음
+                setUserAuthenticationRequired(false)
             }
         }.build()
 
@@ -77,7 +74,7 @@ object SessionManager {
     }
 
     /**
-     * 로그인 성공 시 사용자 정보와 인증 토큰을 암호화하여 저장합니다.
+     * 로그인 성공 시 사용자 정보와 인증 토큰을 암호화하여 저장
      */
     fun saveSession(userId: Int, token: String) {
         try {
@@ -85,10 +82,9 @@ object SessionManager {
             val cipher = Cipher.getInstance(TRANSFORMATION)
             cipher.init(Cipher.ENCRYPT_MODE, secretKey)
 
-            val iv = cipher.iv // 암호화에 사용된 IV를 저장해야 합니다.
+            val iv = cipher.iv
             val encryptedTokenBytes = cipher.doFinal(token.toByteArray(Charsets.UTF_8))
 
-            // 바이트 배열을 SharedPreferences에 저장하기 위해 Base64 문자열로 인코딩합니다.
             val encryptedTokenString = Base64.encodeToString(encryptedTokenBytes, Base64.DEFAULT)
             val ivString = Base64.encodeToString(iv, Base64.DEFAULT)
 
@@ -100,12 +96,11 @@ object SessionManager {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            // 암호화 실패 처리
         }
     }
 
     /**
-     * 저장된 인증 토큰을 복호화하여 가져옵니다.
+     * 저장된 인증 토큰을 복호화하여 가져옴
      */
     fun getToken(): String? {
         val encryptedTokenString = sharedPreferences.getString(ENCRYPTED_AUTH_TOKEN, null)
@@ -116,13 +111,12 @@ object SessionManager {
         }
 
         return try {
-            // Base64 문자열을 다시 바이트 배열로 디코딩합니다.
             val encryptedTokenBytes = Base64.decode(encryptedTokenString, Base64.DEFAULT)
             val iv = Base64.decode(ivString, Base64.DEFAULT)
 
             val secretKey = getSecretKey()
             val cipher = Cipher.getInstance(TRANSFORMATION)
-            val spec = GCMParameterSpec(128, iv) // GCM 모드는 IV와 함께 초기화해야 합니다.
+            val spec = GCMParameterSpec(128, iv)
             cipher.init(Cipher.DECRYPT_MODE, secretKey, spec)
 
             val decryptedTokenBytes = cipher.doFinal(encryptedTokenBytes)
@@ -135,22 +129,21 @@ object SessionManager {
     }
 
     /**
-     * 저장된 사용자 ID를 가져옵니다. (ID는 민감 정보가 아니므로 암호화하지 않음)
+     * 저장된 사용자 ID를 가져옴
      */
     fun getUserId(): Int {
         return sharedPreferences.getInt(KEY_USER_ID, -1)
     }
 
     /**
-     * 로그인 상태인지 확인합니다.
+     * 로그인 상태인지 확인
      */
     fun isLoggedIn(): Boolean {
-        // 토큰이 성공적으로 복호화되는지로 로그인 상태를 판단합니다.
         return getToken() != null
     }
 
     /**
-     * 로그아웃 시 저장된 모든 세션 정보를 삭제합니다.
+     * 로그아웃 시 저장된 모든 세션 정보를 삭제
      */
     fun clearSession() {
         sharedPreferences.edit().clear().apply()
@@ -161,7 +154,7 @@ object SessionManager {
 
 ### 실제 사용 방법
 
-1.  **초기화:** 앱이 시작될 때 딱 한 번 `init()` 함수를 호출해줍니다. `Application` 클래스나 앱의 첫 화면인 `MainActivity`의 `onCreate`에서 호출하는 것이 좋습니다.
+1.  **초기화:** 앱이 시작될 때 딱 한 번 `init()` 함수를 호출. `Application` 클래스나 앱의 첫 화면인 `MainActivity`의 `onCreate`에서 호출하는 것이 좋음
 ```kotlin
 // MainActivity.kt 또는 App.kt
 override fun onCreate(savedInstanceState: Bundle?) {
@@ -172,7 +165,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 }
 ```
 
-2.  **로그인 성공 시 저장:** `LoginActivity`에서 서버로부터 로그인 성공 응답을 받으면 `saveSession`을 호출합니다.
+2.  로그인 성공 시 저장: 서버로부터 로그인 성공 응답을 받으면 `saveSession`을 호출
 ```kotlin
 // LoginActivity.kt - handleLogin() 내부
 // ... 로그인 API 호출 성공 후 ...
@@ -186,7 +179,7 @@ SessionManager.saveSession(userId, token)
 // ...
 ```
 
-3.  **로그인 상태 확인:** 앱의 시작점(예: `MainActivity`)에서 로그인 상태를 확인하고 분기 처리합니다.
+3.  로그인 상태 확인: 앱의 시작점(예: `MainActivity`)에서 로그인 상태를 확인하고 분기 처리
 ```kotlin
 // MainActivity.kt - onCreate() 내부
 if (SessionManager.isLoggedIn()) {
@@ -200,7 +193,7 @@ if (SessionManager.isLoggedIn()) {
 }
 ```
 
-4.  **API 요청 시 토큰 사용:** 서버 API를 호출할 때 헤더에 저장된 토큰을 추가합니다. (Retrofit Interceptor 사용 시 편리)
+4.  API 요청 시 토큰 사용: 서버 API를 호출할 때 헤더에 저장된 토큰을 추가합니다. (Retrofit Interceptor 사용 시 편리)
 ```kotlin
 // Retrofit Interceptor 예시
 val token = SessionManager.getToken()
@@ -211,7 +204,7 @@ if (token != null) {
 }
 ```
 
-5.  **로그아웃:** 로그아웃 버튼을 누르면 `clearSession`을 호출합니다.
+5.  로그아웃: 로그아웃 버튼을 누르면 `clearSession`을 호출합니다.
 ```kotlin
 // 설정 화면 등에서
 logoutButton.setOnClickListener {

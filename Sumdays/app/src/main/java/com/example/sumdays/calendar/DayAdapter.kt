@@ -52,7 +52,6 @@ class DayAdapter(
             today: LocalDate,
             maxYearMonth: YearMonth
         ) {
-            // 날짜 계산이 잘못된 경우
             if (cell.day <= 0 || cell.day > 31) {
                 tvCircle.background = null
                 tvDayNumber.text = ""
@@ -68,7 +67,6 @@ class DayAdapter(
             val isToday = date.isEqual(today)
             val isFutureDay = date.isAfter(today)
 
-            // 요일 색상
             val dayOfWeek = date.dayOfWeek
             val textColor = when {
                 dayOfWeek == DayOfWeek.SUNDAY -> Color.RED
@@ -95,7 +93,6 @@ class DayAdapter(
                 }
             }
 
-            // 이모지 노출
             if (!emoji.isNullOrEmpty()) {
                 tvEmoji.text = emoji
                 tvEmoji.visibility = View.VISIBLE
@@ -103,20 +100,19 @@ class DayAdapter(
                 tvEmoji.visibility = View.GONE
             }
 
-            // 이전/다음 달 날짜는 흐리게
             if (!cell.isCurrentMonth) {
                 tvEmoji.visibility = View.GONE
                 tvDayNumber.alpha = 0.4f
                 tvCircle.alpha = 0.4f
-                tvDayNumber.setTextColor(Color.GRAY) // TODO: 일단 주말도 회색임. 수정 필요
+                tvDayNumber.setTextColor(Color.GRAY)
             } else {
                 tvDayNumber.alpha = 1.0f
                 tvCircle.alpha = 1.0f
             }
             if (isToday) {
                 val density = itemView.context.resources.displayMetrics.density
-                val width = (20 * density).toInt()  // 가로 20dp
-                val height = (17 * density).toInt() // 세로 14dp (원하는 만큼 줄이세요)
+                val width = (20 * density).toInt()
+                val height = (17 * density).toInt()
 
                 val params = tvDayNumber.layoutParams
                 params.width = width
@@ -126,7 +122,7 @@ class DayAdapter(
                 val drawable = GradientDrawable()
                 drawable.shape = GradientDrawable.RECTANGLE
                 drawable.setColor(Color.WHITE)
-                drawable.cornerRadius = 5 * density // 10dp 둥근 모서리 (값 조절 가능)
+                drawable.cornerRadius = 5 * density
 
                 tvDayNumber.background = drawable
 

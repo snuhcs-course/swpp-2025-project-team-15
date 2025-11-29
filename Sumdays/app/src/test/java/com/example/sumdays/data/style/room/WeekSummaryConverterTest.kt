@@ -19,7 +19,7 @@ class WeekSummaryConverterTest {
             emotionAnalysis = EmotionAnalysis(
                 distribution = mapOf("positive" to 3, "neutral" to 1, "negative" to 1),
                 dominantEmoji = "😊",
-                emotionScore = 0.82f,
+                emotionScore = 0.82,
                 trend = "increasing"
             ),
             highlights = listOf(

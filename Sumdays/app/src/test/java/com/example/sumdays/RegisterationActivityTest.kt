@@ -77,7 +77,7 @@ class RegisterationActivityTest {
         // then
         val toast = ShadowToast.getTextOfLatestToast()
         assertTrue(toast.contains("회원가입 성공"))
-        assertTrue(activity.isFinishing) // ✅ 변경된 부분
+        assertTrue(activity.isFinishing)
     }
 
     @Test
@@ -99,7 +99,7 @@ class RegisterationActivityTest {
         // then
         val toast = ShadowToast.getTextOfLatestToast()
         assertTrue(toast.contains("이미 존재하는 이메일"))
-        assertFalse(activity.isFinishing) // ✅ 변경
+        assertFalse(activity.isFinishing)
     }
 
     @Test

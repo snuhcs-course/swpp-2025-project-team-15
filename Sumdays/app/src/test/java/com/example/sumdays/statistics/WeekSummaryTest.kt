@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.sumdays.TestApplication
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -16,7 +17,7 @@ import org.robolectric.annotation.Config
  * Line Coverage 100%를 달성합니다.
  */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE]) // 샘플 코드와 동일한 SDK 설정
+@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE], application = TestApplication::class) // 샘플 코드와 동일한 SDK 설정
 class WeekSummaryTest {
 
     // --- 헬퍼 함수: 테스트용 샘플 데이터 생성 ---
@@ -24,8 +25,8 @@ class WeekSummaryTest {
     private fun createSampleEmotionAnalysis(trend: String? = "Increasing") = EmotionAnalysis(
         distribution = mapOf("positive" to 5, "neutral" to 2, "negative" to 0),
         dominantEmoji = "😃",
-        emotionScore = 0.8f,
-        trend = trend // null 포함 테스트를 위해 파라미터화
+        emotionScore = 0.8,
+        trend = trend
     )
 
     private fun createSampleHighlight(date: String = "2025-10-15") = Highlight(
@@ -55,29 +56,27 @@ class WeekSummaryTest {
     )
 
     /**
-     * Parcelable 객체를 Parcel에 쓰고 다시 읽어와서 동일한지 확인하는 라운드 트립 테스트 헬퍼입니다.
+     * Parcelable 객체를 Parcel에 쓰고 다시 읽어와서 동일한지 확인하는 라운드 트립 테스트 헬퍼
      */
     private fun <T : Parcelable> T.roundTrip(): T {
-        // 1. Parcel 객체 얻기 (가상)
+        // Parcel 객체 얻기 (가상)
         val parcel = Parcel.obtain()
 
-        // 2. 객체를 Parcel에 쓰기
+        // 객체를 Parcel에 쓰기
         parcel.writeParcelable(this, 0)
 
-        // 3. 읽기 시작 위치로 포인터 이동
+        // 읽기 시작 위치로 포인터 이동
         parcel.setDataPosition(0)
 
-        // 4. Parcel에서 객체 읽기
-        // CREATOR를 사용하지 않고 writeParcelable/readParcelable을 사용하면 클래스 로더를 명시해야 합니다.
+        // Parcel에서 객체 읽기
         val result = parcel.readParcelable<T>(this.javaClass.classLoader)
 
-        // 5. Parcel 반납 및 결과 반환
+        // Parcel 반납 및 결과 반환
         parcel.recycle()
         return result!!
     }
 
-    // --- 1. WeekSummary 테스트 ---
-
+    // WeekSummary 테스트
     @Test
     fun weekSummary_instantiationAndGetters_workCorrectly() {
         val summary = createSampleWeekSummary()
@@ -103,7 +102,7 @@ class WeekSummaryTest {
 
         // copy 테스트
         assertThat(summaryCopy.diaryCount, `is`(6))
-        assertThat(summaryCopy.endDate, `is`(summary1.endDate)) // 다른 필드는 유지
+        assertThat(summaryCopy.endDate, `is`(summary1.endDate))
     }
 
     @Test
@@ -111,21 +110,21 @@ class WeekSummaryTest {
         val original = createSampleWeekSummary()
         val parceled = original.roundTrip()
 
-        // Parcelable을 거쳤음에도 모든 필드가 동일한지 확인 (100% Coverage 핵심)
+        // Parcelable을 거쳤음에도 모든 필드가 동일한지 확인
         assertThat(parceled, `is`(original))
         assertThat(parceled.insights.advice, `is`(original.insights.advice))
         assertThat(parceled.summary.overview, `is`(original.summary.overview))
         assertThat(parceled.emotionAnalysis.emotionScore, `is`(original.emotionAnalysis.emotionScore))
     }
 
-    // --- 2. EmotionAnalysis 테스트 (Nullable 필드 포함) ---
+    // --- EmotionAnalysis 테스트 ---
 
     @Test
     fun emotionAnalysis_instantiation_with_nonNullTrend() {
         val analysis = createSampleEmotionAnalysis("Stable")
 
         assertThat(analysis.dominantEmoji, `is`("😃"))
-        assertThat(analysis.emotionScore, `is`(0.8f))
+        assertThat(analysis.emotionScore, `is`(0.8))
         assertThat(analysis.trend, `is`("Stable"))
         assertThat(analysis.distribution.keys.size, `is`(3))
     }
@@ -134,7 +133,7 @@ class WeekSummaryTest {
     fun emotionAnalysis_instantiation_with_nullTrend() {
         val analysis = createSampleEmotionAnalysis(trend = null)
 
-        assertThat(analysis.trend, `is`(nullValue())) // Nullable 필드 테스트
+        assertThat(analysis.trend, `is`(nullValue()))
     }
 
     @Test
@@ -143,10 +142,10 @@ class WeekSummaryTest {
         val parceled = original.roundTrip()
 
         assertThat(parceled, `is`(original))
-        assertThat(parceled.trend, `is`(nullValue())) // Null 값이 잘 보존되는지 확인
+        assertThat(parceled.trend, `is`(nullValue()))
     }
 
-    // --- 3. Highlight 테스트 ---
+    // --- Highlight 테스트 ---
 
     @Test
     fun highlight_instantiationAndParceling_isSuccessful() {
@@ -158,7 +157,7 @@ class WeekSummaryTest {
         assertThat(parceled, `is`(original))
     }
 
-    // --- 4. Insights 테스트 ---
+    // --- Insights 테스트 ---
 
     @Test
     fun insights_instantiationAndParceling_isSuccessful() {
@@ -170,7 +169,7 @@ class WeekSummaryTest {
         assertThat(parceled, `is`(original))
     }
 
-    // --- 5. SummaryDetails 테스트 ---
+    // --- SummaryDetails 테스트 ---
 
     @Test
     fun summaryDetails_instantiationAndParceling_isSuccessful() {

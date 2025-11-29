@@ -47,30 +47,11 @@ class WeekSummaryWorker(
             if (isTestMode) {
                 Log.d("WeekSummaryWorker", "테스트 모드: 더미 데이터 생성 중...")
 
-                val dummySummary = WeekSummary(
-                    startDate = startDateStr,
-                    endDate = endDateStr,
-                    diaryCount = 7, // 가짜 개수
-                    emotionAnalysis = EmotionAnalysis(
-                        distribution = mapOf("positive" to 5, "neutral" to 1, "negative" to 1),
-                        dominantEmoji = "🧪",
-                        emotionScore = 0.8,
-                        trend = "increasing"
-                    ),
-                    highlights = listOf(
-                        Highlight(startDateStr, "테스트 모드로 생성된 하이라이트입니다."),
-                        Highlight(endDateStr, "서버 통신 없이 생성되었습니다.")
-                    ),
-                    insights = Insights(
-                        advice = "테스트 모드가 성공적으로 작동했습니다. 통계 화면을 확인하세요.",
-                        emotionCycle = "시작 -> 테스트 -> 성공"
-                    ),
-                    summary = SummaryDetails(
-                        emergingTopics = listOf("테스트", "디버깅", "성공"),
-                        overview = "이 요약은 개발자 테스트를 위해 생성된 가짜 데이터입니다. 실제 일기 내용은 반영되지 않았습니다.",
-                        title = "테스트 주간 보고서"
-                    )
-                )
+                val dummySummary = WeekSummary(startDate = startDateStr,endDate = endDateStr,diaryCount = 7,
+                    emotionAnalysis = EmotionAnalysis(distribution = mapOf("positive" to 5, "neutral" to 1, "negative" to 1), dominantEmoji = "🧪", emotionScore = 0.8, trend = "increasing"),
+                    highlights = listOf(Highlight(startDateStr, "테스트 모드로 생성된 하이라이트입니다."), Highlight(endDateStr, "서버 통신 없이 생성되었습니다.")),
+                    insights = Insights(advice = "테스트 모드가 성공적으로 작동했습니다. 통계 화면을 확인하세요.", emotionCycle = "시작 -> 테스트 -> 성공"),
+                    summary = SummaryDetails(emergingTopics = listOf("테스트", "디버깅", "성공"), overview = "이 요약은 개발자 테스트를 위해 생성된 가짜 데이터입니다. 실제 일기 내용은 반영되지 않았습니다.", title = "테스트 주간 보고서"))
 
                 weekSummaryRepo.upsertWeekSummary(dummySummary)
                 Log.d("WeekSummaryWorker", "테스트 데이터 저장 완료!")

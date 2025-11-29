@@ -18,7 +18,7 @@ data class SummaryDetails(
 data class EmotionAnalysis(
     val distribution: Map<String, Int>,
     val dominantEmoji: String,
-    val emotionScore: Float,
+    val emotionScore: Double,
     val trend: String? = null
 ) : Parcelable
 
@@ -32,14 +32,4 @@ data class Insights(
 data class Highlight(
     val date: String,
     val summary: String
-) : Parcelable
-
-@Parcelize
-data class WeekSummaryForMonth(
-    val emotionScore: Float,
-    val dominantEmoji: String,
-    val topics: List<String>,
-    val title: String,
-    val summary: String,
-    val dateRange: String
 ) : Parcelable

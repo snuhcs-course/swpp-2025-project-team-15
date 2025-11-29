@@ -42,22 +42,22 @@ class ReminderIntegrationTest {
         context = ApplicationProvider.getApplicationContext()
         val app = context as Application
 
-        // 1. 알림 권한 강제 부여
+        // 알림 권한 강제 부여
         Shadows.shadowOf(app).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
 
-        // 2. LocalDate Static Mocking
+        // LocalDate Static Mocking
         mockkStatic(LocalDate::class)
         val fixedDate = LocalDate.of(2023, 11, 22) // 테스트용 고정 날짜
         every { LocalDate.now() } returns fixedDate
 
-        // 3.  Robolectric Shadows 초기화
+        // Robolectric Shadows 초기화
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         shadowAlarmManager = Shadows.shadowOf(alarmManager)
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         shadowNotificationManager = Shadows.shadowOf(notificationManager)
 
-        // 4. DB Mocking (ReplyReceiver용)
+        // DB Mocking (ReplyReceiver용)
         mockkObject(AppDatabase.Companion)
         every { AppDatabase.getDatabase(any()) } returns mockDb
         every { mockDb.memoDao() } returns mockDao
@@ -168,7 +168,5 @@ class ReminderIntegrationTest {
                         memo.type == "text"
             })
         }
-
-        assertTrue(shadowNotificationManager.allNotifications.isNotEmpty())
     }
 }

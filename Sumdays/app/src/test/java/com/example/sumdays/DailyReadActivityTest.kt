@@ -2,6 +2,7 @@ package com.example.sumdays
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.widget.EditText
 import android.widget.ImageButton
@@ -13,6 +14,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.sumdays.data.DailyEntry
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -23,9 +25,13 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowAlertDialog
+import org.robolectric.shadows.ShadowDialog
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import android.view.View
 
 @RunWith(AndroidJUnit4::class)
 @Config(
@@ -36,31 +42,30 @@ class DailyReadActivityTest {
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     private val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    /**
-     * 주어진 dateString("yyyy-MM-dd" or null) 으로 DailyReadActivity 를 생성하고,
-     * viewModel 을 mock 으로 바꾼 뒤 onCreate 까지 호출한 Activity 와 mock ViewModel 을 반환.
-     */
-    private fun createActivityWithDate(dateString: String?): Pair<DailyReadActivity, DailyEntryViewModel> {
+    private fun createActivityWithDate(
+        dateString: String?
+    ): Pair<DailyReadActivity, DailyEntryViewModel> {
         val context: Context = ApplicationProvider.getApplicationContext()
-        val intent = Intent(context, DailyReadActivity::class.java)
-        if (dateString != null) {
-            intent.putExtra("date", dateString)
+        val intent = Intent(context, DailyReadActivity::class.java).apply {
+            if (dateString != null) {
+                putExtra("date", dateString)
+            }
         }
 
         val controller = Robolectric.buildActivity(DailyReadActivity::class.java, intent)
         val activity = controller.get()
 
-        // ViewModel mock + 가짜 LiveData
         val mockViewModel = mockk<DailyEntryViewModel>(relaxed = true)
-        val fakeLiveData = MutableLiveData<DailyEntry?>()
-        fakeLiveData.value = null
+        val fakeLiveData = MutableLiveData<DailyEntry?>().apply { value = null }
         every { mockViewModel.getEntry(any()) } returns fakeLiveData
 
-        // viewModel$delegate 를 lazy { mockViewModel } 로 교체
-        val delegateField = DailyReadActivity::class.java.getDeclaredField("viewModel\$delegate")
-        delegateField.isAccessible = true
+        val delegateField =
+            DailyReadActivity::class.java.getDeclaredField("viewModel\$delegate").apply {
+                isAccessible = true
+            }
         delegateField.set(activity, lazy { mockViewModel })
 
         controller.create().start().resume().visible()
@@ -68,21 +73,15 @@ class DailyReadActivityTest {
         return activity to mockViewModel
     }
 
-    /**
-     * private fun updateUI(entry: DailyEntry?) 를 reflection 으로 호출
-     */
     private fun invokeUpdateUI(activity: DailyReadActivity) {
         val method = DailyReadActivity::class.java.getDeclaredMethod(
             "updateUI",
             DailyEntry::class.java
         )
         method.isAccessible = true
-        method.invoke(activity, null) // entry = null
+        method.invoke(activity, null)
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 1. 날짜 표시 & next 버튼 상태 테스트
-    // ─────────────────────────────────────────────────────────────
 
     @Test
     fun whenDateIsToday_dateTextShows오늘_andNextDayButtonHidden() {
@@ -90,7 +89,6 @@ class DailyReadActivityTest {
         val todayString = formatter.format(today.time)
 
         val (activity, _) = createActivityWithDate(todayString)
-
         invokeUpdateUI(activity)
 
         val dateText = activity.findViewById<TextView>(R.id.date_text)
@@ -103,12 +101,12 @@ class DailyReadActivityTest {
 
     @Test
     fun whenDateIsPast_dateTextShowsFormattedDate_andNextDayButtonVisible() {
-        val cal = Calendar.getInstance()
-        cal.add(Calendar.DAY_OF_MONTH, -1)
+        val cal = Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_MONTH, -1)
+        }
         val yesterdayString = formatter.format(cal.time)
 
         val (activity, _) = createActivityWithDate(yesterdayString)
-
         invokeUpdateUI(activity)
 
         val dateText = activity.findViewById<TextView>(R.id.date_text)
@@ -119,9 +117,6 @@ class DailyReadActivityTest {
         assertTrue(nextButton.isEnabled)
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 2. saveDiaryContent 로직 테스트 (viewModel.updateEntry 호출)
-    // ─────────────────────────────────────────────────────────────
 
     @Test
     fun saveDiaryContent_updatesViewModelWithGivenText() {
@@ -132,7 +127,6 @@ class DailyReadActivityTest {
 
         val updatedContent = "테스트용 수정된 일기 내용"
 
-        // private fun saveDiaryContent(updatedContent: String) 호출
         val method = DailyReadActivity::class.java.getDeclaredMethod(
             "saveDiaryContent",
             String::class.java
@@ -145,20 +139,15 @@ class DailyReadActivityTest {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 3. changeDate / isAfterToday 분기 커버: prev / next 버튼
-    // ─────────────────────────────────────────────────────────────
 
     @Test
     fun prevDayButtonClick_movesToPreviousDay_andCallsViewModelWithPrevDate() {
-        // 기준: 오늘 날짜로 Activity 시작
         val baseCal = Calendar.getInstance()
         val todayString = formatter.format(baseCal.time)
 
         val (activity, mockViewModel) = createActivityWithDate(todayString)
         invokeUpdateUI(activity)
 
-        // 기대: prev 버튼 클릭 시 어제 날짜로 getEntry 호출
         val expectedPrevCal = Calendar.getInstance().apply {
             add(Calendar.DAY_OF_MONTH, -1)
         }
@@ -166,6 +155,7 @@ class DailyReadActivityTest {
 
         val prevButton = activity.findViewById<ImageView>(R.id.prev_day_button)
         prevButton.performClick()
+
         verify {
             mockViewModel.getEntry(expectedPrevString)
         }
@@ -173,7 +163,6 @@ class DailyReadActivityTest {
 
     @Test
     fun nextDayButtonClick_fromPast_movesToNextDay_andCallsViewModelWithNextDate() {
-        // 기준: 어제 날짜로 Activity 시작
         val baseCal = Calendar.getInstance().apply {
             add(Calendar.DAY_OF_MONTH, -1)
         }
@@ -182,7 +171,6 @@ class DailyReadActivityTest {
         val (activity, mockViewModel) = createActivityWithDate(yesterdayString)
         invokeUpdateUI(activity)
 
-        // 기대: next 버튼 클릭 시 오늘 날짜로 getEntry 호출
         val todayCal = Calendar.getInstance()
         val todayString = formatter.format(todayCal.time)
 
@@ -194,9 +182,6 @@ class DailyReadActivityTest {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 4. toggleEditMode(true/false)에 따른 뷰 상태 변화 커버
-    // ─────────────────────────────────────────────────────────────
 
     @Test
     fun toggleEditMode_switchesBetweenViewAndEditStates() {
@@ -206,10 +191,14 @@ class DailyReadActivityTest {
         val (activity, _) = createActivityWithDate(todayString)
         invokeUpdateUI(activity)
 
-        val diaryTextView = activity.findViewById<TextView>(R.id.diary_content_text_view)
-        val diaryEditText = activity.findViewById<EditText>(R.id.diary_content_edit_text)
-        val editButton = activity.findViewById<ImageView>(R.id.edit_inplace_button)
-        val saveButton = activity.findViewById<ImageView>(R.id.save_button)
+        val diaryTextView =
+            activity.findViewById<TextView>(R.id.diary_content_text_view)
+        val diaryEditText =
+            activity.findViewById<EditText>(R.id.diary_content_edit_text)
+        val editButton =
+            activity.findViewById<ImageView>(R.id.edit_inplace_button)
+        val saveButton =
+            activity.findViewById<ImageView>(R.id.save_button)
 
         assertEquals(TextView.VISIBLE, diaryTextView.visibility)
         assertEquals(EditText.GONE, diaryEditText.visibility)
@@ -236,9 +225,6 @@ class DailyReadActivityTest {
         assertEquals(ImageView.GONE, saveButton.visibility)
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 5. 날짜 텍스트 클릭 → DatePickerDialog 로직 커버
-    // ─────────────────────────────────────────────────────────────
 
     @Test
     fun clickingDateText_opensDatePickerDialog_withoutCrash() {
@@ -252,27 +238,26 @@ class DailyReadActivityTest {
         dateText.performClick()
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 6. initializeDate 의 "dateString == null" 분기 커버
-    // ─────────────────────────────────────────────────────────────
 
     @Test
     fun whenIntentHasNoDate_initializeDateUsesToday() {
         val (activity, _) = createActivityWithDate(null)
+
         val field = DailyReadActivity::class.java.getDeclaredField("currentDate")
         field.isAccessible = true
         val currentDateInActivity = field.get(activity) as Calendar
 
         val today = Calendar.getInstance()
         fun Calendar.yyyymmdd(): Triple<Int, Int, Int> =
-            Triple(get(Calendar.YEAR), get(Calendar.MONTH), get(Calendar.DAY_OF_MONTH))
+            Triple(
+                get(Calendar.YEAR),
+                get(Calendar.MONTH),
+                get(Calendar.DAY_OF_MONTH)
+            )
 
         assertEquals(today.yyyymmdd(), currentDateInActivity.yyyymmdd())
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 7. 내비게이션 바 버튼 클릭: Calendar / DailyWrite / Settings 로 이동
-    // ─────────────────────────────────────────────────────────────
 
     @Test
     fun clickingCalendarButton_startsCalendarActivity() {
@@ -299,9 +284,8 @@ class DailyReadActivityTest {
         val (activity, _) = createActivityWithDate(todayString)
         invokeUpdateUI(activity)
 
-        val btnDaily = activity.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(
-            R.id.btnDaily
-        )
+        val btnDaily =
+            activity.findViewById<FloatingActionButton>(R.id.btnDaily)
         val shadowActivity = Shadows.shadowOf(activity)
 
         btnDaily.performClick()
@@ -309,7 +293,6 @@ class DailyReadActivityTest {
         val startedIntent = shadowActivity.nextStartedActivity
         assertEquals(DailyWriteActivity::class.java.name, startedIntent.component?.className)
 
-        // "date" extra 가 오늘 날짜로 세팅되어 있는지 확인
         val extraDate = startedIntent.getStringExtra("date")
         assertEquals(formatter.format(Calendar.getInstance().time), extraDate)
     }
@@ -330,6 +313,8 @@ class DailyReadActivityTest {
         val startedIntent = shadowActivity.nextStartedActivity
         assertEquals(SettingsActivity::class.java.name, startedIntent.component?.className)
     }
+
+
     @Test
     fun showReanalysisDialog_runsWithoutCrash() {
         val today = Calendar.getInstance()
@@ -346,5 +331,183 @@ class DailyReadActivityTest {
         method.isAccessible = true
 
         method.invoke(activity, updatedContent)
+    }
+
+
+    @Test
+    fun addPhoto_updatesListAndViewModel() {
+        val today = Calendar.getInstance()
+        val todayString = formatter.format(today.time)
+
+        val (activity, mockViewModel) = createActivityWithDate(todayString)
+
+        val dummyFile = File(activity.filesDir, "dummy.jpg")
+        val dummyUri = Uri.fromFile(dummyFile)
+
+        val addPhotoMethod = DailyReadActivity::class.java.getDeclaredMethod(
+            "addPhoto",
+            Uri::class.java
+        ).apply { isAccessible = true }
+
+        addPhotoMethod.invoke(activity, dummyUri)
+
+        val field = DailyReadActivity::class.java.getDeclaredField("currentPhotoUris").apply {
+            isAccessible = true
+        }
+        @Suppress("UNCHECKED_CAST")
+        val list = field.get(activity) as MutableList<Uri>
+
+        assertEquals(1, list.size)
+        assertEquals(dummyUri, list[0])
+
+        verify {
+            mockViewModel.updateEntry(date = todayString, photoUrls = any())
+        }
+    }
+
+
+    @Test
+    fun changeDate_fromTodayWithPositiveAmount_doesNotLoadFutureEntry() {
+        val today = Calendar.getInstance()
+        val todayString = formatter.format(today.time)
+
+        val (activity, mockViewModel) = createActivityWithDate(todayString)
+        invokeUpdateUI(activity)
+
+        val method = DailyReadActivity::class.java.getDeclaredMethod(
+            "changeDate",
+            Int::class.javaPrimitiveType
+        ).apply { isAccessible = true }
+
+        method.invoke(activity, 1)
+
+        verify(exactly = 1) {
+            mockViewModel.getEntry(todayString)
+        }
+    }
+
+    @Test
+    fun deletePhoto_withFileUri_deletesFileAndUpdatesViewModel() {
+        val today = Calendar.getInstance()
+        val todayString = formatter.format(today.time)
+
+        val (activity, mockViewModel) = createActivityWithDate(todayString)
+
+        val tempFile = File.createTempFile("test_photo", ".jpg", activity.filesDir)
+        assertTrue(tempFile.exists())
+        val uri = Uri.fromFile(tempFile)
+
+        val listField =
+            DailyReadActivity::class.java.getDeclaredField("currentPhotoUris").apply {
+                isAccessible = true
+            }
+        @Suppress("UNCHECKED_CAST")
+        val list = listField.get(activity) as MutableList<Uri>
+        list.add(uri)
+
+        val deleteMethod = DailyReadActivity::class.java.getDeclaredMethod(
+            "deletePhoto",
+            Int::class.javaPrimitiveType
+        ).apply { isAccessible = true }
+
+        deleteMethod.invoke(activity, 0)
+
+        assertFalse(tempFile.exists())
+        assertTrue(list.isEmpty())
+
+        verify {
+            mockViewModel.updateEntry(date = todayString, photoUrls = any())
+        }
+    }
+
+    @Test
+    fun deletePhoto_withNonFileUri_updatesViewModelWithoutCrash() {
+        val today = Calendar.getInstance()
+        val todayString = formatter.format(today.time)
+
+        val (activity, mockViewModel) = createActivityWithDate(todayString)
+
+        val uri = Uri.parse("content://example/photo/1")
+
+        val listField =
+            DailyReadActivity::class.java.getDeclaredField("currentPhotoUris").apply {
+                isAccessible = true
+            }
+        @Suppress("UNCHECKED_CAST")
+        val list = listField.get(activity) as MutableList<Uri>
+        list.add(uri)
+
+        val deleteMethod = DailyReadActivity::class.java.getDeclaredMethod(
+            "deletePhoto",
+            Int::class.javaPrimitiveType
+        ).apply { isAccessible = true }
+
+        deleteMethod.invoke(activity, 0)
+
+        assertTrue(list.isEmpty())
+
+        verify {
+            mockViewModel.updateEntry(date = todayString, photoUrls = any())
+        }
+    }
+
+    @Test
+    fun showDeleteConfirmDialog_runsWithoutCrash() {
+        val today = Calendar.getInstance()
+        val todayString = formatter.format(today.time)
+
+        val (activity, _) = createActivityWithDate(todayString)
+
+        val method = DailyReadActivity::class.java.getDeclaredMethod(
+            "showDeleteConfirmDialog",
+            Int::class.javaPrimitiveType
+        ).apply { isAccessible = true }
+
+        method.invoke(activity, 0)
+    }
+
+
+    @Test
+    fun showPhotoDialog_displaysFullscreenDialog() {
+        val today = Calendar.getInstance()
+        val todayString = formatter.format(today.time)
+
+        val (activity, _) = createActivityWithDate(todayString)
+
+        val method = DailyReadActivity::class.java.getDeclaredMethod(
+            "showPhotoDialog",
+            String::class.java
+        ).apply { isAccessible = true }
+
+        method.invoke(activity, "https://example.com/test.jpg")
+
+        val latestDialog = ShadowDialog.getLatestDialog()
+        assertNotNull(latestDialog)
+        assertTrue(latestDialog!!.isShowing)
+    }
+
+    @Test
+    fun showAndHideKeyboard_doNotCrash() {
+        val today = Calendar.getInstance()
+        val todayString = formatter.format(today.time)
+
+        val (activity, _) = createActivityWithDate(todayString)
+        invokeUpdateUI(activity)
+
+        val editText =
+            activity.findViewById<EditText>(R.id.diary_content_edit_text)
+
+        val showMethod = DailyReadActivity::class.java.getDeclaredMethod(
+            "showKeyboard",
+            View::class.java
+        ).apply { isAccessible = true }
+
+        val hideMethod = DailyReadActivity::class.java.getDeclaredMethod(
+            "hideKeyboard",
+            View::class.java
+        ).apply { isAccessible = true }
+
+        showMethod.invoke(activity, editText)
+        hideMethod.invoke(activity, editText)
     }
 }

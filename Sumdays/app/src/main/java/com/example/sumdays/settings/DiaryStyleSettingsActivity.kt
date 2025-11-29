@@ -175,7 +175,7 @@ open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by M
     fun saveActiveStyle(styleId: Long) = launch(Dispatchers.IO) {
         val current = userStatsPrefs.getActiveStyleId()
         if (current == styleId) {
-            userStatsPrefs.clearActiveStyleId()
+            userStatsPrefs.saveActiveStyleId(1L)
         } else {
             userStatsPrefs.saveActiveStyleId(styleId)
         }

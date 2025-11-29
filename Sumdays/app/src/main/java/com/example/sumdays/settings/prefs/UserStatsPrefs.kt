@@ -76,7 +76,7 @@ class UserStatsPrefs(context: Context) {
 
     /**
      * 저장된 활성 스타일의 ID를 가져옵니다.
-     * 활성 스타일이 설정되지 않았다면 null을 반환합니다.
+     * 활성 스타일이 설정되지 않았다면 0L이 반환합니다.
      */
     fun getActiveStyleId(): Long {
         return prefs.getLong(KEY_ACTIVE_STYLE_ID, 0L)

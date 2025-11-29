@@ -25,7 +25,6 @@ import com.example.sumdays.utils.setupEdgeToEdge
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
-    // RetrofitClient가 미리 만들어 둔 API 서비스 객체를 바로 가져와 사용합니다.
     private lateinit var userStatsPrefs: UserStatsPrefs
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,9 +60,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * ★★★ 여기가 바로 로그인 쿼리를 날리는 핵심 로직입니다. ★★★
-     */
     private fun handleLogin() {
         // 1. EditText에서 사용자 입력 값(이메일, 비밀번호)을 가져옵니다.
         val email = binding.idInputEditText.text.toString().trim()
@@ -93,7 +89,7 @@ class LoginActivity : AppCompatActivity() {
 
                         SessionManager.saveSession(loginResponse.userId, loginResponse.token)
 
-                        // 2. ★ 닉네임 저장 로직 추가 ★
+                        // 닉네임 저장 로직
                         loginResponse.nickname?.let {
                             userStatsPrefs.saveNickname(it)
                         }

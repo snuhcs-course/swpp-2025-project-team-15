@@ -145,7 +145,7 @@ class WeekSummaryWorker(
 
         } catch (e: Exception) {
             Log.e("WeekSummaryWorker", "작업 중 오류 발생", e)
-            Result.retry() // 오류 발생 시 나중에 다시 시도
+            Result.retry() // 오류 발생 시 나중에 다시 시도 (1분 후, 2분 후, 4분 후..)
         }
     }
 }

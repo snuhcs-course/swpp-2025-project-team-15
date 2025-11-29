@@ -15,8 +15,7 @@ class MyApplication : Application() {
     private val database by lazy { AppDatabase.getDatabase(this) }
     val repository by lazy { MemoRepository(database.memoDao()) }
 
-    // ⭐ 추가: 통계 화면용 Repository 초기화
-    // (AppDatabase에 weekSummaryDao()와 dailyEntryDao()가 정의되어 있다고 가정합니다)
+    // 통계 화면용 Repository 초기화
     val weekSummaryRepository by lazy { WeekSummaryRepository(database.weekSummaryDao()) }
 
     val dailyEntryRepository by lazy { DailyEntryRepository(database.dailyEntryDao()) }

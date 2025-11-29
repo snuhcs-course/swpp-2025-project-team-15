@@ -48,7 +48,7 @@ class MemoAdapter : ListAdapter<Memo, MemoAdapter.MemoViewHolder>(MemoDiffCallba
             // "text" 또는 기타 타입이면 회색 풍선 배경 설정
             holder.content.setBackgroundResource(R.drawable.bg_bubble_grey)
 
-            // (선택) 텍스트 색상도 기본값으로 복원
+            // 텍스트 색상 기본값으로 복원
             holder.content.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.black))
             holder.timestamp.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.darker_gray)) // 시간 텍스트도 복원
     }

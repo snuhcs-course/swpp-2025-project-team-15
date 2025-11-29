@@ -10,7 +10,7 @@ import com.google.gson.annotations.SerializedName
 
 object AnalysisRepository {
     
-    //요청 후 DB에 저장
+    // 요청 후 DB에 저장
     suspend fun requestAnalysis(date: String, diary : String?, viewModel: DailyEntryViewModel): AnalysisResponse? {
         return withContext(Dispatchers.IO) {
             try {
@@ -31,9 +31,9 @@ object AnalysisRepository {
                     Log.e("AnalysisRepository", "Date cannot be null for analysis request")
                     return@withContext null // Null이면 더 진행하지 않음
                 }
-                // 2️. 요청 객체 생성
+                // 요청 객체 생성
                 val request = AnalysisRequest(diary = diary)
-                // 3️. API 호출
+                // API 호출
                 val response = ApiClient.api.diaryAnalyze(request)
 
                 val json = response.body() ?: throw IllegalStateException("Empty body")
@@ -49,7 +49,7 @@ object AnalysisRepository {
                     emotionIcon = null,
                     themeIcon = analysis.icon
                 )
-                // 4️. 서버가 돌려준 병합 결과 반환
+                // 서버가 돌려준 병합 결과 반환
                 return@withContext analysis
             } catch (e: Exception) {
                 Log.e("AnalysisRepository", "'$date' 분석 결과 요청 중 예외 발생", e)

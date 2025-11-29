@@ -19,10 +19,10 @@ class TreeTiledDrawable(
     fun setScroll(totalY: Float, viewWidth: Int = bounds.width()) {
         totalScrollY = totalY
 
-        // 1) 화면 폭에 맞게 스케일
+        // 화면 폭에 맞게 스케일
         val scale = viewWidth.toFloat() / bitmap.width.toFloat()
 
-        // 2) '캔버스(px)' 단위로 모듈러 (비트맵 높이 * scale)
+        // '캔버스(px)' 단위로 모듈러
         val tileHCanvas = bitmap.height * scale
         val offsetCanvas = ((totalScrollY % tileHCanvas) + tileHCanvas) % tileHCanvas
 
@@ -37,10 +37,10 @@ class TreeTiledDrawable(
 
 
 
-    /** 특정 지점에서 배경 타일 교체(예: 숲→밤 숲 전환) */
+    /** 특정 지점에서 배경 타일 교체 */
     fun swapTile(newBitmap: Bitmap) {
         bitmap = newBitmap
-        // 셰이더 비트맵 교체 핵심: 새 Bitmap으로 새로운 Shader 재구성
+        // 새 Bitmap으로 새로운 Shader 재구성
         val newShader = BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
         newShader.setLocalMatrix(localMatrix)
         paint.shader = newShader
@@ -48,7 +48,7 @@ class TreeTiledDrawable(
     }
 
     override fun draw(canvas: Canvas) {
-        // 1) 타일 그리기
+        // 타일 그리기
         canvas.drawRect(bounds, paint)
     }
     override fun setAlpha(alpha: Int) { /* not used */ }

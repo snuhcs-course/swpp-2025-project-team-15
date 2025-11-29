@@ -90,7 +90,7 @@ class TutorialActivity : AppCompatActivity() {
             this,
             object : androidx.activity.OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    // 여기 비워두면 뒤로가기 눌러도 아무 일도 안 일어남
+                    // 뒤로가기 눌러도 아무 일도 안 일어남
                 }
             }
         )
@@ -114,7 +114,7 @@ class TutorialActivity : AppCompatActivity() {
             }
 
             dots[i] = TextView(this).apply {
-                // 점 문자 (•)
+                // 하단 점 문자
                 text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Html.fromHtml("&#8226;", Html.FROM_HTML_MODE_LEGACY)
                 } else {

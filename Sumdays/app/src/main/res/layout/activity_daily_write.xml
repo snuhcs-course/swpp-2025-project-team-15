@@ -113,16 +113,6 @@
                     android:visibility="gone"
                     tools:visibility="visible"/>
             </FrameLayout>
-
-            <!-- ★★★ 삭제된 부분: photo_icon ★★★ -->
-            <!--
-            <ImageView
-                android:id="@+id/photo_icon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@drawable/ic_image"
-                android:layout_marginStart="8dp"
-                android:contentDescription="사진 입력" />
             -->
         </LinearLayout>
 
@@ -144,7 +134,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginEnd="12dp" />
 
-        <!-- ★★★ 음파 뷰 (수정 없음) ★★★ -->
         <LinearLayout
             android:id="@+id/audio_wave_view"
             android:layout_width="0dp"

@@ -78,4 +78,9 @@ interface UserStyleDao {
         WHERE styleId = :id AND isDeleted = 0
     """)
     suspend fun updateSampleDiary(id: Long, diary: String)
+
+    // 9. 전체 리스트 가져옴(DB 비어있는지 확인 위함)
+    @Query("SELECT * FROM user_style")
+    suspend fun getAllStylesDirect(): List<UserStyle>
+
 }

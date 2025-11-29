@@ -29,17 +29,12 @@ class StyleCardAdapter(
     companion object {
         private const val TYPE_STYLE = 0
         private const val TYPE_ADD = 1
+        private const val DEFAULT_STYLE_MAX_ID = 3L
     }
 
     fun submit(list: List<UserStyle>, activeStyleId: Long?) {
         items.clear()
-
-        // 기본 스타일 항상 첫 번째
-        items.add(UserStyle.Default)
-
-        // DB 스타일은 기본 스타일과 ID 충돌 없도록
-        items.addAll(list.filter { it.styleId != 0L })
-
+        items.addAll(list)
         this.activeId = activeStyleId
         notifyDataSetChanged()
     }
@@ -69,11 +64,8 @@ class StyleCardAdapter(
 
         fun bind(style: UserStyle) {
             // 기본 스타일 메뉴 삭제
-            if (style.styleId == 0L) {
-                b.moreButton.visibility = View.INVISIBLE
-            } else {
-                b.moreButton.visibility = View.VISIBLE
-            }
+            val isDefault = style.styleId <= DEFAULT_STYLE_MAX_ID
+            b.moreButton.visibility = if (isDefault) View.INVISIBLE else View.VISIBLE
 
             // 항상 초기 상태는 앞면
             b.front.visibility = View.VISIBLE

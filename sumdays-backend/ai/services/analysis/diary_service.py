@@ -9,7 +9,7 @@ class DiaryAnalysisResult(BaseModel):
     keywords      : list[str]   = Field(description="list of keywords summarizing the diary (min: 1 ~ max: 5)")
     emoji         : str         = Field(description="an emoji representing the diary")
     emotion_score : float       = Field(description="emotional score, criteria: Happiness (-1.0 ~ 1.0)")
-    feedback      : str         = Field(description="one-line feedback")
+    feedback      : str         = Field(description="one-line feedback (Maximum character count: 40 characters)")
 
 
 class DiaryAnalyzer:
@@ -32,7 +32,7 @@ class DiaryAnalyzer:
             1. list of keywords summarizing the diary (min: 1 ~ max: 5)
             2. an emoji representing the diary
             3. emotional score, criteria: Happiness (-1.0 ~ 1.0)
-            4. one-line feedback
+            4. one-line feedback (Maximum character count: 40 characters)
 
             Return JSON matching the DiaryAnalysis schema. Respond **in the same language** as the user's input.
             ---

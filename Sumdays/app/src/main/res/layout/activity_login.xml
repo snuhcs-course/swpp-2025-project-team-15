@@ -93,7 +93,7 @@
         android:textColor="@color/gray_dark"
         app:backgroundTint="@color/gray_dark"
         android:ems="10"
-        android:hint="아이디를 입력하세요"
+        android:hint="이메일을 입력하세요"
         android:textColorHint="@color/gray_dark"
         android:inputType="text"
 

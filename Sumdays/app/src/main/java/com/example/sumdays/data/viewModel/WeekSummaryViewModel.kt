@@ -18,7 +18,7 @@ class WeekSummaryViewModel (
 ) : ViewModel() {
 
 
-    private val USE_DUMMY_DATA = true
+    private val USE_DUMMY_DATA = false
 
     // 더미 데이터를 메모리에 캐싱하기 위한 맵 (날짜 -> 요약)
     private val dummyCache = mutableMapOf<String, WeekSummary>()

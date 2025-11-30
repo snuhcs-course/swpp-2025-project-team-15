@@ -50,7 +50,11 @@ class WeekSummaryConverterTest {
 
         // emotionAnalysis
         assertEquals(summary.emotionAnalysis.dominantEmoji, restored.emotionAnalysis.dominantEmoji)
-        assertEquals(summary.emotionAnalysis.emotionScore, restored.emotionAnalysis.emotionScore)
+        assertEquals(
+            summary.emotionAnalysis.emotionScore,
+            restored.emotionAnalysis.emotionScore,
+            0.0001
+        )
         assertEquals(summary.emotionAnalysis.trend, restored.emotionAnalysis.trend)
         assertEquals(summary.emotionAnalysis.distribution, restored.emotionAnalysis.distribution)
 

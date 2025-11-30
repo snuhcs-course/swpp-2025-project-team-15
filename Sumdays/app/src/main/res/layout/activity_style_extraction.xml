@@ -34,7 +34,7 @@
                 android:id="@+id/instructionTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="본인의 말투로 작성된 텍스트와 이미지를 합쳐 최소 5개 이상을 제공해야 합니다."
+                android:text="원하는 스타일로 작성된 텍스트와 이미지를 합쳐 최소 5개 이상을 제공해야 합니다."
                 android:textColor="#AAAAAA"
                 android:textSize="14sp"
                 android:layout_marginTop="6dp"

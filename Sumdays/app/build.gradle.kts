@@ -135,6 +135,9 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("org.hamcrest:hamcrest-library:2.2")
     testImplementation("androidx.work:work-testing:2.9.0")
+    testImplementation("com.google.truth:truth:1.1.5")
+    // assertThat 사용을 위해 필요
+    testImplementation("androidx.work:work-testing:2.9.0")
 }
 
 configurations.all {

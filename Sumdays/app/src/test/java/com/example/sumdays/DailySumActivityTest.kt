@@ -23,7 +23,10 @@ import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowActivity
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Build.VERSION_CODES.O])   // DailySumActivity가 O 이상 요구
+@Config(
+    sdk = [Build.VERSION_CODES.O], // DailySumActivity가 O 이상 요구
+    application = TestApplication::class
+)
 class DailySumActivityTest {
 
     // 네가 만든 Memo 엔티티랑 맞춘 helper

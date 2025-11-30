@@ -46,10 +46,14 @@ import android.view.View
 import android.view.DragEvent
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sumdays.TestApplication
 
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Build.VERSION_CODES.O])
+@Config(
+    sdk = [Build.VERSION_CODES.O],
+    application = TestApplication::class
+)
 class MemoMergeAdapterTest {
 
     // 메인 디스패처를 테스트용으로 바꿔주기 (Dispatchers.Main 사용 코드 때문에 필요)
@@ -318,7 +322,7 @@ class MemoMergeAdapterTest {
         // styleData = UserStyle.Default branch (activeStyleId = null)
         val prefs = Mockito.mock(UserStatsPrefs::class.java)
         val dao = Mockito.mock(UserStyleDao::class.java)
-        Mockito.`when`(prefs.getActiveStyleId()).thenReturn(null)
+        Mockito.`when`(prefs.getActiveStyleId()).thenReturn(1L)
 
         val ad = adapter(list, prefs = prefs, dao = dao)
 
@@ -354,10 +358,10 @@ class MemoMergeAdapterTest {
         val m2 = memo(2, "B", "10:01", order = 1)
         val list = mutableListOf(m1, m2)
 
-        // styleData = UserStyle.Default branch (activeStyleId = null)
+        // styleData = UserStyle.Default branch (activeStyleId = 1L)
         val prefs = Mockito.mock(UserStatsPrefs::class.java)
         val dao = Mockito.mock(UserStyleDao::class.java)
-        Mockito.`when`(prefs.getActiveStyleId()).thenReturn(null)
+        Mockito.`when`(prefs.getActiveStyleId()).thenReturn(1L)
 
         val latch = CountDownLatch(1)
         val ad = adapter(
@@ -431,7 +435,7 @@ class MemoMergeAdapterTest {
         // style 관련은 어차피 mergeTextByIds 를 mock 해버릴 거라 신경 안 써도 됨
         val prefs = Mockito.mock(UserStatsPrefs::class.java)
         val dao = Mockito.mock(UserStyleDao::class.java)
-        Mockito.`when`(prefs.getActiveStyleId()).thenReturn(null)
+        Mockito.`when`(prefs.getActiveStyleId()).thenReturn(1L)
 
         // 2) 진짜 adapter 만들고, 그 위에 spy 래핑
         val realAdapter = adapter(list, prefs = prefs, dao = dao)
@@ -578,7 +582,7 @@ class MemoMergeAdapterTest {
         // styleData = UserStyle.Default branch (activeStyleId = null)
         val prefs = Mockito.mock(UserStatsPrefs::class.java)
         val dao = Mockito.mock(UserStyleDao::class.java)
-        Mockito.`when`(prefs.getActiveStyleId()).thenReturn(null)
+        Mockito.`when`(prefs.getActiveStyleId()).thenReturn(1L)
 
         val ad = adapter(list, prefs = prefs, dao = dao)
 

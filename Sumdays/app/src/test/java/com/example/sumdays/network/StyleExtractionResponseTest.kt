@@ -16,7 +16,7 @@ class StyleExtractionResponseTest {
      */
     @Test
     fun `성공_응답_케이스_데이터_정상_할당_확인`() {
-        // Given: 테스트에 사용할 더미 데이터 (수정된 StylePrompt 사용)
+        // Given
         val dummyPrompt = StylePrompt(
             character_concept = "일상적인 삶을 살아가는 평범한 사람. 소소한 일상을 관찰하고 기록하는 성향을 가진 인물.",
             emotional_tone = "감정이 드러나지 않고 중립적인 톤으로, 일상적인 사건을 기록하는 데 집중한다.",
@@ -31,10 +31,11 @@ class StyleExtractionResponseTest {
             speech_quirks = "특별한 말투의 버릇은 없으며, 대화체적인 표현이 자연스럽다.",
             tone = "담담하고 차분한 어조로 일상의 소소한 사건들을 서술."
         )
+
         val dummyVector = listOf(0.1f, 0.2f, 0.3f)
         val dummyExamples = listOf("image_url_1.png", "image_url_2.png")
 
-        // When: 성공 응답 객체 생성
+        // When
         val response = StyleExtractionResponse(
             success = true,
             style_vector = dummyVector,
@@ -43,24 +44,34 @@ class StyleExtractionResponseTest {
             message = "Style extraction successful"
         )
 
-        // Then: 모든 필드가 의도한 대로 설정되었는지 검증
+        // Then
         assertTrue(response.success)
         assertEquals("Style extraction successful", response.message)
 
+        // vector
         assertNotNull(response.style_vector)
-        assertEquals(3, response.style_vector?.size)
-        assertEquals(0.1f, response.style_vector?.get(0))
+        assertEquals(dummyVector, response.style_vector)
 
+        // examples
         assertNotNull(response.style_examples)
-        assertEquals(2, response.style_examples?.size)
-        assertEquals("image_url_1.png", response.style_examples?.get(0))
+        assertEquals(dummyExamples, response.style_examples)
 
-        // StylePrompt 검증 (수정된 부분)
-        assertNotNull(response.style_prompt)
-        assertEquals("excited", response.style_prompt?.emotional_tone)
-        assertEquals("informal", response.style_prompt?.formality)
-        assertEquals(listOf("like", "you know"), response.style_prompt?.common_phrases)
+        // StylePrompt 전체 검증
+        val p = response.style_prompt!!
+        assertEquals(dummyPrompt.character_concept, p.character_concept)
+        assertEquals(dummyPrompt.emotional_tone,   p.emotional_tone)
+        assertEquals(dummyPrompt.formality,        p.formality)
+        assertEquals(dummyPrompt.lexical_choice,   p.lexical_choice)
+        assertEquals(dummyPrompt.pacing,           p.pacing)
+        assertEquals(dummyPrompt.punctuation_style, p.punctuation_style)
+        assertEquals(dummyPrompt.sentence_endings, p.sentence_endings)
+        assertEquals(dummyPrompt.sentence_length,  p.sentence_length)
+        assertEquals(dummyPrompt.sentence_structure, p.sentence_structure)
+        assertEquals(dummyPrompt.special_syntax,   p.special_syntax)
+        assertEquals(dummyPrompt.speech_quirks,    p.speech_quirks)
+        assertEquals(dummyPrompt.tone,             p.tone)
     }
+
 
     /**
      * 테스트 2: 실패 응답 케이스

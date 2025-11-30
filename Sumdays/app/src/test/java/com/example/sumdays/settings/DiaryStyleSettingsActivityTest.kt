@@ -1,6 +1,5 @@
 package com.example.sumdays.settings
 
-import android.content.Intent
 import android.os.Looper
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
@@ -47,7 +46,7 @@ class DiaryStyleSettingsActivityTest {
 
         stylesLiveData = MutableLiveData()
         every { mockViewModel.getAllStyles() } returns stylesLiveData
-        every { mockPrefs.getActiveStyleId() } returns null
+        every { mockPrefs.getActiveStyleId() } returns 0L
 
         controller = Robolectric.buildActivity(TestDiaryStyleSettingsActivity::class.java)
         activity = controller.get().apply {
@@ -67,12 +66,19 @@ class DiaryStyleSettingsActivityTest {
 
     @Test
     fun observeStyles_shouldSubmitListToAdapter() {
-        val list = listOf(style(1), style(2))
-        stylesLiveData.postValue(list)
-        shadowOf(android.os.Looper.getMainLooper()).idle()
+        // activeId 초기값은 0L 이라고 가정 (== 아직 선택 없음)
+        every { mockPrefs.getActiveStyleId() } returns 0L
 
-        verify { mockAdapter.submit(list, null) }
+        val list = listOf(style(1), style(2))
+
+        stylesLiveData.postValue(list)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        // 첫 스타일(1L)이 자동 선택되어 activeId로 전달됨
+        verify { mockPrefs.saveActiveStyleId(1L) }
+        verify { mockAdapter.submit(list, 1L) }
     }
+
 
     @Test
     fun updateSelectButtonText_whenActive_shouldShowChecked() {
@@ -102,25 +108,27 @@ class DiaryStyleSettingsActivityTest {
 
     @Test
     fun saveActiveStyle_whenNew_shouldSaveId() {
-        every { mockPrefs.getActiveStyleId() } returns null
+        every { mockPrefs.getActiveStyleId() } returns 0L
         coEvery { mockPrefs.saveActiveStyleId(1L) } just Runs
 
-        activity.saveActiveStyle(1L)
+        activity.saveActiveStyle(4L)
         shadowOf(android.os.Looper.getMainLooper()).idle()
 
-        coVerify { mockPrefs.saveActiveStyleId(1L) }
+        coVerify { mockPrefs.saveActiveStyleId(4L) }
     }
 
     @Test
-    fun saveActiveStyle_whenSame_shouldClearId() {
+    fun saveActiveStyle_whenSame_shouldSaveDefaultId() {
+        // 현재 활성 스타일이 1L 라고 가정
         every { mockPrefs.getActiveStyleId() } returns 1L
-        coEvery { mockPrefs.clearActiveStyleId() } just Runs
+        every { mockPrefs.saveActiveStyleId(any()) } just Runs
 
         activity.saveActiveStyle(1L)
-        shadowOf(android.os.Looper.getMainLooper()).idle()
 
-        coVerify { mockPrefs.clearActiveStyleId() }
+        // 비동기(Dispatchers.IO)라서 약간의 여유를 줌
+        verify(timeout = 1000) { mockPrefs.saveActiveStyleId(1L) }
     }
+
 
     @Test
     fun renameStyle_shouldCallViewModelUpdate() = runTest {
@@ -190,7 +198,7 @@ class DiaryStyleSettingsActivityTest {
         )
     }
 
-    
+
 }
 
 /**

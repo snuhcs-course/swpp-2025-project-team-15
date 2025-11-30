@@ -135,66 +135,6 @@ class StyleExtractionActivityTest {
         }
     }
 
-//    @Test
-//    fun `API success with valid data should save style and finish`() = runTest {
-//        val callbackSlot = slot<Callback<StyleExtractionResponse>>()
-//        val mockCall = mockk<Call<StyleExtractionResponse>>()
-//        every { mockApiService.extractStyle(any(), any()) } returns mockCall
-//        every { mockCall.enqueue(capture(callbackSlot)) } just Runs
-//
-//        val mockStylePrompt = mockk<StylePrompt>(relaxed = true)
-//        every { MemoMergeUtils.convertStylePromptToMap(mockStylePrompt) } returns mapOf("tone" to "casual")
-//        every { MemoMergeUtils.extractMergedText(any()) } returns "샘플 일기"
-//        coEvery { mockApiService.mergeMemos(any()) } returns Response.success(JsonObject())
-//
-//        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
-//
-//        scenario.onActivity { activity ->
-//            // Reflection으로 selectedImageUris 접근
-//            val field = StyleExtractionActivity::class.java.getDeclaredField("selectedImageUris")
-//            field.isAccessible = true
-//            @Suppress("UNCHECKED_CAST")
-//            val urisList = field.get(activity) as MutableList<Uri>
-//
-//            activity.binding.diaryTextInput.setText("일기1\n일기2\n일기3")
-//            urisList.add(mockUri)
-//            urisList.add(mockUri) // 총 5개
-//
-//            activity.binding.runExtractionButton.performClick()
-//
-//            // Robolectric: Main Looper를 idle 상태로 만들어 코루틴 실행
-//            shadowOf(Looper.getMainLooper()).idle()
-//        }
-//
-//        testScheduler.advanceUntilIdle()
-//
-//        // enqueue 호출 확인
-//        verify(timeout = 1000) { mockCall.enqueue(any()) }
-//        assertTrue(callbackSlot.isCaptured)
-//
-//        // 성공 응답 주입
-//        val mockSuccessResponse = StyleExtractionResponse(
-//            style_vector = listOf(0.1f, 0.2f, 0.3f),
-//            style_examples = listOf("예시1", "예시2"),
-//            style_prompt = mockStylePrompt,
-//            message = "성공"
-//        )
-//        callbackSlot.captured.onResponse(mockCall, Response.success(mockSuccessResponse))
-//
-//        // Main Looper idle로 callback 처리
-//        shadowOf(Looper.getMainLooper()).idle()
-//        testScheduler.advanceUntilIdle()
-//
-//        scenario.onActivity { activity ->
-//            coVerify { mockViewModel.insertStyleReturnId(any()) }
-//            coVerify { mockViewModel.updateSampleDiary(1L, any()) }
-//
-//            val toast = ShadowToast.getTextOfLatestToast()
-//            assertEquals("스타일 추출 완료! 설정 목록에서 확인하세요.", toast)
-//            assertTrue(activity.isFinishing)
-//        }
-//    }
-
     @Test
     fun `API success with null style_vector should show error`() = runTest {
         val callbackSlot = slot<Callback<StyleExtractionResponse>>()
@@ -338,48 +278,6 @@ class StyleExtractionActivityTest {
             assertTrue(result.isEmpty())
         }
     }
-
-//    @Test
-//    fun `generateSampleDiary should return sample text`() = runTest {
-//        val mockStylePrompt = mockk<StylePrompt>(relaxed = true)
-//        every { MemoMergeUtils.convertStylePromptToMap(mockStylePrompt) } returns mapOf("tone" to "casual")
-//        every { MemoMergeUtils.extractMergedText(any()) } returns "생성된 샘플 일기"
-//        coEvery { mockApiService.mergeMemos(any()) } returns Response.success(JsonObject())
-//
-//        // generateSampleDiary는 private suspend이므로 간접 테스트
-//        // saveStyleData를 통해 호출되는지 확인
-//        val callbackSlot = slot<Callback<StyleExtractionResponse>>()
-//        val mockCall = mockk<Call<StyleExtractionResponse>>()
-//        every { mockApiService.extractStyle(any(), any()) } returns mockCall
-//        every { mockCall.enqueue(capture(callbackSlot)) } just Runs
-//
-//        scenario = ActivityScenario.launch(StyleExtractionActivity::class.java)
-//
-//        scenario.onActivity { activity ->
-//            activity.binding.diaryTextInput.setText("1\n2\n3\n4\n5")
-//            activity.binding.runExtractionButton.performClick()
-//            shadowOf(Looper.getMainLooper()).idle()
-//        }
-//
-//        testScheduler.advanceUntilIdle()
-//        verify(timeout = 1000) { mockCall.enqueue(any()) }
-//
-//        // 성공 응답으로 saveStyleData → generateSampleDiary 호출
-//        val mockSuccessResponse = StyleExtractionResponse(
-//            style_vector = listOf(0.1f, 0.2f),
-//            style_examples = listOf("예시"),
-//            style_prompt = mockStylePrompt,
-//            message = "성공"
-//        )
-//        callbackSlot.captured.onResponse(mockCall, Response.success(mockSuccessResponse))
-//
-//        shadowOf(Looper.getMainLooper()).idle()
-//        testScheduler.advanceUntilIdle()
-//
-//        // mergeMemos가 호출되었는지 확인 (generateSampleDiary 내부에서 호출됨)
-//        coVerify { mockApiService.mergeMemos(any()) }
-//        coVerify { mockViewModel.updateSampleDiary(1L, any()) }
-//    }
 
     @Test
     fun `resetUi should enable button and restore text`() {

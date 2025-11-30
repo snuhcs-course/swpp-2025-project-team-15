@@ -23,7 +23,7 @@ exports.login = async (req, res) => {
     }
     
     try {
-        const sql = 'SELECT id, email, password_hash FROM users WHERE email = ?';
+        const sql = 'SELECT id, email, password_hash, nickname FROM users WHERE email = ?';
         const [rows] = await pool.query(sql, [email]);
         const user = rows[0]; 
 
@@ -59,7 +59,8 @@ exports.login = async (req, res) => {
                 success: true,
                 message: '로그인 성공',
                 userId: user.id,
-                token: token
+                token: token,
+                nickname : user.nickname
             });
 
         } else {

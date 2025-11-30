@@ -76,7 +76,6 @@ class CalendarActivity : AppCompatActivity() {
             val editor = pref.edit()
             editor.putBoolean("checkFirst", true)
             editor.apply()
-            finish()
             val intent = Intent(this, TutorialActivity::class.java)
             startActivity(intent)
         }

@@ -123,6 +123,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_edittext_background"
             android:hint="하루를 기록해보세요"
+            android:textColor="@color/gray_dark"
             android:padding="12dp"
             android:minHeight="48dp"
             android:maxLines="3"

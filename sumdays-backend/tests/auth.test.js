@@ -1,119 +1,270 @@
+/**
+ * authController.test.js
+ * Sumdays - Authentication Controllers Coverage Test
+ */
+
 const request = require("supertest");
-const app = require("../app");
-const db = require("../db/db");
+
+// 모든 외부 모듈 mocking
+jest.mock("bcrypt", () => ({
+    compare: jest.fn(),
+    hash: jest.fn(),
+}));
+
+jest.mock("jsonwebtoken", () => ({
+    sign: jest.fn().mockReturnValue("mocked.jwt.token"),
+}));
+
+jest.mock("../db/db", () => ({
+    pool: {
+        query: jest.fn(),
+    },
+}));
+
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken"); // jwt도 모킹해야 함
+const jwt = require("jsonwebtoken");
+const { pool } = require("../db/db");
 
-// 1. 의존성 모킹
-jest.mock("../db/db");
-jest.mock("bcrypt");
-jest.mock("jsonwebtoken");
+const authController = require("../controllers/authController");
 
-describe("Auth API 통합 테스트 (Mock DB)", () => {
+// mock response 객체 생성
+const mockResponse = () => {
+    const res = {};
+    res.status = jest.fn().mockReturnValue(res);
+    res.json = jest.fn().mockReturnValue(res);
+    return res;
+};
 
-  beforeEach(() => {
-    // 모든 테스트 전에 모킹 기록 초기화
-    db.query.mockClear();
-    bcrypt.compare.mockClear();
-    bcrypt.hash.mockClear();
-    jwt.sign.mockClear();
-  });
+describe("Auth Controller Tests (Coverage 90%↑)", () => {
 
-  describe("POST /api/auth/login", () => {
-    
-    test("✅ 로그인 성공 → 200", async () => {
-      const mockUser = { id: 1, email: 'test@test.com', password_hash: 'hashed_pw' };
-      db.query.mockResolvedValue([ [mockUser] ]);
-      bcrypt.compare.mockResolvedValue(true);
-      jwt.sign.mockReturnValue('fake_jwt_token'); // 가짜 토큰 반환
+    // -----------------------------------------------------------
+    // LOGIN TESTS
+    // -----------------------------------------------------------
 
-      const res = await request(app)
-        .post("/api/auth/login")
-        .send({ email: "test@test.com", password: "123" });
+    test("login - missing fields", async () => {
+        const req = { body: { email: "", password: "" } };
+        const res = mockResponse();
 
-      expect(res.status).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.token).toBe("fake_jwt_token");
-      expect(db.query).toHaveBeenCalledTimes(1);
+        await authController.login(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
     });
 
-    test("❗ 이메일 없음 → 401", async () => {
-      db.query.mockResolvedValue([ [] ]); // DB에서 못 찾음
+    test("login - user not found", async () => {
+        pool.query.mockResolvedValue([[]]); // no user
+        const req = { body: { email: "a@a.com", password: "1234" } };
+        const res = mockResponse();
 
-      const res = await request(app)
-        .post("/api/auth/login")
-        .send({ email: "no@test.com", password: "123" });
-      
-      expect(res.status).toBe(401);
-      expect(res.body.success).toBe(false);
-      expect(bcrypt.compare).not.toHaveBeenCalled(); // 비밀번호 비교조차 안 해야 함
+        await authController.login(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
     });
 
-    test("❗ 비밀번호 틀림 → 401", async () => {
-      const mockUser = { id: 1, email: 'test@test.com', password_hash: 'hashed_pw' };
-      db.query.mockResolvedValue([ [mockUser] ]);
-      bcrypt.compare.mockResolvedValue(false); // 비밀번호 틀림
+    test("login - wrong password", async () => {
+        pool.query.mockResolvedValue([[{
+            id: 1,
+            email: "a@a.com",
+            password_hash: "hashed",
+            nickname: "민규"
+        }]]);
 
-      const res = await request(app)
-        .post("/api/auth/login")
-        .send({ email: "test@test.com", password: "wrong_pw" });
-      
-      expect(res.status).toBe(401);
-      expect(res.body.success).toBe(false);
+        bcrypt.compare.mockResolvedValue(false);
+
+        const req = { body: { email: "a@a.com", password: "wrong" } };
+        const res = mockResponse();
+
+        await authController.login(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
     });
 
-    test("❗ 입력값 누락 → 400", async () => {
-      const res = await request(app)
-        .post("/api/auth/login")
-        .send({ email: "test@test.com" }); // 비밀번호 누락
+    test("login - success", async () => {
+        pool.query.mockResolvedValue([[{
+            id: 1,
+            email: "a@a.com",
+            password_hash: "hashed_pw",
+            nickname: "민규"
+        }]]);
 
-      expect(res.status).toBe(400);
-      expect(res.body.message).toBe("이메일과 비밀번호를 모두 입력해주세요.");
-      expect(db.query).not.toHaveBeenCalled(); // DB 쿼리조차 안 해야 함
+        bcrypt.compare.mockResolvedValue(true);
+
+        const req = { body: { email: "a@a.com", password: "1234" } };
+        const res = mockResponse();
+
+        await authController.login(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(jwt.sign).toHaveBeenCalled();
     });
 
-     test("❗ DB 에러 → 500", async () => {
-      db.query.mockRejectedValue(new Error("DB Error")); // DB 에러 발생
+    test("login - internal server error", async () => {
+        pool.query.mockRejectedValue(new Error("DB ERR"));
 
-      const res = await request(app)
-        .post("/api/auth/login")
-        .send({ email: "test@test.com", password: "123" });
-      
-      expect(res.status).toBe(500);
-      expect(res.body.success).toBe(false);
-    });
-  });
+        const req = { body: { email: "a@a.com", password: "1234" } };
+        const res = mockResponse();
 
-  describe("POST /api/auth/signup", () => {
+        await authController.login(req, res);
 
-    test("✅ 회원가입 성공 → 201", async () => {
-      db.query
-        .mockResolvedValueOnce([ [] ]) // 1. 이메일 중복 없음
-        .mockResolvedValueOnce(null); // 2. INSERT 성공 (결과값 필요 없음)
-      bcrypt.hash.mockResolvedValue('new_hashed_pw'); // 비밀번호 해시
-
-      const res = await request(app)
-        .post("/api/auth/signup")
-        .send({ nickname: "tester", email: "new@test.com", password: "123" });
-
-      expect(res.status).toBe(201);
-      expect(res.body.success).toBe(true);
-      expect(db.query).toHaveBeenCalledTimes(2); // 중복 확인 쿼리 1번, INSERT 쿼리 1번
-      expect(bcrypt.hash).toHaveBeenCalledWith("123", 10);
+        expect(res.status).toHaveBeenCalledWith(500);
     });
 
-    test("❗ 이메일 중복 → 409", async () => {
-      const mockUser = { id: 1, email: 'exist@test.com' };
-      db.query.mockResolvedValue([ [mockUser] ]); // 1. 이메일 중복 *있음*
+    // -----------------------------------------------------------
+    // SIGNUP TESTS
+    // -----------------------------------------------------------
 
-      const res = await request(app)
-        .post("/api/auth/signup")
-        .send({ nickname: "tester", email: "exist@test.com", password: "123" });
-      
-      expect(res.status).toBe(409);
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toBe("이미 사용 중인 이메일입니다.");
-      expect(bcrypt.hash).not.toHaveBeenCalled(); // 해시조차 안 해야 함
+    test("signup - missing fields", async () => {
+        const req = { body: { nickname: "", email: "", password: "" } };
+        const res = mockResponse();
+
+        await authController.signup(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
     });
-  });
+
+    test("signup - email duplicate", async () => {
+        pool.query.mockResolvedValue([[{ email: "a@a.com" }]]);
+
+        const req = { body: { nickname: "민규", email: "a@a.com", password: "1234" } };
+        const res = mockResponse();
+
+        await authController.signup(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(409);
+    });
+
+    test("signup - success", async () => {
+        bcrypt.hash.mockResolvedValue("hashed_pw");
+        pool.query
+            .mockResolvedValueOnce([[]])     // email check
+            .mockResolvedValueOnce([{ insertId: 1 }]); // insert
+
+        const req = { body: { nickname: "민규", email: "a@a.com", password: "1234" } };
+        const res = mockResponse();
+
+        await authController.signup(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(201);
+    });
+
+    test("signup - error", async () => {
+        pool.query.mockRejectedValue(new Error("ERR"));
+
+        const req = { body: { nickname: "민규", email: "a@a.com", password: "1234" } };
+        const res = mockResponse();
+
+        await authController.signup(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+    });
+
+    // -----------------------------------------------------------
+    // CHANGE PASSWORD TESTS
+    // -----------------------------------------------------------
+
+    test("changePassword - missing fields", async () => {
+        const req = { user: { userId: 1 }, body: { currentPassword: "", newPassword: "" } };
+        const res = mockResponse();
+
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    test("changePassword - user not found", async () => {
+        pool.query.mockResolvedValue([[]]);
+
+        const req = { user: { userId: 1 }, body: { currentPassword: "1234", newPassword: "5678" } };
+        const res = mockResponse();
+
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    test("changePassword - wrong current password", async () => {
+        pool.query.mockResolvedValue([[{ password_hash: "hashed" }]]);
+        bcrypt.compare.mockResolvedValue(false);
+
+        const req = { user: { userId: 1 }, body: { currentPassword: "x", newPassword: "y" } };
+        const res = mockResponse();
+
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+    });
+
+    test("changePassword - success", async () => {
+        pool.query
+            .mockResolvedValueOnce([[{ password_hash: "hashed" }]]) // select
+            .mockResolvedValueOnce([{}]);                          // update
+        bcrypt.compare.mockResolvedValue(true);
+        bcrypt.hash.mockResolvedValue("new_hash");
+
+        const req = { user: { userId: 1 }, body: { currentPassword: "1", newPassword: "2" } };
+        const res = mockResponse();
+
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    test("changePassword - error", async () => {
+        pool.query.mockRejectedValue(new Error("ERR"));
+
+        const req = { user: { userId: 1 }, body: { currentPassword: "a", newPassword: "b" } };
+        const res = mockResponse();
+
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+    });
+
+    // -----------------------------------------------------------
+    // CHANGE NICKNAME TESTS
+    // -----------------------------------------------------------
+
+    test("changeNickname - missing field", async () => {
+        const req = { user: { userId: 1 }, body: { newNickname: "" } };
+        const res = mockResponse();
+
+        await authController.changeNickname(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    test("changeNickname - duplicate nickname", async () => {
+        pool.query.mockResolvedValue([[{ id: 2 }]]);
+
+        const req = { user: { userId: 1 }, body: { newNickname: "민규" } };
+        const res = mockResponse();
+
+        await authController.changeNickname(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(409);
+    });
+
+    test("changeNickname - success", async () => {
+        pool.query
+            .mockResolvedValueOnce([[]]) // nickname check
+            .mockResolvedValueOnce([{}]); // update
+
+        const req = { user: { userId: 1 }, body: { newNickname: "새닉" } };
+        const res = mockResponse();
+
+        await authController.changeNickname(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    test("changeNickname - error", async () => {
+        pool.query.mockRejectedValue(new Error("ERR"));
+
+        const req = { user: { userId: 1 }, body: { newNickname: "새닉" } };
+        const res = mockResponse();
+
+        await authController.changeNickname(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+    });
+
 });

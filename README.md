@@ -41,9 +41,9 @@ By pressing the bottom right button(프로필 모양 버튼), you can change set
 
 #### Features implemented in Iteration 5:
 1. **UI Improvements Based on HE Feedback**: Enhancing the overall UI by reflecting Human Evaluation feedback.
-2. **Design Enhancements **: Updated icons, added loading animations, and changed color so that it can be seen on dark mode.
+2. **Design Enhancements**: Updated icons, added loading animations, and changed color so that it can be seen on dark mode.
 3. **Lab setting for style extraction - style customization**: On this page, you can adjust the AI's temperature and select the 'Generate more accurate diary' option.
-4. **Major Revision of Statistics Page **: Revamping the statistics page and data flow.
+4. **Major Revision of Statistics Page**: Revamping the statistics page and data flow.
 5. **photo of diary in DailyReadActivity**: you can upload or delete photos of diaries
 6. **Tutorial**: When you first enter the app, you can see tutorial of our app
 7. **Other Improvements**: Included several minor feature enhancements and overall stability improvements.

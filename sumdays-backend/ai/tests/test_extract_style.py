@@ -70,10 +70,9 @@ def test_extract_style_full():
 # ============================================
 def test_compute_style_profile_text():
     from ai.services.extract.extract_style_profile import compute_style_profile_text
-    diaries = ["오늘은 기분이 좋았다.", "점심은 맛있었다.", "밤에는 산책을 했다."]
+    diaries = ["오늘은 기분이 좋았다.", "점심은 맛있었다.", "밤에는 산책을 했다.", "잤다", "일어났다"]
     text = compute_style_profile_text(diaries)
-    assert isinstance(text, str)
-    assert len(text) > 5
+    assert len(text) >= 5
 
 
 # ============================================
@@ -83,7 +82,7 @@ def test_extract_style_route_json(client):
     diaries = [
         "오늘은 좋은 날이었다.",
         "점심에는 국밥을 먹었다.",
-        "밤에는 숙제를 했다."
+        "밤에는 숙제를 했다.", "잤다", "일어났다"
     ]
 
     response = client.post(

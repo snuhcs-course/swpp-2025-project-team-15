@@ -20,7 +20,9 @@ describe("E2E Merge API (Node → Flask → OpenAI)", () => {
         style_prompt: STYLE_PROMPT,
         style_examples: STYLE_EXAMPLES,
         style_vector: [0.1,0.2],
-        end_flag: false
+        end_flag: false,
+        temperature: 0.8,
+        advanced_flag: false
       });
 
     // 스트리밍은 JSON이 아님 → res.body 없음 → 대신 res.text 존재
@@ -45,7 +47,9 @@ describe("E2E Merge API (Node → Flask → OpenAI)", () => {
         style_prompt: STYLE_PROMPT,
         style_examples: STYLE_EXAMPLES,
         style_vector: [0.1,0.2],
-        end_flag: true
+        end_flag: true,
+        temperature: 0.8,
+        advanced_flag: false
       });
 
     expect(res.status).toBe(200);

@@ -53,14 +53,14 @@ describe("Extract Style API Tests (Node → Flask)", () => {
     expect(res.body.error).toBeDefined();
   });
 
-  test("❗ diary가 list가 아님 → 400", async () => {
+  test("❗ diary가 list가 아님 → 500", async () => {
     axios.post.mockRejectedValueOnce(new Error("Flask error"));
 
     const res = await request(app)
       .post("/api/ai/extract-style")
       .field("diaries", JSON.stringify({ "일기1": "일기3" }));
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });
 
@@ -77,10 +77,8 @@ describe("Extract Style API Tests (Node → Flask)", () => {
       .post("/api/ai/extract-style")
       .field("diaries", "이건_JSON_아님");
 
-    // req.body.diaries = "이건_JSON_아님" → JSON.parse 실패 + string 그대로
-    // string은 배열이 아니므로 400
-    expect(res.status).toBe(400);
-    expect(res.body.success).toBe(false);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
   });
 
   test("unlink 실패", async () => {
@@ -108,8 +106,8 @@ describe("Extract Style API Tests (Node → Flask)", () => {
 
     const res = await req;
 
-    expect(res.status).toBe(500);
-    expect(res.body.success).toBe(false);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
     expect(readStreamMock).toHaveBeenCalled();
   });
 

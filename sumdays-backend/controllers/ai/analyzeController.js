@@ -9,13 +9,7 @@ const analyzeController = {
     /* POST http://localhost:3000/api/ai/summarize-week
     POSTMAN raw json
     {
-    "user_id": 1234,
-    "period": {
-        "range_type": "week",
-        "start_date": "2025-10-13",
-        "end_date": "2025-10-19"
-        }
-    }
+        "diaries": [{"date": "", "diary": "", "emoji": "", "emotion_score": 0.2},{}]
     */
     summarizeWeek: async (req, res) => {
         try {

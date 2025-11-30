@@ -55,6 +55,9 @@ android {
 }
 
 dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testImplementation("androidx.work:work-testing:2.9.0")
+    androidTestImplementation("androidx.work:work-testing:2.9.0")
     implementation(libs.androidx.runner)
     implementation(libs.androidx.junit.ktx)
     implementation("androidx.work:work-runtime-ktx:2.9.0")

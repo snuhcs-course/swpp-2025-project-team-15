@@ -57,27 +57,37 @@
           <option name="INCLUDE" value="false" />
         </pattern>
         <pattern>
-          <option name="PATTERN" value="com.example.sumdays.settings.AlarmAdapter" />
-          <option name="ENABLED" value="true" />
-          <option name="INCLUDE" value="false" />
-        </pattern>
-        <pattern>
           <option name="PATTERN" value="com.example.sumdays.ui.*" />
-          <option name="ENABLED" value="true" />
+          <option name="ENABLED" value="false" />
           <option name="INCLUDE" value="false" />
         </pattern>
         <pattern>
           <option name="PATTERN" value="com.example.sumdays.daily.diary.*" />
-          <option name="ENABLED" value="true" />
+          <option name="ENABLED" value="false" />
           <option name="INCLUDE" value="false" />
         </pattern>
         <pattern>
           <option name="PATTERN" value="com.example.sumdays.utils.*" />
-          <option name="ENABLED" value="true" />
+          <option name="ENABLED" value="false" />
           <option name="INCLUDE" value="false" />
         </pattern>
         <pattern>
           <option name="PATTERN" value="com.example.sumdays.auth.*" />
+          <option name="ENABLED" value="false" />
+          <option name="INCLUDE" value="false" />
+        </pattern>
+        <pattern>
+          <option name="PATTERN" value="com.example.sumdays.data.dao.UserStyleDao_Impl" />
+          <option name="ENABLED" value="true" />
+          <option name="INCLUDE" value="false" />
+        </pattern>
+        <pattern>
+          <option name="PATTERN" value="com.example.sumdays.data.dao.WeekSummaryDao_Impl" />
+          <option name="ENABLED" value="true" />
+          <option name="INCLUDE" value="false" />
+        </pattern>
+        <pattern>
+          <option name="PATTERN" value="com.example.sumdays.data.dao.MemoDao_Impl" />
           <option name="ENABLED" value="true" />
           <option name="INCLUDE" value="false" />
         </pattern>

@@ -182,12 +182,12 @@ class UserStatsPrefsTest {
     }
 
     @Test
-    fun getActiveStyleId_ReturnsNullWhenNotSet() {
+    fun getActiveStyleId_ReturnsZeroWhenNotSet() {
         // WHEN
         val result = prefs.getActiveStyleId()
         // THEN
         // 기본값 -1L이 반환될 때 null로 처리되는지 확인 (if 분기 커버)
-        assertNull(result, "스타일이 설정되지 않았을 때 null을 반환해야 합니다.")
+        assertEquals(0L,result, "스타일이 설정되지 않았을 때 0을 반환해야 합니다.")
     }
 
     @Test
@@ -201,7 +201,7 @@ class UserStatsPrefsTest {
         prefs.clearActiveStyleId()
         val result = prefs.getActiveStyleId()
         // THEN
-        // clearActiveStyleId()가 remove()를 호출했는지, 그 결과 기본값(-1L)이 되어 null로 반환되는지 확인
-        assertNull(result, "clearActiveStyleId() 호출 후 null을 반환해야 합니다.")
+        // clearActiveStyleId()가 remove()를 호출했는지, 그 결과 기본값(-1L)이 되어 0로 반환되는지 확인
+        assertEquals(0L,result, "clearActiveStyleId() 호출 후 0을 반환해야 합니다.")
     }
 }

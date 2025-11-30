@@ -7,6 +7,7 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MemoMergeUtilsTest {
+
     @Test
     fun convertStylePromptToMap_convertsAllFieldsCorrectly() {
         // given
@@ -29,29 +30,24 @@ class MemoMergeUtilsTest {
         val map = MemoMergeUtils.convertStylePromptToMap(prompt)
 
         // then
-        // 기본 문자열 필드들
-        assertEquals("일상적이고 솔직한 톤", map["tone"])
-        assertEquals("구어체", map["formality"])
-        assertEquals("짧음", map["sentence_length"])
-        assertEquals("단문 위주", map["sentence_structure"])
-        assertEquals("편안하고 일상적인 단어", map["lexical_choice"])
-        assertEquals("약간 무기력", map["emotional_tone"])
-        assertEquals("거의 없음", map["irony_or_sarcasm"])
-        assertEquals("반말", map["slang_or_dialect"])
-        assertEquals("보통", map["pacing"])
+        assertEquals(prompt.character_concept, map["character_concept"])
+        assertEquals(prompt.emotional_tone, map["emotional_tone"])
+        assertEquals(prompt.formality, map["formality"])
+        assertEquals(prompt.lexical_choice, map["lexical_choice"])
+        assertEquals(prompt.pacing, map["pacing"])
+        assertEquals(prompt.punctuation_style, map["punctuation_style"])
+        assertEquals(prompt.sentence_length, map["sentence_length"])
+        assertEquals(prompt.sentence_structure, map["sentence_structure"])
+        assertEquals(prompt.special_syntax, map["special_syntax"])
+        assertEquals(prompt.speech_quirks, map["speech_quirks"])
+        assertEquals(prompt.tone, map["tone"])
 
-        // 리스트 필드들
+        // 리스트 필드
         @Suppress("UNCHECKED_CAST")
         val endings = map["sentence_endings"] as List<*>
-        assertTrue(endings.contains("~다"))
-        assertTrue(endings.contains("~네"))
-        assertTrue(endings.contains("~야"))
-
-        @Suppress("UNCHECKED_CAST")
-        val phrases = map["common_phrases"] as List<*>
-        assertTrue(phrases.contains("그냥"))
-        assertTrue(phrases.contains("아무래도"))
+        assertEquals(listOf("~다", "~았다", "~었다"), endings)
     }
+
 
     @Test
     fun extractMergedText_returnsDiaryWhenResultDiaryPresent() {

@@ -1,8 +1,5 @@
 package com.example.sumdays.settings.ui
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ObjectAnimator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,7 +57,6 @@ class StyleCardAdapter(
 
     inner class StyleVH(private val b: ItemStyleCardBinding) : RecyclerView.ViewHolder(b.root) {
         private var flipped = false
-        private var isFront = true
 
         fun bind(style: UserStyle) {
             // 기본 스타일 메뉴 삭제
@@ -70,13 +66,6 @@ class StyleCardAdapter(
             // 항상 초기 상태는 앞면
             b.front.visibility = View.VISIBLE
             b.back.visibility = View.GONE
-            isFront = true
-
-            // filp 애니메이션 효과
-            b.flipContainer.setOnClickListener {
-                isFront = !isFront
-                applyFlipAnimation(isFront)
-            }
 
             // 선택 상태에 따른 테두리 강조 효과
             if (style.styleId == activeId) {
@@ -140,33 +129,6 @@ class StyleCardAdapter(
             val isActive = (style.styleId == activeId)
             b.cardRoot.strokeWidth = if (isActive) (4 * b.root.resources.displayMetrics.density).toInt() else 0
             b.cardRoot.strokeColor = 0xFF8B008B.toInt()
-        }
-
-        private fun applyFlipAnimation(showFront: Boolean) {
-            val scale = b.root.resources.displayMetrics.density
-            b.flipContainer.cameraDistance = 6000 * scale
-
-            val flipOut = ObjectAnimator.ofFloat(b.flipContainer, "rotationY", 0f, 90f).apply {
-                duration = 200
-            }
-            val flipIn = ObjectAnimator.ofFloat(b.flipContainer, "rotationY", -90f, 0f).apply {
-                duration = 200
-            }
-
-            flipOut.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    if (showFront) {
-                        b.back.visibility = View.GONE
-                        b.front.visibility = View.VISIBLE
-                    } else {
-                        b.front.visibility = View.GONE
-                        b.back.visibility = View.VISIBLE
-                    }
-                    flipIn.start()
-                }
-            })
-
-            flipOut.start()
         }
 
         private fun showRenameDialog(style: UserStyle) {

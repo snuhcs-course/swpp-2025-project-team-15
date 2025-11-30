@@ -112,10 +112,15 @@ class FakeUserStyleDao : UserStyleDao {
             notifyChange()
         }
     }
+
+    override suspend fun getAllStylesDirect(): List<UserStyle> {
+        TODO("Not yet implemented")
+    }
 }
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [34],
+    application = TestApplication::class)
 class UserStyleViewModelTest {
 
     @get:Rule

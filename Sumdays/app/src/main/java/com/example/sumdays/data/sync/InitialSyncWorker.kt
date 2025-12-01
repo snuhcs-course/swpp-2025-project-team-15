@@ -84,6 +84,9 @@ class InitialSyncWorker(
             }
             val serverData = response.body()!!
 
+
+            printEditedUserStyles(frp = serverData)
+
             // 2) Room DB 및 전부 삭제
             val db = AppDatabase.getDatabase(applicationContext)
             val memoDao = db.memoDao()
@@ -123,6 +126,7 @@ class InitialSyncWorker(
                         emotionScore = p.emotionScore,
                         emotionIcon = p.emotionIcon,
                         themeIcon = p.themeIcon,
+                        photoUrls = p.photoUrls,
                         isEdited = false,
                         isDeleted = false
                     )

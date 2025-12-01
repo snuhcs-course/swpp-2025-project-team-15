@@ -112,7 +112,7 @@ exports.syncData = async (req, res) => {
         await upsert(
           'daily_entry',
           edited.dailyEntry,
-          ['date', 'diary', 'keywords', 'aiComment', 'emotionScore', 'emotionIcon', 'themeIcon']
+          ['date', 'diary', 'keywords', 'aiComment', 'emotionScore', 'emotionIcon', 'themeIcon', 'photoUrls']
         );
       }
 
@@ -168,15 +168,21 @@ exports.fetchServerData = async (req, res) => {
       `SELECT * FROM daily_entry WHERE user_id=?`, [userId]
     );
 
-    const [weekRows] = await pool.query(
+    const [weekSummary] = await pool.query(
       `SELECT * FROM week_summary WHERE user_id=?`, [userId]
     );
 
-    const [styleRows] = await pool.query(
+    const [userStyle] = await pool.query(
       `SELECT * FROM user_style WHERE user_id=?`, [userId]
     );
-
+    /*
+    console.log("===== RAW stylePrompt values from DB =====");
+    styleRows.forEach((row, i) => {
+      console.log(`[#${i}]`, row.stylePrompt);
+    });
+    */
     // JSON 컬럼만 parse
+    /*
     const weekSummary = weekRows.map(row => ({
       ...row,
       emotionAnalysis: safeParse(row.emotionAnalysis, {}),
@@ -184,15 +190,25 @@ exports.fetchServerData = async (req, res) => {
       insights: safeParse(row.insights, {}),
       summary: safeParse(row.summary, {})
     }));
-
+    */
+    /*
     const userStyle = styleRows.map(row => ({
       ...row,
-      styleVector: safeParse(row.styleVector, []),
+      styleVector: row.styleVector,
       styleExamples: safeParse(row.styleExamples, []),
       stylePrompt: safeParse(row.stylePrompt, {}),
       sampleDiary : row.sampleDiary
     }));
+    */
 
+
+    /*
+    console.log("===== PARSED stylePrompt =====");
+    userStyle.forEach((row, i) => {
+      console.log(`[#${i}]`, row.stylePrompt);
+    });
+  */
+    
 
     res.json({
       memo,

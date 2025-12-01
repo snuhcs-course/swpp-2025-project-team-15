@@ -23,6 +23,33 @@ import retrofit2.Response
 import androidx.work.workDataOf
 import com.example.sumdays.auth.SessionManager
 
+fun printEditedUserStyles(sr : SyncRequest? = null, frp : SyncFetchResponse? = null) {
+    val styles =  sr?.edited?.userStyle ?: frp?.userStyle
+
+    if (styles.isNullOrEmpty()) {
+        println("⚠️ No edited user styles.")
+        return
+    }
+
+    println("===== 🟦 Edited UserStylePayload List (${styles.size}) =====")
+    styles.forEachIndexed { index, s ->
+        println(
+            """
+            ---- UserStyle #$index ----
+            styleId      : ${s.styleId}
+            styleName    : ${s.styleName}
+            styleVector  : ${s.styleVector.joinToString(", ")}
+            styleExamples: ${s.styleExamples.joinToString(" | ")}
+            stylePrompt  : ${s.stylePrompt}
+            sampleDiary  : ${s.sampleDiary}
+            """.trimIndent()
+        )
+    }
+}
+
+
+
+
 
 class BackupWorker(
     context: Context,
@@ -81,6 +108,12 @@ class BackupWorker(
             val syncRequest : SyncRequest = buildSyncRequest(deletedMemoIds, deletedStyleIds, deletedEntryDates, deletedSummaryStartDates,
                 editedMemos, editedStyles, editedEntries, editedSummaries)
             val syncResponseBody = ApiClient.api.syncData(tokenHeader,syncRequest).body()
+
+
+            // 임시 테스트 시작
+            printEditedUserStyles(sr = syncRequest)
+
+            // 임시 테스트 종료
 
             // 4-1. 성공 -> flag 해제
             if (syncResponseBody != null && syncResponseBody.status == "success"){

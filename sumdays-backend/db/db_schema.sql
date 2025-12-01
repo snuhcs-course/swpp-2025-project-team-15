@@ -1,69 +1,75 @@
--- ⚠️ 모든 테이블 삭제 (FK 무시)
+-- 🧹 기존 테이블 전부 삭제 (외래키 무시)
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS photos;
-DROP TABLE IF EXISTS memos;
-DROP TABLE IF EXISTS daily_entries;
+DROP TABLE IF EXISTS user_style;
+DROP TABLE IF EXISTS week_summary;
+DROP TABLE IF EXISTS memo;
+DROP TABLE IF EXISTS daily_entry;
 DROP TABLE IF EXISTS users;
 SET FOREIGN_KEY_CHECKS = 1;
 
--- ---------------------------
--- 1️⃣ users
--- ---------------------------
+-- 👤 users 테이블
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
-  nickname VARCHAR(50) UNIQUE NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  nickname VARCHAR(50) UNIQUE NOT NULL
 );
 
--- ---------------------------
--- 2️⃣ daily_entries
--- ---------------------------
-CREATE TABLE daily_entries (
+-- 📔 daily_entry 테이블
+CREATE TABLE daily_entry (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
-  entry_date DATE NOT NULL,
-  icon_name VARCHAR(255),
+  date VARCHAR(50) NOT NULL,
   diary TEXT,
-  ai_comment TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  CONSTRAINT fk_daily_user FOREIGN KEY (user_id)
-    REFERENCES users(id)
-    ON DELETE CASCADE
+  keywords TEXT,
+  aiComment TEXT,
+  emotionScore FLOAT,
+  emotionIcon TEXT,
+  themeIcon TEXT,
+  photoUrls Text,
+  UNIQUE KEY unique_user_date (user_id, date),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- ---------------------------
--- 3️⃣ memos
--- ---------------------------
-CREATE TABLE memos (
+-- 🗒 memo 테이블
+CREATE TABLE memo (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  inner_id INT NOT NULL,
-  memo_order INT NOT NULL,
-  daily_entry_id INT NOT NULL,
+  user_id INT NOT NULL,
+  room_id INT NOT NULL,
   content TEXT,
-  memo_time TIME,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  CONSTRAINT fk_memo_entry FOREIGN KEY (daily_entry_id)
-    REFERENCES daily_entries(id)
-    ON DELETE CASCADE
+  timestamp VARCHAR(255),
+  date VARCHAR(50),
+  memo_order INT,
+  type VARCHAR(20),
+  UNIQUE KEY unique_user_room (user_id, room_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- ---------------------------
--- 4️⃣ photos
--- ---------------------------
-CREATE TABLE photos (
+-- 🎨 user_style 테이블
+CREATE TABLE user_style (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  inner_id INT NOT NULL,
-  daily_entry_id INT NOT NULL,
-  photo_order INT NOT NULL,
-  extension VARCHAR(255),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  CONSTRAINT fk_photo_entry FOREIGN KEY (daily_entry_id)
-    REFERENCES daily_entries(id)
-    ON DELETE CASCADE
+  user_id INT NOT NULL,
+  styleId INT NOT NULL,
+  styleName VARCHAR(255) NOT NULL,
+  styleVector JSON,
+  styleExamples JSON,
+  stylePrompt JSON,
+  sampleDiary VARCHAR(255), 
+  UNIQUE KEY unique_user_style (user_id, styleId),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- 📆 week_summary 테이블
+CREATE TABLE week_summary (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  startDate VARCHAR(50) NOT NULL,
+  endDate VARCHAR(50),
+  diaryCount INT,
+  emotionAnalysis JSON,
+  highlights JSON,
+  insights JSON,
+  summary JSON,
+  UNIQUE KEY unique_user_week (user_id, startDate),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

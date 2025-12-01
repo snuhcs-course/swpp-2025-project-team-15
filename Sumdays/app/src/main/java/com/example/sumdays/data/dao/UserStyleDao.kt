@@ -80,7 +80,7 @@ interface UserStyleDao {
     suspend fun updateSampleDiary(id: Long, diary: String)
 
     // 9. 전체 리스트 가져옴(DB 비어있는지 확인 위함)
-    @Query("SELECT * FROM user_style")
+    @Query("SELECT * FROM user_style WHERE isDeleted = 0")
     suspend fun getAllStylesDirect(): List<UserStyle>
 
 }

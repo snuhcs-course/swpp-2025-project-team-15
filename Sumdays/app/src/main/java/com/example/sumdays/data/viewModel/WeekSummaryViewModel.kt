@@ -38,7 +38,7 @@ class WeekSummaryViewModel (
 
         // 과거 -> 최신 순으로 생성 (getAllDatesAsc가 오름차순이므로)
         // 예: 60주 전부터 오늘까지
-        val baseDate = LocalDate.now().minusWeeks(dummyCount.toLong()).minusDays(5)
+        val baseDate = LocalDate.of(2024,10,7)
 
         for (i in 0 until dummyCount) {
             val startDate = baseDate.plusWeeks(i.toLong()).toString()
@@ -69,8 +69,7 @@ class WeekSummaryViewModel (
                 ),
                 highlights = listOf(
                     Highlight(date = startDate, summary = "테스트 하이라이트 $i - 1"),
-                    Highlight(date = endDate, summary = "테스트 하이라이트2 $i - 1"),
-                    Highlight(date = baseDate.plusWeeks(i.toLong()).plusDays(4).toString(), summary = "테스트 하이라이트 $i - 2")
+                    Highlight(date = endDate, summary = "테스트 하이라이트2 $i - 1")
                 ),
                 insights = Insights(
                     advice = "테스트 조언 $i: 꾸준함이 중요합니다.",

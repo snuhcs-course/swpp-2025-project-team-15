@@ -18,7 +18,7 @@ class WeekSummaryViewModel (
 ) : ViewModel() {
 
 
-    private val USE_DUMMY_DATA = false
+    private val USE_DUMMY_DATA = true
 
     // 더미 데이터를 메모리에 캐싱하기 위한 맵 (날짜 -> 요약)
     private val dummyCache = mutableMapOf<String, WeekSummary>()
@@ -84,6 +84,43 @@ class WeekSummaryViewModel (
             )
             dummyCache[startDate] = summary
         }
+    }
+
+    private fun generateDummyData2() {
+        val startDate = LocalDate.of(2025, 11, 17).toString()
+        val endDate = LocalDate.of(2025, 11, 30).toString()
+
+        val summary = WeekSummary(
+            startDate = startDate,
+            endDate = endDate,
+            diaryCount = Random.nextInt(1, 8), // 1~7 랜덤
+            emotionAnalysis = EmotionAnalysis(
+                distribution = mapOf(
+                    "positive" to Random.nextInt(10, 50),
+                    "neutral" to Random.nextInt(5, 30),
+                    "negative" to Random.nextInt(0, 20)
+                ),
+                dominantEmoji = "😊",
+                emotionScore = 0.0,
+                trend = "increasing"
+            ),
+            highlights = listOf(
+                Highlight(date = startDate, summary = "테스트 하이라이트 1"),
+                Highlight(date = LocalDate.of(2025,11,23).toString(), summary = "테스트 하이라이트 2"),
+                Highlight(date = endDate, summary = "테스트 하이라이트 3")
+            ),
+            insights = Insights(
+                advice = "유의미한 패턴을 기반으로 한 테스트 조언입니다.",
+                emotionCycle = "안정 → 변화 → 안정"
+            ),
+            summary = SummaryDetails(
+                emergingTopics = listOf("테스트", "개발", "통계"),
+                overview = "이것은 2025-11-17 주차의 테스트용 개요 데이터입니다.",
+                title = "테스트 주간 보고서"
+            )
+        )
+
+        dummyCache[startDate] = summary
     }
 
 

@@ -22,33 +22,67 @@ import com.google.gson.GsonBuilder
 import retrofit2.Response
 import androidx.work.workDataOf
 import com.example.sumdays.auth.SessionManager
+import com.example.sumdays.data.dao.MemoDao
+import com.example.sumdays.daily.memo.Memo
+import kotlinx.coroutines.withContext
+import java.time.LocalDate
+import java.time.temporal.WeekFields
+import kotlin.random.Random
 
-fun printEditedUserStyles(sr : SyncRequest? = null, frp : SyncFetchResponse? = null) {
-    val styles =  sr?.edited?.userStyle ?: frp?.userStyle
+suspend fun generateSampleMemos(memoDao: MemoDao) {
 
-    if (styles.isNullOrEmpty()) {
-        println("⚠️ No edited user styles.")
-        return
-    }
+    val contents = listOf(
+        "아침에 추웠다.",
+        "버스가 늦어서 뛰어갔다.",
+        "오늘 집중 잘 됐다.",
+        "점심은 맛있었다.",
+        "카페에서 공부함.",
+        "운동하고 개운함.",
+        "친구랑 수다 떨었음.",
+        "비 와서 산책 못 함.",
+        "라면 먹으며 유튜브 봤다.",
+        "괜히 우울한 느낌의 하루.",
+        "아이디어가 떠올랐다.",
+        "귀찮아서 미뤄둠.",
+        "영화 보고 쉼.",
+        "생산적인 하루.",
+        "잠 부족함.",
+        "카페인 안 먹힘.",
+        "가족과 통화.",
+        "몸이 가벼워짐.",
+        "상쾌한 산책.",
+        "일 처리하고 후련함."
+    )
 
-    println("===== 🟦 Edited UserStylePayload List (${styles.size}) =====")
-    styles.forEachIndexed { index, s ->
-        println(
-            """
-            ---- UserStyle #$index ----
-            styleId      : ${s.styleId}
-            styleName    : ${s.styleName}
-            styleVector  : ${s.styleVector.joinToString(", ")}
-            styleExamples: ${s.styleExamples.joinToString(" | ")}
-            stylePrompt  : ${s.stylePrompt}
-            sampleDiary  : ${s.sampleDiary}
-            """.trimIndent()
+    // 2025-11-17 ~ 2025-11-30
+    val allDays = (17..30)
+
+    for (day in allDays) {
+
+        val date = "2025-11-%02d".format(day)  // yyyy-MM-dd
+
+        // --- 1. 랜덤 시간 5개 생성 ---
+        val times = (1..5).map {
+            val hour = (9..22).random()     // 09~22시
+            val minute = (0..59).random()
+            hour to minute
+        }.sortedWith(
+            compareBy({ it.first }, { it.second })  // 시간순 정렬
         )
+
+        // --- 2. 정렬된 순서대로 memo 생성 ---
+        times.forEachIndexed { index, (hour, minute) ->
+            val memo = Memo(
+                content = contents.random(),
+                timestamp = "%02d:%02d".format(hour, minute),
+                date = date,
+                order = index + 1,
+                type = "text"
+            )
+            memoDao.insert(memo)
+        }
     }
 }
-
-
-
 
 
 class BackupWorker(
@@ -79,6 +113,10 @@ class BackupWorker(
             val dailyEntryDao = db.dailyEntryDao()
             val weekSummaryDao = db.weekSummaryDao()
 
+            // test code
+            // generateSampleMemos(memoDao)
+            //
+
             // testCode
             /*
             memoDao.clearAll()
@@ -103,7 +141,6 @@ class BackupWorker(
             val editedSummaryEntities = weekSummaryDao.getEditedSummaries()
             val editedSummaries = editedSummaryEntities.map {it.weekSummary}
 
-
             // 3. 서버에 요청하기
             val syncRequest : SyncRequest = buildSyncRequest(deletedMemoIds, deletedStyleIds, deletedEntryDates, deletedSummaryStartDates,
                 editedMemos, editedStyles, editedEntries, editedSummaries)
@@ -111,7 +148,7 @@ class BackupWorker(
 
 
             // 임시 테스트 시작
-            printEditedUserStyles(sr = syncRequest)
+            // printEditedUserStyles(sr = syncRequest)
 
             // 임시 테스트 종료
 
@@ -142,6 +179,7 @@ class BackupWorker(
 
                 return@withContext Result.success()
             }
+
             // 4-2. 실패
             else {
                 val serverFailData = workDataOf(

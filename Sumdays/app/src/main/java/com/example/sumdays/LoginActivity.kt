@@ -108,9 +108,21 @@ class LoginActivity : AppCompatActivity() {
                         Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    // HTTP 상태 코드가 4xx, 5xx (에러)일 경우
-                    val errorMessage = "로그인 실패 (에러 코드: ${response.code()})"
-                    Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                    when (response.code()) {
+                        400, 401 -> {
+                            Toast.makeText(
+                                this@LoginActivity,
+                                "아이디 또는 비밀번호가 올바르지 않습니다.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        else -> {
+                            val errorMessage = "로그인 실패 (에러 코드: ${response.code()})"
+                            Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    }
                 }
             }
 

@@ -22,6 +22,10 @@ import com.example.sumdays.data.sync.InitialSyncWorker
 import com.example.sumdays.settings.LabsSettingsActivity
 import com.example.sumdays.statistics.WeekSummaryWorker
 import com.example.sumdays.utils.setupEdgeToEdge
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import com.example.sumdays.data.AppDatabase
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -41,6 +45,18 @@ class SettingsActivity : AppCompatActivity() {
 
 
         binding.logoutBlock.setOnClickListener {
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                val db = AppDatabase.getDatabase(applicationContext)
+
+                db.memoDao().clearAll()
+                db.dailyEntryDao().clearAll()
+                db.userStyleDao().clearAll()
+                db.weekSummaryDao().clearAll()
+            }
+
+
+
             SessionManager.clearSession()
             // 로그인 화면으로 이동
             val intent = Intent(this, LoginActivity::class.java)
@@ -123,7 +139,7 @@ class SettingsActivity : AppCompatActivity() {
         // backup 관련 버튼
         backupBtn.setOnClickListener {
             BackupScheduler.triggerManualBackup()
-            Toast.makeText(this@SettingsActivity, "수동 백업을 시작합니다", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@SettingsActivity, "수동 백업 완료", Toast.LENGTH_SHORT).show()
         }
 
         initBtn.setOnClickListener {

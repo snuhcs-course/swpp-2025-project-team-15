@@ -412,6 +412,7 @@ class DailyWriteActivity : AppCompatActivity() {
             order = memoAdapter.itemCount,
             type = memoType
         )
+
         Log.d("test" , "${content} / ${currentTime} / ${date} / ${memoAdapter.itemCount}  / ${memoType}")
         memoViewModel.insert(newMemo)
         memoListView.smoothScrollToPosition(memoAdapter.itemCount)

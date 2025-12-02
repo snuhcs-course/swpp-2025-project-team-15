@@ -85,7 +85,7 @@ class InitialSyncWorker(
             val serverData = response.body()!!
 
 
-            printEditedUserStyles(frp = serverData)
+            /// printEditedUserStyles(frp = serverData)
 
             // 2) Room DB 및 전부 삭제
             val db = AppDatabase.getDatabase(applicationContext)
@@ -131,6 +131,23 @@ class InitialSyncWorker(
                         isDeleted = false
                     )
                 }
+
+                dailyEntryList.forEach { entry ->
+                    Log.d("Sync-DailyEntry", """
+        ---- DailyEntry ----
+        date = ${entry.date}
+        diary = ${entry.diary}
+        keywords = ${entry.keywords}
+        aiComment = ${entry.aiComment}
+        emotionScore = ${entry.emotionScore}
+        emotionIcon = ${entry.emotionIcon}
+        themeIcon = ${entry.themeIcon}
+        photoUrls = ${entry.photoUrls}
+        isEdited = ${entry.isEdited}
+        isDeleted = ${entry.isDeleted}
+    """.trimIndent())
+                }
+
                 dailyDao.insertAll(dailyEntryList)
 
                 // UserStyle

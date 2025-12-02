@@ -9,20 +9,26 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import com.example.sumdays.R
 import com.example.sumdays.databinding.ActivityWeekStatsDetailBinding
 import com.example.sumdays.utils.setupEdgeToEdge
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.threeten.bp.DayOfWeek
 import org.threeten.bp.LocalDate
-import org.threeten.bp.format.DateTimeFormatter
-import java.util.Locale
 
 class WeekStatsDetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityWeekStatsDetailBinding
     private lateinit var weekSummary: WeekSummary
+
+    private val dailyEntryViewModel: DailyEntryViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,67 +59,66 @@ class WeekStatsDetailActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupReportViews() {
-        // 1. 기간 정보 및 제목 설정
+
         binding.weekRangeTextView.text = "${weekSummary.startDate} ~ ${weekSummary.endDate}"
-
-        // 2. 요약 및 피드백 내용 설정 (GridLayout 내용)
         binding.summaryContentTextView.text = weekSummary.summary.overview
-
         binding.feedbackContentTextView.text = weekSummary.insights.advice
 
-
-        // 3. 요일 표시 영역
-        val highlightDates = weekSummary.highlights.map { LocalDate.parse(it.date) }
-
+        // 요일 표시 영역 설정
         val startDate = LocalDate.parse(weekSummary.startDate)
 
-        val dayRow1 = binding.dayRow1
-        val dayRow2 = binding.dayRow2
-        dayRow1.removeAllViews()
-        dayRow2.removeAllViews()
-
-        dayRow1.weightSum = 5.0f
-        dayRow2.weightSum = 5.0f
-
-        val dayNames = listOf("월", "화", "수", "목", "금", "토", "일")
-
-        for (i in 0 until 7) {
-            val date = startDate.plusDays(i.toLong())
-            val dayOfWeek = date.dayOfWeek
-
-            // 일기가 작성된 날짜인지 확인
-            val isDiaryWritten = highlightDates.contains(date)
-
-            val dayLayout = LayoutInflater.from(this).inflate(R.layout.include_day_cell_static, null) as FrameLayout
-            val dayTextView: TextView = dayLayout.findViewById(R.id.day_name_text)
-
-            // 요일 이름 설정
-            dayTextView.text = dayNames[i % 7]
-
-            // 일기 작성 여부에 따라 테두리(여우 모양) 적용
-            if (isDiaryWritten) {
-                dayLayout.setBackgroundResource(R.drawable.shape_fox_orange_border)
-            } else {
-                dayLayout.setBackgroundResource(android.R.color.transparent)
+        lifecycleScope.launch {
+            // 작성된 모든 날짜 가져오기
+            val writtenDatesSet = withContext(Dispatchers.IO) {
+                dailyEntryViewModel.getAllWrittenDates().toSet()
             }
 
-            // 레이아웃 파라미터 (5열과 2열에 맞게 가중치 조정 필요)
-            val layoutParams = LinearLayout.LayoutParams(
-                0,
-                200,
-                1.0f
-            ).apply {
-                // 간격 확보
-                marginStart = 4.dp
-                marginEnd = 4.dp
-            }
-            dayLayout.layoutParams = layoutParams
+            binding.dayRow1.removeAllViews()
+            binding.dayRow2.removeAllViews()
 
-            // 월-금은 day_row_1에, 토-일은 day_row_2에 추가
-            if (dayOfWeek <= DayOfWeek.FRIDAY) {
-                dayRow1.addView(dayLayout)
-            } else {
-                dayRow2.addView(dayLayout)
+            binding.dayRow1.weightSum = 5.0f
+            binding.dayRow2.weightSum = 5.0f
+
+            val dayNames = listOf("월", "화", "수", "목", "금", "토", "일")
+
+            for (i in 0 until 7) {
+                val date = startDate.plusDays(i.toLong())
+                val dayOfWeek = date.dayOfWeek
+
+                // 실제 DB에 저장된 날짜인지 확인
+                val isDiaryWritten = writtenDatesSet.contains(date.toString())
+
+                // 레이아웃 인플레이트
+                val dayLayout = LayoutInflater.from(this@WeekStatsDetailActivity)
+                    .inflate(R.layout.include_day_cell_static, null) as FrameLayout
+                val dayTextView: TextView = dayLayout.findViewById(R.id.day_name_text)
+
+                dayTextView.text = dayNames[i % 7]
+
+                // 테두리 적용 (일기 쓴 날이면 주황색 테두리)
+                if (isDiaryWritten) {
+                    dayLayout.setBackgroundResource(R.drawable.shape_fox_orange_border)
+                } else {
+                    dayLayout.setBackgroundResource(android.R.color.transparent)
+                }
+
+                // LayoutParams 설정
+                val layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    200,
+                    1.0f
+                ).apply {
+                    marginStart = 4.dp
+                    marginEnd = 4.dp
+                    bottomMargin = 8.dp
+                }
+                dayLayout.layoutParams = layoutParams
+
+                if (dayOfWeek <= DayOfWeek.FRIDAY) {
+                    binding.dayRow1.addView(dayLayout)
+                } else {
+                    binding.dayRow2.addView(dayLayout)
+                }
             }
         }
     }

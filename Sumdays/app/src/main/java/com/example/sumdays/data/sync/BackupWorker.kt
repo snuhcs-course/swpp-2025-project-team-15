@@ -25,11 +25,10 @@ import com.example.sumdays.auth.SessionManager
 import com.example.sumdays.data.dao.MemoDao
 import com.example.sumdays.daily.memo.Memo
 import kotlinx.coroutines.withContext
-
 import java.time.LocalDate
 import java.time.temporal.WeekFields
-
 import kotlin.random.Random
+
 suspend fun generateSampleMemos(memoDao: MemoDao) {
 
     val contents = listOf(

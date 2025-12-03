@@ -393,6 +393,8 @@ class MemoMergeAdapter(
             throw MergeException.NetworkException()
         } catch (e: MergeException) {
             throw e
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
             throw MergeException.UnknownException(e)
         }

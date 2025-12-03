@@ -1,11 +1,17 @@
 package com.example.sumdays.settings
 
+import android.app.Dialog
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
@@ -32,7 +38,20 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.File
+import java.io.FileOutputStream
+import java.util.UUID
+import kotlin.collections.plus
 import kotlin.coroutines.CoroutineContext
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
+import com.example.sumdays.data.viewModel.DailyEntryViewModel
+import com.example.sumdays.image.PhotoGalleryAdapter
+import com.example.sumdays.image.GalleryItem
+import com.example.sumdays.image.GalleryDiffCallback
+import kotlin.getValue
 
 class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
@@ -70,8 +89,11 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
         styleViewModel = ViewModelProvider(this).get(UserStyleViewModel::class.java)
 
         setupHeader()
+        initializeImagePicker()
+        setupPhotoGallery()
         setupListeners()
         setBackCallback()
+
 
         // 상태바, 네비게이션바 같은 색으로
         val rootView = findViewById<View>(R.id.setting_style_extraction_root)
@@ -122,19 +144,13 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
     }
 
     private fun setupListeners() {
-        binding.selectImagesButton.setOnClickListener {
-            if (isBlocking) return@setOnClickListener
-            // 이미지/사진 파일 선택
-            selectImagesLauncher.launch("image/*")
-        }
-
         binding.runExtractionButton.setOnClickListener {
             handleExtractStyle()
         }
     }
 
     private fun updateImageCountUi() {
-        binding.selectedImageCount.text = "선택된 이미지: ${selectedImageUris.size}개"
+        binding.selectedImageCount.text = "선택된 이미지: ${currentPhotoUris.size}개"
     }
 
     // --- 1. 스타일 추출 실행 (유효성 검사 포함) ---
@@ -146,7 +162,7 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
             .map { it.trim() }
             .filter { it.isNotEmpty() }
 
-        val totalCount = textDiaries.size + selectedImageUris.size
+        val totalCount = textDiaries.size + currentPhotoUris.size
 
         if (totalCount < 5) {
             Toast.makeText(this, "텍스트와 이미지를 합쳐 최소 5개 이상 제공해야 합니다. (현재: $totalCount 개)", Toast.LENGTH_LONG).show()
@@ -164,7 +180,7 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
                 // 2. Multipart Part 구성
                 // 텍스트 일기 목록을 JSON 문자열로 변환하여 하나의 RequestBody 파트로 만듭니다.
                 val diaryPart = createTextPart(textDiaries) // <--- 함수 변경
-                val imageParts = createImageParts(selectedImageUris)
+                val imageParts = createImageParts(currentPhotoUris)
 
                 // 3. 서버 호출
                 callApi(diaryPart, imageParts) // <--- 파라미터 변경
@@ -357,7 +373,7 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
 
             // UI 블로킹 처리
             binding.runExtractionButton.isEnabled = !isLoading
-            binding.selectImagesButton.isEnabled = !isLoading
+            //binding.selectImagesButton.isEnabled = !isLoading
             binding.diaryTextInput.isEnabled = !isLoading
 
             if (isLoading) {
@@ -376,5 +392,85 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
                 Glide.with(this).clear(binding.loadingGifView)
             }
         }
+    }
+    /*---------------------------PhotoGallery 관련 수정사항(일단 급해서 여기 넣었는데 뭔가 따로 빼고 싶네요)------------------*/
+    private lateinit var photoGalleryAdapter: PhotoGalleryAdapter
+    private lateinit var pickImageLauncher: ActivityResultLauncher<PickVisualMediaRequest>
+    private val currentPhotoUris = mutableListOf<Uri>()
+    private fun initializeImagePicker() {
+        pickImageLauncher =
+            registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+                if (uri != null) {
+                    addPhoto(uri)
+                }
+            }
+    }
+
+    private fun addPhoto(uri: Uri) {
+        currentPhotoUris.add(uri)
+        updatePhotoGalleryUI()
+        updateImageCountUi()
+    }
+
+    private fun updatePhotoGalleryUI() {
+        val items = currentPhotoUris.map { GalleryItem.Photo(it.toString()) } + GalleryItem.Add
+        photoGalleryAdapter.submitList(items)
+        binding.photoGalleryRecyclerView.visibility = View.VISIBLE
+    }
+    private fun setupPhotoGallery() {
+        photoGalleryAdapter = PhotoGalleryAdapter(
+            onPhotoClick = { photoUrl ->
+                showPhotoDialog(photoUrl)
+            },
+            onPhotoLongClick = { position -> // ★ 롱 클릭 시 삭제 다이얼로그 호출
+                showDeleteConfirmDialog(position)
+            },
+            onAddClick = {
+                pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            }
+        )
+        binding.photoGalleryRecyclerView.apply {
+            layoutManager =
+                LinearLayoutManager(this@StyleExtractionActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = photoGalleryAdapter
+        }
+        updatePhotoGalleryUI()
+    }
+
+    private fun showDeleteConfirmDialog(position: Int) {
+        AlertDialog.Builder(this)
+            .setTitle("사진 삭제")
+            .setMessage("이 사진을 삭제하시겠습니까?")
+            .setPositiveButton("삭제") { dialog, _ ->
+                deletePhoto(position)
+                dialog.dismiss()
+            }
+            .setNegativeButton("취소") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun deletePhoto(position: Int) {
+        if (position in currentPhotoUris.indices) {
+            // 리스트에서 제거 및 UI/DB 업데이트
+            currentPhotoUris.removeAt(position)
+            updatePhotoGalleryUI()
+
+            Toast.makeText(this, "사진이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+        }
+        updateImageCountUi()
+    }
+    private fun showPhotoDialog(photoUrl: String) {
+        val dialog = Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        val imageView = ImageView(this)
+        imageView.setBackgroundColor(getColor(android.R.color.black))
+        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+
+        Glide.with(this).load(photoUrl).into(imageView)
+
+        imageView.setOnClickListener { dialog.dismiss() }
+        dialog.setContentView(imageView)
+        dialog.show()
     }
 }

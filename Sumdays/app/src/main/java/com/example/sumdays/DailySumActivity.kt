@@ -22,6 +22,7 @@ import androidx.activity.viewModels
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import com.example.sumdays.data.AppDatabase
 import com.example.sumdays.data.dao.UserStyleDao
 import com.example.sumdays.settings.prefs.UserStatsPrefs
@@ -29,6 +30,10 @@ import com.bumptech.glide.Glide
 import com.example.sumdays.utils.setupEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
+import androidx.activity.OnBackPressedCallback
 
 class DailySumActivity : AppCompatActivity() {
 
@@ -42,6 +47,7 @@ class DailySumActivity : AppCompatActivity() {
     private lateinit var userStyleDao: UserStyleDao
     private lateinit var loadingOverlay: View
     private lateinit var loadingGifView: ImageView
+    private var mergeJob: Job? = null
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,15 +74,29 @@ class DailySumActivity : AppCompatActivity() {
             memoMergeAdapter.undoLastMerge()
         }
         findViewById<ImageView>(R.id.back_icon).setOnClickListener {
-            finish()
+            handleBackPress()
         }
 
         findViewById<ImageButton>(R.id.skip_icon).setOnClickListener {
                 showLoading(true)
-                lifecycleScope.launch {
-                    saveDiary(memoMergeAdapter.mergeAllMemo())
+            // 코루틴 시작 시 Job을 변수에 저장
+            mergeJob = lifecycleScope.launch {
+                try {
+                    val result = memoMergeAdapter.mergeAllMemo()
+                    saveDiary(result)
                     moveToReadActivity()
+                } catch (e: CancellationException) {
+                    // 작업이 취소되었을 때 처리
+                    showLoading(false)
+                    Toast.makeText(this@DailySumActivity, "메모 합치기가 중단되었습니다", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    // 그 외 오류 (네트워크 등)
+                    showLoading(false)
+                    // Adapter 내부에서 Toast를 띄우지 않는 구조라면 여기서 띄워줌
+                    val msg = if (e is MemoMergeAdapter.MergeException) e.message else "오류가 발생했습니다."
+                    Toast.makeText(this@DailySumActivity, msg, Toast.LENGTH_SHORT).show()
                 }
+            }
         }
 
         // Intent에서 메모 리스트를 받음
@@ -108,6 +128,23 @@ class DailySumActivity : AppCompatActivity() {
         // 상태바, 네비게이션바 같은 색으로
         val rootView = findViewById<View>(R.id.sum_layout)
         setupEdgeToEdge(rootView)
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                handleBackPress()
+            }
+        })
+    }
+
+    private fun handleBackPress() {
+        if (loadingOverlay.visibility == View.VISIBLE) {
+            // 1. 로딩 중이라면 작업 취소
+            mergeJob?.cancel()
+            // cancel() 호출 -> 코루틴 내부에서 CancellationException 발생 -> catch 블록 실행 -> Toast 출력
+        } else {
+            // 2. 로딩 중이 아니라면 Activity 종료
+            finish()
+        }
     }
 
     private fun showLoading(isLoading: Boolean) {

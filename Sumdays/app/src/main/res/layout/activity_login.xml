@@ -128,7 +128,7 @@
         android:ems="10"
         android:text="로그인"
         android:textColor="@android:color/white"
-        app:backgroundTint="#8B008B"
+        app:backgroundTint="@color/btn_theme"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="@+id/passwordInput_EditText"
         app:layout_constraintStart_toStartOf="@+id/passwordInput_EditText"

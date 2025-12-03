@@ -273,7 +273,7 @@ class DailyWriteActivity : AppCompatActivity() {
             if (diaryExists) {
                 // 일기가 있으면: 버튼 활성화 및 보라색
                 readDiaryButton.isEnabled = true
-                readDiaryButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#8B008B"))
+                readDiaryButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.btn_theme))
             } else {
                 // 일기가 없으면: 버튼 비활성화 및 회색
                 readDiaryButton.isEnabled = false

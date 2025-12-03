@@ -59,7 +59,7 @@
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         app:cornerRadius="12dp"
-        app:backgroundTint="#8B008B"
+        app:backgroundTint="@color/btn_theme"
         android:layout_margin="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

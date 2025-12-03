@@ -48,6 +48,8 @@
 
     <color name="diary_btn">#E26A2C</color>
 
+    <color name="btn_theme">#8B008B</color>
+
     <!-- 선택되지 않은 점(선택 되지 않은 페이지 점) -->
     <color name="dot_dark_screen">#272A35</color>
 

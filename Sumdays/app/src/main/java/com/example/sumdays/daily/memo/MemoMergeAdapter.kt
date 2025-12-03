@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 import android.content.ClipData
+import android.content.Context
 import android.os.Build
 import android.util.Log
 import android.view.DragEvent
@@ -14,6 +15,7 @@ import android.view.View
 import android.view.View.DragShadowBuilder
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
 import com.example.sumdays.daily.memo.MemoMergeUtils.convertStylePromptToMap
@@ -23,13 +25,10 @@ import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.data.dao.UserStyleDao
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.settings.prefs.UserStatsPrefs
+import com.example.sumdays.settings.prefs.LabsPrefs
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import java.io.InputStreamReader
-import android.content.Context
-import android.widget.Toast
-import com.example.sumdays.settings.prefs.LabsPrefs
-
 
 class MemoMergeAdapter(
     private val context: Context, // toast 띄우기 위해서 추가
@@ -46,7 +45,8 @@ class MemoMergeAdapter(
         val toIndexBefore: Int,
         val fromMemo: Memo,
         val toMemoBefore: Memo,
-        val mergedIds: MutableList<Int>
+        val mergedIds: List<Int>,
+        val previousIdMap: Map<Int, List<Int>> // 머지 직전 idToMergedIds 스냅샷
     )
 
     private val undoStack = ArrayDeque<MergeRecord>()
@@ -56,24 +56,29 @@ class MemoMergeAdapter(
     private val originalMemoMap: Map<Int, Memo> = memoList.associateBy { it.id }
 
     init {
-        memoList.forEach { idToMergedIds[it.id] = mutableListOf<Int>(it.id) }
+        memoList.forEach { memo ->
+            idToMergedIds[memo.id] = mutableListOf(memo.id)
+        }
     }
 
     init {
         if (useStableIds) {
-            try { setHasStableIds(true) } catch (_: Throwable) { /* 테스트 환경에서는 NPE 방지 */ }
+            try {
+                setHasStableIds(true)
+            } catch (_: Throwable) {
+                // 테스트 환경에서의 NPE 방지
+            }
         }
     }
 
     /**
      * suppose that the timestamp is STABLE (since ID must be STABLE)
      */
-    init { setHasStableIds(true) }
     override fun getItemId(position: Int): Long =
         (memoList[position].content + memoList[position].timestamp).hashCode().toLong()
 
-    fun getMemoContent(index: Int): String{
-        return memoList.get(index).content
+    fun getMemoContent(index: Int): String {
+        return memoList[index].content
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -83,7 +88,6 @@ class MemoMergeAdapter(
         val memoText = v.findViewById<TextView>(R.id.memo_text)
         val params = memoText.layoutParams
         params.width = dp(parent.context, 190)
-        // params.height = dp(parent.context, 40)// ⬅ 여기만 180dp로 고정
         memoText.minHeight = dp(parent.context, 40)
         memoText.layoutParams = params
 
@@ -112,38 +116,66 @@ class MemoMergeAdapter(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 v.startDragAndDrop(data, shadow, fromIndex, 0)
             } else {
-                @Suppress("DEPRECATION") v.startDrag(data, shadow, fromIndex, 0)
+                @Suppress("DEPRECATION")
+                v.startDrag(data, shadow, fromIndex, 0)
             }
             v.alpha = 0.6f
-            true // Completed the task successfully
+            true
         }
 
-        // 타깃 리스너: STARTED에서 반드시 true 반환 (안 그러면 DROP 안 옴)
+        // 타깃 리스너
         holder.itemView.setOnDragListener { view, event ->
             when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED -> true
-                DragEvent.ACTION_DRAG_ENTERED -> { view.scaleX = 1.03f; view.scaleY = 1.03f; true }
-                DragEvent.ACTION_DRAG_EXITED  -> { view.scaleX = 1f;    view.scaleY = 1f;    true }
+
+                DragEvent.ACTION_DRAG_ENTERED -> {
+                    view.scaleX = 1.03f
+                    view.scaleY = 1.03f
+                    true
+                }
+
+                DragEvent.ACTION_DRAG_EXITED -> {
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+                    true
+                }
+
                 DragEvent.ACTION_DROP -> {
-                    view.scaleX = 1f; view.scaleY = 1f
+                    view.scaleX = 1f
+                    view.scaleY = 1f
+
                     val fromIndex = event.localState as? Int ?: return@setOnDragListener false
-                    val toIndex   = holder.adapterPosition
+                    val toIndex = holder.adapterPosition
                     if (toIndex == RecyclerView.NO_POSITION) return@setOnDragListener false
-                    // 드래그 순서 상관 없이 합치는 순서는 항상 정해져 있음
+
                     if (fromIndex != toIndex) {
-                        // {1, 2, 4, 6} 머지된 메모의 id들이 오름차순으로 정렬됨
-                        val fromIds: List<Int> = idToMergedIds[memoList[fromIndex].id] ?: emptyList()
-                        val toIds:   List<Int> = idToMergedIds[memoList[toIndex].id]  ?: emptyList()
+                        val fromId = memoList[fromIndex].id
+                        val toId = memoList[toIndex].id
+
+                        val fromIds: List<Int> =
+                            idToMergedIds[fromId]?.toList() ?: listOf(fromId)
+                        val toIds: List<Int> =
+                            idToMergedIds[toId]?.toList() ?: listOf(toId)
+
+                        // 두 그룹을 합치고, 중복 제거
                         val mergedIds: List<Int> = (fromIds + toIds).distinct()
+
+                        // order 순서대로 정렬해서 안정적인 머지 순서 유지
                         val sortedIdsByOrder: List<Int> = mergedIds
                             .mapNotNull { id -> originalMemoMap[id] }
                             .sortedBy { it.order }
                             .map { it.id }
+
                         mergeByIndex(fromIndex, toIndex, sortedIdsByOrder)
                     }
                     true
                 }
-                DragEvent.ACTION_DRAG_ENDED -> { holder.itemView.alpha = 1f; true }
+
+                DragEvent.ACTION_DRAG_ENDED -> {
+                    holder.itemView.alpha = 1f
+                    true
+                }
+
                 else -> false
             }
         }
@@ -154,7 +186,12 @@ class MemoMergeAdapter(
     inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val content: TextView = itemView.findViewById(R.id.memo_text)
         private val timestamp: TextView = itemView.findViewById(R.id.memo_time)
-        fun bind(m: Memo) { content.text = m.content; timestamp.text = m.timestamp }
+
+        fun bind(m: Memo) {
+            content.text = m.content
+            timestamp.text = m.timestamp
+        }
+
         fun updateTextOnly(text: String) {
             content.text = text
         }
@@ -168,39 +205,45 @@ class MemoMergeAdapter(
     private fun mergeByIndex(fromIndex: Int, toIndex: Int, mergedIds: List<Int>) {
         if (fromIndex !in memoList.indices || toIndex !in memoList.indices) return
 
+        // 머지 직전 idToMergedIds 스냅샷 저장 (이번 머지에 참여하는 id들만)
+        val previousIdMap: Map<Int, List<Int>> = mergedIds.associateWith { id ->
+            (idToMergedIds[id] ?: listOf(id)).toList() // defensive copy
+        }
+
         val record = MergeRecord(
             fromIndexBefore = fromIndex,
-            toIndexBefore   = toIndex,
-            fromMemo        = memoList[fromIndex],
-            toMemoBefore    = memoList[toIndex],
-            mergedIds = mutableListOf()
+            toIndexBefore = toIndex,
+            fromMemo = memoList[fromIndex],
+            toMemoBefore = memoList[toIndex],
+            mergedIds = mergedIds,
+            previousIdMap = previousIdMap
         )
 
         scope.launch(Dispatchers.IO) {
             try {
-                // 먼저 UI에서 fromIndex 제거 **이게 먼저 되어야 스트리밍 UI 업데이트가 안전해짐**
                 var targetIndex: Int
+
+                // 먼저 UI에서 fromIndex 제거
                 withContext(Dispatchers.Main) {
                     memoList.removeAt(fromIndex)
                     notifyItemRemoved(fromIndex)
 
-                    // 제거 후에야 올바른 targetIndex 계산 가능
+                    // 제거 후 올바른 targetIndex 계산
                     targetIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
                 }
 
-                // 스트리밍 병합 시작
+                // 스트리밍 머지 시작
                 val finalMergedText = mergeTextByIds(mergedIds, endFlag = false) { partial ->
-
                     scope.launch(Dispatchers.Main) {
-                        // 안전성 체크 꼭 필요
                         if (targetIndex in memoList.indices) {
-                            memoList[targetIndex] = memoList[targetIndex].copy(content = partial)
+                            memoList[targetIndex] =
+                                memoList[targetIndex].copy(content = partial)
                             notifyItemChanged(targetIndex, partial)
                         }
                     }
                 }
 
-                // ID 업데이트
+                // ID 머지 상태 업데이트 (성공 시에만)
                 mergedIds.forEach { updateIdMap(it, mergedIds) }
 
                 // 스트림 종료 후 최종 내용 고정
@@ -215,21 +258,23 @@ class MemoMergeAdapter(
                     maybeNotifyAllMerged()
                 }
             } catch (e: Exception) {
-                // 예외 발생 시 복구(Rollback) 로직
                 Log.e("MemoMergeAdapter", "Merge failed", e)
 
+                // 실패 시 idToMergedIds도 롤백
+                for ((id, oldList) in record.previousIdMap) {
+                    idToMergedIds[id] = oldList.toMutableList()
+                }
+
                 withContext(Dispatchers.Main) {
-                    // 토스트 메시지 표시
                     Toast.makeText(context, "메모 합치기 실패", Toast.LENGTH_SHORT).show()
 
-                    // UI 및 데이터 복구
-                    // 삭제했던 'from' 메모를 원래 위치에 다시 삽입
+                    // 삭제했던 from 메모 복원
                     if (fromIndex <= memoList.size) {
                         memoList.add(fromIndex, record.fromMemo)
                         notifyItemInserted(fromIndex)
                     }
 
-                    // 합쳐지던 'to' 메모(스트리밍으로 내용이 변했을 수 있음)를 원래대로 되돌림
+                    // to 메모 내용 복원
                     if (toIndex in memoList.indices) {
                         memoList[toIndex] = record.toMemoBefore
                         notifyItemChanged(toIndex)
@@ -239,8 +284,7 @@ class MemoMergeAdapter(
         }
     }
 
-
-    fun updateIdMap(targetId: Int, mergedIds: List<Int>){
+    fun updateIdMap(targetId: Int, mergedIds: List<Int>) {
         idToMergedIds[targetId] = mergedIds.toMutableList()
     }
 
@@ -255,7 +299,9 @@ class MemoMergeAdapter(
         val memos = mutableListOf<MemoPayload>()
         mergedIds.forEach {
             val memo = originalMemoMap[it]
-            memos.add(MemoPayload(memo!!.id,memo.content, memo.order))
+            if (memo != null) {
+                memos.add(MemoPayload(memo.id, memo.content, memo.order))
+            }
         }
 
         // 활성 스타일 데이터 로드 또는 더미 데이터 사용
@@ -266,12 +312,12 @@ class MemoMergeAdapter(
         val styleVector: List<Float>
 
         if (styleData != null) {
-            // 활성 스타일이 있을 경우: Room DB의 실제 데이터 사용
-            stylePrompt = convertStylePromptToMap(styleData.stylePrompt) // StylePrompt 객체를 Map으로 변환 필요
+            // 활성 스타일이 있을 경우: Room DB 실제 데이터 사용
+            stylePrompt = convertStylePromptToMap(styleData.stylePrompt)
             styleExample = styleData.styleExamples
             styleVector = styleData.styleVector
         } else {
-            // 활성 스타일이 없을 경우: 더미 데이터 사용 (기존 test 데이터)
+            // 활성 스타일이 없을 경우: 더미 데이터 사용
             stylePrompt = mapOf(
                 "character_concept" to "일상적인 삶을 살아가는 평범한 사람. 소소한 일상을 관찰하고 기록하는 성향을 가진 인물.",
                 "emotional_tone" to "감정이 드러나지 않고 중립적인 톤으로, 일상적인 사건을 기록하는 데 집중한다.",
@@ -299,7 +345,15 @@ class MemoMergeAdapter(
         val temperature = LabsPrefs.getTemperature(context)
         val advancedFlag = LabsPrefs.getAdvancedFlag(context)
 
-        val request = MergeRequest(memos = memos, endFlag = endFlag, stylePrompt, styleExample, styleVector, advancedFlag, temperature )
+        val request = MergeRequest(
+            memos = memos,
+            endFlag = endFlag,
+            stylePrompt = stylePrompt,
+            styleExamples = styleExample,
+            styleVector = styleVector,
+            advancedFlag = advancedFlag,
+            temperature = temperature
+        )
 
         if (endFlag) {
             // skip button => 마지막 완성 → JSON 반환
@@ -327,7 +381,8 @@ class MemoMergeAdapter(
             val chunk = String(charBuffer, 0, read)
             sb.append(chunk)
 
-            onPartial?.invoke(sb.toString()) // 여기서 UI로 즉시 전달
+            // 스트리밍 중간 결과 콜백
+            onPartial(sb.toString())
         }
 
         return sb.toString()
@@ -337,21 +392,22 @@ class MemoMergeAdapter(
     fun undoLastMerge(): Boolean {
         val rec = undoStack.removeLastOrNull() ?: return false
 
-        // 현재 리스트 상태에서 '타깃'이 있는 인덱스 계산
-        // 머지 직후에는 fromIndex가 빠져서,
-        // - from < to 였다면 현재 타깃 인덱스는 (to - 1)
-        // - from > to 였다면 현재 타깃 인덱스는 to
+        // idToMergedIds를 머지 직전 상태로 복원
+        for ((id, oldList) in rec.previousIdMap) {
+            idToMergedIds[id] = oldList.toMutableList()
+        }
+
+        // 현재 리스트에서 타깃 인덱스 계산
         val toCurrent = if (rec.fromIndexBefore < rec.toIndexBefore)
             rec.toIndexBefore - 1
         else
             rec.toIndexBefore
 
-        // 타깃을 머지 전 내용으로 복구
+        // 타깃 메모 내용 복원
         if (toCurrent in memoList.indices) {
             memoList[toCurrent] = rec.toMemoBefore
             notifyItemChanged(toCurrent)
         } else {
-            // 인덱스가 틀어진 예외 상황 방지용: 안전 장치
             return false
         }
 
@@ -363,14 +419,12 @@ class MemoMergeAdapter(
         return true
     }
 
-
-    suspend fun mergeAllMemo(): String{
+    suspend fun mergeAllMemo(): String {
         val idMutableList = mutableListOf<Int>()
-        for (memo in originalMemoMap) {
-            idMutableList.add(memo.value.id)
+        for (entry in originalMemoMap) {
+            idMutableList.add(entry.value.id)
         }
         val idList = idMutableList.toList()
-
         return mergeTextByIds(idList, endFlag = true)
     }
 
@@ -382,6 +436,4 @@ class MemoMergeAdapter(
             super.onBindViewHolder(holder, position, payloads)
         }
     }
-
 }
-

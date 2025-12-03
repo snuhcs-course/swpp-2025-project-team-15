@@ -121,7 +121,14 @@ class AudioRecorderHelper(
                     Log.d("response body","$response.body()")
                     val sttResponse = response.body()
                     if (sttResponse != null && sttResponse.success) {
-                        onRecordingComplete(filePath, sttResponse.transcribedText)
+                        // 빈 문자열이 올 경우 toast
+                        if (sttResponse.transcribedText == "") {
+                            Log.w("AudioRecorderHelper", "STT API returned empty text")
+                            onRecordingFailed("텍스트로 변환할 수 없습니다.")
+                        }
+                        else {
+                            onRecordingComplete(filePath, sttResponse.transcribedText)
+                        }
                     } else {
                         val message = sttResponse?.message ?: "서버 STT 처리 실패"
                         Log.e("AudioRecorderHelper", "STT API Error: $message")

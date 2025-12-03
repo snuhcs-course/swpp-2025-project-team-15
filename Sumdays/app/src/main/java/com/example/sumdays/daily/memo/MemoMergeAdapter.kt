@@ -134,7 +134,7 @@ class MemoMergeAdapter(
                         // {1, 2, 4, 6} 머지된 메모의 id들이 오름차순으로 정렬됨
                         val fromIds: List<Int> = idToMergedIds[memoList[fromIndex].id] ?: emptyList()
                         val toIds:   List<Int> = idToMergedIds[memoList[toIndex].id]  ?: emptyList()
-                        val mergedIds: List<Int> = fromIds + toIds
+                        val mergedIds: List<Int> = (fromIds + toIds).distinct()
                         val sortedIdsByOrder: List<Int> = mergedIds
                             .mapNotNull { id -> originalMemoMap[id] }
                             .sortedBy { it.order }

@@ -172,9 +172,9 @@ class DailyReadActivity : AppCompatActivity() {
             binding.nextDayButton.visibility = View.VISIBLE
             binding.nextDayButton.isEnabled = true
         }
-
-        binding.diaryContentEditText.setText(entry?.diary ?: "")
-        binding.diaryContentTextView.text = entry?.diary ?: ""
+        val diaryText = entry?.diary ?: ""
+        binding.diaryContentEditText.setText(diaryText)
+        binding.diaryContentTextView.text = diaryText
         binding.commentIcon.text = entry?.themeIcon ?: "🤔"
         binding.keywordsText.text = entry?.keywords?.replace(";", ", ")
         binding.commentText.text = entry?.aiComment ?: ""

@@ -7,8 +7,6 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.sumdays.R
@@ -302,11 +300,12 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope by MainScope
             stylePrompt = stylePrompt,      // Non-nullable 변수 사용
             sampleDiary = ""
         )
-        val newId = styleViewModel.insertStyleReturnId(newStyle)
+
         val diary = generateSampleDiary(newStyle)
 
         // 3. 새로운 스타일 저장
-        styleViewModel.updateSampleDiary(newId, diary)
+        val finalStyle = newStyle.copy(sampleDiary = diary)
+        styleViewModel.insertStyle(finalStyle)
     }
 
     // --- 5. UI 및 유틸리티 ---

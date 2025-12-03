@@ -16,7 +16,7 @@ class LabsSettingsActivity : AppCompatActivity() {
 
     // 색상 설정
     private val thumbOn = Color.parseColor("#FFFFFF")
-    private val thumbOff = Color.parseColor("#33FFFFFF")
+    private val thumbOff = Color.parseColor("#FFFFFF")
 
     private val trackOn = Color.parseColor("#C62FE0")
     private val trackOff = Color.parseColor("#33777777")

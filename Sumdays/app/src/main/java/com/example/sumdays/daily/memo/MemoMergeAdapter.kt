@@ -340,7 +340,6 @@ class MemoMergeAdapter(
             )
             styleVector = emptyList()
         }
-        Log.d("test", "TEST: 0")
 
         val temperature = LabsPrefs.getTemperature(context)
         val advancedFlag = LabsPrefs.getAdvancedFlag(context)
@@ -362,7 +361,6 @@ class MemoMergeAdapter(
             return extractMergedText(json)
         }
 
-        Log.d("test", "TEST: 1")
         // API 호출
         val call = ApiClient.api.mergeMemosStream(request)
         val response = call.execute()

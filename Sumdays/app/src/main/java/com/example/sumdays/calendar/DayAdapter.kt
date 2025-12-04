@@ -135,6 +135,9 @@ class DayAdapter(
                 itemView.isFocusable = false
                 tvEmoji.visibility = View.GONE
                 tvDayNumber.setTypeface(null, Typeface.NORMAL)
+                itemView.setOnClickListener {
+                    Toast.makeText(activity, "미래의 일기로는 이동할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 // 과거/오늘만 클릭 허용
                 if (cell.dateString.isNotEmpty()) {

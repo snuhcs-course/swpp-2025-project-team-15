@@ -20,14 +20,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
 import com.example.sumdays.daily.memo.MemoMergeUtils.convertStylePromptToMap
 import com.example.sumdays.daily.memo.MemoMergeUtils.extractMergedText
-import com.example.sumdays.data.style.StylePrompt
-import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.data.dao.UserStyleDao
 import com.example.sumdays.network.ApiClient
-import com.example.sumdays.settings.prefs.UserStatsPrefs
+import com.example.sumdays.daily.memo.MemoPayload
+import com.example.sumdays.daily.memo.MergeRequest
 import com.example.sumdays.settings.prefs.LabsPrefs
-import com.google.gson.Gson
-import com.google.gson.JsonObject
+import com.example.sumdays.settings.prefs.UserStatsPrefs
 import java.io.InputStreamReader
 
 class MemoMergeAdapter(
@@ -340,6 +338,7 @@ class MemoMergeAdapter(
             )
             styleVector = emptyList()
         }
+        Log.d("test", "TEST: 0")
 
         val temperature = LabsPrefs.getTemperature(context)
         val advancedFlag = LabsPrefs.getAdvancedFlag(context)
@@ -361,6 +360,7 @@ class MemoMergeAdapter(
             return extractMergedText(json)
         }
 
+        Log.d("test", "TEST: 1")
         // API 호출
         val call = ApiClient.api.mergeMemosStream(request)
         val response = call.execute()

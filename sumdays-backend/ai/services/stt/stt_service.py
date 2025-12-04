@@ -19,4 +19,16 @@ class SpeechToTextService:
             file=buffer,
             language=language,
         )
+
+        temp_filter = [
+            "MBC 뉴스",
+            "시청해 주셔서",
+            "구독",
+            "고맙습니다."
+        ]
+
+        for s in temp_filter:
+            if s in result.text:
+                return ""
+
         return result.text

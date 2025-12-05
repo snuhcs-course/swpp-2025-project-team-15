@@ -136,13 +136,13 @@ class AudioRecorderHelper(
                     }
                 } else {
                     Log.e("AudioRecorderHelper", "STT API HTTP Error: ${response.code()} ${response.message()}")
-                    onRecordingFailed("서버 통신 오류: ${response.code()}")
+                    onRecordingFailed("서버 통신 오류")
                 }
             }
 
             override fun onFailure(call: Call<STTResponse>, t: Throwable) {
                 Log.e("AudioRecorderHelper", "STT API Network Failure", t)
-                onRecordingFailed("네트워크 오류: ${t.message}")
+                onRecordingFailed("네트워크 오류")
             }
         })
     }

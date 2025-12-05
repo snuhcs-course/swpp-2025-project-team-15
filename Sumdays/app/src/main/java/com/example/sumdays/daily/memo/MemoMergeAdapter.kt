@@ -38,6 +38,15 @@ class MemoMergeAdapter(
     private val userStyleDao: UserStyleDao
 ) : RecyclerView.Adapter<MemoMergeAdapter.VH>() {
 
+    // 오류 유형 정의를 위한 Sealed Class 추가
+    sealed class MergeException(message: String) : Exception(message) {
+        class NetworkException : MergeException("네트워크 연결을 확인해주세요.")
+        class ServerError(code: Int) : MergeException("서버 오류가 발생했습니다. (코드: $code)")
+        class TimeoutException : MergeException("서버 응답 시간이 초과되었습니다.")
+        class EmptyBodyException : MergeException("서버로부터 받은 데이터가 없습니다.")
+        class UnknownException(e: Throwable) : MergeException("알 수 없는 오류: ${e.message}")
+    }
+
     data class MergeRecord(
         val fromIndexBefore: Int,
         val toIndexBefore: Int,
@@ -69,9 +78,6 @@ class MemoMergeAdapter(
         }
     }
 
-    /**
-     * suppose that the timestamp is STABLE (since ID must be STABLE)
-     */
     override fun getItemId(position: Int): Long =
         (memoList[position].content + memoList[position].timestamp).hashCode().toLong()
 
@@ -103,7 +109,6 @@ class MemoMergeAdapter(
         val memo = memoList[position]
         holder.bind(memo)
 
-        // 드래그 시작: 시작 index를 localState로 넘김
         holder.itemView.isLongClickable = true
         holder.itemView.setOnLongClickListener { v ->
             val fromIndex = holder.adapterPosition
@@ -121,7 +126,6 @@ class MemoMergeAdapter(
             true
         }
 
-        // 타깃 리스너
         holder.itemView.setOnDragListener { view, event ->
             when (event.action) {
                 DragEvent.ACTION_DRAG_STARTED -> true
@@ -155,10 +159,8 @@ class MemoMergeAdapter(
                         val toIds: List<Int> =
                             idToMergedIds[toId]?.toList() ?: listOf(toId)
 
-                        // 두 그룹을 합치고, 중복 제거
                         val mergedIds: List<Int> = (fromIds + toIds).distinct()
 
-                        // order 순서대로 정렬해서 안정적인 머지 순서 유지
                         val sortedIdsByOrder: List<Int> = mergedIds
                             .mapNotNull { id -> originalMemoMap[id] }
                             .sortedBy { it.order }
@@ -199,13 +201,11 @@ class MemoMergeAdapter(
         if (memoList.size <= 1) onAllMergesDone()
     }
 
-    /** 합칠 MemoList index들과 id들을 인자로 주면 두 메모를 하나로 합친다. */
     private fun mergeByIndex(fromIndex: Int, toIndex: Int, mergedIds: List<Int>) {
         if (fromIndex !in memoList.indices || toIndex !in memoList.indices) return
 
-        // 머지 직전 idToMergedIds 스냅샷 저장 (이번 머지에 참여하는 id들만)
         val previousIdMap: Map<Int, List<Int>> = mergedIds.associateWith { id ->
-            (idToMergedIds[id] ?: listOf(id)).toList() // defensive copy
+            (idToMergedIds[id] ?: listOf(id)).toList()
         }
 
         val record = MergeRecord(
@@ -221,16 +221,13 @@ class MemoMergeAdapter(
             try {
                 var targetIndex: Int
 
-                // 먼저 UI에서 fromIndex 제거
                 withContext(Dispatchers.Main) {
                     memoList.removeAt(fromIndex)
                     notifyItemRemoved(fromIndex)
 
-                    // 제거 후 올바른 targetIndex 계산
                     targetIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
                 }
 
-                // 스트리밍 머지 시작
                 val finalMergedText = mergeTextByIds(mergedIds, endFlag = false) { partial ->
                     scope.launch(Dispatchers.Main) {
                         if (targetIndex in memoList.indices) {
@@ -241,10 +238,8 @@ class MemoMergeAdapter(
                     }
                 }
 
-                // ID 머지 상태 업데이트 (성공 시에만)
                 mergedIds.forEach { updateIdMap(it, mergedIds) }
 
-                // 스트림 종료 후 최종 내용 고정
                 withContext(Dispatchers.Main) {
                     if (targetIndex in memoList.indices) {
                         memoList[targetIndex] =
@@ -258,21 +253,25 @@ class MemoMergeAdapter(
             } catch (e: Exception) {
                 Log.e("MemoMergeAdapter", "Merge failed", e)
 
-                // 실패 시 idToMergedIds도 롤백
                 for ((id, oldList) in record.previousIdMap) {
                     idToMergedIds[id] = oldList.toMutableList()
                 }
 
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "메모 합치기 실패", Toast.LENGTH_SHORT).show()
+                // 예외 타입에 따른 에러 메시지 분기 처리
+                val errorMessage = when (e) {
+                    is MergeException -> e.message ?: "메모 합치기 실패"
+                    is java.util.concurrent.CancellationException -> "작업이 중단되었습니다."
+                    else -> "메모 합치기 실패 (오류: ${e.localizedMessage})"
+                }
 
-                    // 삭제했던 from 메모 복원
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+
                     if (fromIndex <= memoList.size) {
                         memoList.add(fromIndex, record.fromMemo)
                         notifyItemInserted(fromIndex)
                     }
 
-                    // to 메모 내용 복원
                     if (toIndex in memoList.indices) {
                         memoList[toIndex] = record.toMemoBefore
                         notifyItemChanged(toIndex)
@@ -286,14 +285,13 @@ class MemoMergeAdapter(
         idToMergedIds[targetId] = mergedIds.toMutableList()
     }
 
-    /** 주어진 Memo Id들에 해당하는 Memo text들을 OpenAI를 이용해 하나로 합친다. 합쳐진 문장 반환 */
+    @Throws(MergeException::class)
     suspend fun mergeTextByIds(
         mergedIds: List<Int>,
         endFlag: Boolean = false,
         onPartial: (String) -> Unit = {}
     ): String {
 
-        // 서버에 보낼 Memo 리스트 구성
         val memos = mutableListOf<MemoPayload>()
         mergedIds.forEach {
             val memo = originalMemoMap[it]
@@ -302,7 +300,6 @@ class MemoMergeAdapter(
             }
         }
 
-        // 활성 스타일 데이터 로드 또는 더미 데이터 사용
         val activeStyleId = userStatsPrefs.getActiveStyleId()
         val styleData = userStyleDao.getStyleById(activeStyleId)
         val stylePrompt: Map<String, Any>
@@ -310,12 +307,10 @@ class MemoMergeAdapter(
         val styleVector: List<Float>
 
         if (styleData != null) {
-            // 활성 스타일이 있을 경우: Room DB 실제 데이터 사용
             stylePrompt = convertStylePromptToMap(styleData.stylePrompt)
             styleExample = styleData.styleExamples
             styleVector = styleData.styleVector
         } else {
-            // 활성 스타일이 없을 경우: 더미 데이터 사용
             stylePrompt = mapOf(
                 "character_concept" to "일상적인 삶을 살아가는 평범한 사람. 소소한 일상을 관찰하고 기록하는 성향을 가진 인물.",
                 "emotional_tone" to "감정이 드러나지 않고 중립적인 톤으로, 일상적인 사건을 기록하는 데 집중한다.",
@@ -353,55 +348,70 @@ class MemoMergeAdapter(
             temperature = temperature
         )
 
-        if (endFlag) {
-            // skip button => 마지막 완성 → JSON 반환
-            val response = ApiClient.api.mergeMemos(request)
-            val json = response.body() ?: throw IllegalStateException("Empty final response")
-            return extractMergedText(json)
+        // try-catch 블록을 통해 예외를 구체적인 MergeException으로 변환
+        try {
+            if (endFlag) {
+                val response = ApiClient.api.mergeMemos(request)
+                if (!response.isSuccessful) {
+                    throw MergeException.ServerError(response.code())
+                }
+                val json = response.body() ?: throw MergeException.EmptyBodyException()
+                return extractMergedText(json)
+            }
+
+            Log.d("test", "TEST: 1")
+            val call = ApiClient.api.mergeMemosStream(request)
+            val response = call.execute()
+
+            if (!response.isSuccessful) {
+                throw MergeException.ServerError(response.code())
+            }
+
+            val stream = response.body()?.byteStream()
+                ?: throw MergeException.EmptyBodyException()
+
+            val reader = InputStreamReader(stream, Charsets.UTF_8)
+            val sb = StringBuilder()
+            val charBuffer = CharArray(64)
+
+            while (true) {
+                val read = reader.read(charBuffer)
+                if (read == -1) break
+
+                val chunk = String(charBuffer, 0, read)
+                sb.append(chunk)
+                onPartial(sb.toString())
+            }
+
+            return sb.toString()
+
+        } catch (e: java.net.SocketTimeoutException) {
+            throw MergeException.TimeoutException()
+        } catch (e: java.net.ConnectException) {
+            throw MergeException.NetworkException()
+        } catch (e: java.net.UnknownHostException) {
+            throw MergeException.NetworkException()
+        } catch (e: MergeException) {
+            throw e
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            throw MergeException.UnknownException(e)
         }
-
-        Log.d("test", "TEST: 1")
-        // API 호출
-        val call = ApiClient.api.mergeMemosStream(request)
-        val response = call.execute()
-
-        val stream = response.body()?.byteStream()
-            ?: throw IllegalStateException("Empty streaming body")
-
-        val reader = InputStreamReader(stream, Charsets.UTF_8)
-        val sb = StringBuilder()
-        val charBuffer = CharArray(64)
-
-        while (true) {
-            val read = reader.read(charBuffer)
-            if (read == -1) break
-
-            val chunk = String(charBuffer, 0, read)
-            sb.append(chunk)
-
-            // 스트리밍 중간 결과 콜백
-            onPartial(sb.toString())
-        }
-
-        return sb.toString()
     }
 
-    /** 마지막 머지를 되돌린다. 성공하면 true */
     fun undoLastMerge(): Boolean {
         val rec = undoStack.removeLastOrNull() ?: return false
 
-        // idToMergedIds를 머지 직전 상태로 복원
         for ((id, oldList) in rec.previousIdMap) {
             idToMergedIds[id] = oldList.toMutableList()
         }
 
-        // 현재 리스트에서 타깃 인덱스 계산
         val toCurrent = if (rec.fromIndexBefore < rec.toIndexBefore)
             rec.toIndexBefore - 1
         else
             rec.toIndexBefore
 
-        // 타깃 메모 내용 복원
         if (toCurrent in memoList.indices) {
             memoList[toCurrent] = rec.toMemoBefore
             notifyItemChanged(toCurrent)
@@ -409,7 +419,6 @@ class MemoMergeAdapter(
             return false
         }
 
-        // from 메모를 원래 위치에 다시 삽입
         val insertIndex = rec.fromIndexBefore.coerceIn(0, memoList.size)
         memoList.add(insertIndex, rec.fromMemo)
         notifyItemInserted(insertIndex)
@@ -423,6 +432,7 @@ class MemoMergeAdapter(
             idMutableList.add(entry.value.id)
         }
         val idList = idMutableList.toList()
+        // mergeAllMemo는 한 번에 전체를 합치는 것이므로 여기서도 예외 처리는 mergeTextByIds에 위임
         return mergeTextByIds(idList, endFlag = true)
     }
 

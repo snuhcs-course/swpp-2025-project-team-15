@@ -16,7 +16,6 @@ def test_analyze_diary_integration(client):
     assert response.status_code == 200
     data = response.get_json()
     
-    # JSON 필드 검증
     assert "analysis" in data
     assert "icon" in data
     assert "ai_comment" in data
@@ -25,9 +24,6 @@ def test_analyze_diary_integration(client):
     assert "emotion_score" in data["analysis"]
 
 def test_analysis_diary_missing_field(client):
-    """
-    [에러 테스트] /analysis/diary - 빈 바디 전달
-    """
     res = client.post("/analysis/diary", data=json.dumps({}),
                       content_type="application/json")
     data = res.get_json()

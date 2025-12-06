@@ -1,3 +1,7 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+sentence-transformers
+
 langchain==0.3.27
 langchain-openai==0.3.35
 langchain-core==0.3.79
@@ -11,4 +15,3 @@ google-cloud-vision
 pytest
 coverage
 pytest-cov
-sentence-transformers

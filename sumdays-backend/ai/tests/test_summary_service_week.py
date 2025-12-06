@@ -30,9 +30,6 @@ def test_summarize_week_integration(client):
     assert "emerging_topics" in summary
 
 def test_analysis_week_invalid_body(client):
-    """
-    [에러 테스트] /analysis/week - diaries 누락
-    """
     res = client.post("/analysis/week", data=json.dumps({"wrong": []}),
                       content_type="application/json")
     data = res.get_json()

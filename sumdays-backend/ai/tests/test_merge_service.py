@@ -10,20 +10,8 @@ from ai.services.merge.merge_service import (
     merge_rerank,
 )
 
-# ============================================================
-# 0) analysis_service + OpenAI 전체 mock (라우트 400 방지)
-# ============================================================
 @pytest.fixture(autouse=True)
 def mock_all(monkeypatch):
-    """
-    merge 라우트에 사용되는 모든 외부 요소를 mock:
-    - analysis_service.analyze
-    - OpenAI completions.create
-    """
-
-    # ---------------------------
-    # 1) diary 분석 mock
-    # ---------------------------
     class FakeAnalysis:
         def analyze(self, diary):
             return {
@@ -38,9 +26,6 @@ def mock_all(monkeypatch):
         merge_routes.analysis_service, "analyze", FakeAnalysis().analyze
     )
 
-    # ---------------------------
-    # 2) OpenAI completions mock
-    # ---------------------------
     import ai.services.merge.merge_service as ms
 
     class FakeMessage:
@@ -55,7 +40,6 @@ def mock_all(monkeypatch):
         def __init__(self, content):
             self.choices = [FakeChoice(content)]
 
-    # merge_rerank가 반드시 텍스트를 생성할 수 있도록 한다
     def fake_create(*args, **kwargs):
         return FakeResponse("첫번째 단락입니다.\n###\n두번째 단락입니다.")
 
@@ -64,9 +48,6 @@ def mock_all(monkeypatch):
     )
 
 
-# ============================================================
-# 공용 payload
-# ============================================================
 def _build_base_payload(end_flag: bool, advanced_flag: bool = False) -> dict:
     return {
         "memos": [
@@ -89,16 +70,8 @@ def _build_base_payload(end_flag: bool, advanced_flag: bool = False) -> dict:
     }
 
 
-# ============================================================
-# 1) /merge/ 라우트 테스트
-# ============================================================
 
 def test_merge_only_streaming_route(client):
-    """
-    Case A:
-    end_flag=False AND advanced_flag=False
-    → merge_stream → text/plain
-    """
     payload = _build_base_payload(end_flag=False, advanced_flag=False)
 
     res = client.post("/merge/", data=json.dumps(payload), content_type="application/json")
@@ -109,52 +82,7 @@ def test_merge_only_streaming_route(client):
     body = res.get_data(as_text=True).strip()
     assert body != ""
 
-
-# def test_merge_rerank_route(client):
-#     """
-#     Case B:
-#     end_flag=False AND advanced_flag=True
-#     → merge_rerank → string
-#     """
-#     payload = _build_base_payload(end_flag=False, advanced_flag=True)
-
-#     res = client.post("/merge/", data=json.dumps(payload), content_type="application/json")
-
-#     assert res.status_code == 200
-
-#     body = res.get_data(as_text=True)
-#     assert isinstance(body, str)
-#     assert body.strip() != ""
-
-
-# def test_merge_and_analyze_route(client):
-#     """
-#     Case C:
-#     end_flag=True → merge 후 analysis → JSON
-#     """
-#     payload = _build_base_payload(end_flag=True, advanced_flag=True)
-#     payload["entry_date"] = "2025-10-29"
-#     payload["user_id"] = 123
-
-#     res = client.post("/merge/", data=json.dumps(payload), content_type="application/json")
-
-#     assert res.status_code == 200
-
-#     data = res.get_json()
-#     assert "entry_date" in data
-#     assert "user_id" in data
-#     assert "diary" in data
-#     assert "icon" in data
-#     assert "ai_comment" in data
-#     assert "analysis" in data
-
-#     assert data["diary"].strip() != ""
-
-
 def test_merge_bad_request_route(client):
-    """
-    잘못된 요청 → KeyError → except → 400
-    """
     bad_payload = {
         # memos 누락
         "end_flag": False,
@@ -170,10 +98,6 @@ def test_merge_bad_request_route(client):
     assert res.status_code == 400
     assert "error" in res.get_json()
 
-
-# ============================================================
-# 2) helper 함수 테스트
-# ============================================================
 
 def test_l2norm_basic_and_zero():
     vec = np.array([[3.0, 4.0]], dtype=np.float32)
@@ -219,17 +143,8 @@ def test_embed_sentences_shape_and_norm():
     assert np.allclose(np.linalg.norm(E, axis=-1), 1.0, atol=1e-3)
 
 
-# ============================================================
-# 3) merge_rerank 전체 로직 커버
-# ============================================================
 
 def test_merge_rerank_full_flow(monkeypatch):
-    """
-    merge_rerank 내부 전체 흐름 커버 테스트
-    - 첫번째 메모 → 단락 선택됨
-    - 두번째 메모 → blocks 없음 → skip
-    - 세번째 메모 → 중복 단락 skip
-    """
     from ai.services.merge import merge_service as ms
 
     def fake_embed(sentences):

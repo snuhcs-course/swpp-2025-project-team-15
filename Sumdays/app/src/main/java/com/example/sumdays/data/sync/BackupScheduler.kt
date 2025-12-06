@@ -2,10 +2,11 @@ package com.example.sumdays.data.sync
 
 import androidx.work.*
 import java.util.concurrent.TimeUnit
+import android.content.Context
 
 object BackupScheduler {
     // 3시간마다 자동 백업
-    fun scheduleAutoBackup() {
+    fun scheduleAutoBackup(context : Context) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.UNMETERED) // Wi-Fi 연결 시만 수행
             .build()
@@ -16,7 +17,7 @@ object BackupScheduler {
             .setConstraints(constraints)
             .build()
 
-        WorkManager.getInstance()
+        WorkManager.getInstance(context)
             .enqueueUniquePeriodicWork(
                 "auto_backup",
                 ExistingPeriodicWorkPolicy.KEEP, // 기존 스케줄 유지
@@ -25,8 +26,8 @@ object BackupScheduler {
     }
 
     // 수동 백업 (즉시 한 번 실행)
-    fun triggerManualBackup() {
+    fun triggerManualBackup(context : Context) {
         val request = OneTimeWorkRequestBuilder<BackupWorker>().build()
-        WorkManager.getInstance().enqueue(request)
+        WorkManager.getInstance(context).enqueue(request)
     }
 }

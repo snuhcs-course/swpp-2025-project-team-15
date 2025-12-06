@@ -138,7 +138,7 @@ class SettingsActivity : AppCompatActivity() {
 
         // backup 관련 버튼
         backupBtn.setOnClickListener {
-            BackupScheduler.triggerManualBackup()
+            BackupScheduler.triggerManualBackup(applicationContext)
             Toast.makeText(this@SettingsActivity, "수동 백업 완료", Toast.LENGTH_SHORT).show()
         }
 

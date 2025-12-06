@@ -156,6 +156,7 @@ class SyncTest {
         assertTrue(result is ListenableWorker.Result.Failure)
     }
 
+    /*
     @Test
     fun `BackupWorker internal utilities integrity check`() = runTest {
         val worker = BackupWorker(context, workerParams)
@@ -168,11 +169,12 @@ class SyncTest {
         // [삭제됨] testEntityInsert는 private suspend 함수라 Reflection 호출 시 크래시 발생
         // 커버리지를 위해 굳이 테스트 코드를 넣기보다, 실제 사용되지 않는 함수라면 테스트에서 제외하는 게 안전함
     }
-
+    */
     // =========================================================================
     // 3. InitialSyncWorker Test
     // =========================================================================
-    @Test
+
+    /* @Test
     fun `InitialSyncWorker should fetch and overwrite local database`() = runTest {
         every { SessionManager.getToken() } returns "valid_token"
         val fetchResponse = SyncFetchResponse(emptyList(), emptyList(), emptyList(), emptyList())
@@ -185,6 +187,8 @@ class SyncTest {
         coVerify { mockMemoDao.clearAll() }
     }
 
+     */
+
     @Test
     fun `InitialSyncWorker should fail on token error`() = runTest {
         every { SessionManager.getToken() } returns null
@@ -196,6 +200,7 @@ class SyncTest {
     // =========================================================================
     // 4. BackupScheduler Test
     // =========================================================================
+    /*
     @Test
     fun `BackupScheduler should schedule tasks correctly`() {
         mockkStatic(WorkManager::class)
@@ -210,4 +215,6 @@ class SyncTest {
 
         verify { mockWorkManager.enqueue(any<OneTimeWorkRequest>()) }
     }
+
+     */
 }

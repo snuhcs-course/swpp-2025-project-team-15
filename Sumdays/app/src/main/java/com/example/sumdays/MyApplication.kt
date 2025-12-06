@@ -23,7 +23,7 @@ open class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         AndroidThreeTen.init(this)
-        BackupScheduler.scheduleAutoBackup()
+        BackupScheduler.scheduleAutoBackup(this)
         WeekSummaryScheduler.scheduleWeeklyTask(this)
     }
 }

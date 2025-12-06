@@ -11,6 +11,7 @@ data class SyncRequest(
     val edited: EditedPayload?
 )
 
+
 data class SyncFetchResponse(
     val memo: List<MemoPayload>,
     val dailyEntry: List<DailyEntryPayload>,

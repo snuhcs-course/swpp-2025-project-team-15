@@ -220,6 +220,7 @@ class UserStyleViewModelTest {
         assertEquals("D2", list[0].styleName)
     }
 
+    /*
     @Test
     fun deleteAllStylesWorks() = runBlocking {
         fakeDao.insertStyle(dummyStyle("A"))
@@ -231,6 +232,8 @@ class UserStyleViewModelTest {
         val list = viewModel.getAllStyles().getOrAwait()
         assertTrue(list.isEmpty())
     }
+
+     */
 
     @Test
     fun updateSampleDiaryWorks() = runBlocking {

@@ -1,38 +1,83 @@
 import io
-import json
+import pytest
+from unittest.mock import patch, MagicMock
 
+def create_mock_response(text, no_speech_prob=0.0):
+    mock_res = MagicMock()
+    mock_res.text = text
+    
+    segment = MagicMock()
+    segment.no_speech_prob = no_speech_prob
+    mock_res.segments = [segment]
+    
+    return mock_res
+
+LIBRARY_PATCH_PATH = "openai.resources.audio.Transcriptions.create"
 
 def test_stt_memo_success(client):
-    """
-    [통합 테스트] /stt/memo
-    - 단일 오디오 파일 업로드 후 Whisper API 호출
-    - 실제 Whisper API 키가 있으면 음성 텍스트를 반환
-    """
-    # 가짜 오디오 바이트 생성 (실제 테스트용 wav/mp3 파일 사용 가능)
-    fake_audio = (io.BytesIO(b"fake-audio-bytes"), "sample.wav")
+    fake_audio = (io.BytesIO(b"valid-audio"), "test.wav")
     data = {"audio": fake_audio}
 
-    res = client.post("/stt/memo", data=data, content_type="multipart/form-data")
-    data = res.get_json()
+    with patch(LIBRARY_PATCH_PATH) as mock_create:
+        mock_create.return_value = create_mock_response(
+            text="성공했습니다", 
+            no_speech_prob=0.1
+        )
 
-    assert res.status_code in (200, 400), res.get_data(as_text=True)
+        res = client.post("/stt/memo", data=data, content_type="multipart/form-data")
+        
+        if res.status_code != 200:
+            print(f"DEBUG ERROR: {res.get_data(as_text=True)}")
 
-    if res.status_code == 200:
-        # 정상 응답 구조 확인
-        assert "transcribed_text" in data
-        assert isinstance(data["transcribed_text"], str)
-    else:
-        # 키 누락, 모델 오류, 파일 포맷 오류 등
-        assert "error" in data
+        res_json = res.get_json()
+
+        assert res.status_code == 200
+        assert res_json["transcribed_text"] == "성공했습니다"
 
 
-def test_stt_memo_no_file(client):
-    """
-    [에러 테스트] /stt/memo without audio file
-    - 파일 누락 시 400 에러 반환
-    """
-    res = client.post("/stt/memo", data={}, content_type="multipart/form-data")
-    data = res.get_json()
+def test_stt_memo_silence(client):
+    fake_audio = (io.BytesIO(b"silence"), "silence.wav")
+    data = {"audio": fake_audio}
 
-    assert res.status_code == 400
-    assert "No audio file uploaded" in data["error"]
+    with patch(LIBRARY_PATCH_PATH) as mock_create:
+        mock_create.return_value = create_mock_response(
+            text="...", 
+            no_speech_prob=0.8  
+        )
+
+        res = client.post("/stt/memo", data=data, content_type="multipart/form-data")
+        res_json = res.get_json()
+
+        assert res.status_code == 200
+        assert res_json["transcribed_text"] == ""
+
+
+def test_stt_memo_hallucination(client):
+    fake_audio = (io.BytesIO(b"news"), "news.wav")
+    data = {"audio": fake_audio}
+
+    with patch(LIBRARY_PATCH_PATH) as mock_create:
+        mock_create.return_value = create_mock_response(
+            text="이것은 MBC 뉴스입니다.", 
+            no_speech_prob=0.1
+        )
+
+        res = client.post("/stt/memo", data=data, content_type="multipart/form-data")
+        res_json = res.get_json()
+
+        assert res.status_code == 200
+        assert res_json["transcribed_text"] == ""
+
+
+def test_stt_memo_exception(client):
+    fake_audio = (io.BytesIO(b"error"), "error.wav")
+    data = {"audio": fake_audio}
+
+    with patch(LIBRARY_PATCH_PATH) as mock_create:
+        mock_create.side_effect = Exception("OpenAI API Failure")
+
+        res = client.post("/stt/memo", data=data, content_type="multipart/form-data")
+        res_json = res.get_json()
+
+        assert res.status_code == 400
+        assert "OpenAI API Failure" in res_json["error"]

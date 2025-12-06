@@ -2,6 +2,7 @@
 
 # Node.js dependencies
 /sumdays-backend/node_modules
+/sumdays-backend/coverage
 
 # Byte-compiled / optimal files
 **/.__pytest_cache/
@@ -13,5 +14,5 @@
 # env
 **/.env
 **/.coverage
-**/coverage/
+**/coverage
 **/tmp/

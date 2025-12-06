@@ -176,7 +176,7 @@ class SettingsActivityTest {
         // 2. 수동 백업 (backupBtn) 클릭
         // TestApplication이 WorkManager를 초기화해뒀기 때문에, BackupScheduler가 터지지 않습니다.
         activity.findViewById<View>(R.id.backupBtn).performClick()
-        assertEquals("수동 백업을 시작합니다", org.robolectric.shadows.ShadowToast.getTextOfLatestToast())
+        assertEquals("수동 백업 완료", org.robolectric.shadows.ShadowToast.getTextOfLatestToast())
 
         // 3. 초기화 (initBtn) 클릭
         activity.findViewById<View>(R.id.initBtn).performClick()

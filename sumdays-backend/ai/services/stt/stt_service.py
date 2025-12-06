@@ -18,11 +18,19 @@ class SpeechToTextService:
             model=self.model,
             file=buffer,
             language=language,
+            response_format="verbose_json",
         )
 
+        # check if file has no speech
+        if hasattr(result, 'segments') and result.segments:
+            avg_no_speech_prob = sum(s.no_speech_prob for s in result.segments) / len(result.segments)
+            if avg_no_speech_prob > 0.75:
+                return ""
+
+        # filter hallucination manually
         temp_filter = [
             "MBC 뉴스",
-            "시청해 주셔서",
+            "시청해",
             "구독",
             "고맙습니다."
         ]

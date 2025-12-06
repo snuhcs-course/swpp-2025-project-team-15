@@ -191,6 +191,7 @@ class MemoMergeAdapterTest {
             toIndexBefore = 1,
             fromMemo = m1,
             toMemoBefore = m2,
+            previousIdMap = emptyMap(),
             mergedIds = mutableListOf(1, 2)
         )
 

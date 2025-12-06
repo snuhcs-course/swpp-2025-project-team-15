@@ -110,7 +110,8 @@ class UserSyncFakeTest {
                     aiComment = entry.aiComment,
                     emotionScore = entry.emotionScore,
                     emotionIcon = entry.emotionIcon,
-                    themeIcon = entry.themeIcon
+                    themeIcon = entry.themeIcon,
+                    photoUrls = entry.photoUrls
                 )
             ),
             weekSummary = listOf(

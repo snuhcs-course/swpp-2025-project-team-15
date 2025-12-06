@@ -21,48 +21,63 @@
         android:launchMode="singleTask">
         <activity
             android:name=".RegisterationActivity"
-            android:exported="false" />
+            android:screenOrientation="portrait"
+            android:exported="false"
+            />
         <activity
             android:name=".LoginActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name="com.example.sumdays.TutorialActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.Sumdays.TutorialDialog" />
         <activity
             android:name=".DailyWriteActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/Theme.First" />
         <activity
             android:name=".DailyReadActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/Theme.First" />
         <activity
             android:name=".DailySumActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".CalendarActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.First" />
         <activity
             android:name=".StatisticsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".statistics.WeekStatsDetailActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <!--  settings  -->
         <activity android:name=".SettingsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity android:name=".settings.AccountSettingsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity android:name=".settings.DiaryStyleSettingsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity android:name=".settings.NotificationSettingsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity android:name=".settings.LabsSettingsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
@@ -75,6 +90,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.First">

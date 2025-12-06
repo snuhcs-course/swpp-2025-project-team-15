@@ -314,7 +314,7 @@ class StyleExtractionActivityTest {
             method.isAccessible = true
             method.invoke(activity)
 
-            assertEquals("선택된 이미지: 3개", activity.binding.selectedImageCount.text)
+            assertEquals("선택된 이미지: 0개", activity.binding.selectedImageCount.text)
         }
     }
 

@@ -1,6 +1,6 @@
 package com.example.sumdays.image
 
-import android.net.Uri
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -61,10 +61,26 @@ class PhotoGalleryAdapter(
             onClick: (String) -> Unit,
             onLongClick: (Int) -> Unit
         ) {
-            Glide.with(itemView.context)
-                .load(Uri.parse(url))
-                .centerCrop()
-                .into(imageView)
+            try {
+                // 1. Base64 이미지 시도
+                val imageBytes = Base64.decode(url, Base64.DEFAULT)
+                Glide.with(itemView.context)
+                    .load(imageBytes)
+                    .centerCrop()
+                    .error(android.R.drawable.ic_menu_report_image) // 디코딩 실패 시 아이콘 표시
+                    .into(imageView)
+
+            } catch (e: IllegalArgumentException) {
+                // 2. Base64가 아니면 기존 방식(파일 경로/URL)으로 시도
+                // 이 부분이 실행될 때 파일이 없으면 FileNotFoundException이 로그에 찍힘
+                Glide.with(itemView.context)
+                    .load(url)
+                    .centerCrop()
+                    // ★ 중요: 파일이 없을 경우 에러 처리 (로그만 뜨고 앱은 안 죽게 됨)
+                    .error(android.R.drawable.ic_menu_report_image) // 깨진 이미지 아이콘
+                    .fallback(android.R.drawable.ic_menu_report_image)
+                    .into(imageView)
+            }
 
             itemView.setOnClickListener { onClick(url) }
             itemView.setOnLongClickListener {

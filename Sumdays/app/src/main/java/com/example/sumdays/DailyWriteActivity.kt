@@ -124,6 +124,7 @@ class DailyWriteActivity : AppCompatActivity() {
                     isRecording = true
                     micIcon.visibility = View.GONE
                     stopIcon.visibility = View.VISIBLE
+                    sendIcon.visibility = View.GONE
                     audioWaveView.visibility = View.VISIBLE
                     memoInputEditText.visibility = View.INVISIBLE
                     startWaveAnimation()
@@ -139,6 +140,7 @@ class DailyWriteActivity : AppCompatActivity() {
                     micIcon.isEnabled = false // 클릭 안되게
                     micIcon.alpha = 0.5f // 반투명하게
                     stopIcon.visibility = View.GONE
+                    sendIcon.visibility = View.VISIBLE
 
                     audioWaveView.visibility = View.GONE
                     memoInputEditText.visibility = View.VISIBLE

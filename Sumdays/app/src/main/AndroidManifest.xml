@@ -69,6 +69,7 @@
             android:exported="false" />
         <activity android:name=".settings.AccountSettingsActivity"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false" />
         <activity android:name=".settings.DiaryStyleSettingsActivity"
             android:screenOrientation="portrait"
@@ -84,6 +85,7 @@
             android:name=".settings.StyleExtractionActivity"
             android:exported="false"
             android:label="스타일 추출"
+            android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait" />
         <!-- -->
 

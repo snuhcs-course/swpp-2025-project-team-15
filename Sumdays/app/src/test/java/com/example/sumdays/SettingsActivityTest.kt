@@ -33,9 +33,15 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.threeten.bp.LocalDate
+import android.app.AlertDialog
+import org.junit.Assert.assertNotNull
+import org.robolectric.shadows.ShadowAlertDialog
+import org.robolectric.shadows.ShadowToast
+import android.content.DialogInterface
+import org.robolectric.shadows.ShadowDialog
+
 
 @RunWith(AndroidJUnit4::class)
-// ★ 여기가 핵심입니다! 이미 만들어두신 TestApplication을 사용하도록 지정합니다.
 @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE], application = TestApplication::class)
 class SettingsActivityTest {
 
@@ -52,9 +58,6 @@ class SettingsActivityTest {
         // 1. 기본 설정 (ThreeTenBP 등)
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         AndroidThreeTen.init(context)
-
-        // TestApplication에서 이미 WorkManager를 초기화했으므로
-        // 여기서 별도로 WorkManager 초기화 코드를 작성할 필요가 없습니다! (매우 깔끔해짐)
 
         // 2. SessionManager Mocking (로그아웃 테스트용)
         mockkObject(SessionManager)
@@ -95,9 +98,6 @@ class SettingsActivityTest {
         unmockkAll()
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 여기서부터 커버리지 테스트 (에러 나는 버튼들은 제외하고 안전하게 진행)
-    // ─────────────────────────────────────────────────────────────
 
     @Test
     fun loadAndDisplayNickname_updatesUI() {
@@ -162,24 +162,20 @@ class SettingsActivityTest {
         activity.findViewById<ImageButton>(R.id.btnInfo).performClick()
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // ★ 추가: 아까 뺐었던 백업, 통계, 초기화 버튼 테스트
-    // TestApplication 덕분에 이제 에러 없이 돌아갑니다!
-    // ─────────────────────────────────────────────────────────────
     @Test
     fun functionalButtons_triggerWorkManagerActions() {
-        // 1. 주간 통계 (summaryBlock) 클릭
         activity.findViewById<View>(R.id.summaryBlock).performClick()
-        // 토스트 메시지가 뜨는지 확인하면 로직이 정상 실행된 것입니다.
-        assertEquals("주간 통계 생성 요청됨", org.robolectric.shadows.ShadowToast.getTextOfLatestToast())
+        assertEquals("주간 통계 생성 요청됨", ShadowToast.getTextOfLatestToast())
 
-        // 2. 수동 백업 (backupBtn) 클릭
-        // TestApplication이 WorkManager를 초기화해뒀기 때문에, BackupScheduler가 터지지 않습니다.
         activity.findViewById<View>(R.id.backupBtn).performClick()
-        assertEquals("수동 백업 완료", org.robolectric.shadows.ShadowToast.getTextOfLatestToast())
+        assertEquals("수동 백업 완료", ShadowToast.getTextOfLatestToast())
 
-        // 3. 초기화 (initBtn) 클릭
         activity.findViewById<View>(R.id.initBtn).performClick()
-        assertEquals("초기화 동기화를 시작합니다", org.robolectric.shadows.ShadowToast.getTextOfLatestToast())
+
+        val latestDialog = ShadowDialog.getLatestDialog()
+        assertNotNull(latestDialog)
     }
+
+
+
 }

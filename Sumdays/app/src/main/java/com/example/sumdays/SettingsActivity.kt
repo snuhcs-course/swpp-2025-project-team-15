@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sumdays.databinding.ActivitySettingsMainBinding
 import com.example.sumdays.settings.AccountSettingsActivity
@@ -143,9 +144,17 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         initBtn.setOnClickListener {
-            val request = OneTimeWorkRequestBuilder<InitialSyncWorker>().build()
-            WorkManager.getInstance(applicationContext).enqueue(request)
-            Toast.makeText(this@SettingsActivity, "초기화 동기화를 시작합니다", Toast.LENGTH_SHORT).show()
+            AlertDialog.Builder(this@SettingsActivity)
+                .setTitle("초기화 확인")
+                .setMessage("정말 초기화하시겠습니까? 초기화 동기화를 실행하면 서버에 백업되지 않은 데이터는 날아갑니다.")
+                .setPositiveButton("확인") { _, _ ->
+                    // 확인 버튼을 눌렀을 때만 실행
+                    val request = OneTimeWorkRequestBuilder<InitialSyncWorker>().build()
+                    WorkManager.getInstance(applicationContext).enqueue(request)
+                    Toast.makeText(this@SettingsActivity, "초기화 동기화를 시작합니다", Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton("취소", null) // 취소 버튼을 누르면 다이얼로그 닫힘
+                .show()
         }
     }
 }

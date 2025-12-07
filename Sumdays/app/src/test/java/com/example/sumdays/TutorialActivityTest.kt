@@ -17,7 +17,7 @@ import org.robolectric.shadows.ShadowActivity
 
 @RunWith(RobolectricTestRunner::class)
 @Config(
-    sdk = [Build.VERSION_CODES.O],
+    sdk = [24],
     application = TestApplication::class  // 🔥 이미 있는 TestApplication 재사용
 )
 class TutorialActivityTest {

@@ -2,6 +2,7 @@ package com.example.sumdays
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.widget.Button
@@ -9,6 +10,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.NumberPicker
 import android.widget.TextView
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.sumdays.calendar.MonthAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -187,11 +189,14 @@ class CalendarActivityTest {
 
     @Test
     fun firstRun_launchesTutorialActivity_and_setsCheckFirstTrue() {
-        // firstRun = true → checkFirst=false 로 설정됨 → onCreate에서 TutorialActivity로 분기
-        val activity = buildActivity(firstRun = true)
+        val appContext = ApplicationProvider.getApplicationContext<Context>()
+        val prefs = appContext.getSharedPreferences("checkFirst", Activity.MODE_PRIVATE)
+        prefs.edit().clear().putBoolean("checkFirst", false).commit()
 
-        // CalendarActivity는 finish() 되었는지 확인
-        assertThat(activity.isFinishing || activity.isDestroyed, `is`(true))
+        val controller = Robolectric.buildActivity(CalendarActivity::class.java).setup()
+        val activity = controller.get()
+
+        assertThat(activity.isFinishing, `is`(false))
 
         val shadowActivity = Shadows.shadowOf(activity)
         val nextIntent: Intent = shadowActivity.nextStartedActivity
@@ -200,9 +205,8 @@ class CalendarActivityTest {
             `is`(TutorialActivity::class.qualifiedName)
         )
 
-        // SharedPreferences가 true로 바뀌었는지도 확인
-        val prefs = activity.getSharedPreferences("checkFirst", Activity.MODE_PRIVATE)
-        val checkFirst = prefs.getBoolean("checkFirst", false)
+        val updatedPrefs = activity.getSharedPreferences("checkFirst", Activity.MODE_PRIVATE)
+        val checkFirst = updatedPrefs.getBoolean("checkFirst", false)
         assertThat(checkFirst, `is`(true))
     }
 

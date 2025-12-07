@@ -2,8 +2,8 @@ package com.example.sumdays
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
+import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -25,13 +25,10 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowAlertDialog
 import org.robolectric.shadows.ShadowDialog
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import android.view.View
 
 @RunWith(AndroidJUnit4::class)
 @Config(
@@ -333,7 +330,7 @@ class DailyReadActivityTest {
         method.invoke(activity, updatedContent)
     }
 
-
+    // [수정됨] addPhoto는 이제 String(Base64)을 받고 currentPhotoList에 저장합니다.
     @Test
     fun addPhoto_updatesListAndViewModel() {
         val today = Calendar.getInstance()
@@ -341,24 +338,25 @@ class DailyReadActivityTest {
 
         val (activity, mockViewModel) = createActivityWithDate(todayString)
 
-        val dummyFile = File(activity.filesDir, "dummy.jpg")
-        val dummyUri = Uri.fromFile(dummyFile)
+        val dummyBase64 = "dummyBase64StringData"
 
+        // addPhoto(String) 메소드 호출
         val addPhotoMethod = DailyReadActivity::class.java.getDeclaredMethod(
             "addPhoto",
-            Uri::class.java
+            String::class.java
         ).apply { isAccessible = true }
 
-        addPhotoMethod.invoke(activity, dummyUri)
+        addPhotoMethod.invoke(activity, dummyBase64)
 
-        val field = DailyReadActivity::class.java.getDeclaredField("currentPhotoUris").apply {
+        // currentPhotoList 필드 검증 (currentPhotoUris -> currentPhotoList)
+        val field = DailyReadActivity::class.java.getDeclaredField("currentPhotoList").apply {
             isAccessible = true
         }
         @Suppress("UNCHECKED_CAST")
-        val list = field.get(activity) as MutableList<Uri>
+        val list = field.get(activity) as MutableList<String>
 
         assertEquals(1, list.size)
-        assertEquals(dummyUri, list[0])
+        assertEquals(dummyBase64, list[0])
 
         verify {
             mockViewModel.updateEntry(date = todayString, photoUrls = any())
@@ -387,56 +385,23 @@ class DailyReadActivityTest {
     }
 
     @Test
-    fun deletePhoto_withFileUri_deletesFileAndUpdatesViewModel() {
+    fun deletePhoto_removesItemFromList_andUpdatesViewModel() {
         val today = Calendar.getInstance()
         val todayString = formatter.format(today.time)
 
         val (activity, mockViewModel) = createActivityWithDate(todayString)
 
-        val tempFile = File.createTempFile("test_photo", ".jpg", activity.filesDir)
-        assertTrue(tempFile.exists())
-        val uri = Uri.fromFile(tempFile)
+        val dummyBase64 = "base64StringToDelete"
 
-        val listField =
-            DailyReadActivity::class.java.getDeclaredField("currentPhotoUris").apply {
-                isAccessible = true
-            }
-        @Suppress("UNCHECKED_CAST")
-        val list = listField.get(activity) as MutableList<Uri>
-        list.add(uri)
-
-        val deleteMethod = DailyReadActivity::class.java.getDeclaredMethod(
-            "deletePhoto",
-            Int::class.javaPrimitiveType
-        ).apply { isAccessible = true }
-
-        deleteMethod.invoke(activity, 0)
-
-        assertFalse(tempFile.exists())
-        assertTrue(list.isEmpty())
-
-        verify {
-            mockViewModel.updateEntry(date = todayString, photoUrls = any())
+        // Reflection으로 currentPhotoList에 데이터 추가
+        val listField = DailyReadActivity::class.java.getDeclaredField("currentPhotoList").apply {
+            isAccessible = true
         }
-    }
-
-    @Test
-    fun deletePhoto_withNonFileUri_updatesViewModelWithoutCrash() {
-        val today = Calendar.getInstance()
-        val todayString = formatter.format(today.time)
-
-        val (activity, mockViewModel) = createActivityWithDate(todayString)
-
-        val uri = Uri.parse("content://example/photo/1")
-
-        val listField =
-            DailyReadActivity::class.java.getDeclaredField("currentPhotoUris").apply {
-                isAccessible = true
-            }
         @Suppress("UNCHECKED_CAST")
-        val list = listField.get(activity) as MutableList<Uri>
-        list.add(uri)
+        val list = listField.get(activity) as MutableList<String>
+        list.add(dummyBase64)
 
+        // deletePhoto(Int) 호출
         val deleteMethod = DailyReadActivity::class.java.getDeclaredMethod(
             "deletePhoto",
             Int::class.javaPrimitiveType
@@ -444,6 +409,7 @@ class DailyReadActivityTest {
 
         deleteMethod.invoke(activity, 0)
 
+        // 리스트가 비었는지 확인
         assertTrue(list.isEmpty())
 
         verify {
@@ -479,7 +445,7 @@ class DailyReadActivityTest {
             String::class.java
         ).apply { isAccessible = true }
 
-        method.invoke(activity, "https://example.com/test.jpg")
+        method.invoke(activity, "dummyBase64String")
 
         val latestDialog = ShadowDialog.getLatestDialog()
         assertNotNull(latestDialog)

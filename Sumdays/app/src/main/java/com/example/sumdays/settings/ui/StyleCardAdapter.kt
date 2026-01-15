@@ -104,7 +104,7 @@ class StyleCardAdapter(
             // ⋮ 메뉴
             b.moreButton.setOnClickListener { v ->
                 PopupMenu(v.context, v).apply {
-                    menuInflater.inflate(R.menu.menu_style_card, menu)
+                    menuInflater.inflate(R.menu.settings_menu_style_card, menu)
                     setOnMenuItemClickListener { item ->
                         when (item.itemId) {
                             R.id.action_rename -> {

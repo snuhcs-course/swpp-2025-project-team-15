@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     app:cardCornerRadius="12dp"
     app:cardUseCompatPadding="true"
-    app:cardBackgroundColor="#333740">
+    app:cardBackgroundColor="@color/dark_item_card_background">
 
     <LinearLayout
         android:orientation="vertical"
@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:text="새 스타일 추출하기"
             android:textColor="#FFFFFF"
-            android:textSize="14sp"
+            android:textSize="@dimen/text_size_XS"
             android:layout_marginTop="8dp"/>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

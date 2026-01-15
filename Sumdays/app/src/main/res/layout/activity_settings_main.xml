@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#282d35"
     android:id="@+id/setting_main_root"
     android:fitsSystemWindows="true"
     tools:context=".CalendarActivity">
@@ -22,7 +21,6 @@
 
             <!-- 사용자 블록 -->
             <LinearLayout
-                android:id="@+id/userBlock"
                 android:background="@drawable/settings_rounded_card"
                 android:padding="20dp"
                 android:orientation="vertical"
@@ -37,8 +35,7 @@
                     <TextView
                         android:id="@+id/nickname"
                         android:text="닉네임"
-                        android:textColor="#FFFFFF"
-                        android:textSize="18sp"
+                        android:textSize="@dimen/text_size_M"
                         android:textStyle="bold"
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
@@ -48,8 +45,7 @@
                     <!-- 버튼 2 (오른쪽 끝) -->
                     <ImageButton
                         android:id="@+id/backupBtn"
-                        android:src="@drawable/cloud_done"
-                        app:tint="#FFFFFF"
+                        android:src="@drawable/ic_backup_done"
                         android:background="@android:color/transparent"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
@@ -60,8 +56,7 @@
                     <!-- 버튼 1 (비번 변경 왼쪽에 배치) -->
                     <ImageButton
                         android:id="@+id/initBtn"
-                        android:src="@drawable/cloud_download"
-                        app:tint="#FFFFFF"
+                        android:src="@drawable/ic_backup_download"
                         android:background="@android:color/transparent"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
@@ -78,7 +73,7 @@
                 android:layout_marginVertical="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#DDDDDD" />
+                android:background="@color/dark_divider" />
 
             <!-- 세부 설정 페이지 버튼 -->
             <LinearLayout
@@ -87,7 +82,6 @@
                 <TextView
                     android:text="알림 설정"
                     style="@style/TextAppearance.App.Normal"
-                    android:textColor="#FFFFFF"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -98,7 +92,6 @@
                 <TextView
                     android:text="일기 스타일"
                     style="@style/TextAppearance.App.Normal"
-                    android:textColor="#FFFFFF"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -109,7 +102,6 @@
                 <TextView
                     android:text="실험실"
                     style="@style/TextAppearance.App.Normal"
-                    android:textColor="#FFFFFF"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -120,7 +112,6 @@
                 <TextView
                     android:text="계정 설정"
                     style="@style/TextAppearance.App.Normal"
-                    android:textColor="#FFFFFF"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -130,7 +121,6 @@
                 <TextView
                     android:text="튜토리얼 다시보기"
                     style="@style/TextAppearance.App.Normal"
-                    android:textColor="#FFFFFF"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -140,7 +130,6 @@
                 <TextView
                     android:text="주간통계 수동 추가"
                     style="@style/TextAppearance.App.Normal"
-                    android:textColor="#FFFFFF"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -150,7 +139,7 @@
                 <TextView
                     android:text="로그아웃"
                     style="@style/TextAppearance.App.Normal"
-                    android:textColor="#FF0000"
+                    android:textColor="@color/text_highlight_red"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>

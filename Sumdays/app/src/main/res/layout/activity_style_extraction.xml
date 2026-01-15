@@ -5,7 +5,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#282d35"
     android:id="@+id/setting_style_extraction_root">
 
     <include
@@ -36,8 +35,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="원하는 스타일로 작성된 텍스트와 이미지를 합쳐 최소 5개 이상을 제공해야 합니다."
-                android:textColor="#AAAAAA"
-                android:textSize="14sp"
+                android:textColor="@color/text_color_hint"
+                android:textSize="@dimen/text_size_XS"
                 android:layout_marginTop="6dp"
                 android:layout_marginHorizontal="20dp" />
 
@@ -48,15 +47,14 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="12dp"
                 android:layout_marginHorizontal="20dp"
-                android:background="#444444" />
+                android:background="@color/dark_divider" />
 
             <TextView
                 android:id="@+id/textInputTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="1. 텍스트 직접 입력"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_S"
                 android:layout_marginTop="24dp"
                 android:layout_marginStart="20dp" />
 
@@ -66,10 +64,9 @@
                 android:layout_height="150dp"
                 android:hint="원하는 스타일로 작성된 텍스트를 입력하세요. \n한 줄당 하나로 인식됩니다."
                 android:gravity="top|start"
-                android:textSize="16sp"
-                android:textColor="#FFFFFF"
-                android:textColorHint="#888888"
-                android:background="#21262e"
+                android:textSize="@dimen/text_size_S"
+                android:textColorHint="@color/text_color_hint"
+                android:background="@color/dark_item_card_background"
                 android:padding="12dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginHorizontal="20dp"
@@ -80,8 +77,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2. 이미지 선택 (손글씨 일기 사진 등)"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_S"
                 android:layout_marginTop="24dp"
                 android:layout_marginStart="20dp" />
             <!-- 사진 갤러리 -->
@@ -110,7 +106,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="선택된 이미지: 0개"
-                    android:textColor="#CCCCCC"
+                    android:textColor="@color/text_color_hint"
                     android:layout_marginStart="12dp"
                     android:gravity="center_vertical" />
             </LinearLayout>
@@ -120,8 +116,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="스타일 추출 실행"
-                android:backgroundTint="@color/btn_theme"
-                android:textColor="#FFFFFF"
+                android:backgroundTint="@color/btn_violet"
                 android:layout_marginTop="32dp"
                 android:layout_marginHorizontal="20dp" />
 
@@ -137,7 +132,7 @@
         android:id="@+id/loading_overlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="#80000000"
+        android:background="@color/overlay_background"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
     android:id="@+id/main_detail">
 
     <!-- 1. 헤더 (뒤로가기 버튼) -->
@@ -21,7 +20,7 @@
             android:id="@+id/back_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_arrow_back"
+            android:src="@drawable/ic_arrow_back_black"
             android:background="?attr/selectableItemBackgroundBorderless"/>
 
         <TextView
@@ -29,9 +28,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="주간 보고서"
-            android:textSize="48sp"
+            android:textSize="@dimen/text_size_XXXL"
             android:textStyle="bold"
-            android:textColor="@android:color/black"
             android:gravity="center_horizontal"
             android:layout_marginStart="-32dp"
             android:fontFamily="@font/siu"/> <!-- 뒤로가기 버튼 공간 확보 -->
@@ -42,7 +40,7 @@
         android:id="@+id/divider_top"
         android:layout_width="match_parent"
         android:layout_height="4dp"
-        android:background="@drawable/crayon_divider_horizontal"
+        android:background="@drawable/statistics_crayon_divider_horizontal"
         app:layout_constraintTop_toBottomOf="@id/header_layout"/>
 
     <ScrollView
@@ -71,13 +69,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="기간"
-                    android:textSize="25sp"
-                    android:textColor="@android:color/black"
+                    android:textSize="@dimen/text_size_XL"
                     android:textStyle="bold"/>
                 <View
                     android:layout_width="4dp"
                     android:layout_height="58dp"
-                    android:background="@drawable/crayon_divider_vertical"
+                    android:background="@drawable/statistics_crayon_divider_vertical"
                     />
                 <TextView
                     android:id="@+id/week_range_text_view"
@@ -87,8 +84,7 @@
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="25sp"
-                    android:textColor="@android:color/black"
+                    android:textSize="@dimen/text_size_XL"
                     tools:text="2025-10-13 ~ 2025-10-19" />
             </LinearLayout>
 
@@ -97,7 +93,7 @@
                 android:id="@+id/divider_period"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
-                android:background="@drawable/crayon_divider_horizontal"
+                android:background="@drawable/statistics_crayon_divider_horizontal"
                 android:layout_marginBottom="16dp"/>
 
             <!-- 5. 요일 표시 영역 (월-금, 토-일) -->
@@ -117,7 +113,7 @@
                         android:id="@+id/day_frame"
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:background="@drawable/shape_fox_orange_border">
+                        android:background="@drawable/statistics_shape_fox_orange_border">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -127,14 +123,13 @@
                             android:fontFamily="@font/siu"
                             android:layout_marginTop="20dp"
                             android:layout_marginStart="25dp"
-                            android:textColor="@android:color/black"
-                            android:textSize="25sp"
+                            android:textSize="@dimen/text_size_XL"
                             android:textStyle="bold" />
                     </FrameLayout>
                     <FrameLayout
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:background="@drawable/shape_fox_orange_border">
+                        android:background="@drawable/statistics_shape_fox_orange_border">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -143,14 +138,13 @@
                             android:fontFamily="@font/siu"
                             android:layout_marginTop="20dp"
                             android:layout_marginStart="25dp"
-                            android:textColor="@android:color/black"
-                            android:textSize="25sp"
+                            android:textSize="@dimen/text_size_XL"
                             android:textStyle="bold" />
                     </FrameLayout>
                     <FrameLayout
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:background="@drawable/shape_fox_orange_border">
+                        android:background="@drawable/statistics_shape_fox_orange_border">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -159,14 +153,13 @@
                             android:fontFamily="@font/siu"
                             android:layout_marginTop="20dp"
                             android:layout_marginStart="25dp"
-                            android:textColor="@android:color/black"
-                            android:textSize="25sp"
+                            android:textSize="@dimen/text_size_XL"
                             android:textStyle="bold" />
                     </FrameLayout>
                     <FrameLayout
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:background="@drawable/shape_fox_orange_border">
+                        android:background="@drawable/statistics_shape_fox_orange_border">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -175,14 +168,13 @@
                             android:fontFamily="@font/siu"
                             android:layout_marginTop="20dp"
                             android:layout_marginStart="25dp"
-                            android:textColor="@android:color/black"
-                            android:textSize="25sp"
+                            android:textSize="@dimen/text_size_XL"
                             android:textStyle="bold" />
                     </FrameLayout>
                     <FrameLayout
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:background="@drawable/shape_fox_orange_border">
+                        android:background="@drawable/statistics_shape_fox_orange_border">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -191,8 +183,7 @@
                             android:fontFamily="@font/siu"
                             android:layout_marginTop="20dp"
                             android:layout_marginStart="25dp"
-                            android:textColor="@android:color/black"
-                            android:textSize="25sp"
+                            android:textSize="@dimen/text_size_XL"
                             android:textStyle="bold" />
                     </FrameLayout>
 
@@ -209,7 +200,7 @@
                     <FrameLayout
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:background="@drawable/shape_fox_orange_border">
+                        android:background="@drawable/statistics_shape_fox_orange_border">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -218,14 +209,13 @@
                             android:fontFamily="@font/siu"
                             android:layout_marginTop="20dp"
                             android:layout_marginStart="25dp"
-                            android:textColor="@android:color/black"
-                            android:textSize="25sp"
+                            android:textSize="@dimen/text_size_XL"
                             android:textStyle="bold" />
                     </FrameLayout>
                     <FrameLayout
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:background="@drawable/shape_fox_orange_border">
+                        android:background="@drawable/statistics_shape_fox_orange_border">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -234,8 +224,7 @@
                             android:fontFamily="@font/siu"
                             android:layout_marginTop="20dp"
                             android:layout_marginStart="25dp"
-                            android:textColor="@android:color/black"
-                            android:textSize="25sp"
+                            android:textSize="@dimen/text_size_XL"
                             android:textStyle="bold" />
                     </FrameLayout>
                 </LinearLayout>
@@ -254,7 +243,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
-                        android:background="@drawable/shape_excellent_red_circle" />
+                        android:background="@drawable/statistics_shape_excellent_red_circle" />
 
                 </FrameLayout>
             </RelativeLayout>
@@ -264,7 +253,7 @@
                 android:id="@+id/divider_days"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
-                android:background="@drawable/crayon_divider_horizontal"
+                android:background="@drawable/statistics_crayon_divider_horizontal"
                 android:layout_marginTop="16dp"/>
 
             <!-- 7. 요약 / 피드백 테이블 영역 -->
@@ -282,24 +271,22 @@
                     android:fontFamily="@font/siu"
                     android:layout_gravity="center_vertical"
                     android:text="요약"
-                    android:textSize="25sp"
+                    android:textSize="@dimen/text_size_XL"
                     android:textStyle="bold"
-                    android:textColor="@android:color/black"
                     android:layout_columnWeight="0.1"
                     android:padding="8dp"/>
 
                 <View
                     android:layout_width="4dp"
                     android:layout_height="100dp"
-                    android:background="@drawable/crayon_divider_vertical"
+                    android:background="@drawable/statistics_crayon_divider_vertical"
                     android:layout_gravity="center_vertical"
                     android:layout_columnWeight="0"/>
                 <TextView
                     android:id="@+id/summary_content_text_view"
                     android:layout_gravity="center_vertical"
-                    android:textColor="@color/black"
                     android:fontFamily="@font/siu"
-                    android:textSize="18sp"
+                    android:textSize="@dimen/text_size_M"
                     android:textStyle="bold"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -311,7 +298,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="4dp"
-                    android:background="@drawable/crayon_divider_horizontal"
+                    android:background="@drawable/statistics_crayon_divider_horizontal"
                     android:layout_columnSpan="3"
                     />
 
@@ -321,25 +308,23 @@
                     android:layout_height="wrap_content"
                     android:text="피드백"
                     android:fontFamily="@font/siu"
-                    android:textSize="25sp"
+                    android:textSize="@dimen/text_size_XL"
                     android:layout_gravity="center_vertical"
                     android:textStyle="bold"
-                    android:textColor="@android:color/black"
                     android:layout_columnWeight="0.1"
                     android:padding="8dp"/>
                 <View
                     android:layout_width="4dp"
                     android:layout_height="100dp"
-                    android:background="@drawable/crayon_divider_vertical"
+                    android:background="@drawable/statistics_crayon_divider_vertical"
                     android:layout_gravity="center_vertical"
                     android:layout_columnWeight="0"/>
                 <TextView
                     android:id="@+id/feedback_content_text_view"
-                    android:textColor="@color/black"
                     android:layout_width="0dp"
                     android:textStyle="bold"
                     android:layout_gravity="center_vertical"
-                    android:textSize="18sp"
+                    android:textSize="@dimen/text_size_M"
                     android:fontFamily="@font/siu"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="0.9"
@@ -348,7 +333,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="4dp"
-                    android:background="@drawable/crayon_divider_horizontal"
+                    android:background="@drawable/statistics_crayon_divider_horizontal"
                     android:layout_columnSpan="3"
                     />
 

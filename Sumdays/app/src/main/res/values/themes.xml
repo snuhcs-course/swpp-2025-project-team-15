@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- App theme -->
     <style name="Theme.First" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- 커스텀 색상 -->

@@ -46,7 +46,7 @@ class MemoAdapter : ListAdapter<Memo, MemoAdapter.MemoViewHolder>(MemoDiffCallba
             onItemClickListener?.onItemClick(currentMemo)
         }
             // "text" 또는 기타 타입이면 회색 풍선 배경 설정
-            holder.content.setBackgroundResource(R.drawable.bg_bubble_grey)
+            holder.content.setBackgroundResource(R.drawable.memo_background_grey)
 
             // 텍스트 색상 기본값으로 복원
             holder.content.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.black))

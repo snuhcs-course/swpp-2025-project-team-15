@@ -5,7 +5,6 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -209,11 +208,11 @@ class DailyReadActivity : AppCompatActivity() {
 
         val score = entry?.emotionScore ?: 0.0
         val FoxFaceResId = when {
-            score >= 0.6 -> R.drawable.fox_face_level_5
-            score >= 0.2 -> R.drawable.fox_face_level_4
-            score >= -0.2 -> R.drawable.fox_face_level_3
-            score >= -0.6 -> R.drawable.fox_face_level_2
-            else -> R.drawable.fox_face_level_1
+            score >= 0.6 -> R.drawable.dailyread_fox_face_level_5
+            score >= 0.2 -> R.drawable.dailyread_fox_face_level_4
+            score >= -0.2 -> R.drawable.dailyread_fox_face_level_3
+            score >= -0.6 -> R.drawable.dailyread_fox_face_level_2
+            else -> R.drawable.dailyread_fox_face_level_1
         }
         binding.foxFaceImage.setImageResource(FoxFaceResId)
 

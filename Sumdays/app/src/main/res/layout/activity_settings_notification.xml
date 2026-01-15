@@ -5,8 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/setting_notification_root"
-    android:background="#282d35">
+    android:id="@+id/setting_notification_root">
 
     <include
         android:id="@+id/header"
@@ -17,7 +16,6 @@
         app:layout_constraintStart_toStartOf="parent"/>
 
     <ScrollView
-        android:id="@+id/scrollArea"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
@@ -28,7 +26,6 @@
 
         <!-- ℹ️ ScrollView 안에는 다시 ConstraintLayout 넣기 (원본 유지) -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/content_root"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -37,8 +34,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="데일리 메모 알림"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
+                android:textSize="@dimen/text_size_M"
                 android:layout_marginTop="32dp"
                 android:layout_marginHorizontal="20dp"
                 app:layout_constraintTop_toTopOf="parent"
@@ -59,7 +55,7 @@
                 android:id="@+id/separator1"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#444444"
+                android:background="@color/dark_divider"
                 android:layout_marginTop="16dp"
                 android:layout_marginHorizontal="20dp"
                 app:layout_constraintTop_toBottomOf="@id/masterSwitchLabel" />
@@ -76,8 +72,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="설정된 알림 시간 (최대 10개)"
-                    android:textColor="#A0A0A0"
-                    android:textSize="16sp"
+                    android:textColor="@color/text_color_hint"
+                    android:textSize="@dimen/text_size_S"
                     android:layout_marginTop="24dp"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
@@ -98,8 +94,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="새 알림 추가"
-                    app:backgroundTint="@color/btn_theme"
-                    android:textColor="#FFFFFF"
+                    app:backgroundTint="@color/btn_violet"
                     android:layout_marginTop="24dp"
                     app:layout_constraintTop_toBottomOf="@id/alarmTimeRecyclerView"
                     app:layout_constraintStart_toStartOf="parent"

@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#282D35"
     android:id="@+id/setting_dairy_style_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -18,8 +17,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="사용자의 고유한 말투나 문체를 추출하여 AI 일기 작성에 반영합니다. 최소 5개 이상의 텍스트/이미지를 준비해주세요."
-        android:textColor="#AAAAAA"
-        android:textSize="14sp"
+        android:textColor="@color/text_color_hint"
+        android:textSize="@dimen/text_size_XS"
         android:layout_marginTop="6dp"
         android:layout_marginHorizontal="20dp"
         app:layout_constraintTop_toBottomOf="@id/header"
@@ -27,12 +26,11 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <View
-        android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="12dp"
-        android:background="#444444"
+        android:background="@color/dark_divider"
         app:layout_constraintTop_toBottomOf="@id/descText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -57,9 +55,8 @@
         android:layout_height="wrap_content"
         android:text="선택하기"
         android:textAllCaps="false"
-        android:textColor="#FFFFFF"
         app:cornerRadius="12dp"
-        app:backgroundTint="@color/btn_theme"
+        app:backgroundTint="@color/btn_violet"
         android:layout_margin="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

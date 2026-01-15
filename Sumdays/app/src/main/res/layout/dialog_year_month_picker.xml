@@ -4,15 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="#282d35"
     android:padding="24dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="날짜 이동"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
+        android:textSize="@dimen/text_size_L"
         android:textStyle="bold"
         android:gravity="center"
         android:layout_marginBottom="24dp"/>
@@ -29,7 +27,6 @@
             android:layout_width="wrap_content"
             android:layout_height="180dp"
             android:layout_marginEnd="16dp"
-            android:theme="@style/Theme.WhiteNumberPicker"
             android:descendantFocusability="blocksDescendants" />
 
         <!-- 월 선택 (Month) : 기본 NumberPicker에 테마 적용 -->
@@ -38,7 +35,6 @@
             android:layout_width="wrap_content"
             android:layout_height="180dp"
             android:layout_marginStart="16dp"
-            android:theme="@style/Theme.WhiteNumberPicker"
             android:descendantFocusability="blocksDescendants" />
 
     </LinearLayout>
@@ -49,10 +45,9 @@
         android:layout_height="56dp"
         android:layout_marginTop="32dp"
         android:text="이동하기"
-        android:textSize="16sp"
+        android:textSize="@dimen/text_size_S"
         android:textStyle="bold"
-        app:backgroundTint="@color/btn_theme"
-        android:textColor="#FFFFFF"
+        app:backgroundTint="@color/btn_violet"
         app:cornerRadius="12dp"/>
 
 </LinearLayout>

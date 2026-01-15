@@ -6,7 +6,6 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -31,8 +30,6 @@ import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.daily.memo.MemoAdapter
 import com.example.sumdays.daily.memo.MemoViewModel
 import com.example.sumdays.daily.memo.MemoViewModelFactory
-import java.time.LocalDate
-import java.time.LocalTime
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.sumdays.daily.memo.MemoDragAndDropCallback
 import com.example.sumdays.audio.AudioRecorderHelper
@@ -275,7 +272,7 @@ class DailyWriteActivity : AppCompatActivity() {
             if (diaryExists) {
                 // 일기가 있으면: 버튼 활성화 및 보라색
                 readDiaryButton.isEnabled = true
-                readDiaryButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.btn_theme))
+                readDiaryButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.btn_violet))
             } else {
                 // 일기가 없으면: 버튼 비활성화 및 회색
                 readDiaryButton.isEnabled = false

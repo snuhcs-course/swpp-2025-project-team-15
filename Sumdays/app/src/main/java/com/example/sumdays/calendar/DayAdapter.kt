@@ -80,15 +80,15 @@ class DayAdapter(
 
             when {
                 isToday -> {
-                    tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_fox_today)
+                    tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.calendar_shape_fox_today)
                     tvDayNumber.setTypeface(null, Typeface.BOLD)
                 }
                 hasDiary -> {
-                    tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_fox_date_gray_completed)
+                    tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.calendar_shape_fox_date_gray_completed)
                     tvDayNumber.setTypeface(null, Typeface.NORMAL)
                 }
                 else -> {
-                    tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.shape_fox_date_gray)
+                    tvCircle.background = ContextCompat.getDrawable(itemView.context, R.drawable.calendar_shape_fox_date_gray)
                     tvDayNumber.setTypeface(null, Typeface.NORMAL)
                 }
             }

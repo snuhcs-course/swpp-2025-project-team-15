@@ -7,24 +7,17 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sumdays.statistics.EmotionAnalysis
-import com.example.sumdays.statistics.Highlight
-import com.example.sumdays.statistics.Insights
-import com.example.sumdays.statistics.SummaryDetails
 import com.example.sumdays.statistics.WeekStatsDetailActivity
 import com.example.sumdays.statistics.WeekSummary
 import com.example.sumdays.ui.TreeTiledDrawable
 import com.example.sumdays.utils.setupEdgeToEdge
-import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import androidx.activity.viewModels
@@ -116,7 +109,7 @@ class StatisticsActivity : AppCompatActivity() {
 
 
         // 2) 배경: 무한 타일
-        val bmp = BitmapFactory.decodeResource(resources, R.drawable.tree_stem)
+        val bmp = BitmapFactory.decodeResource(resources, R.drawable.statistics_tree_stem)
         treeDrawable = TreeTiledDrawable(
             bitmap = bmp
         )
@@ -448,27 +441,27 @@ class StatisticsActivity : AppCompatActivity() {
                 dateLP.gravity = Gravity.START
                 if (isOnlyBranch){
                     if (isGrapeRow){
-                        holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_left)
+                        holder.buttonWeeklyStats.setImageResource(R.drawable.statistics_grape_with_branch_left)
                         holder.buttonWeeklyStats.isEnabled = false
                         holder.leafStartDateText.text = ""
                         holder.leafIndexText.text = ""
                     }
                     else{
-                        holder.buttonWeeklyStats.setImageResource(R.drawable.branch_left)
+                        holder.buttonWeeklyStats.setImageResource(R.drawable.statistics_branch_left)
                         holder.buttonWeeklyStats.isEnabled = false
                         holder.leafStartDateText.text = ""
                         holder.leafIndexText.text = ""
                     }
                 }
                 else if (isGrapeRow) {
-                    holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_left)
+                    holder.buttonWeeklyStats.setImageResource(R.drawable.statistics_grape_with_branch_left)
                     holder.buttonWeeklyStats.isEnabled = true
 
                     dateLP.topMargin = holder.dp(110)
                     dateLP.leftMargin = holder.dp(40)
                 }
                 else {
-                    holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_left)
+                    holder.buttonWeeklyStats.setImageResource(R.drawable.statistics_leaf_left)
                     holder.buttonWeeklyStats.isEnabled = true
 
                     dateLP.topMargin = holder.dp(65)
@@ -481,27 +474,27 @@ class StatisticsActivity : AppCompatActivity() {
                 dateLP.gravity = Gravity.END
                 if (isOnlyBranch){
                     if (isGrapeRow){
-                        holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_right)
+                        holder.buttonWeeklyStats.setImageResource(R.drawable.statistics_grape_with_branch_right)
                         holder.buttonWeeklyStats.isEnabled = false
                         holder.leafStartDateText.text = ""
                         holder.leafIndexText.text = ""
                     }
                     else{
-                        holder.buttonWeeklyStats.setImageResource(R.drawable.branch_right)
+                        holder.buttonWeeklyStats.setImageResource(R.drawable.statistics_branch_right)
                         holder.buttonWeeklyStats.isEnabled = false
                         holder.leafStartDateText.text = ""
                         holder.leafIndexText.text = ""
                     }
                 }
                 else if (isGrapeRow) {
-                    holder.buttonWeeklyStats.setImageResource(R.drawable.grape_with_branch_right)
+                    holder.buttonWeeklyStats.setImageResource(R.drawable.statistics_grape_with_branch_right)
                     holder.buttonWeeklyStats.isEnabled = true
 
                     dateLP.topMargin = holder.dp(110)
                     dateLP.rightMargin = holder.dp(40)
                 }
                 else {
-                    holder.buttonWeeklyStats.setImageResource(R.drawable.leaf_right)
+                    holder.buttonWeeklyStats.setImageResource(R.drawable.statistics_leaf_right)
                     holder.buttonWeeklyStats.isEnabled = true
 
                     dateLP.topMargin = holder.dp(65)

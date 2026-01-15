@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
     tools:showIn="@layout/activity_tutorial">
 
 
@@ -42,7 +41,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_marginBottom="50dp"
-        android:src="@drawable/ic_arrow_forward"
+        android:src="@drawable/ic_arrow_forward_black"
         android:background="@android:color/transparent"
         android:layout_marginEnd="30dp"/>
 
@@ -55,7 +54,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_marginBottom="50dp"
-        android:src="@drawable/ic_arrow_back"
+        android:src="@drawable/ic_arrow_back_black"
         android:background="@android:color/transparent"
         android:layout_marginStart="30dp"/>
 
@@ -66,7 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:src="@drawable/ic_skip"
+        android:src="@drawable/ic_skip_grey"
         android:background="@android:color/transparent"
         android:padding="20dp"
         />

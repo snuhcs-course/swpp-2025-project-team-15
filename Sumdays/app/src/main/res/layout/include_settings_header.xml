@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/headerLayout"
     android:paddingHorizontal="16dp"
     android:paddingVertical="16dp"
     android:layout_width="match_parent"
@@ -23,7 +22,6 @@
         android:layout_height="wrap_content"
         android:text="제목"
         style="@style/TextAppearance.App.Title"
-        android:textColor="#FFFFFF"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

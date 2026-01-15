@@ -5,16 +5,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingVertical="10dp"
-    android:background="#21262e"> <!-- 시각적 구분을 위한 배경 (가정) -->
+    android:paddingVertical="10dp">
 
     <!-- 알람 시간 표시 (예: 20:00) -->
     <TextView
         android:id="@+id/alarmTimeTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
-        android:textSize="32sp"
+        android:textSize="@dimen/text_size_XXL"
         android:textStyle="bold"
         tools:text="20:00"
         android:layout_marginStart="8dp"
@@ -24,11 +22,10 @@
 
     <!-- 반복 요일 정보 (선택적 기능이지만 확장성을 위해 포함) -->
     <TextView
-        android:id="@+id/repeatDaysTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="#AAAAAA"
-        android:textSize="14sp"
+        android:textColor="@color/text_color_hint"
+        android:textSize="@dimen/text_size_XS"
         android:text="매일 반복"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="8dp"

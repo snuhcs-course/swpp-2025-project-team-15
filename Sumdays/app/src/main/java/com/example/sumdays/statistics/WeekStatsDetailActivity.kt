@@ -2,7 +2,6 @@ package com.example.sumdays.statistics
 
 import android.os.Build
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -97,7 +96,7 @@ class WeekStatsDetailActivity : AppCompatActivity() {
 
                 // 테두리 적용 (일기 쓴 날이면 주황색 테두리)
                 if (isDiaryWritten) {
-                    dayLayout.setBackgroundResource(R.drawable.shape_fox_orange_border)
+                    dayLayout.setBackgroundResource(R.drawable.statistics_shape_fox_orange_border)
                 } else {
                     dayLayout.setBackgroundResource(android.R.color.transparent)
                 }

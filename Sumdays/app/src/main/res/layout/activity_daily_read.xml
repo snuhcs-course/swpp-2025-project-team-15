@@ -5,7 +5,6 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#303136"
     tools:context=".DailyReadActivity">
 
     <!-- 상단 날짜 / 이전·다음 / 메모 보기 버튼 영역 -->
@@ -26,8 +25,7 @@
             android:layout_width="90dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
+            android:textSize="@dimen/text_size_S"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -40,7 +38,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:padding="8dp"
-            android:src="@drawable/ic_arrow_back_ios"
+            android:src="@drawable/ic_arrow_back_white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/date_text"
             app:layout_constraintTop_toTopOf="parent"
@@ -51,7 +49,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:padding="8dp"
-            android:src="@drawable/ic_arrow_forward_ios"
+            android:src="@drawable/ic_arrow_forward_white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/date_text"
             app:layout_constraintTop_toTopOf="parent"
@@ -61,7 +59,7 @@
             android:id="@+id/edit_memos_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/btn_theme"
+            android:backgroundTint="@color/btn_violet"
             android:minHeight="0dp"
             android:paddingVertical="8dp"
             android:text="메모 보기"
@@ -90,7 +88,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:gravity="center"
-            android:textSize="30sp"
+            android:textSize="@dimen/text_size_XXL"
             tools:text="🤔" />
 
         <TextView
@@ -98,8 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:textColor="#B0BEC5"
-            android:textSize="20sp"
+            android:textSize="@dimen/text_size_L"
             android:textStyle="bold"
             tools:text="산책, 생각, 사유, 자아성찰" />
     </LinearLayout>
@@ -121,10 +118,10 @@
         android:layout_height="80dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="8dp"
-        android:src="@drawable/fox_face_level_3"
+        android:src="@drawable/dailyread_fox_face_level_3"
         app:layout_constraintBottom_toTopOf="@+id/bottom_buttons_layout"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:src="@drawable/fox_face_level_3" />
+        tools:src="@drawable/dailyread_fox_face_level_3" />
 
     <!-- 사진 갤러리 -->
     <androidx.recyclerview.widget.RecyclerView
@@ -148,7 +145,7 @@
         android:id="@+id/comment_text"
         android:layout_width="0dp"
         android:layout_height="100dp"
-        android:background="@drawable/bg_speech_bubble"
+        android:background="@drawable/dailyread_speechbubble_background"
         android:gravity="top|start"
         android:lineSpacingExtra="4sp"
         android:paddingStart="40dp"
@@ -156,7 +153,7 @@
         android:paddingEnd="40dp"
         android:paddingBottom="16dp"
         android:textColor="@android:color/black"
-        android:textSize="15sp"
+        android:textSize="@dimen/text_size_S"
         app:layout_constraintBottom_toTopOf="@+id/fox_face_image"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -189,8 +186,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:lineSpacingExtra="8sp"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_S"
                 android:visibility="visible"
                 tools:text="오늘은 산책하면서 생각이 많았던 하루였다. (일기 내용...)" />
 
@@ -201,9 +197,8 @@
                 android:background="@android:color/transparent"
                 android:gravity="top"
                 android:lineSpacingExtra="8sp"
-                android:textColor="@android:color/white"
-                android:textColorHint="#AFAFAF"
-                android:textSize="16sp"
+                android:textColorHint="@color/text_color_hint"
+                android:textSize="@dimen/text_size_S"
                 android:visibility="gone"
                 tools:text="수정 모드..." />
         </FrameLayout>
@@ -216,10 +211,10 @@
         android:layout_height="48dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/bg_bubble_grey"
+        android:background="@drawable/memo_background_grey"
         android:elevation="4dp"
         android:padding="12dp"
-        android:src="@drawable/ic_edit"
+        android:src="@drawable/ic_edit_white"
         app:layout_constraintBottom_toBottomOf="@+id/diary_scroll_view"
         app:layout_constraintEnd_toEndOf="@+id/diary_scroll_view"
         app:tint="@android:color/black" />
@@ -230,10 +225,10 @@
         android:layout_height="48dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/bg_bubble_grey"
+        android:background="@drawable/memo_background_grey"
         android:elevation="4dp"
         android:padding="12dp"
-        android:src="@drawable/ic_save"
+        android:src="@drawable/ic_check_black"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/diary_scroll_view"
         app:layout_constraintEnd_toEndOf="@+id/diary_scroll_view"

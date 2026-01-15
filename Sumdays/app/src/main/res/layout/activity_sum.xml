@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#282d35"
     android:id="@+id/sum_layout"
     tools:context=".DailySumActivity">
 
@@ -22,7 +21,7 @@
             android:id="@+id/back_icon"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/ic_back"
+            android:src="@drawable/ic_arrow_back_grey"
             android:contentDescription="back"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -31,7 +30,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_undo"
+            android:src="@drawable/ic_undo_grey"
             android:contentDescription="undo"
             android:layout_marginStart="16dp"
             app:layout_constraintTop_toTopOf="parent"
@@ -42,8 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="2025-10-02"
-            android:textSize="24sp"
-            android:textColor="#FFFFFF"
+            android:textSize="@dimen/text_size_XL"
             android:textStyle="bold"
             android:layout_marginStart="16dp"
             app:layout_constraintTop_toTopOf="parent"
@@ -55,7 +53,7 @@
             android:id="@+id/skip_icon"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/ic_skip"
+            android:src="@drawable/ic_skip_grey"
             android:scaleType="fitCenter"
             android:background="@android:color/transparent"
             android:contentDescription="건너뛰기"
@@ -77,13 +75,12 @@
         android:layout_marginEnd="12dp"
         android:layout_marginTop="40dp"
         android:padding="8dp"
-        android:background="@drawable/border_dark_grey"
+        android:background="@drawable/sum_background_darkgreyborder"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
     <ImageView
-        android:id="@+id/border_center_image"
         android:layout_width="80dp"
         android:layout_height="40dp"
-        android:src="@drawable/sum_text"
+        android:src="@drawable/sum_icon_text"
         android:padding="4dp"
         android:background="#282d35"
         android:contentDescription="장식 이미지"
@@ -106,7 +103,6 @@
 
     <!-- res/layout/activity_main.xml -->
     <FrameLayout
-        android:id="@+id/canvas"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipChildren="false"
@@ -117,7 +113,7 @@
             android:id="@+id/loading_overlay"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="#80000000"
+            android:background="@color/overlay_background"
             android:visibility="gone"
             tools:visibility="visible" />
     </FrameLayout>

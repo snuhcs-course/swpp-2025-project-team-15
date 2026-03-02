@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
@@ -12,9 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
-import com.example.sumdays.databinding.ActivitySettingsDiaryStyleBinding
+import com.example.sumdays.databinding.ActivityProfileDiaryStyleBinding
 import com.example.sumdays.data.style.UserStyle
 import com.example.sumdays.data.style.UserStyleViewModel
+import com.example.sumdays.settings.prefs.ThemeState
 import com.example.sumdays.settings.prefs.UserStatsPrefs
 import com.example.sumdays.settings.ui.CenterScaleOnScrollListener
 import com.example.sumdays.settings.ui.HorizontalMarginItemDecoration
@@ -24,7 +26,7 @@ import kotlinx.coroutines.*
 
 open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
-    lateinit var binding: ActivitySettingsDiaryStyleBinding
+    lateinit var binding: ActivityProfileDiaryStyleBinding
     private lateinit var userStatsPrefs: UserStatsPrefs
     private lateinit var styleViewModel: UserStyleViewModel
     private lateinit var adapter: StyleCardAdapter
@@ -35,7 +37,7 @@ open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by M
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySettingsDiaryStyleBinding.inflate(layoutInflater)
+        binding = ActivityProfileDiaryStyleBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         userStatsPrefs = provideUserStatsPrefs()
@@ -46,6 +48,8 @@ open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by M
         observeStyles()
         setupSelectButton()
 
+        applyThemeModeSettings()
+
         // 상태바, 네비게이션바 같은 색으로
         val rootView = findViewById<View>(R.id.setting_dairy_style_root)
         setupEdgeToEdge(rootView)
@@ -54,6 +58,20 @@ open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by M
     override fun onDestroy() {
         super.onDestroy()
         job.cancel()
+    }
+
+    private fun applyThemeModeSettings(){
+        // Apply dark mode
+        ThemeState.isDarkMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+
+        if (ThemeState.isDarkMode){
+            binding.header.headerBackIcon.setImageResource(R.drawable.ic_arrow_back_white)
+            binding.selectButton.setTextColor(getColor(R.color.white))
+        }
+        else{
+            binding.header.headerBackIcon.setImageResource(R.drawable.ic_arrow_back_black)
+            binding.selectButton.setTextColor(getColor(R.color.white))
+        }
     }
 
     protected open fun provideUserStatsPrefs(): UserStatsPrefs = UserStatsPrefs(this)

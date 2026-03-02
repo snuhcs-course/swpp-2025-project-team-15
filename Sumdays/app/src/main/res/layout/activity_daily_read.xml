@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     tools:context=".DailyReadActivity">
 
     <!-- 상단 날짜 / 이전·다음 / 메모 보기 버튼 영역 -->
@@ -41,8 +42,7 @@
             android:src="@drawable/ic_arrow_back_white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/date_text"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@android:color/white" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/next_day_button"
@@ -52,14 +52,13 @@
             android:src="@drawable/ic_arrow_forward_white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/date_text"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@android:color/white" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/edit_memos_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/btn_violet"
+            android:backgroundTint="@color/sea_clear_aqua"
             android:minHeight="0dp"
             android:paddingVertical="8dp"
             android:text="메모 보기"
@@ -104,9 +103,9 @@
     <!-- 하단 네비게이션 바 -->
     <include
         android:id="@+id/bottom_buttons_layout"
-        layout="@layout/include_nav_calendar"
+        layout="@layout/include_navigation_bar"
         android:layout_width="0dp"
-        android:layout_height="120dp"
+        android:layout_height="110dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

@@ -12,7 +12,6 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -34,17 +33,20 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.sumdays.daily.memo.MemoDragAndDropCallback
 import com.example.sumdays.audio.AudioRecorderHelper
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import java.util.ArrayList
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
+import com.example.sumdays.settings.prefs.ThemeState
 import com.example.sumdays.utils.setupEdgeToEdge
+import com.example.sumdays.ui.component.NavBarController
+import com.example.sumdays.ui.component.NavSource
 
 // 일기 작성 및 수정 화면을 담당하는 액티비티
 class DailyWriteActivity : AppCompatActivity() {
-
     private lateinit var date: String
     private lateinit var memoAdapter: MemoAdapter
 
@@ -64,6 +66,7 @@ class DailyWriteActivity : AppCompatActivity() {
 
     private lateinit var audioRecorderHelper: AudioRecorderHelper
     private lateinit var readDiaryButton: Button
+    private lateinit var navBarController: NavBarController
 
 
     private val memoViewModel: MemoViewModel by viewModels {
@@ -105,11 +108,40 @@ class DailyWriteActivity : AppCompatActivity() {
         // UI 요소에 클릭 리스너 설정
         setupClickListeners()
 
+        applyThemeModeSettings()
+
         // 하단 네비게이션 바 설정
-        setupNavigationBar()
+        navBarController = NavBarController(this)
+        navBarController.setNavigationBar(NavSource.WRITE) {
+            val currentMemos = memoAdapter.currentList
+            Intent(this, DailySumActivity::class.java).apply {
+                putExtra("date", date)
+                putParcelableArrayListExtra("memo_list", ArrayList(currentMemos))
+            }
+        }
 
         val rootView = findViewById<View>(R.id.write)
         setupEdgeToEdge(rootView)
+    }
+
+    private fun applyThemeModeSettings(){
+        // Apply dark mode
+        ThemeState.isDarkMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+
+        if (ThemeState.isDarkMode){
+            readDiaryButton.setTextColor(getColor(R.color.white))
+            memoInputEditText.setTextColor(getColor(R.color.black))
+            memoInputEditText.setHintTextColor(getColor(R.color.black))
+            sendIcon.setImageResource(R.drawable.ic_send_white)
+            micIcon.setImageResource(R.drawable.ic_mic_white)
+        }
+        else{
+            readDiaryButton.setTextColor(getColor(R.color.white))
+            memoInputEditText.setTextColor(getColor(R.color.black))
+            memoInputEditText.setHintTextColor(getColor(R.color.black))
+            sendIcon.setImageResource(R.drawable.ic_send_black)
+            micIcon.setImageResource(R.drawable.ic_mic_black)
+        }
     }
 
     private fun createAudioRecorderHelper(): AudioRecorderHelper {
@@ -272,7 +304,7 @@ class DailyWriteActivity : AppCompatActivity() {
             if (diaryExists) {
                 // 일기가 있으면: 버튼 활성화 및 보라색
                 readDiaryButton.isEnabled = true
-                readDiaryButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.btn_violet))
+                readDiaryButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.sea_clear_aqua))
             } else {
                 // 일기가 없으면: 버튼 비활성화 및 회색
                 readDiaryButton.isEnabled = false
@@ -314,6 +346,7 @@ class DailyWriteActivity : AppCompatActivity() {
             intent.putExtra("date", date)
             startActivity(intent)
             overridePendingTransition(0, 0)
+            finish()
         }
 
         sendIcon.setOnClickListener {
@@ -350,30 +383,6 @@ class DailyWriteActivity : AppCompatActivity() {
                     stopIcon.visibility = View.GONE
                 }
             }
-        }
-    }
-    private fun setupNavigationBar() {
-        val btnCalendar: ImageButton = findViewById(R.id.btnCalendar)
-        val btnInfo: ImageButton = findViewById(R.id.btnInfo)
-        val btnSum: ImageButton = findViewById(R.id.btnSum)
-
-        btnSum.setOnClickListener {
-            val currentMemos = memoAdapter.currentList
-            val intent = Intent(this, DailySumActivity::class.java)
-            intent.putExtra("date", date)
-            intent.putParcelableArrayListExtra("memo_list", ArrayList(currentMemos))
-            startActivity(intent)
-            overridePendingTransition(0, 0)
-        }
-        btnCalendar.setOnClickListener {
-            val intent = Intent(this, CalendarActivity::class.java)
-            startActivity(intent)
-            overridePendingTransition(0, 0)
-        }
-        btnInfo.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
-            overridePendingTransition(0, 0)
         }
     }
 

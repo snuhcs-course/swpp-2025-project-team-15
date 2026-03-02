@@ -13,15 +13,16 @@ import android.provider.MediaStore
 import android.util.Base64
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,6 +33,7 @@ import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import com.example.sumdays.databinding.ActivityDailyReadBinding
 import com.example.sumdays.image.GalleryItem
 import com.example.sumdays.image.PhotoGalleryAdapter
+import com.example.sumdays.settings.prefs.ThemeState
 import com.example.sumdays.utils.setupEdgeToEdge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,6 +42,8 @@ import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import com.example.sumdays.ui.component.NavBarController
+import com.example.sumdays.ui.component.NavSource
 
 class DailyReadActivity : AppCompatActivity() {
 
@@ -47,6 +51,7 @@ class DailyReadActivity : AppCompatActivity() {
     private lateinit var currentDate: Calendar
     private val viewModel: DailyEntryViewModel by viewModels()
     private var currentLiveData: LiveData<DailyEntry?>? = null
+    private lateinit var navBarController: NavBarController
 
     private lateinit var photoGalleryAdapter: PhotoGalleryAdapter
 
@@ -58,11 +63,13 @@ class DailyReadActivity : AppCompatActivity() {
 
     private lateinit var pickImageLauncher: ActivityResultLauncher<PickVisualMediaRequest>
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDailyReadBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setupNavigationBar()
+        navBarController = NavBarController(this)
+        navBarController.setNavigationBar(NavSource.READ)
 
         initializeImagePicker()
 
@@ -71,29 +78,25 @@ class DailyReadActivity : AppCompatActivity() {
         setupClickListeners()
         observeEntry()
 
+        applyThemeModeSettings()
+
         val rootView = findViewById<View>(R.id.main)
         setupEdgeToEdge(rootView)
     }
 
-    private fun setupNavigationBar() {
-        val btnCalendar = findViewById<ImageButton>(R.id.btnCalendar)
-        val btnDaily = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnDaily)
-        val btnInfo = findViewById<ImageButton>(R.id.btnInfo)
+    private fun applyThemeModeSettings(){
+        // Apply dark mode
+        ThemeState.isDarkMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
 
-        btnCalendar.setOnClickListener {
-            startActivity(Intent(this, CalendarActivity::class.java))
-            overridePendingTransition(0, 0)
+        if (ThemeState.isDarkMode){
+            binding.editMemosButton.setTextColor(getColor(R.color.white))
+            binding.prevDayButton.setImageResource(R.drawable.ic_arrow_back_white)
+            binding.nextDayButton.setImageResource(R.drawable.ic_arrow_forward_white)
         }
-        btnDaily.setOnClickListener {
-            val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
-            val intent = Intent(this, DailyWriteActivity::class.java)
-            intent.putExtra("date", today)
-            startActivity(intent)
-            overridePendingTransition(0, 0)
-        }
-        btnInfo.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
-            overridePendingTransition(0, 0)
+        else{
+            binding.editMemosButton.setTextColor(getColor(R.color.white))
+            binding.prevDayButton.setImageResource(R.drawable.ic_arrow_back_black)
+            binding.nextDayButton.setImageResource(R.drawable.ic_arrow_forward_black)
         }
     }
 
@@ -249,6 +252,7 @@ class DailyReadActivity : AppCompatActivity() {
             val intent = Intent(this, DailyWriteActivity::class.java)
             intent.putExtra("date", repoKeyFormatter.format(currentDate.time))
             startActivity(intent)
+            overridePendingTransition(0, 0)
             finish()
         }
     }

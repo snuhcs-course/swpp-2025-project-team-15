@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/write"
+    android:background="@color/background"
     tools:context=".DailyWriteActivity">
 
 
@@ -36,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="일기 보기"
-            android:backgroundTint="@color/btn_violet"
+            android:backgroundTint="@color/sea_clear_aqua"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -85,7 +86,7 @@
                 android:id="@+id/send_icon"
                 android:layout_width="28dp"
                 android:layout_height="28dp"
-                android:src="@drawable/ic_send"
+                android:src="@drawable/ic_send_white"
                 android:layout_marginStart="8dp"
                 android:contentDescription="메모 전송" />
 
@@ -98,7 +99,7 @@
                     android:id="@+id/mic_icon"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/ic_mic"
+                    android:src="@drawable/ic_mic_white"
                     android:contentDescription="음성 입력"
                     android:visibility="visible" />
 
@@ -171,9 +172,9 @@
 
     <include
         android:id="@+id/bottom_buttons_layout"
-        layout="@layout/include_nav_daily"
+        layout="@layout/include_navigation_bar"
         android:layout_width="0dp"
-        android:layout_height="120dp"
+        android:layout_height="110dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

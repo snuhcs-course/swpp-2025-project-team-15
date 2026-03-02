@@ -16,12 +16,15 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.viewpager2.widget.ViewPager2
 import com.example.sumdays.calendar.CalendarLanguage
 import com.example.sumdays.calendar.MonthAdapter
 import com.example.sumdays.data.viewModel.CalendarViewModel
+import com.example.sumdays.settings.ThemeSettingsActivity
+import com.example.sumdays.settings.prefs.ThemeState
 import com.example.sumdays.utils.setupEdgeToEdge
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.jakewharton.threetenabp.AndroidThreeTen
@@ -31,6 +34,8 @@ import org.threeten.bp.YearMonth
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoUnit
 import java.util.Locale
+import com.example.sumdays.ui.component.NavBarController
+import com.example.sumdays.ui.component.NavSource
 
 class CalendarActivity : AppCompatActivity() {
 
@@ -39,6 +44,8 @@ class CalendarActivity : AppCompatActivity() {
     private lateinit var monthAdapter: MonthAdapter
     private lateinit var btnPrevMonth: ImageButton
     private lateinit var btnNextMonth: ImageButton
+    private lateinit var btnSetting: ImageButton
+    private lateinit var navBarController: NavBarController
 
     private val viewModel: CalendarViewModel by viewModels()
     var currentStatusMap: Map<String, Pair<Boolean, String?>> = emptyMap()
@@ -57,15 +64,24 @@ class CalendarActivity : AppCompatActivity() {
         tvMonthYear = findViewById(R.id.tv_month_year)
         btnPrevMonth = findViewById(R.id.btn_prev_month)
         btnNextMonth = findViewById(R.id.btn_next_month)
+        btnSetting = findViewById(R.id.setting_menu)
+
+        applyThemeModeSettings()
 
         setCustomCalendar()
-        setStatisticBtnListener()
-        setNavigationBar()
+        navBarController = NavBarController(this)
+        navBarController.setNavigationBar(NavSource.CALENDAR)
 
         tvMonthYear.setOnClickListener {
             showYearMonthPicker()
         }
 
+        btnSetting.setOnClickListener {
+            val intent = Intent(this@CalendarActivity, SettingActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(0, 0)
+        }
+        
         val rootView = findViewById<View>(R.id.root_layout)
         setupEdgeToEdge(rootView)
 
@@ -80,33 +96,20 @@ class CalendarActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
-    private fun setStatisticBtnListener() {
-        val btnStats = findViewById<ImageButton>(R.id.statistic_btn)
-        btnStats.setOnClickListener {
-            val intent = Intent(this, StatisticsActivity::class.java)
-            startActivity(intent)
-            overridePendingTransition(0, 0)
-        }
-    }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun setNavigationBar() {
-        val btnCalendar = findViewById<android.widget.ImageButton>(R.id.btnCalendar)
-        val btnDaily = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnDaily)
-        val btnInfo = findViewById<android.widget.ImageButton>(R.id.btnInfo)
+    private fun applyThemeModeSettings(){
+        // Apply dark mode
+        ThemeState.isDarkMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
 
-        btnCalendar.setOnClickListener { /* 현재 화면 */ }
-        btnDaily.setOnClickListener {
-            val todayStr = today.toString()
-            val intent = Intent(this, DailyWriteActivity::class.java)
-            intent.putExtra("date", todayStr)
-            startActivity(intent)
-            overridePendingTransition(0, 0)
+        if (ThemeState.isDarkMode){
+            btnPrevMonth.setImageResource(R.drawable.ic_arrow_back_white)
+            btnNextMonth.setImageResource(R.drawable.ic_arrow_forward_white)
+            btnSetting.setImageResource(R.drawable.ic_setting_menu_gray)
         }
-        btnInfo.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
-            overridePendingTransition(0, 0)
+        else{
+            btnPrevMonth.setImageResource(R.drawable.ic_arrow_back_black)
+            btnNextMonth.setImageResource(R.drawable.ic_arrow_forward_black)
+            btnSetting.setImageResource(R.drawable.ic_setting_menu_black)
         }
     }
 
@@ -131,7 +134,7 @@ class CalendarActivity : AppCompatActivity() {
                     when (dayName) {
                         "일", "SUN" -> ContextCompat.getColor(this@CalendarActivity, android.R.color.holo_red_dark)
                         "토", "SAT" -> ContextCompat.getColor(this@CalendarActivity, android.R.color.holo_blue_dark)
-                        else -> Color.WHITE
+                        else -> if (ThemeState.isDarkMode) Color.WHITE else Color.BLACK
                     }
                 )
             }

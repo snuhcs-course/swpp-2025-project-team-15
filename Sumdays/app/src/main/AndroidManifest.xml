@@ -19,6 +19,7 @@
         android:theme="@style/Theme.First"
         android:usesCleartextTraffic="true"
         android:launchMode="singleTask">
+
         <activity
             android:name=".RegisterationActivity"
             android:screenOrientation="portrait"
@@ -50,10 +51,17 @@
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
+            android:name=".SettingActivity"
+            android:exported="false" />
+        <activity
             android:name=".CalendarActivity"
             android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.First" />
+        <activity
+            android:name=".SearchActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".StatisticsActivity"
             android:screenOrientation="portrait"
@@ -64,7 +72,7 @@
             android:exported="false" />
 
         <!--  settings  -->
-        <activity android:name=".SettingsActivity"
+        <activity android:name=".ProfileActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity android:name=".settings.AccountSettingsActivity"
@@ -78,6 +86,9 @@
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity android:name=".settings.LabsSettingsActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity android:name=".settings.ThemeSettingsActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
 
@@ -115,5 +126,6 @@
 
 
     </application>
+
 
 </manifest>

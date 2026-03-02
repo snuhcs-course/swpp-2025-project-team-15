@@ -4,9 +4,10 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import com.example.sumdays.R
 import com.example.sumdays.auth.SessionManager
-import com.example.sumdays.databinding.ActivitySettingsAccountBinding
+import com.example.sumdays.databinding.ActivityProfileAccountBinding
 import com.example.sumdays.network.*
 import com.example.sumdays.settings.prefs.UserStatsPrefs
 import retrofit2.Call
@@ -17,17 +18,18 @@ import com.example.sumdays.network.ChangePasswordRequest
 import com.example.sumdays.network.ChangePasswordResponse
 import com.example.sumdays.network.UpdateNicknameRequest
 import com.example.sumdays.network.UpdateNicknameResponse
+import com.example.sumdays.settings.prefs.ThemeState
 import com.example.sumdays.utils.setupEdgeToEdge
 
 class AccountSettingsActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivitySettingsAccountBinding
+    private lateinit var binding: ActivityProfileAccountBinding
     private lateinit var userStatsPrefs: UserStatsPrefs
 
     // Retrofit API 서비스 객체와 세션 매니저
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySettingsAccountBinding.inflate(layoutInflater)
+        binding = ActivityProfileAccountBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         userStatsPrefs = UserStatsPrefs(this)
@@ -38,9 +40,27 @@ class AccountSettingsActivity : AppCompatActivity() {
         setupListeners()
         setupHeaderListener()
 
+        applyThemeModeSettings()
+
         // 상태바, 네비게이션바 같은 색으로
         val rootView = findViewById<View>(R.id.setting_account_root)
         setupEdgeToEdge(rootView)
+    }
+
+    private fun applyThemeModeSettings(){
+        // Apply dark mode
+        ThemeState.isDarkMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+
+        if (ThemeState.isDarkMode){
+            binding.header.headerBackIcon.setImageResource(R.drawable.ic_arrow_back_white)
+            binding.updateNicknameButton.setTextColor(getColor(R.color.white))
+            binding.changePasswordButton.setTextColor(getColor(R.color.white))
+        }
+        else{
+            binding.header.headerBackIcon.setImageResource(R.drawable.ic_arrow_back_black)
+            binding.updateNicknameButton.setTextColor(getColor(R.color.white))
+            binding.changePasswordButton.setTextColor(getColor(R.color.white))
+        }
     }
 
     private fun setupHeaderListener() {

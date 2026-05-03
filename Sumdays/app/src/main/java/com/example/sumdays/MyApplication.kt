@@ -4,7 +4,7 @@ import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.sumdays.daily.memo.MemoRepository
+import com.example.sumdays.data.repository.MemoRepository
 import com.example.sumdays.data.AppDatabase
 import com.example.sumdays.data.repository.DailyEntryRepository
 import com.example.sumdays.data.repository.WeekSummaryRepository

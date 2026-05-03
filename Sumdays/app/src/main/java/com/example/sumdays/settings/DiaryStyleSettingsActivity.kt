@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
-import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.UserStyle
 import com.example.sumdays.data.style.UserStyleViewModel
 import com.example.sumdays.databinding.ActivityProfileDiaryStyleBinding
 import com.example.sumdays.settings.prefs.UserStatsPrefs

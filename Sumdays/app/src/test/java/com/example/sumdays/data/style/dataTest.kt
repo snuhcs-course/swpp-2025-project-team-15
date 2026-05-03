@@ -2,10 +2,10 @@ package com.example.sumdays.data.dao
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.sumdays.daily.memo.Memo
+import com.example.sumdays.data.Memo
 import com.example.sumdays.data.DailyEntry
 import com.example.sumdays.data.EmojiData
-import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.UserStyle
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

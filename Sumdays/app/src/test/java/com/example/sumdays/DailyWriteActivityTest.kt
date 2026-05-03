@@ -7,7 +7,7 @@ import android.widget.*
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sumdays.daily.memo.Memo
+import com.example.sumdays.data.Memo
 import com.example.sumdays.daily.memo.MemoAdapter
 import com.example.sumdays.daily.memo.MemoViewModel
 import com.example.sumdays.daily.memo.MemoViewModelFactory

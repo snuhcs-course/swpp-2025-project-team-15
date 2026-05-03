@@ -23,7 +23,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.example.sumdays.daily.diary.AnalysisRepository
+import com.example.sumdays.data.repository.AnalysisRepository
 import com.example.sumdays.daily.memo.MoodRepository
 import com.example.sumdays.data.AppDatabase
 import com.example.sumdays.data.DailyEntry

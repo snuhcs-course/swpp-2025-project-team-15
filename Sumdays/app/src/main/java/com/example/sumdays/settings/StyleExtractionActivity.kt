@@ -22,7 +22,7 @@ import com.example.sumdays.daily.memo.MemoMergeUtils.convertStylePromptToMap
 import com.example.sumdays.daily.memo.MemoMergeUtils.extractMergedText
 import com.example.sumdays.daily.memo.MemoPayload
 import com.example.sumdays.daily.memo.MergeRequest
-import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.UserStyle
 import com.example.sumdays.data.style.UserStyleViewModel
 import com.example.sumdays.databinding.ActivityStyleExtractionBinding
 import com.example.sumdays.image.GalleryItem

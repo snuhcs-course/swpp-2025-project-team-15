@@ -1,9 +1,10 @@
 package com.example.sumdays
 
 import com.example.sumdays.data.sync.*
-import com.example.sumdays.daily.memo.Memo
+import com.example.sumdays.data.Memo
 import com.example.sumdays.data.DailyEntry
-import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.UserStyle
+import com.example.sumdays.data.style.StylePrompt
 import com.example.sumdays.statistics.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -57,7 +58,7 @@ class UserSyncFakeTest {
             styleName = "테스트",
             styleVector = listOf(0.1f),
             styleExamples = listOf("ex"),
-            stylePrompt = com.example.sumdays.data.style.StylePrompt(
+            stylePrompt = StylePrompt(
                 character_concept = "a", emotional_tone = "b", formality = "c",
                 lexical_choice = "d", pacing = "e", punctuation_style = "f",
                 sentence_endings = listOf("x"), sentence_length = "l",
@@ -155,7 +156,7 @@ class UserSyncFakeTest {
             styleName = "스타일",
             styleVector = listOf(1f),
             styleExamples = listOf("a"),
-            stylePrompt = com.example.sumdays.data.style.StylePrompt(
+            stylePrompt = StylePrompt(
                 character_concept = "a", emotional_tone = "b", formality = "c",
                 lexical_choice = "d", pacing = "e", punctuation_style = "f",
                 sentence_endings = listOf("x"), sentence_length = "l",

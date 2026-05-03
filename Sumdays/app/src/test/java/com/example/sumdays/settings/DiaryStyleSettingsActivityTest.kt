@@ -5,7 +5,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import com.example.sumdays.TestApplication
 import com.example.sumdays.data.style.StylePrompt
-import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.UserStyle
 import com.example.sumdays.data.style.UserStyleViewModel
 import com.example.sumdays.settings.prefs.UserStatsPrefs
 import com.example.sumdays.settings.ui.StyleCardAdapter

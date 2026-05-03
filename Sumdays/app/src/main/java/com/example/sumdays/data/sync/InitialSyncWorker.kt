@@ -10,12 +10,12 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.example.sumdays.auth.SessionManager
-import com.example.sumdays.daily.memo.Memo
+import com.example.sumdays.data.Memo
 import com.example.sumdays.data.AppDatabase
 import com.example.sumdays.data.DailyEntry
 import com.example.sumdays.data.WeekSummaryEntity
 import com.example.sumdays.data.style.StylePrompt
-import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.UserStyle
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.statistics.EmotionAnalysis
 import com.example.sumdays.statistics.Highlight

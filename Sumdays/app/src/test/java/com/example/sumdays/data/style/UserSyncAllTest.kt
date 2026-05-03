@@ -2,8 +2,8 @@ package com.example.sumdays.sync_test
 
 import com.example.sumdays.data.sync.*
 import com.example.sumdays.data.DailyEntry
-import com.example.sumdays.daily.memo.Memo
-import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.Memo
+import com.example.sumdays.data.UserStyle
 import com.example.sumdays.statistics.WeekSummary
 import org.junit.Assert.*
 import org.junit.Test

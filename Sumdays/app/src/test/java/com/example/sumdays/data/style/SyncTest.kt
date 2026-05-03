@@ -4,14 +4,14 @@ import android.content.Context
 import android.util.Log
 import androidx.work.*
 import com.example.sumdays.auth.SessionManager
-import com.example.sumdays.daily.memo.Memo
+import com.example.sumdays.data.Memo
 import com.example.sumdays.data.AppDatabase
 import com.example.sumdays.data.DailyEntry
 import com.example.sumdays.data.dao.DailyEntryDao
 import com.example.sumdays.data.dao.MemoDao
 import com.example.sumdays.data.dao.UserStyleDao
 import com.example.sumdays.data.dao.WeekSummaryDao
-import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.UserStyle
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.network.apiService.ApiService
 import com.example.sumdays.statistics.WeekSummary

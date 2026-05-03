@@ -6,7 +6,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
-import com.example.sumdays.daily.memo.Memo
+import com.example.sumdays.data.Memo
 import com.example.sumdays.data.AppDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

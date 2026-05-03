@@ -1,8 +1,8 @@
 package com.example.sumdays.data.sync
 
-import com.example.sumdays.daily.memo.Memo
+import com.example.sumdays.data.Memo
 import com.example.sumdays.data.DailyEntry
-import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.UserStyle
 import com.example.sumdays.statistics.WeekSummary
 
 // ------------------ 최상위 Request ------------------

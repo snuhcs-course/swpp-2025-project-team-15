@@ -213,7 +213,7 @@ class CalendarActivity : AppCompatActivity() {
                             android.R.color.holo_blue_dark
                         )
 
-                        else -> currentTheme?.textPrimaryColor
+                        else -> currentTheme?.themeTextColorSpecialA
                             ?: ContextCompat.getColor(
                                 this@CalendarActivity,
                                 android.R.color.black

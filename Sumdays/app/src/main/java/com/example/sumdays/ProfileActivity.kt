@@ -20,10 +20,7 @@ import com.example.sumdays.settings.AccountSettingsActivity
 import com.example.sumdays.settings.DiaryStyleSettingsActivity
 import com.example.sumdays.settings.EditProfileActivity
 import com.example.sumdays.settings.LabsSettingsActivity
-import com.example.sumdays.social.SocialActivity
-import com.example.sumdays.statistics.WeekSummaryWorker
 import com.example.sumdays.utils.setupEdgeToEdge
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.example.sumdays.settings.ThemeSettingsActivity
@@ -36,8 +33,6 @@ import com.example.sumdays.theme.ThemePrefs
 import com.example.sumdays.theme.ThemeRepository
 import com.example.sumdays.ui.component.NavBarController
 import com.example.sumdays.ui.component.NavSource
-import com.example.sumdays.utils.setupEdgeToEdge
-import kotlinx.coroutines.launch
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -123,9 +118,9 @@ class ProfileActivity : AppCompatActivity() {
 
 
         val backgroundColor = currentTheme.backgroundColor
-        val blockShape = currentTheme.blockStyle
-        val textPrimaryColor = currentTheme.textPrimaryColor
-        val basicColor = currentTheme.themeTextColor_basic
+        val blockShape = currentTheme.blockStyleA
+        val textPrimaryColor = currentTheme.themeTextColorSpecialA
+        val basicColor = currentTheme.themeTextColorBasic
 
 
 

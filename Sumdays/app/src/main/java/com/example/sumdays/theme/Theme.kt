@@ -22,6 +22,7 @@ data class Theme(
     val blockStyleA: Int,
     val blockStyleB: Int,
     val blockStyleC: Int,
+    val blockStyleD: Int,
 
 
     // 배경 색상 (배경 이미지가 존재하지 않을 때)

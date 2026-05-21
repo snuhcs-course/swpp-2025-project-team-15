@@ -52,16 +52,14 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/calendarViewPager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginVertical="120dp"
-        app:layout_constraintBottom_toTopOf="@id/navigation_bar"
+        android:layout_height="0dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintTop_toBottomOf="@+id/day_of_week_header"
+        app:layout_constraintBottom_toTopOf="@id/swipe_up_hint_pill"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/month_header"
-        app:layout_constraintVertical_bias="0.122"
         android:outlineProvider="background"
-        android:clipToOutline="true"
-        />
+        android:clipToOutline="true" />
 
 
         <LinearLayout
@@ -71,6 +69,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
+            android:layout_marginTop="24dp"
             app:layout_constraintTop_toBottomOf="@id/top_container"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -118,11 +117,12 @@
 
         <LinearLayout
             android:id="@+id/day_of_week_header"
+            android:background="@drawable/header_calendardays"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="28dp"
             android:orientation="horizontal"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@+id/month_header"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -133,7 +133,7 @@
         android:id="@+id/swipe_up_hint_pill"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="12dp"
         android:src="@drawable/ic_chevron_up"
         android:contentDescription="위로 스와이프"
         app:layout_constraintBottom_toTopOf="@id/navigation_bar"

@@ -226,8 +226,8 @@ class DailyWriteActivity : AppCompatActivity() {
         micIcon.setImageResource(currentTheme.recordIcon)
         imageIcon.setImageResource(currentTheme.addImageIcon)
 
-        dateTextBox.setBackgroundResource(currentTheme.blockStyleA)
-        memoListView.setBackgroundResource(currentTheme.blockStyleA)
+        dateTextBox.setBackgroundResource(currentTheme.blockStyleC)
+        memoListView.setBackgroundResource(currentTheme.blockStyleD)
     }
 
     private fun createAudioRecorderHelper(): AudioRecorderHelper {

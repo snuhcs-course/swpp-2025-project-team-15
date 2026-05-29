@@ -609,7 +609,8 @@ class DailyWriteActivity : AppCompatActivity() {
     private fun setupKeyboardAnimation() {
         val rootView = findViewById<View>(R.id.write)
         val contentArea = findViewById<View>(R.id.content_area)
-        val navBarViewHeightPx = (130 * resources.displayMetrics.density).toInt() // height(130)는 sum_btn에서 가져옴
+        val navBarViewHeightPx = (80 * resources.displayMetrics.density).toInt()
+        // height(130)는 sum_btn에서 가져옴 - 80으로 수정함
         var navBarHeight = 0
         var imeAnimationInProgress = false
         var previousPaddingBottom = navBarViewHeightPx

@@ -14,7 +14,7 @@ import com.example.sumdays.data.dao.WeekSummaryDao
 import com.example.sumdays.data.UserStyle
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.network.apiService.ApiService
-import com.example.sumdays.statistics.WeekSummary
+import com.example.sumdays.data.WeekSummary
 import io.mockk.*
 import kotlinx.coroutines.test.runTest
 import retrofit2.Response

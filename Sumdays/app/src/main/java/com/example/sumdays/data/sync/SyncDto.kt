@@ -3,7 +3,7 @@ package com.example.sumdays.data.sync
 import com.example.sumdays.data.Memo
 import com.example.sumdays.data.DailyEntry
 import com.example.sumdays.data.UserStyle
-import com.example.sumdays.statistics.WeekSummary
+import com.example.sumdays.data.WeekSummary
 
 // ------------------ 최상위 Request ------------------
 data class SyncRequest(
@@ -77,8 +77,6 @@ data class UserStylePayload(
     val stylePrompt: Any, // Gson이 JSON → Any 로 자동 매핑
     val sampleDiary: String
 )
-
-
 
 // ------------------ 서버 응답 ------------------
 data class SyncResponse(

@@ -17,11 +17,11 @@ import com.example.sumdays.data.WeekSummaryEntity
 import com.example.sumdays.data.style.StylePrompt
 import com.example.sumdays.data.UserStyle
 import com.example.sumdays.network.ApiClient
-import com.example.sumdays.statistics.EmotionAnalysis
-import com.example.sumdays.statistics.Highlight
-import com.example.sumdays.statistics.Insights
-import com.example.sumdays.statistics.SummaryDetails
-import com.example.sumdays.statistics.WeekSummary
+import com.example.sumdays.data.EmotionAnalysis
+import com.example.sumdays.data.Highlight
+import com.example.sumdays.data.Insights
+import com.example.sumdays.data.SummaryDetails
+import com.example.sumdays.data.WeekSummary
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

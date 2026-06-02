@@ -7,6 +7,7 @@ import androidx.work.WorkerParameters
 import com.example.sumdays.MyApplication
 import com.example.sumdays.TestApplication
 import com.example.sumdays.data.DailyEntry
+import com.example.sumdays.data.WeekSummary
 import com.example.sumdays.data.repository.DailyEntryRepository
 import com.example.sumdays.data.repository.WeekSummaryRepository
 import com.example.sumdays.network.ApiClient

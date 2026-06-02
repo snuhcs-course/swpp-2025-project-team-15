@@ -5,6 +5,11 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.sumdays.TestApplication
+import com.example.sumdays.data.EmotionAnalysis
+import com.example.sumdays.data.Highlight
+import com.example.sumdays.data.Insights
+import com.example.sumdays.data.SummaryDetails
+import com.example.sumdays.data.WeekSummary
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test

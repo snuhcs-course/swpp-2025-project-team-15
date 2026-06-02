@@ -4,11 +4,11 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.sumdays.data.WeekSummaryEntity
 import com.example.sumdays.data.dao.WeekSummaryDao
-import com.example.sumdays.statistics.EmotionAnalysis
-import com.example.sumdays.statistics.Highlight
-import com.example.sumdays.statistics.Insights
-import com.example.sumdays.statistics.SummaryDetails
-import com.example.sumdays.statistics.WeekSummary
+import com.example.sumdays.data.EmotionAnalysis
+import com.example.sumdays.data.Highlight
+import com.example.sumdays.data.Insights
+import com.example.sumdays.data.SummaryDetails
+import com.example.sumdays.data.WeekSummary
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters

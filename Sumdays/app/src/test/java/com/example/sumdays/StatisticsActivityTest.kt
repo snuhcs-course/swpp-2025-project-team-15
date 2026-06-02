@@ -1,17 +1,19 @@
 package com.example.sumdays
 
-import android.app.Application
 import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.resource.gif.GifDrawable
+import com.example.sumdays.data.EmotionAnalysis
+import com.example.sumdays.data.Insights
+import com.example.sumdays.data.SummaryDetails
+import com.example.sumdays.data.WeekSummary
 import com.example.sumdays.data.repository.DailyEntryRepository
 import com.example.sumdays.data.repository.WeekSummaryRepository
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
@@ -31,13 +33,10 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowToast
 import org.robolectric.RobolectricTestRunner
 import org.threeten.bp.Clock
 import org.threeten.bp.LocalDate
 import org.threeten.bp.ZoneId
-import org.threeten.bp.format.DateTimeFormatter
-import java.lang.reflect.Field
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)

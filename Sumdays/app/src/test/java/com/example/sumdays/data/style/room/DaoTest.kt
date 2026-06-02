@@ -3,7 +3,7 @@ package com.example.sumdays.data.dao
 import com.example.sumdays.data.DailyEntry
 import com.example.sumdays.data.EmojiData
 import com.example.sumdays.data.WeekSummaryEntity
-import com.example.sumdays.statistics.WeekSummary
+import com.example.sumdays.data.WeekSummary
 import io.mockk.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

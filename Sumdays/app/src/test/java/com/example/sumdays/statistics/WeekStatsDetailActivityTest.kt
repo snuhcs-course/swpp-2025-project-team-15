@@ -9,11 +9,15 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.sumdays.R
 import com.example.sumdays.TestApplication
+import com.example.sumdays.data.EmotionAnalysis
+import com.example.sumdays.data.Highlight
+import com.example.sumdays.data.Insights
+import com.example.sumdays.data.SummaryDetails
+import com.example.sumdays.data.WeekSummary
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)

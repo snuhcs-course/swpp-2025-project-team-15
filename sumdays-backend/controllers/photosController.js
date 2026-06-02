@@ -8,7 +8,7 @@ const path = require("path");
 
 async function getDailyEntryId(userId, date) {
   const [rows] = await db.query(
-    'SELECT id FROM daily_entries WHERE user_id = ? AND entry_date = ?',
+    'SELECT id FROM daily_entry WHERE user_id = ? AND entry_date = ?',
     [userId, date]
   );
   return rows.length > 0 ? rows[0].id : null;

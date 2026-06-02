@@ -1,10 +1,10 @@
 package com.example.sumdays.data.converter
 
-import com.example.sumdays.statistics.EmotionAnalysis
-import com.example.sumdays.statistics.Highlight
-import com.example.sumdays.statistics.Insights
-import com.example.sumdays.statistics.SummaryDetails
-import com.example.sumdays.statistics.WeekSummary
+import com.example.sumdays.data.EmotionAnalysis
+import com.example.sumdays.data.Highlight
+import com.example.sumdays.data.Insights
+import com.example.sumdays.data.SummaryDetails
+import com.example.sumdays.data.WeekSummary
 import org.junit.Assert
 import org.junit.Test
 

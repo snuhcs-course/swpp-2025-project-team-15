@@ -2,7 +2,7 @@ package com.example.sumdays.data.repository
 
 import com.example.sumdays.data.dao.DailyEntryDao
 import com.example.sumdays.data.dao.WeekSummaryDao
-import com.example.sumdays.statistics.WeekSummary
+import com.example.sumdays.data.WeekSummary
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest

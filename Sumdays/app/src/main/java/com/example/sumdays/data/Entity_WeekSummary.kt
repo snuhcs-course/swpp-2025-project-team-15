@@ -1,4 +1,4 @@
-package com.example.sumdays.statistics
+package com.example.sumdays.data
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

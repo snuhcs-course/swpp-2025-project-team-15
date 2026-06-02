@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.sumdays.data.DailyEntry
 import com.example.sumdays.data.WeekSummaryEntity
-import com.example.sumdays.statistics.WeekSummary
+import com.example.sumdays.data.WeekSummary
 
 @Dao
 interface WeekSummaryDao {

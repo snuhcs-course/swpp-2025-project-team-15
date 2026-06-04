@@ -1,5 +1,6 @@
 const axios = require("axios");
 const PYTHON_SERVER_URL = process.env.PYTHON_AI_URL;
+const weekSummaryModel = require('../../db/models/weekSummaryModel');
 
 const MIN_DIARY_NUM = 3
 const MIN_WEEKSUMMARY_NUM = 2
@@ -13,7 +14,8 @@ const analyzeController = {
     */
     summarizeWeek: async (req, res) => {
         try {
-            const { diaries } = req.body;
+            const { startDate, endDate, diaries } = req.body;
+            const userId = req.user?.userId;
 
             if (!diaries || diaries.length < MIN_DIARY_NUM) {
                 return res.status(404).json({
@@ -40,7 +42,20 @@ const analyzeController = {
             // final response
             response.data.emotion_analysis.emotion_score = average_score
             response.data.emotion_analysis.distribution = distribution
-
+            const result = response.data;
+                
+            if (userId) {
+                await weekSummaryModel.upsertWeekSummary({
+                    userId,
+                    startDate,
+                    endDate,
+                    diaryCount: diaries.length,
+                    emotionAnalysis: result.emotion_analysis,
+                    highlights: result.highlights,
+                    insights: result.insights,
+                    summary: result.summary
+                });
+            }
 
             return res.status(200).json({
                 success: true,

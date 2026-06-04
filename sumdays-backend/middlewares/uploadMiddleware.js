@@ -12,7 +12,6 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname);
-        // req.user.userId를 쓰려면 이 미들웨어 앞에 authMiddleware가 먼저 실행되어야 해!
         cb(null, `profile_${req.user.userId}_${Date.now()}${ext}`);
     }
 });

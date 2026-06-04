@@ -10,18 +10,23 @@ import com.example.sumdays.data.WeekSummary
 
 @Dao
 interface WeekSummaryDao {
+
+    // 1. 주간 통계 생성
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertEntity(entity: WeekSummaryEntity)
 
-    suspend fun upsert(summary: WeekSummary) {
+    //// 서버에서 만들고 바로 저장하는 것으로 변경 -> isEdited를 설정할 필요 x
+    suspend fun upsert(summary: WeekSummary, fromServer: Boolean = true) {
         val entity = WeekSummaryEntity(
             startDate = summary.startDate,
             weekSummary = summary,
-            isEdited = true,
+            isEdited = !fromServer,
             isDeleted = false
         )
         upsertEntity(entity)
     }
+
+    // 2. 주간 통계 load
 
     @Query("SELECT * FROM weekly_summary WHERE startDate = :startDate AND isDeleted = 0 LIMIT 1")
     suspend fun getWeekSummaryEntity(startDate: String): WeekSummaryEntity?
@@ -30,6 +35,8 @@ interface WeekSummaryDao {
         return getWeekSummaryEntity(startDate)?.weekSummary
     }
 
+
+    // 3. 주간 통계 삭제
     @Query("UPDATE weekly_summary SET isDeleted = 1, isEdited = 1 WHERE startDate = :startDate")
     suspend fun markAsDeleted(startDate: String)
 

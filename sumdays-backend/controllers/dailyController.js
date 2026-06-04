@@ -28,6 +28,7 @@ exports.getDailyEntry = async (req, res) => {
       'SELECT inner_id, memo_order, content, memo_time FROM memos WHERE daily_entry_id = ? ORDER BY memo_order ASC',
       [entry.id]
     );
+
     const [photos] = await db.query(
       'SELECT inner_id, photo_order, extension FROM photos WHERE daily_entry_id = ? ORDER BY photo_order ASC',
       [entry.id]

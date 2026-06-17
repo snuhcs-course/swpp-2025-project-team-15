@@ -16,14 +16,10 @@ import com.example.sumdays.auth.SessionManager
 import com.example.sumdays.data.AppDatabase
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import com.example.sumdays.databinding.ActivityProfileMainBinding
-import com.example.sumdays.settings.AccountSettingsActivity
-import com.example.sumdays.settings.DiaryStyleSettingsActivity
 import com.example.sumdays.settings.EditProfileActivity
-import com.example.sumdays.settings.LabsSettingsActivity
 import com.example.sumdays.utils.setupEdgeToEdge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import com.example.sumdays.settings.ThemeSettingsActivity
 import com.example.sumdays.settings.prefs.ProfileImagePrefs
 import com.example.sumdays.settings.prefs.UserStatsPrefs
 import com.example.sumdays.settings.profileimage.ProfileImageItem
@@ -127,19 +123,11 @@ class ProfileActivity : AppCompatActivity() {
 
         binding.root.setBackgroundColor(getColor(backgroundColor))
 
-        binding.diaryStyleBlock.setBackgroundResource(blockShape)
-        binding.labsBlock.setBackgroundResource(blockShape)
-        binding.accountBlock.setBackgroundResource(blockShape)
-        binding.themeBlock.setBackgroundResource(blockShape)
         binding.userBlock.setBackgroundResource(blockShape)
 
         binding.loginButton.setBackgroundColor(getColor(textPrimaryColor))
 
         binding.nickname.setTextColor(getColor(basicColor))
-        binding.diaryStyleBlockText.setTextColor(getColor(basicColor))
-        binding.labsBlockText.setTextColor(getColor(basicColor))
-        binding.accountBlockText.setTextColor(getColor(basicColor))
-        binding.themeBlockText.setTextColor(getColor(basicColor))
     }
 
 
@@ -147,23 +135,6 @@ class ProfileActivity : AppCompatActivity() {
         profileImageContainer.setOnClickListener {
             startActivity(Intent(this@ProfileActivity, EditProfileActivity::class.java))
         }
-
-        diaryStyleBlock.setOnClickListener {
-            startActivity(Intent(this@ProfileActivity, DiaryStyleSettingsActivity::class.java))
-        }
-
-        accountBlock.setOnClickListener {
-            startActivity(Intent(this@ProfileActivity, AccountSettingsActivity::class.java))
-        }
-
-        labsBlock.setOnClickListener {
-            startActivity(Intent(this@ProfileActivity, LabsSettingsActivity::class.java))
-        }
-
-        themeBlock.setOnClickListener {
-            startActivity(Intent(this@ProfileActivity, ThemeSettingsActivity::class.java))
-        }
-
     }
 
 

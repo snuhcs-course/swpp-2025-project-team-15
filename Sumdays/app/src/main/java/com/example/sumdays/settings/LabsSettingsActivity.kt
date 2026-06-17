@@ -1,6 +1,5 @@
 package com.example.sumdays.settings
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -15,13 +14,6 @@ class LabsSettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProfileLabsBinding
 
-    // 색상 설정
-    private val thumbOn = Color.parseColor("#FFFFFF")
-    private val thumbOff = Color.parseColor("#FFFFFF")
-
-    private val trackOn = Color.parseColor("#C62FE0")
-    private val trackOff = Color.parseColor("#33777777")
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileLabsBinding.inflate(layoutInflater)
@@ -29,7 +21,6 @@ class LabsSettingsActivity : AppCompatActivity() {
 
         setupHeader()
         setupLengthLevelSlider()
-        // setupAdvancedToggle()
 
         applyThemeModeSettings()
 
@@ -83,7 +74,7 @@ class LabsSettingsActivity : AppCompatActivity() {
     }
 
     private fun setupHeader() {
-        binding.header.headerTitle.text = "Labs"
+        binding.header.headerTitle.text = "길이 설정"
         binding.header.headerBackIcon.setOnClickListener { finish() }
     }
 
@@ -108,34 +99,4 @@ class LabsSettingsActivity : AppCompatActivity() {
             else -> "오늘의 일상을 자유롭게 기록합니다."
         }
     }
-
-    // ========= ADVANCED STYLE TOGGLE =========
-//    private fun setupAdvancedToggle() {
-//        val savedFlag = LabsPrefs.getAdvancedFlag(this)
-//        binding.accurateStyleSwitch.isChecked = savedFlag
-//
-//        applySwitchColors(savedFlag)
-//
-//        binding.accurateStyleSwitch.setOnCheckedChangeListener { _, checked ->
-//            LabsPrefs.setAdvancedFlag(this, checked)
-//            applySwitchColors(checked)
-//        }
-//    }
-//
-//    private fun applySwitchColors(isChecked: Boolean) {
-//        val thumbColors = createColorStateList(thumbOn, thumbOff)
-//        val trackColors = createColorStateList(trackOn, trackOff)
-//
-//        binding.accurateStyleSwitch.thumbTintList = thumbColors
-//        binding.accurateStyleSwitch.trackTintList = trackColors
-//    }
-//
-//    private fun createColorStateList(onColor: Int, offColor: Int) =
-//        android.content.res.ColorStateList(
-//            arrayOf(
-//                intArrayOf(android.R.attr.state_checked),
-//                intArrayOf()
-//            ),
-//            intArrayOf(onColor, offColor)
-//        )
 }

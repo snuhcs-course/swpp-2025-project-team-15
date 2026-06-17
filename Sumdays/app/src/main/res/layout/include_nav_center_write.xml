@@ -20,10 +20,10 @@
         app:cardMaxElevation="6dp">
 
         <ImageView
-            android:layout_width="45dp"
+            android:layout_width="40dp"
             android:layout_height="45dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_edit_white"
+            android:src="@drawable/ic_pencil"
             app:tint="@android:color/white" />
 
     </com.google.android.material.card.MaterialCardView>

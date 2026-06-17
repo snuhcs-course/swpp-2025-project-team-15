@@ -160,7 +160,7 @@ class CalendarActivity : AppCompatActivity() {
 
         btnPrevMonth.setImageResource(currentTheme.backIcon)
         btnNextMonth.setImageResource(currentTheme.forwardIcon)
-        btnSearch.setImageResource(currentTheme.searchIcon)
+        //btnSearch.setImageResource(currentTheme.searchIcon)
     }
 
     /**

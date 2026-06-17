@@ -27,17 +27,17 @@
 
             <ImageButton
                 android:id="@+id/read_back_button"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_arrow_back_grey"
+                android:src="@drawable/ic_left"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
                 android:id="@+id/read_diary_button"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:background="@drawable/statistics_background_stratosphere"
                 android:contentDescription="일기 보기"
                 app:layout_constraintTop_toTopOf="parent"
@@ -46,8 +46,8 @@
 
             <ImageButton
                 android:id="@+id/read_calendar_button"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_marginEnd="12dp"
                 android:background="@drawable/ic_calendar"
                 android:contentDescription="달력 보기"
@@ -126,7 +126,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:contentDescription="음성 입력"
-                        android:src="@drawable/ic_mic_white"
+                        android:src="@drawable/ic_mic"
                         android:visibility="visible" />
 
                     <ImageView
@@ -158,7 +158,7 @@
                     android:layout_height="28dp"
                     android:layout_marginEnd="16dp"
                     android:contentDescription="메모 전송"
-                    android:src="@drawable/ic_send_white"
+                    android:src="@drawable/ic_send"
                     android:visibility="gone"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"

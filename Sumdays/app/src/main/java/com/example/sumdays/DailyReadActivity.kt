@@ -114,7 +114,7 @@ class DailyReadActivity : AppCompatActivity() {
 
         binding.root.setBackgroundResource(backgroundColor)
 
-        binding.editMemosButton.setTextColor(getColor(R.color.white))
+        //binding.editMemosButton.setTextColor(getColor(R.color.white))
 
         binding.prevDayButton.setImageResource(
             R.drawable.ic_arrow_back_black

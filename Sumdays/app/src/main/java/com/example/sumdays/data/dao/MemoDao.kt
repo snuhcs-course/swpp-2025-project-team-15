@@ -13,11 +13,12 @@ import kotlinx.coroutines.flow.Flow
 interface MemoDao {
 
     // insert 시 새로 생성된 메모이므로 isEdited = true, isDeleted = false
+    // 반환값: 새로 생성된 메모의 id (rowId)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRaw(memo: Memo)
+    suspend fun insertRaw(memo: Memo): Long
 
-    suspend fun insert(memo: Memo) {
-        insertRaw(memo.copy(isEdited = true, isDeleted = false))
+    suspend fun insert(memo: Memo): Long {
+        return insertRaw(memo.copy(isEdited = true, isDeleted = false))
     }
 
     // 특정 날짜의 메모만 조회 (삭제된 메모는 제외)

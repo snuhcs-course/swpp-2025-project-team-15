@@ -52,7 +52,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-
             <!-- 구분선 -->
             <View
                 android:layout_width="match_parent"
@@ -62,40 +61,101 @@
 
             <!-- 세부 설정 페이지 버튼 -->
             <LinearLayout
+                android:id="@+id/diaryStyleBlock"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="6dp">
+
+                <TextView
+                    android:id="@+id/diaryStyleBlockText"
+                    style="@style/TextAppearance.App.Normal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="24dp"
+                    android:text="일기 스타일 설정" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/notificationBlock"
-                style="@style/SettingsItemStyle">
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="6dp">
 
                 <TextView
                     android:id="@+id/notificationBlockText"
                     style="@style/TextAppearance.App.Normal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="24dp"
                     android:text="알림 설정" />
             </LinearLayout>
 
-
-            <LinearLayout
-                android:id="@+id/tutorialBlock"
-                style="@style/SettingsItemStyle">
-
-                <TextView
-                    android:id="@+id/tutorialBlockText"
-                    style="@style/TextAppearance.App.Normal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="튜토리얼 다시보기" />
-            </LinearLayout>
-
+            <!-- 주간통계 수동 추가 (기능 보류, 추후 복구)
             <LinearLayout
                 android:id="@+id/summaryBlock"
-                style="@style/SettingsItemStyle">
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="6dp">
 
                 <TextView
                     android:id="@+id/summaryBlockText"
                     style="@style/TextAppearance.App.Normal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="24dp"
                     android:text="주간통계 수동 추가" />
+            </LinearLayout>
+            -->
+
+            <LinearLayout
+                android:id="@+id/accountBlock"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="6dp">
+
+                <TextView
+                    android:id="@+id/accountBlockText"
+                    style="@style/TextAppearance.App.Normal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="24dp"
+                    android:text="계정 설정" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/labsBlock"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="6dp">
+
+                <TextView
+                    android:id="@+id/labsBlockText"
+                    style="@style/TextAppearance.App.Normal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="24dp"
+                    android:text="길이 설정" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tutorialBlock"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="6dp">
+
+                <TextView
+                    android:id="@+id/tutorialBlockText"
+                    style="@style/TextAppearance.App.Normal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="24dp"
+                    android:text="튜토리얼 다시보기" />
             </LinearLayout>
 
         </LinearLayout>

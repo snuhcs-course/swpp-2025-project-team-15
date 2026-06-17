@@ -17,6 +17,7 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.sumdays.data.viewModel.WeekSummaryViewModel
 import com.example.sumdays.data.viewModel.WeekSummaryViewModelFactory
+import com.example.sumdays.statistics.FoxTreeBackground
 import com.example.sumdays.statistics.StreakPrefs
 import com.example.sumdays.utils.setupEdgeToEdge
 import kotlin.math.abs
@@ -113,22 +114,14 @@ class StatisticsWidgetActivity : AppCompatActivity() {
     }
 
     private fun bindFoxTreeWidget(leafCount: Int) {
-        val backgrounds = listOf(
-            R.drawable.statistics_background_morning,
-            R.drawable.statistics_background_evening,
-            R.drawable.statistics_background_stratosphere,
-            R.drawable.statistics_background_space
-        )
-        // 배경 1개당 10층 (0~9: 아침, 10~19: 저녁, 20~29: 성층권, 30+: 우주)
-        val bgIndex = (leafCount / 10).coerceIn(0, backgrounds.lastIndex)
-        ivFoxTreeBg.setImageResource(backgrounds[bgIndex])
+        val bgIndex = FoxTreeBackground.segmentIndexForLeaf(leafCount)
+        ivFoxTreeBg.setImageResource(FoxTreeBackground.backgrounds[bgIndex])
 
-        if (bgIndex < backgrounds.lastIndex) {
-            val nextBgLeafThreshold = (bgIndex + 1) * 10
-            val remaining = nextBgLeafThreshold - leafCount
-            tvLevelsToNextBg.text = "다음 배경까지 ${remaining}층"
+        val remaining = FoxTreeBackground.leavesToNextBackground(leafCount)
+        tvLevelsToNextBg.text = if (remaining != null) {
+            "다음 배경까지 ${remaining}층"
         } else {
-            tvLevelsToNextBg.text = "우주 도착!"
+            "우주 도착!"
         }
     }
 

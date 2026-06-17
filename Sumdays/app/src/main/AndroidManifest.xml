@@ -145,6 +145,10 @@
                 <action android:name="com.example.sumdays.ACTION_REPLY" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".reminder.ReminderUndoReceiver"
+            android:enabled="true"
+            android:exported="false" />
 
 
     </application>

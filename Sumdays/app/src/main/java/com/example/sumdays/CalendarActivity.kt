@@ -25,6 +25,7 @@ import androidx.lifecycle.LiveData
 import androidx.viewpager2.widget.ViewPager2
 import com.example.sumdays.calendar.CalendarLanguage
 import com.example.sumdays.calendar.MonthAdapter
+import com.example.sumdays.data.sync.BackupScheduler
 import com.example.sumdays.data.viewModel.CalendarViewModel
 import com.example.sumdays.shop.AllFoxMap
 import com.example.sumdays.shop.AllThemeMap
@@ -54,6 +55,7 @@ class CalendarActivity : AppCompatActivity() {
     private lateinit var btnSetting: ImageButton
 
     private lateinit var btnSearch: ImageButton
+    private lateinit var btnTemp: ImageButton
     private lateinit var navBarController: NavBarController
     private lateinit var rootLayout: ConstraintLayout
 
@@ -108,6 +110,12 @@ class CalendarActivity : AppCompatActivity() {
             startActivity(intent)
             overridePendingTransition(0, 0)
         }
+        btnTemp.setOnClickListener {
+            BackupScheduler.triggerManualBackup(this)
+        }
+
+
+
 
         val pref: SharedPreferences = getSharedPreferences("checkFirst", Activity.MODE_PRIVATE)
         val checkFirst = pref.getBoolean("checkFirst", false)

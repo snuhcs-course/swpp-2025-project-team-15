@@ -13,7 +13,7 @@ exports.getDailyEntry = async (req, res) => {
   try {
     // 1. 기본 entries 
     const [entries] = await db.query(
-      'SELECT * FROM daily_entries WHERE user_id = ? AND entry_date = ?',
+      'SELECT * FROM daily_entry WHERE user_id = ? AND entry_date = ?',
       [userId,date]
     );
 
@@ -28,6 +28,7 @@ exports.getDailyEntry = async (req, res) => {
       'SELECT inner_id, memo_order, content, memo_time FROM memos WHERE daily_entry_id = ? ORDER BY memo_order ASC',
       [entry.id]
     );
+
     const [photos] = await db.query(
       'SELECT inner_id, photo_order, extension FROM photos WHERE daily_entry_id = ? ORDER BY photo_order ASC',
       [entry.id]
@@ -108,7 +109,7 @@ exports.createDailyEntry = async (req, res) => {
 
         // 1. 중복 체크
         const [exists] = await connection.query(
-            'SELECT id FROM daily_entries WHERE user_id = ? AND entry_date = ?',
+            'SELECT id FROM daily_entry WHERE user_id = ? AND entry_date = ?',
             [userId, date]
         );
         if (exists.length > 0) {
@@ -118,7 +119,7 @@ exports.createDailyEntry = async (req, res) => {
 
         // 2. 일기 삽입
         await connection.query(
-            'INSERT INTO daily_entries (user_id, entry_date) VALUES (?, ?)',
+            'INSERT INTO daily_entry (user_id, entry_date) VALUES (?, ?)',
             [userId, date]
         );
 
@@ -201,7 +202,7 @@ exports.updateDailyEntry = async (req, res) => {
   try {
     // 1. find dailyEntry
     const [entries] = await db.query(
-      'SELECT id FROM daily_entries WHERE user_id = ? AND entry_date = ?',
+      'SELECT id FROM daily_entry WHERE user_id = ? AND entry_date = ?',
       [userId, date]
     );
     if (entries.length === 0) {
@@ -230,7 +231,7 @@ exports.updateDailyEntry = async (req, res) => {
     }
 
     values.push(userId, date);
-    const sql = `UPDATE daily_entries SET ${updates.join(', ')} WHERE user_id = ? AND entry_date = ?`;
+    const sql = `UPDATE daily_entry SET ${updates.join(', ')} WHERE user_id = ? AND entry_date = ?`;
     await db.query(sql, values);
 
     res.status(200).json({ message: 'Daily entry updated successfully' });
@@ -254,7 +255,7 @@ exports.deleteDailyEntry = async (req, res) => {
 
         // 1. 일기 삭제
         const [result] = await connection.query(
-            'DELETE FROM daily_entries WHERE user_id = ? AND entry_date = ?',
+            'DELETE FROM daily_entry WHERE user_id = ? AND entry_date = ?',
             [userId, date]
         );
 

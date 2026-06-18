@@ -10,7 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import com.example.sumdays.TestActivity
 import com.example.sumdays.TestApplication
 import com.example.sumdays.data.style.StylePrompt
-import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.UserStyle
 import com.example.sumdays.databinding.ItemStyleAddCardBinding
 import com.example.sumdays.databinding.ItemStyleCardBinding
 import org.junit.Assert.*

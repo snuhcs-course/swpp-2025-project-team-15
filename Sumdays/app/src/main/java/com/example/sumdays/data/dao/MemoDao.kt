@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.sumdays.daily.memo.Memo
+import com.example.sumdays.data.Memo
 import kotlinx.coroutines.flow.Flow
 
 // Room의 DAO(Data Access Object) 인터페이스

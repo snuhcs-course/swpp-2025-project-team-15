@@ -1,15 +1,19 @@
 package com.example.sumdays
 
 import com.example.sumdays.data.sync.*
-import com.example.sumdays.daily.memo.Memo
+import com.example.sumdays.data.Memo
 import com.example.sumdays.data.DailyEntry
-import com.example.sumdays.data.style.UserStyle
-import com.example.sumdays.statistics.*
+import com.example.sumdays.data.EmotionAnalysis
+import com.example.sumdays.data.Highlight
+import com.example.sumdays.data.Insights
+import com.example.sumdays.data.SummaryDetails
+import com.example.sumdays.data.UserStyle
+import com.example.sumdays.data.WeekSummary
+import com.example.sumdays.data.style.StylePrompt
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 /**
  * 완전 Fake 환경에서 SyncDto / buildSyncRequest / 데이터 구조 전체를 커버하는 테스트
@@ -57,7 +61,7 @@ class UserSyncFakeTest {
             styleName = "테스트",
             styleVector = listOf(0.1f),
             styleExamples = listOf("ex"),
-            stylePrompt = com.example.sumdays.data.style.StylePrompt(
+            stylePrompt = StylePrompt(
                 character_concept = "a", emotional_tone = "b", formality = "c",
                 lexical_choice = "d", pacing = "e", punctuation_style = "f",
                 sentence_endings = listOf("x"), sentence_length = "l",
@@ -76,9 +80,9 @@ class UserSyncFakeTest {
                 dominantEmoji = "😀",
                 emotionScore = 0.8
             ),
-            highlights = listOf(Highlight("2025-01-05","good")),
-            insights = Insights("nice","trend"),
-            summary = SummaryDetails(listOf("t"),"ov","ti")
+            highlights = listOf(Highlight("2025-01-05", "good")),
+            insights = Insights("nice", "trend"),
+            summary = SummaryDetails(listOf("t"), "ov", "ti")
         )
 
         val edited = EditedPayload(
@@ -155,7 +159,7 @@ class UserSyncFakeTest {
             styleName = "스타일",
             styleVector = listOf(1f),
             styleExamples = listOf("a"),
-            stylePrompt = com.example.sumdays.data.style.StylePrompt(
+            stylePrompt = StylePrompt(
                 character_concept = "a", emotional_tone = "b", formality = "c",
                 lexical_choice = "d", pacing = "e", punctuation_style = "f",
                 sentence_endings = listOf("x"), sentence_length = "l",
@@ -174,9 +178,9 @@ class UserSyncFakeTest {
                 dominantEmoji = "😀",
                 emotionScore = 0.5
             ),
-            highlights = listOf(Highlight("2025-01-04","good")),
-            insights = Insights("a","b"),
-            summary = SummaryDetails(listOf("z"),"ov","ti")
+            highlights = listOf(Highlight("2025-01-04", "good")),
+            insights = Insights("a", "b"),
+            summary = SummaryDetails(listOf("z"), "ov", "ti")
         )
 
         val req = buildSyncRequest(

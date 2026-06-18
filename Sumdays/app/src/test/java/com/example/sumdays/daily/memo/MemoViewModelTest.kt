@@ -2,6 +2,8 @@ package com.example.sumdays.daily.memo
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
+import com.example.sumdays.data.Memo
+import com.example.sumdays.data.repository.MemoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -54,7 +56,8 @@ class MemoViewModelTest {
     fun getMemosForDate_callsRepositoryAndReturnsLiveData() {
         // Arrange
         val testDate = "2025-10-31"
-        val dummyMemo = Memo(id=1, content="Test", timestamp="10:00", date=testDate, order=0)
+        val dummyMemo =
+            Memo(id = 1, content = "Test", timestamp = "10:00", date = testDate, order = 0)
         // Repository가 flowOf()를 반환하도록 Mocking
         whenever(mockRepository.getMemosForDate(testDate)).thenReturn(flowOf(listOf(dummyMemo)))
 
@@ -84,7 +87,8 @@ class MemoViewModelTest {
     @Test
     fun insert_callsRepositoryInsert() = testDispatcher.runBlockingTest {
         // Arrange
-        val newMemo = Memo(content="New memo content", date="2025-11-01", timestamp="12:00", order=0)
+        val newMemo =
+            Memo(content = "New memo content", date = "2025-11-01", timestamp = "12:00", order = 0)
 
         // Act
         viewModel.insert(newMemo)
@@ -100,7 +104,13 @@ class MemoViewModelTest {
     @Test
     fun update_callsRepositoryUpdate() = testDispatcher.runBlockingTest {
         // Arrange
-        val updatedMemo = Memo(id=5, content="Updated content", date="2025-10-31", timestamp="15:00", order=1)
+        val updatedMemo = Memo(
+            id = 5,
+            content = "Updated content",
+            date = "2025-10-31",
+            timestamp = "15:00",
+            order = 1
+        )
 
         // Act
         viewModel.update(updatedMemo)
@@ -117,8 +127,8 @@ class MemoViewModelTest {
     fun updateAll_callsRepositoryUpdateAll() = testDispatcher.runBlockingTest {
         // Arrange
         val memoList = listOf(
-            Memo(id=1, content="A", date="2025-10-31", timestamp="10:00", order=1),
-            Memo(id=2, content="B", date="2025-10-31", timestamp="10:01", order=0)
+            Memo(id = 1, content = "A", date = "2025-10-31", timestamp = "10:00", order = 1),
+            Memo(id = 2, content = "B", date = "2025-10-31", timestamp = "10:01", order = 0)
         )
 
         // Act
@@ -135,7 +145,8 @@ class MemoViewModelTest {
     @Test
     fun delete_callsRepositoryDelete() = testDispatcher.runBlockingTest {
         // Arrange
-        val memoToDelete = Memo(id=3, content="To delete", date="2025-10-31", timestamp="11:00", order=2)
+        val memoToDelete =
+            Memo(id = 3, content = "To delete", date = "2025-10-31", timestamp = "11:00", order = 2)
 
         // Act
         viewModel.delete(memoToDelete)

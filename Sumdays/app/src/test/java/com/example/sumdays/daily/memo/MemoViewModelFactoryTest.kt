@@ -1,5 +1,5 @@
 import androidx.lifecycle.ViewModel
-import com.example.sumdays.daily.memo.MemoRepository
+import com.example.sumdays.data.repository.MemoRepository
 import com.example.sumdays.daily.memo.MemoViewModel
 import com.example.sumdays.daily.memo.MemoViewModelFactory
 import org.junit.Assert.*

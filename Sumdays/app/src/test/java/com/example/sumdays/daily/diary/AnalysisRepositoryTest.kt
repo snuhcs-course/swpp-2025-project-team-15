@@ -2,6 +2,7 @@ package com.example.sumdays.daily.diary
 
 import android.os.Build
 import com.example.sumdays.TestApplication
+import com.example.sumdays.data.repository.AnalysisRepository
 import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.network.apiService.ApiService

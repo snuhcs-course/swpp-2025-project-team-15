@@ -2,6 +2,7 @@ package com.example.sumdays.data.style
 
 import android.content.Context
 import com.example.sumdays.TestApplication
+import com.example.sumdays.data.UserStyle
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test

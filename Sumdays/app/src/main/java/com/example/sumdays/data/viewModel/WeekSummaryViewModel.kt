@@ -3,8 +3,8 @@ package com.example.sumdays.data.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.sumdays.data.WeekSummary
 import com.example.sumdays.data.repository.WeekSummaryRepository
-import com.example.sumdays.statistics.WeekSummary
 import kotlinx.coroutines.launch
 
 class WeekSummaryViewModel (

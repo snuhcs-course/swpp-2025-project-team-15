@@ -46,6 +46,7 @@ import android.view.DragEvent
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.TestApplication
+import com.example.sumdays.data.Memo
 
 
 @RunWith(RobolectricTestRunner::class)

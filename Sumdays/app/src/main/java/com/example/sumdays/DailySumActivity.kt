@@ -22,8 +22,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.sumdays.daily.diary.AnalysisRepository
-import com.example.sumdays.daily.memo.Memo
+import com.example.sumdays.data.repository.AnalysisRepository
+import com.example.sumdays.data.Memo
 import com.example.sumdays.daily.memo.MemoMergeAdapter
 import com.example.sumdays.data.AppDatabase
 import com.example.sumdays.data.dao.UserStyleDao

@@ -3,7 +3,7 @@ package com.example.sumdays
 import androidx.work.Configuration
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
-import com.example.sumdays.daily.memo.MemoRepository
+import com.example.sumdays.data.repository.MemoRepository
 import com.example.sumdays.daily.memo.MemoViewModel
 import org.mockito.Mockito.mock
 

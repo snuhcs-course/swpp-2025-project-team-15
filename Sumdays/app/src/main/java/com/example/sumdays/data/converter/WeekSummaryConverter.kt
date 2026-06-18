@@ -1,7 +1,7 @@
 package com.example.sumdays.data.converter
 
 import androidx.room.TypeConverter
-import com.example.sumdays.statistics.WeekSummary
+import com.example.sumdays.data.WeekSummary
 import com.google.gson.Gson
 
 class WeekSummaryConverter {

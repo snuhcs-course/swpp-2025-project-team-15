@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.UserStyle
 
 @Dao
 interface UserStyleDao {

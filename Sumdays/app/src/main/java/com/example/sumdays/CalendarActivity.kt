@@ -25,6 +25,7 @@ import androidx.lifecycle.LiveData
 import androidx.viewpager2.widget.ViewPager2
 import com.example.sumdays.calendar.CalendarLanguage
 import com.example.sumdays.calendar.MonthAdapter
+import com.example.sumdays.data.sync.BackupScheduler
 import com.example.sumdays.data.viewModel.CalendarViewModel
 import com.example.sumdays.shop.AllFoxMap
 import com.example.sumdays.shop.AllThemeMap
@@ -55,6 +56,7 @@ class CalendarActivity : AppCompatActivity() {
     private lateinit var btnTutorial: ImageButton
 
     private lateinit var btnSearch: ImageButton
+    private lateinit var btnTemp: ImageButton
     private lateinit var navBarController: NavBarController
     private lateinit var rootLayout: ConstraintLayout
 
@@ -83,6 +85,7 @@ class CalendarActivity : AppCompatActivity() {
         btnNextMonth = findViewById(R.id.btn_next_month)
         btnSetting = findViewById(R.id.setting_menu)
         btnSearch = findViewById(R.id.search_btn)
+        btnTemp = findViewById(R.id.temp)
         btnTutorial = findViewById(R.id.tutorial_btn)
         rootLayout = findViewById(R.id.root_layout)
 
@@ -110,6 +113,12 @@ class CalendarActivity : AppCompatActivity() {
             startActivity(intent)
             overridePendingTransition(0, 0)
         }
+        btnTemp.setOnClickListener {
+            BackupScheduler.triggerManualBackup(this)
+        }
+
+
+
 
         btnTutorial.setOnClickListener {
             val intent = Intent(this@CalendarActivity, TutorialActivity::class.java)

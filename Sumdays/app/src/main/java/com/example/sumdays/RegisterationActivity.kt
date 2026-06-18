@@ -1,6 +1,7 @@
 package com.example.sumdays
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -70,6 +71,7 @@ class RegisterationActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<SignupResponse>, t: Throwable) {
                 Toast.makeText(this@RegisterationActivity, "네트워크 오류: ${t.message}", Toast.LENGTH_SHORT).show()
+                Log.d("network","${t.message}")
             }
         })
     }

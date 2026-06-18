@@ -35,11 +35,20 @@
                 android:layout_weight="1" />
 
             <ImageButton
+                android:id="@+id/temp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/ic_check_black"
+                android:background="@android:color/transparent" />
+
+
+            <ImageButton
                 android:id="@+id/search_btn"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:src="@drawable/ic_search"
                 android:background="@android:color/transparent" />
+
 
             <ImageButton
                 android:id="@+id/tutorial_btn"

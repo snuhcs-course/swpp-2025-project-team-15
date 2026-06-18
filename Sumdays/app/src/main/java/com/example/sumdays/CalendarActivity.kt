@@ -84,6 +84,7 @@ class CalendarActivity : AppCompatActivity() {
         btnNextMonth = findViewById(R.id.btn_next_month)
         btnSetting = findViewById(R.id.setting_menu)
         btnSearch = findViewById(R.id.search_btn)
+        btnTemp = findViewById(R.id.btn_temp)
         rootLayout = findViewById(R.id.root_layout)
 
         navBarController = NavBarController(this)
@@ -110,9 +111,12 @@ class CalendarActivity : AppCompatActivity() {
             startActivity(intent)
             overridePendingTransition(0, 0)
         }
+
         btnTemp.setOnClickListener {
             BackupScheduler.triggerManualBackup(this)
         }
+
+
 
 
 

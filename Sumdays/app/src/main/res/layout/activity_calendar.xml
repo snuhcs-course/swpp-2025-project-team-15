@@ -34,6 +34,13 @@
                 android:layout_weight="1" />
 
             <ImageButton
+                android:id="@+id/btn_temp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/ic_arrow_back_black"
+                android:background="@android:color/transparent" />
+
+            <ImageButton
                 android:id="@+id/setting_menu"
                 android:layout_width="50dp"
                 android:layout_height="50dp"

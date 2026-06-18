@@ -22,6 +22,7 @@ object AllThemeMap {
             blockStyleB = R.drawable.bg_image_drawer_rounded_light_alpha80, //여우귀
             blockStyleC = R.drawable.blockstyle_c_basic,
             blockStyleD = R.drawable.blockstyle_d_basic,
+            blockStyleFox = R.drawable.blockstyle_b_basic_nine,
             themePreviewImage = R.drawable.login_fox_login_logo,
             backgroundColor = R.color.theme_default_background,
             calendarBackgroundImage = R.drawable.theme_default_background,
@@ -55,6 +56,7 @@ object AllThemeMap {
             blockStyleB = R.drawable.bg_image_drawer_rounded_light_alpha80,
             blockStyleC = R.drawable.theme_forest_block,
             blockStyleD = R.drawable.theme_default_background,
+            blockStyleFox = R.drawable.blockstyle_b_basic_nine,
             themePreviewImage = R.drawable.nav_fox_button,
             backgroundColor = R.color.theme_forest_bg,
             calendarBackgroundImage = R.drawable.statistics_background_morning,

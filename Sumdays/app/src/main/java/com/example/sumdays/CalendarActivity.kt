@@ -53,7 +53,6 @@ class CalendarActivity : AppCompatActivity() {
     private lateinit var btnPrevMonth: ImageButton
     private lateinit var btnNextMonth: ImageButton
     private lateinit var btnSetting: ImageButton
-    private lateinit var btnTutorial: ImageButton
 
     private lateinit var btnSearch: ImageButton
     private lateinit var btnTemp: ImageButton
@@ -85,8 +84,6 @@ class CalendarActivity : AppCompatActivity() {
         btnNextMonth = findViewById(R.id.btn_next_month)
         btnSetting = findViewById(R.id.setting_menu)
         btnSearch = findViewById(R.id.search_btn)
-        btnTemp = findViewById(R.id.temp)
-        btnTutorial = findViewById(R.id.tutorial_btn)
         rootLayout = findViewById(R.id.root_layout)
 
         navBarController = NavBarController(this)
@@ -119,12 +116,6 @@ class CalendarActivity : AppCompatActivity() {
 
 
 
-
-        btnTutorial.setOnClickListener {
-            val intent = Intent(this@CalendarActivity, TutorialActivity::class.java)
-            startActivity(intent)
-            overridePendingTransition(0, 0)
-        }
 
         val pref: SharedPreferences = getSharedPreferences("checkFirst", Activity.MODE_PRIVATE)
         val checkFirst = pref.getBoolean("checkFirst", false)
@@ -169,7 +160,7 @@ class CalendarActivity : AppCompatActivity() {
 
         btnPrevMonth.setImageResource(currentTheme.backIcon)
         btnNextMonth.setImageResource(currentTheme.forwardIcon)
-        btnSearch.setImageResource(currentTheme.searchIcon)
+        //btnSearch.setImageResource(currentTheme.searchIcon)
     }
 
     /**

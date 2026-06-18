@@ -117,7 +117,7 @@
                 android:layout_marginLeft="15dp"
                 android:scaleType="fitCenter"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_profile"
+                android:src="@drawable/ic_setting"
                 app:tint="@color/icon_color"/>
         </LinearLayout>
     </LinearLayout>

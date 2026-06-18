@@ -111,11 +111,10 @@ class DailyReadActivity : AppCompatActivity() {
         }
 
         val backgroundColor = currentTheme.backgroundColor
-        val commentFoxFaceImage = currentFox.commentFoxIcon
 
         binding.root.setBackgroundResource(backgroundColor)
 
-        binding.editMemosButton.setTextColor(getColor(R.color.white))
+        //binding.editMemosButton.setTextColor(getColor(R.color.white))
 
         binding.prevDayButton.setImageResource(
             R.drawable.ic_arrow_back_black
@@ -124,8 +123,6 @@ class DailyReadActivity : AppCompatActivity() {
         binding.nextDayButton.setImageResource(
             R.drawable.ic_arrow_forward_black
         )
-
-        binding.foxFaceImage.setImageResource(commentFoxFaceImage)
     }
 
     // ──────────────────────────────────
@@ -209,25 +206,15 @@ class DailyReadActivity : AppCompatActivity() {
         val diaryText = entry?.diary ?: ""
         binding.diaryContentEditText.setText(diaryText)
         binding.diaryContentTextView.text = diaryText
-        binding.commentIcon.text = entry?.themeIcon ?: "🤔"
-        binding.keywordsText.text = entry?.keywords?.replace(";", ", ")
-        val mood = entry?.aiComment
-        if (!mood.isNullOrBlank()) {
-            binding.commentText.text = mood
-            binding.commentText.visibility = android.view.View.VISIBLE
-        } else {
-            binding.commentText.visibility = android.view.View.GONE
-        }
 
-        val score = entry?.emotionScore ?: 0.0
-        val foxFaceResId = when {
-            score >= 0.6 -> R.drawable.dailyread_fox_face_level_5
-            score >= 0.2 -> R.drawable.dailyread_fox_face_level_4
-            score >= -0.2 -> R.drawable.dailyread_fox_face_level_3
-            score >= -0.6 -> R.drawable.dailyread_fox_face_level_2
-            else -> R.drawable.dailyread_fox_face_level_1
-        }
-        binding.foxFaceImage.setImageResource(foxFaceResId)
+        // TODO: 소셜 페이지로 이동해야함
+        // val mood = entry?.aiComment
+        // if (!mood.isNullOrBlank()) {
+        //     binding.commentText.text = mood
+        //     binding.commentText.visibility = android.view.View.VISIBLE
+        // } else {
+        //     binding.commentText.visibility = android.view.View.GONE
+        // }
 
         currentPhotoList.clear()
         entry?.photoUrls?.let { urls ->
@@ -271,12 +258,6 @@ class DailyReadActivity : AppCompatActivity() {
             finish()
         }
 
-        binding.foxFaceImage.setOnClickListener {
-            if (!binding.commentText.text.isNullOrBlank()) {
-                binding.commentText.visibility =
-                    if (binding.commentText.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-            }
-        }
     }
 
     // ──────────────────────────────────

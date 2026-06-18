@@ -1,36 +1,35 @@
-<androidx.constraintlayout.widget.ConstraintLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/memo_fox_bubble"
-    android:layout_marginTop="-3dp"
-    android:layout_marginBottom="6dp"
-    android:paddingBottom="0dp"
-    android:clipChildren="false">
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-
-    <TextView
-        android:id="@+id/memo_text"
-        android:layout_width="256dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bubble_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:layout_marginLeft="24dp"
-        android:clipChildren="false"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/memo_bubble_default">
 
-        android:gravity="center"
-        android:includeFontPadding="false"
-        android:text="내용"
-        android:textColor="@android:color/black"
-        android:textSize="@dimen/text_size_S"
-        android:background="@android:color/transparent"
+        <TextView
+            android:id="@+id/memo_text"
+            android:layout_width="256dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="내용"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/text_size_S"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.544"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:id="@+id/memo_time"
@@ -38,11 +37,8 @@
         android:layout_height="wrap_content"
         android:text="21:05"
         android:textSize="@dimen/text_size_XS"
-        android:textColor="@color/dark_foxrange"
-        android:layout_gravity="start|top"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="0dp"
-        android:layout_marginLeft="0dp"/>
+        android:textColor="@android:color/white"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

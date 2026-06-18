@@ -106,18 +106,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- 감정 상태 여우 아이콘 -->
-    <ImageView
-        android:id="@+id/fox_face_image"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="8dp"
-        android:src="@drawable/dailyread_fox_face_level_3"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_buttons_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:src="@drawable/dailyread_fox_face_level_3" />
-
     <!-- 사진 갤러리 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/photo_gallery_recycler_view"
@@ -125,39 +113,15 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
+        android:layout_marginBottom="12dp"
         android:minHeight="80dp"
         android:orientation="horizontal"
         android:visibility="visible"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="@+id/fox_face_image"
-        app:layout_constraintEnd_toStartOf="@+id/fox_face_image"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/fox_face_image"
-        tools:listitem="@layout/item_photo_gallery" />
-
-    <!-- AI 코멘트 말풍선 -->
-    <TextView
-        android:id="@+id/comment_text"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@drawable/dailyread_speechbubble_background"
-        android:gravity="top|start"
-        android:lineSpacingExtra="4sp"
-        android:paddingStart="40dp"
-        android:paddingTop="16dp"
-        android:paddingEnd="40dp"
-        android:paddingBottom="50dp"
-        android:textColor="@android:color/black"
-        android:textSize="@dimen/text_size_S"
-        android:scrollbars="vertical"
-        android:fadeScrollbars="false"
-        app:layout_constraintBottom_toTopOf="@+id/fox_face_image"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_buttons_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintWidth_max="400dp"
-        app:layout_constraintHeight_max="150dp"
-        app:layout_constraintHeight_default="wrap"
-        tools:text="산책 속에서 생각이 많았지만 차분한 자아성찰로 마무리된 하루였습니다." />
+        tools:listitem="@layout/item_photo_gallery" />
 
     <!-- 일기 내용 영역 (보기 / 수정 모드 전환) -->
     <ScrollView
@@ -171,7 +135,7 @@
         android:fillViewport="true"
         android:clipToPadding="false"
         android:paddingBottom="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/comment_text"
+        app:layout_constraintBottom_toTopOf="@+id/photo_gallery_recycler_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/date_layout">
@@ -206,38 +170,6 @@
                 tools:text="수정 모드..." />
         </FrameLayout>
     </ScrollView>
-
-    <!-- 분석 아이콘 + 키워드 영역 -->
-    <LinearLayout
-        android:id="@+id/analysis_header_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="64dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/diary_scroll_view">
-
-        <TextView
-            android:id="@+id/comment_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:gravity="center"
-            android:textSize="@dimen/text_size_XXL"
-            tools:text="🤔" />
-
-        <TextView
-            android:id="@+id/keywords_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:textSize="@dimen/text_size_L"
-            android:textStyle="bold"
-            tools:text="산책, 생각, 사유, 자아성찰" />
-    </LinearLayout>
 
     <!-- 일기 수정 / 저장 버튼 -->
     <ImageView

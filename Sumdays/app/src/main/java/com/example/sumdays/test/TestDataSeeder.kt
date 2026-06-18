@@ -48,7 +48,7 @@ object TestDataSeeder {
     private val dominantEmojis = listOf("😊", "😌", "😢", "😄", "🤔", "😤", "🥰")
 
     @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun seed(dao: WeekSummaryDao, count: Int = 60) {
+    suspend fun seed(dao: WeekSummaryDao, count: Int = 40) {
         val existing = dao.getAllDatesAsc()
         if (existing.isNotEmpty()) return  // 이미 데이터 있으면 skip
 

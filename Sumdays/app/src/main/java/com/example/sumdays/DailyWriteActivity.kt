@@ -16,6 +16,7 @@ import android.util.Base64
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -68,7 +69,7 @@ class DailyWriteActivity : AppCompatActivity() {
     private lateinit var memoAdapter: MemoAdapter
 
     // UI 뷰들
-    private lateinit var dateTextBox : ImageView
+    private lateinit var dateTextBox : FrameLayout
     private lateinit var dateTextView: TextView
     private lateinit var memoListView: RecyclerView
     private lateinit var memoInputEditText: EditText
@@ -226,7 +227,7 @@ class DailyWriteActivity : AppCompatActivity() {
         micIcon.setImageResource(currentTheme.recordIcon)
         imageIcon.setImageResource(currentTheme.addImageIcon)
 
-        dateTextBox.setBackgroundResource(currentTheme.blockStyleC)
+        dateTextBox.setBackgroundResource(currentTheme.blockStyleFox)
         memoListView.setBackgroundResource(currentTheme.blockStyleD)
     }
 

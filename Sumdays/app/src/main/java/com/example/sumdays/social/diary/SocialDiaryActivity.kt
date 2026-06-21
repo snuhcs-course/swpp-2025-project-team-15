@@ -51,8 +51,6 @@ class SocialDiaryActivity : AppCompatActivity() {
     private lateinit var btnNextMonth: ImageButton
     private lateinit var rootLayout: ConstraintLayout
 
-    private lateinit var swipeUpAnimator: ObjectAnimator
-
     private val viewModel: CalendarViewModel by viewModels()
 
     var currentStatusMap: Map<String, Pair<Boolean, String?>> = emptyMap()
@@ -278,10 +276,5 @@ class SocialDiaryActivity : AppCompatActivity() {
         }
 
         dialog.show()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (::swipeUpAnimator.isInitialized) swipeUpAnimator.cancel()
     }
 }

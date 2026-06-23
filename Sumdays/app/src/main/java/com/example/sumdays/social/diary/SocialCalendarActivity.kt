@@ -1,14 +1,8 @@
 package com.example.sumdays.social.diary
 
-import android.animation.ObjectAnimator
-import android.app.Activity
-import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
-import android.view.GestureDetector
 import android.view.Gravity
-import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -20,7 +14,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.LiveData
 import androidx.viewpager2.widget.ViewPager2
 import com.example.sumdays.R
@@ -35,21 +28,21 @@ import com.example.sumdays.theme.ThemeRepository
 import com.example.sumdays.utils.setupEdgeToEdge
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.jakewharton.threetenabp.AndroidThreeTen
-import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoUnit
 import java.util.Locale
-import kotlin.math.abs
 
-class SocialDiaryActivity : AppCompatActivity() {
+class SocialCalendarActivity : AppCompatActivity() {
 
+    private lateinit var btnBack: ImageButton
     private lateinit var calendarViewPager: ViewPager2
     private lateinit var tvMonthYear: TextView
-    private lateinit var socialDiaryMonthAdapter: SocialDiaryMonthAdapter
+    private lateinit var socialDiaryMonthAdapter: SocialMonthAdapter
     private lateinit var btnPrevMonth: ImageButton
     private lateinit var btnNextMonth: ImageButton
     private lateinit var rootLayout: ConstraintLayout
+    private lateinit var tvUserName: TextView
 
     private val viewModel: CalendarViewModel by viewModels()
 
@@ -63,18 +56,27 @@ class SocialDiaryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         ensureDefaultOwned()
         updateOwned()
-        setContentView(R.layout.activity_calendar)
+        setContentView(R.layout.activity_social_calendar)
         AndroidThreeTen.init(this)
 
+        btnBack = findViewById(R.id.btn_back)
         calendarViewPager = findViewById(R.id.calendarViewPager)
         tvMonthYear = findViewById(R.id.tv_month_year)
         btnPrevMonth = findViewById(R.id.btn_prev_month)
         btnNextMonth = findViewById(R.id.btn_next_month)
         rootLayout = findViewById(R.id.root_layout)
+        tvUserName = findViewById(R.id.user_name)
+
+        val nickname = intent.getStringExtra("nickname") ?: "?"
+        tvUserName.text = "${nickname}의 일기장"
 
         setCustomCalendar()
         applyThemeModeSettings()
         setupEdgeToEdge(rootLayout)
+
+        btnBack.setOnClickListener {
+            finish()
+        }
         tvMonthYear.setOnClickListener {
             showYearMonthPicker()
         }
@@ -126,7 +128,7 @@ class SocialDiaryActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setCustomCalendar() {
-        socialDiaryMonthAdapter = SocialDiaryMonthAdapter(activity = this)
+        socialDiaryMonthAdapter = SocialMonthAdapter(activity = this)
         calendarViewPager.adapter = socialDiaryMonthAdapter
         val recyclerView =
             calendarViewPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView
@@ -155,18 +157,18 @@ class SocialDiaryActivity : AppCompatActivity() {
                 setTextColor(
                     when (dayName) {
                         "일", "SUN" -> ContextCompat.getColor(
-                            this@SocialDiaryActivity,
+                            this@SocialCalendarActivity,
                             android.R.color.holo_red_dark
                         )
 
                         "토", "SAT" -> ContextCompat.getColor(
-                            this@SocialDiaryActivity,
+                            this@SocialCalendarActivity,
                             android.R.color.holo_blue_dark
                         )
 
                         else -> currentTheme?.themeTextColorSpecialA
                             ?: ContextCompat.getColor(
-                                this@SocialDiaryActivity,
+                                this@SocialCalendarActivity,
                                 android.R.color.black
                             )
                     }
@@ -195,6 +197,7 @@ class SocialDiaryActivity : AppCompatActivity() {
             val currentItem = calendarViewPager.currentItem
             calendarViewPager.setCurrentItem(currentItem + 1, true)
         }
+
 
         updateMonthYearTitle(CENTER_POSITION)
         observeMonthlyData(CENTER_POSITION)

@@ -5,14 +5,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sumdays.CalendarActivity
 import com.example.sumdays.R
 import com.example.sumdays.calendar.MonthData
 import com.example.sumdays.calendar.getMonthData
 import org.threeten.bp.YearMonth
 
-class SocialDiaryMonthAdapter(private val activity: SocialDiaryActivity) :
-    RecyclerView.Adapter<SocialDiaryMonthAdapter.MonthViewHolder>() {
+class SocialMonthAdapter(private val activity: SocialCalendarActivity) :
+    RecyclerView.Adapter<SocialMonthAdapter.MonthViewHolder>() {
 
     override fun getItemCount(): Int = Int.MAX_VALUE
 
@@ -37,10 +36,10 @@ class SocialDiaryMonthAdapter(private val activity: SocialDiaryActivity) :
     class MonthViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val dayGrid: RecyclerView = itemView.findViewById(R.id.rv_day_grid)
 
-        fun bind(monthData: MonthData, activity: SocialDiaryActivity) {
+        fun bind(monthData: MonthData, activity: SocialCalendarActivity) {
             dayGrid.layoutManager = GridLayoutManager(itemView.context, 7)
 
-            val socialDiaryDayAdapter = SocialDiaryDayAdapter(monthData.days, activity)
+            val socialDiaryDayAdapter = SocialDayAdapter(monthData.days, activity)
             dayGrid.adapter = socialDiaryDayAdapter
         }
     }

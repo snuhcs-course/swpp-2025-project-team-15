@@ -17,6 +17,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.sumdays.R
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.network.apiService.FriendInfo
+import com.example.sumdays.social.diary.SocialCalendarActivity
 import com.example.sumdays.utils.getErrorMessage
 import kotlinx.coroutines.launch
 
@@ -87,18 +88,10 @@ class SocialDetailActivity : AppCompatActivity() {
         }
 
         btnOpenDiary.setOnClickListener {
-            val socialName = intent.getStringExtra("social_name") ?: "사용자"
-
-            Toast.makeText(
-                this,
-                "${socialName}의 공개 일기 화면으로 이동",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            // 나중에 공개 일기 화면 만들면 여기서 이동
-            // val intent = Intent(this, SocialDiaryActivity::class.java)
-            // intent.putExtra("social_name", socialName)
-            // startActivity(intent)
+            val nickname = friendInfo?.nickname
+            val intent = Intent(this, SocialCalendarActivity::class.java)
+            intent.putExtra("nickname", nickname)
+            startActivity(intent)
         }
     }
 

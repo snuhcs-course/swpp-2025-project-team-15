@@ -20,12 +20,12 @@ import org.threeten.bp.DayOfWeek
 import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
 
-class SocialDiaryDayAdapter(
+class SocialDayAdapter(
     private val days: List<DateCell>,
-    private val activity: SocialDiaryActivity,
+    private val activity: SocialCalendarActivity,
     private val today: LocalDate = LocalDate.now(),
     private val maxYearMonth: YearMonth = YearMonth.now()
-) : RecyclerView.Adapter<SocialDiaryDayAdapter.DayViewHolder>() {
+) : RecyclerView.Adapter<SocialDayAdapter.DayViewHolder>() {
 
     override fun getItemCount(): Int = days.size
 
@@ -47,7 +47,7 @@ class SocialDiaryDayAdapter(
 
         fun bind(
             cell: DateCell,
-            activity: SocialDiaryActivity,
+            activity: SocialCalendarActivity,
             today: LocalDate,
             maxYearMonth: YearMonth
         ) {

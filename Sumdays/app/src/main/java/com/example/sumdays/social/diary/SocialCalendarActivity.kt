@@ -44,10 +44,9 @@ class SocialCalendarActivity : AppCompatActivity() {
     private lateinit var rootLayout: ConstraintLayout
     private lateinit var tvUserName: TextView
 
-    private val viewModel: CalendarViewModel by viewModels()
+    var socialCalendarMasterMap: Map<String, Map<String, Pair<Boolean, Boolean>>> = emptyMap()
+    var currentMonthStatusMap: Map<String, Pair<Boolean, Boolean>> = emptyMap()
 
-    var currentStatusMap: Map<String, Pair<Boolean, String?>> = emptyMap()
-    private var currentMonthLiveData: LiveData<Map<String, Pair<Boolean, String?>>>? = null
     private var currentLanguage: CalendarLanguage = CalendarLanguage.KOREAN
     private val CENTER_POSITION = Int.MAX_VALUE / 2
 
@@ -70,6 +69,7 @@ class SocialCalendarActivity : AppCompatActivity() {
         val nickname = intent.getStringExtra("nickname") ?: "?"
         tvUserName.text = "${nickname}의 일기장"
 
+        socialCalendarMasterMap = getFriendDayList()
         setCustomCalendar()
         applyThemeModeSettings()
         setupEdgeToEdge(rootLayout)
@@ -206,16 +206,41 @@ class SocialCalendarActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun observeMonthlyData(position: Int) {
         val targetMonth = getTargetMonthForPosition(position)
-        val fromDate = targetMonth.atDay(1).toString()
-        val toDate = targetMonth.atEndOfMonth().toString()
+        val yearMonthKey = targetMonth.toString()
 
-        currentMonthLiveData?.removeObservers(this)
-        currentMonthLiveData = viewModel.getMonthlyEmojis(fromDate, toDate)
+        currentMonthStatusMap = socialCalendarMasterMap[yearMonthKey] ?: emptyMap()
+        socialDiaryMonthAdapter.notifyItemChanged(position)
+    }
 
-        currentMonthLiveData?.observe(this) { map ->
-            currentStatusMap = map
-            socialDiaryMonthAdapter.notifyItemChanged(calendarViewPager.currentItem)
+    private fun getFriendDayList(): Map<String, Map<String, Pair<Boolean, Boolean>>> {
+        val masterMap = HashMap<String, HashMap<String, Pair<Boolean, Boolean>>>()
+
+        // 📅 5월 데이터 상자
+        val mayMap = HashMap<String, Pair<Boolean, Boolean>>().apply {
+            put("2026-05-12", Pair(true, true))
+            put("2026-05-20", Pair(true, false)) // 일기 있음, 열람 권한 없음 (🔒 잠김)
         }
+        masterMap["2026-05"] = mayMap
+
+        // 📅 6월 데이터 상자 (현재 타깃 달 테스트용)
+        val juneMap = HashMap<String, Pair<Boolean, Boolean>>().apply {
+            put("2026-06-01", Pair(true, true))   // 일기 있음, 열람 가능 (정상 진입)
+            put("2026-06-10", Pair(true, false))  // 일기 있음, 열람 권한 없음 (🔒 잠김)
+            put("2026-06-15", Pair(false, false)) // 일기 자체가 안 써진 날
+            put("2026-06-20", Pair(true, true))   // 일기 있음, 열람 가능 (정상 진입)
+            put("2026-06-24", Pair(true, false))  // 일기 있음, 열람 권한 없음 (🔒 잠김)
+            put("2026-06-25", Pair(true, true))   // 일기 있음, 열람 가능 (정상 진입)
+        }
+        masterMap["2026-06"] = juneMap
+
+        // 📅 7월 데이터 상자
+        val julyMap = HashMap<String, Pair<Boolean, Boolean>>().apply {
+            put("2026-07-05", Pair(true, true))
+            put("2026-07-07", Pair(true, false)) // 일기 있음, 열람 권한 없음 (🔒 잠김)
+        }
+        masterMap["2026-07"] = julyMap
+
+        return masterMap
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

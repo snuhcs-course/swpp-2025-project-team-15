@@ -13,7 +13,6 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.DailyReadActivity
-import com.example.sumdays.DailyWriteActivity
 import com.example.sumdays.R
 import com.example.sumdays.calendar.DateCell
 import org.threeten.bp.DayOfWeek
@@ -51,7 +50,6 @@ class SocialDayAdapter(
             today: LocalDate,
             maxYearMonth: YearMonth
         ) {
-            // CalendarActivity에 있는 테마 적용 함수 호출
             activity.applyThemeModeSettings(itemView)
 
             if (cell.day <= 0 || cell.day > 31) {
@@ -77,9 +75,12 @@ class SocialDayAdapter(
             }
             tvDayNumber.setTextColor(textColor)
 
-            val hasDiary = activity.currentStatusMap[cell.dateString]?.first ?: false
-            //val emoji = activity.currentStatusMap[cell.dateString]?.second
+            // 🌟 [변경] 액티비티가 연-월 최적화로 갈아끼워 준 currentMonthStatusMap을 직접 참조!
+            val statusPair = activity.currentMonthStatusMap[cell.dateString]
+            val hasDiary = statusPair?.first ?: false   // 친구가 일기를 작성했는가?
+            val isAllowed = statusPair?.second ?: false // 나에게 열람 권한이 있는가?
 
+            // 🌟 [변경] 형의 기획대로 완료 스킨(completed)은 빼버리고 오직 '오늘'만 특수 배경 처리!
             when {
                 isToday -> {
                     tvCircle.background = ContextCompat.getDrawable(
@@ -87,14 +88,6 @@ class SocialDayAdapter(
                         R.drawable.calendar_shape_fox_today
                     )
                     tvDayNumber.setTypeface(null, Typeface.BOLD)
-                }
-
-                hasDiary -> {
-                    tvCircle.background = ContextCompat.getDrawable(
-                        itemView.context,
-                        R.drawable.calendar_shape_fox_completed
-                    )
-                    tvDayNumber.setTypeface(null, Typeface.NORMAL)
                 }
 
                 else -> {
@@ -106,12 +99,18 @@ class SocialDayAdapter(
                 }
             }
 
-//            if (!emoji.isNullOrEmpty()) {
-//                tvEmoji.text = emoji
-//                tvEmoji.visibility = View.VISIBLE
-//            } else {
-//                tvEmoji.visibility = View.GONE
-//            }
+            if (cell.isCurrentMonth && hasDiary) {
+                tvEmoji.visibility = View.VISIBLE // 원래 안 보이던 에모지/아이콘 뷰를 켜주고!
+                if (isAllowed) {
+                    tvEmoji.text = "⭕"
+                } else {
+                    // Case 2: 작성되었으나 열람 비허용된 경우 잠긴 자물쇠
+                    tvEmoji.text = "🔒"
+                }
+            } else {
+                // 일기가 없거나 이번 달이 아니면 자물쇠 숨기기
+                tvEmoji.visibility = View.GONE
+            }
 
             if (!cell.isCurrentMonth) {
                 tvEmoji.visibility = View.GONE
@@ -146,6 +145,7 @@ class SocialDayAdapter(
                 tvDayNumber.background = null
             }
 
+            // 🌟 [변경] 친구 달력 전용 클릭 리스너 제어 (미래 디펜스 + 권한 분기)
             if (isFutureDay) {
                 itemView.isClickable = false
                 itemView.isFocusable = false
@@ -157,15 +157,33 @@ class SocialDayAdapter(
             } else {
                 if (cell.dateString.isNotEmpty()) {
                     itemView.setOnClickListener {
-                        if (hasDiary) {
-                            val intent = Intent(activity, DailyReadActivity::class.java)
-                            intent.putExtra("date", cell.dateString)
-                            activity.startActivity(intent)
-                        } else {
-                            Toast.makeText(activity, "이 날의 일기가 없습니다.", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(activity, DailyWriteActivity::class.java)
-                            intent.putExtra("date", cell.dateString)
-                            activity.startActivity(intent)
+                        when {
+                            // 🟢 Case 1: 일기도 있고 나한테 권한도 준 날 -> 친구 전용 읽기창 빌드
+                            hasDiary && isAllowed -> {
+                                val intent = Intent(activity, DailyReadActivity::class.java).apply {
+                                    putExtra("date", cell.dateString)
+                                    putExtra("isFriendMode", true) // 친구 모드 플래그 주입
+                                }
+                                activity.startActivity(intent)
+                            }
+
+                            // 🔒 Case 2: 일기는 썼는데 나한테는 잠가둔 날 -> 토스트 디펜스
+                            hasDiary && !isAllowed -> {
+                                Toast.makeText(
+                                    activity,
+                                    "친구가 비공개로 설정한 일기입니다. 🔒",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            // ❌ Case 3: 친구가 아예 일기를 생략한 날
+                            else -> {
+                                Toast.makeText(
+                                    activity,
+                                    "친구가 일기를 작성하지 않은 날입니다.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     }
                 }

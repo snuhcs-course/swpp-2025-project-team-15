@@ -1,5 +1,6 @@
 package com.example.sumdays.settings.ui
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -73,6 +74,7 @@ class StyleCardAdapter(
             val primaryColor = ContextCompat.getColor(context, theme.themeTextColorSpecialA)
             val blockColor = ContextCompat.getColor(context, theme.themeColorA)
             val buttonColor = ContextCompat.getColor(context, theme.themeColorA)
+            val blockStyleA = ContextCompat.getDrawable(context, theme.blockStyleA)
 
             val isDefault = style.styleId <= DEFAULT_STYLE_MAX_ID
             val isActive = style.styleId == activeId
@@ -83,10 +85,10 @@ class StyleCardAdapter(
             b.back.visibility = View.GONE
             flipped = false
 
-            b.cardRoot.setCardBackgroundColor(blockColor)
-            b.cardRoot.strokeWidth =
-                if (isActive) (4 * b.root.resources.displayMetrics.density).toInt() else 0
-            b.cardRoot.strokeColor = primaryColor
+            val blockStyleActive = ContextCompat.getDrawable(context, theme.blockStyleD) // 선택된 상태 drawable
+
+            b.cardRoot.setBackground(if (isActive) blockStyleActive else blockStyleA)
+            b.cardRoot.strokeWidth = 0  // stroke 완전 제거
 
             b.styleName.setTextColor(primaryColor)
             b.sampleDiary.setTextColor(primaryColor)
@@ -111,7 +113,7 @@ class StyleCardAdapter(
                 b.back.visibility = if (flipped) View.VISIBLE else View.GONE
             }
 
-            b.moreButton.setColorFilter(primaryColor)
+            b.moreButton.setBackground(blockStyleA)
 
             b.moreButton.setOnClickListener { v ->
                 PopupMenu(v.context, v).apply {

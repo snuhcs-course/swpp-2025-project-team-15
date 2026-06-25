@@ -34,26 +34,27 @@ class LabsSettingsActivity : AppCompatActivity() {
         val currentTheme = ThemeRepository.ownedThemes[themeKey] ?: return
 
         val primaryColor = currentTheme.themeColorA
+        val textcolor = currentTheme.themeColorD
         val buttonColor = currentTheme.themeColorA
         val backgroundColor = currentTheme.backgroundColor
-        val blockColor = currentTheme.themeColorA
+        val blockStyle = currentTheme.blockStyleA
 
         // 전체 배경
         binding.root.setBackgroundResource(backgroundColor)
 
         // 헤더
-        binding.header.headerTitle.setTextColor(getColor(primaryColor))
-        binding.header.headerBackIcon.setColorFilter(getColor(primaryColor))
+        binding.header.headerTitle.setTextColor(getColor(textcolor))
+        binding.header.headerBackIcon.setColorFilter(getColor(textcolor))
 
         // 텍스트
-        binding.descText.setTextColor(getColor(primaryColor))
-        binding.lengthLevelExampleText.setTextColor(getColor(primaryColor))
+        binding.descText.setTextColor(getColor(textcolor))
+        binding.lengthLevelExampleText.setTextColor(getColor(textcolor))
 
         // 슬라이더
         binding.lengthLevelSlider.trackActiveTintList =
             android.content.res.ColorStateList.valueOf(getColor(buttonColor))
         binding.lengthLevelSlider.trackInactiveTintList =
-            android.content.res.ColorStateList.valueOf(getColor(blockColor))
+            android.content.res.ColorStateList.valueOf(getColor(buttonColor))
         binding.lengthLevelSlider.thumbTintList =
             android.content.res.ColorStateList.valueOf(getColor(primaryColor))
         binding.lengthLevelSlider.haloTintList =
@@ -67,7 +68,7 @@ class LabsSettingsActivity : AppCompatActivity() {
             for (i in 0 until container.childCount) {
                 val child = container.getChildAt(i)
                 if (child is androidx.cardview.widget.CardView) {
-                    child.setCardBackgroundColor(getColor(blockColor))
+                    child.setCardBackgroundColor(getColor(backgroundColor))  // color ID로 교체
                 }
             }
         }

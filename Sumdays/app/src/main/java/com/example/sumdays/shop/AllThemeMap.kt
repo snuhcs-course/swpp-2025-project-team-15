@@ -17,7 +17,7 @@ object AllThemeMap {
             themeColorA = R.color.foxrange,
             themeColorB = R.color.dark_foxrange,
             themeColorC = R.color.background,
-            themeColorD = R.color.dot_dark_screen, //아무거나
+            themeColorD = R.color.black, //아무거나
             blockStyleA = R.drawable.bg_image_drawer_rounded_light,
             blockStyleB = R.drawable.bg_image_drawer_rounded_light_alpha80, //여우귀
             blockStyleC = R.drawable.blockstyle_c_basic,

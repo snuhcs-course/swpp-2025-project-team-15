@@ -54,16 +54,18 @@ class AccountSettingsActivity : AppCompatActivity() {
         val buttonColor = currentTheme.themeColorA
         val backgroundColor = currentTheme.backgroundColor
         val blockColor = currentTheme.themeColorA
+        val blockStyle = currentTheme.blockStyleA
+        val textColor = currentTheme.themeColorD
 
         binding.root.setBackgroundResource(backgroundColor)
 
-        binding.newNicknameInputEditText.setBackgroundResource(blockColor)
-        binding.currentPasswordInputEditText.setBackgroundResource(blockColor)
-        binding.newPasswordInputEditText.setBackgroundResource(blockColor)
-        binding.confirmPasswordInputEditText.setBackgroundResource(blockColor)
+        binding.newNicknameInputEditText.setBackgroundResource(blockStyle)
+        binding.currentPasswordInputEditText.setBackgroundResource(blockStyle)
+        binding.newPasswordInputEditText.setBackgroundResource(blockStyle)
+        binding.confirmPasswordInputEditText.setBackgroundResource(blockStyle)
 
         binding.currentNicknameTextView.setTextColor(getColor(primaryColor))
-        binding.header.headerTitle.setTextColor(getColor(primaryColor))
+        binding.header.headerTitle.setTextColor(getColor(textColor))
 
         binding.updateNicknameButton.setBackgroundColor(getColor(buttonColor))
         binding.changePasswordButton.setBackgroundColor(getColor(buttonColor))
@@ -71,7 +73,7 @@ class AccountSettingsActivity : AppCompatActivity() {
         binding.updateNicknameButton.setTextColor(getColor(R.color.white))
         binding.changePasswordButton.setTextColor(getColor(R.color.white))
 
-        binding.header.headerBackIcon.setColorFilter(getColor(primaryColor))
+        binding.header.headerBackIcon.setColorFilter(getColor(textColor))
     }
 
     private fun setupHeaderListener() {

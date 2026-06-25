@@ -61,17 +61,18 @@ class NotificationSettingsActivity : AppCompatActivity() {
         val buttonColor = ContextCompat.getColor(this, currentTheme.themeColorA)
         val backgroundColor = currentTheme.backgroundColor
         val blockColor = currentTheme.themeColorA
+        val blockStyle = currentTheme.blockStyleA
 
         // 전체 배경
         binding.root.setBackgroundResource(backgroundColor)
 
         // 헤더
-        binding.header.headerTitle.setTextColor(primaryColor)
-        binding.header.headerBackIcon.setColorFilter(primaryColor)
+        binding.header.headerTitle.setTextColor(R.color.black)
+        binding.header.headerBackIcon.setColorFilter(R.color.black)
 
         // 알람 리스트 영역
-        binding.alarmListContainer.setBackgroundResource(blockColor)
-        binding.alarmTimeRecyclerView.setBackgroundResource(blockColor)
+        binding.alarmListContainer.setBackgroundResource(backgroundColor)
+        binding.alarmTimeRecyclerView.setBackgroundResource(backgroundColor)
 
         // 추가 버튼
         binding.addAlarmButton.backgroundTintList = ColorStateList.valueOf(buttonColor)

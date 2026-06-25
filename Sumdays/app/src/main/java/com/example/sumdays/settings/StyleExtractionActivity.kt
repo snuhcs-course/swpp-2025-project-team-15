@@ -103,6 +103,8 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope {
         val buttonColor = ContextCompat.getColor(this, currentTheme.themeColorA)
         val backgroundColor = currentTheme.backgroundColor
         val blockColor = currentTheme.themeColorA
+        val blockStyleA = currentTheme.blockStyleA
+
 
         // 전체 배경
         binding.root.setBackgroundResource(backgroundColor)
@@ -112,12 +114,12 @@ class StyleExtractionActivity : AppCompatActivity(), CoroutineScope {
         binding.header.headerBackIcon.setColorFilter(primaryColor)
 
         // 안내/카운트 텍스트
-        binding.selectedImageCount.setTextColor(primaryColor)
+        binding.selectedImageCount.setTextColor(R.color.black)
 
         // 텍스트 입력창
-        binding.diaryTextInput.setBackgroundResource(blockColor)
-        binding.diaryTextInput.setTextColor(primaryColor)
-        binding.diaryTextInput.setHintTextColor(primaryColor)
+        binding.diaryTextInput.setBackgroundResource(blockStyleA)
+        binding.diaryTextInput.setTextColor(R.color.black)
+        binding.diaryTextInput.setHintTextColor(R.color.black)
 
         // 갤러리 영역
         binding.photoGalleryRecyclerView.setBackgroundResource(backgroundColor)

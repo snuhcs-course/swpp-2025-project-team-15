@@ -35,6 +35,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var btnBack: ImageButton
     private lateinit var btnClear: ImageButton
     private lateinit var searchBox: LinearLayout
+    private lateinit var searchRoot: android.view.View
 
     private lateinit var adapter: DailyEntrySearchAdapter
     private lateinit var viewModel: DailySearchViewModel
@@ -51,6 +52,7 @@ class SearchActivity : AppCompatActivity() {
         btnBack = findViewById(R.id.btnBack)
         btnClear = findViewById(R.id.btnClear)
         searchBox = findViewById(R.id.searchBox)
+        searchRoot = findViewById(R.id.searchRoot)
 
         navBarController = NavBarController(this)
         navBarController.setNavigationBar(NavSource.SEARCH)
@@ -105,12 +107,12 @@ class SearchActivity : AppCompatActivity() {
         val buttonColor = currentTheme.themeColorA
         val backgroundColor = currentTheme.backgroundColor
         val blockColor = currentTheme.themeColorA
+        val blockStyle = currentTheme.blockStyleA
 
         // 화면 전체 배경
-        findViewById<android.view.View>(android.R.id.content).setBackgroundResource(backgroundColor)
-
+        searchRoot.setBackgroundResource(backgroundColor)
         // 검색창 배경
-        searchBox.setBackgroundResource(blockColor)
+        searchBox.setBackgroundResource(blockStyle)
 
         // 검색 입력창 글자/힌트 색
         etQuery.setTextColor(ContextCompat.getColor(this, primaryColor))

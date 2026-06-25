@@ -70,6 +70,8 @@ open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by M
         val buttonColor = currentTheme.themeColorA
         val backgroundColor = currentTheme.backgroundColor
         val blockColor = currentTheme.themeColorA
+        val blockStyleA = currentTheme.blockStyleA
+        val blockStyleC = currentTheme.blockStyleC
 
         // 전체 배경
         binding.root.setBackgroundResource(backgroundColor)
@@ -78,15 +80,15 @@ open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by M
         binding.styleRecycler.setBackgroundResource(backgroundColor)
 
         // 선택 버튼
-        binding.selectButton.setBackgroundColor(getColor(buttonColor))
+        binding.selectButton.setBackgroundResource(blockStyleA)
         binding.selectButton.setTextColor(getColor(R.color.white))
 
         // 헤더
-        binding.header.headerTitle.setTextColor(getColor(primaryColor))
-        binding.header.headerBackIcon.setColorFilter(getColor(primaryColor))
+        binding.header.headerTitle.setBackgroundResource(backgroundColor)
+        binding.header.headerBackIcon.setBackgroundResource(backgroundColor)
 
         // 설명 문구
-        binding.descText.setTextColor(getColor(primaryColor))
+        binding.descText.setTextColor(getColor(R.color.black))
     }
 
     protected open fun provideUserStatsPrefs(): UserStatsPrefs = UserStatsPrefs(this)

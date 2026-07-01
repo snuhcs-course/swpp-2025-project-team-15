@@ -89,8 +89,10 @@ class SocialDetailActivity : AppCompatActivity() {
 
         btnOpenDiary.setOnClickListener {
             val nickname = friendInfo?.nickname
+            val friendId = friendInfo?.id
             val intent = Intent(this, SocialCalendarActivity::class.java)
             intent.putExtra("nickname", nickname)
+            intent.putExtra("friendId", friendId)
             startActivity(intent)
         }
     }

@@ -44,8 +44,10 @@ class SocialCalendarActivity : AppCompatActivity() {
     private lateinit var rootLayout: ConstraintLayout
     private lateinit var tvUserName: TextView
 
+
     var socialCalendarMasterMap: Map<String, Map<String, Pair<Boolean, Boolean>>> = emptyMap()
     var currentMonthStatusMap: Map<String, Pair<Boolean, Boolean>> = emptyMap()
+    var friendId : Int = -1
 
     private var currentLanguage: CalendarLanguage = CalendarLanguage.KOREAN
     private val CENTER_POSITION = Int.MAX_VALUE / 2
@@ -68,6 +70,7 @@ class SocialCalendarActivity : AppCompatActivity() {
 
         val nickname = intent.getStringExtra("nickname") ?: "?"
         tvUserName.text = "${nickname}의 일기장"
+        friendId = intent.getIntExtra("friendId", -1)
 
         socialCalendarMasterMap = getFriendDayList()
         setCustomCalendar()

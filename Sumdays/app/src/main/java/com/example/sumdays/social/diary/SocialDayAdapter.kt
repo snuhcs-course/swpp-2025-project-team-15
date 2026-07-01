@@ -12,7 +12,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sumdays.DailyReadActivity
 import com.example.sumdays.R
 import com.example.sumdays.calendar.DateCell
 import org.threeten.bp.DayOfWeek
@@ -28,13 +27,13 @@ class SocialDayAdapter(
 
     override fun getItemCount(): Int = days.size
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SocialDayAdapter.DayViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_day_cell, parent, false)
-        return DayViewHolder(view)
+        return SocialDayAdapter.DayViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: DayViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: SocialDayAdapter.DayViewHolder, position: Int) {
         val cell = days[position]
         holder.bind(cell, activity, today, maxYearMonth)
     }
@@ -160,9 +159,9 @@ class SocialDayAdapter(
                         when {
                             // 🟢 Case 1: 일기도 있고 나한테 권한도 준 날 -> 친구 전용 읽기창 빌드
                             hasDiary && isAllowed -> {
-                                val intent = Intent(activity, DailyReadActivity::class.java).apply {
+                                val intent = Intent(activity, SocialDailyReadActivity::class.java).apply {
                                     putExtra("date", cell.dateString)
-                                    putExtra("isFriendMode", true) // 친구 모드 플래그 주입
+                                    putExtra("friendId", activity.friendId) // 친구 모드 플래그 주입
                                 }
                                 activity.startActivity(intent)
                             }

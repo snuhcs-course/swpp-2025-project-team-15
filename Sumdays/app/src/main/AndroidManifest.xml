@@ -36,6 +36,14 @@
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
+            android:name="com.example.sumdays.social.diary.SocialCalendarActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name="com.example.sumdays.social.diary.SocialDailyReadActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
             android:name="com.example.sumdays.TutorialActivity"
             android:screenOrientation="portrait"
             android:exported="false"

@@ -1,14 +1,8 @@
-package com.example.sumdays
+package com.example.sumdays.social.diary
 
-import android.animation.ObjectAnimator
-import android.app.Activity
-import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
-import android.view.GestureDetector
 import android.view.Gravity
-import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -20,12 +14,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.LiveData
 import androidx.viewpager2.widget.ViewPager2
+import com.example.sumdays.R
 import com.example.sumdays.calendar.CalendarLanguage
-import com.example.sumdays.calendar.MonthAdapter
-import com.example.sumdays.data.sync.BackupScheduler
 import com.example.sumdays.data.viewModel.CalendarViewModel
 import com.example.sumdays.shop.AllFoxMap
 import com.example.sumdays.shop.AllThemeMap
@@ -33,41 +25,31 @@ import com.example.sumdays.theme.FoxRepository
 import com.example.sumdays.theme.Theme
 import com.example.sumdays.theme.ThemePrefs
 import com.example.sumdays.theme.ThemeRepository
-import com.example.sumdays.ui.component.NavBarController
-import com.example.sumdays.ui.component.NavSource
 import com.example.sumdays.utils.setupEdgeToEdge
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.jakewharton.threetenabp.AndroidThreeTen
-import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoUnit
 import java.util.Locale
-import kotlin.math.abs
 
-class CalendarActivity : AppCompatActivity() {
+class SocialCalendarActivity : AppCompatActivity() {
 
+    private lateinit var btnBack: ImageButton
     private lateinit var calendarViewPager: ViewPager2
     private lateinit var tvMonthYear: TextView
-    private lateinit var monthAdapter: MonthAdapter
+    private lateinit var socialDiaryMonthAdapter: SocialMonthAdapter
     private lateinit var btnPrevMonth: ImageButton
     private lateinit var btnNextMonth: ImageButton
-    private lateinit var btnSetting: ImageButton
-
-    private lateinit var btnSearch: ImageButton
-    private lateinit var btnTemp: ImageButton
-    private lateinit var navBarController: NavBarController
     private lateinit var rootLayout: ConstraintLayout
+    private lateinit var tvUserName: TextView
 
-    private lateinit var swipeUpAnimator: ObjectAnimator
 
-    private val viewModel: CalendarViewModel by viewModels()
+    var socialCalendarMasterMap: Map<String, Map<String, Pair<Boolean, Boolean>>> = emptyMap()
+    var currentMonthStatusMap: Map<String, Pair<Boolean, Boolean>> = emptyMap()
+    var friendId : Int = -1
 
-    var currentStatusMap: Map<String, Pair<Boolean, String?>> = emptyMap()
-    private var currentMonthLiveData: LiveData<Map<String, Pair<Boolean, String?>>>? = null
     private var currentLanguage: CalendarLanguage = CalendarLanguage.KOREAN
-
-    private val today: LocalDate by lazy { LocalDate.now() }
     private val CENTER_POSITION = Int.MAX_VALUE / 2
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -75,62 +57,33 @@ class CalendarActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         ensureDefaultOwned()
         updateOwned()
-        setContentView(R.layout.activity_calendar)
+        setContentView(R.layout.activity_social_calendar)
         AndroidThreeTen.init(this)
 
-
+        btnBack = findViewById(R.id.btn_back)
         calendarViewPager = findViewById(R.id.calendarViewPager)
         tvMonthYear = findViewById(R.id.tv_month_year)
         btnPrevMonth = findViewById(R.id.btn_prev_month)
         btnNextMonth = findViewById(R.id.btn_next_month)
-        btnSetting = findViewById(R.id.setting_menu)
-        btnSearch = findViewById(R.id.search_btn)
-        btnTemp = findViewById(R.id.btn_temp)
         rootLayout = findViewById(R.id.root_layout)
+        tvUserName = findViewById(R.id.user_name)
 
-        navBarController = NavBarController(this)
-        navBarController.setNavigationBar(NavSource.CALENDAR)
+        val nickname = intent.getStringExtra("nickname") ?: "?"
+        tvUserName.text = "${nickname}의 일기장"
+        friendId = intent.getIntExtra("friendId", -1)
 
+        socialCalendarMasterMap = getFriendDayList()
         setCustomCalendar()
         applyThemeModeSettings()
         setupEdgeToEdge(rootLayout)
-        setupSwipeUpGesture()
-        setupSwipeUpHint()
 
+        btnBack.setOnClickListener {
+            finish()
+        }
         tvMonthYear.setOnClickListener {
             showYearMonthPicker()
         }
-
-        btnSetting.setOnClickListener {
-            val intent = Intent(this@CalendarActivity, SettingActivity::class.java)
-            startActivity(intent)
-            overridePendingTransition(0, 0)
-        }
-
-        btnSearch.setOnClickListener {
-            val intent = Intent(this@CalendarActivity, SearchActivity::class.java)
-            startActivity(intent)
-            overridePendingTransition(0, 0)
-        }
-
-        btnTemp.setOnClickListener {
-            BackupScheduler.triggerManualBackup(this)
-        }
-
-
-
-
-
-
-        val pref: SharedPreferences = getSharedPreferences("checkFirst", Activity.MODE_PRIVATE)
-        val checkFirst = pref.getBoolean("checkFirst", false)
-
-        if (!checkFirst) {
-            pref.edit().putBoolean("checkFirst", true).apply()
-            val intent = Intent(this, TutorialActivity::class.java)
-            startActivity(intent)
-        }
-    }
+   }
 
     private fun ensureDefaultOwned() {
 
@@ -165,7 +118,6 @@ class CalendarActivity : AppCompatActivity() {
 
         btnPrevMonth.setImageResource(currentTheme.backIcon)
         btnNextMonth.setImageResource(currentTheme.forwardIcon)
-        //btnSearch.setImageResource(currentTheme.searchIcon)
     }
 
     /**
@@ -179,9 +131,8 @@ class CalendarActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setCustomCalendar() {
-        monthAdapter = MonthAdapter(activity = this)
-        calendarViewPager.adapter = monthAdapter
-
+        socialDiaryMonthAdapter = SocialMonthAdapter(activity = this)
+        calendarViewPager.adapter = socialDiaryMonthAdapter
         val recyclerView =
             calendarViewPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView
         recyclerView?.itemAnimator = null
@@ -209,18 +160,18 @@ class CalendarActivity : AppCompatActivity() {
                 setTextColor(
                     when (dayName) {
                         "일", "SUN" -> ContextCompat.getColor(
-                            this@CalendarActivity,
+                            this@SocialCalendarActivity,
                             android.R.color.holo_red_dark
                         )
 
                         "토", "SAT" -> ContextCompat.getColor(
-                            this@CalendarActivity,
+                            this@SocialCalendarActivity,
                             android.R.color.holo_blue_dark
                         )
 
                         else -> currentTheme?.themeTextColorSpecialA
                             ?: ContextCompat.getColor(
-                                this@CalendarActivity,
+                                this@SocialCalendarActivity,
                                 android.R.color.black
                             )
                     }
@@ -250,6 +201,7 @@ class CalendarActivity : AppCompatActivity() {
             calendarViewPager.setCurrentItem(currentItem + 1, true)
         }
 
+
         updateMonthYearTitle(CENTER_POSITION)
         observeMonthlyData(CENTER_POSITION)
     }
@@ -257,16 +209,41 @@ class CalendarActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun observeMonthlyData(position: Int) {
         val targetMonth = getTargetMonthForPosition(position)
-        val fromDate = targetMonth.atDay(1).toString()
-        val toDate = targetMonth.atEndOfMonth().toString()
+        val yearMonthKey = targetMonth.toString()
 
-        currentMonthLiveData?.removeObservers(this)
-        currentMonthLiveData = viewModel.getMonthlyEmojis(fromDate, toDate)
+        currentMonthStatusMap = socialCalendarMasterMap[yearMonthKey] ?: emptyMap()
+        socialDiaryMonthAdapter.notifyItemChanged(position)
+    }
 
-        currentMonthLiveData?.observe(this) { map ->
-            currentStatusMap = map
-            monthAdapter.notifyItemChanged(calendarViewPager.currentItem)
+    private fun getFriendDayList(): Map<String, Map<String, Pair<Boolean, Boolean>>> {
+        val masterMap = HashMap<String, HashMap<String, Pair<Boolean, Boolean>>>()
+
+        // 📅 5월 데이터 상자
+        val mayMap = HashMap<String, Pair<Boolean, Boolean>>().apply {
+            put("2026-05-12", Pair(true, true))
+            put("2026-05-20", Pair(true, false)) // 일기 있음, 열람 권한 없음 (🔒 잠김)
         }
+        masterMap["2026-05"] = mayMap
+
+        // 📅 6월 데이터 상자 (현재 타깃 달 테스트용)
+        val juneMap = HashMap<String, Pair<Boolean, Boolean>>().apply {
+            put("2026-06-01", Pair(true, true))   // 일기 있음, 열람 가능 (정상 진입)
+            put("2026-06-10", Pair(true, false))  // 일기 있음, 열람 권한 없음 (🔒 잠김)
+            put("2026-06-15", Pair(false, false)) // 일기 자체가 안 써진 날
+            put("2026-06-20", Pair(true, true))   // 일기 있음, 열람 가능 (정상 진입)
+            put("2026-06-24", Pair(true, false))  // 일기 있음, 열람 권한 없음 (🔒 잠김)
+            put("2026-06-25", Pair(true, true))   // 일기 있음, 열람 가능 (정상 진입)
+        }
+        masterMap["2026-06"] = juneMap
+
+        // 📅 7월 데이터 상자
+        val julyMap = HashMap<String, Pair<Boolean, Boolean>>().apply {
+            put("2026-07-05", Pair(true, true))
+            put("2026-07-07", Pair(true, false)) // 일기 있음, 열람 권한 없음 (🔒 잠김)
+        }
+        masterMap["2026-07"] = julyMap
+
+        return masterMap
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -330,57 +307,5 @@ class CalendarActivity : AppCompatActivity() {
         }
 
         dialog.show()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (::swipeUpAnimator.isInitialized) swipeUpAnimator.cancel()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        updateOwned()
-        applyThemeModeSettings()
-        monthAdapter.notifyDataSetChanged()
-        if (::swipeUpAnimator.isInitialized) swipeUpAnimator.start()
-    }
-
-    private fun setupSwipeUpGesture() {
-        val detector = GestureDetectorCompat(this,
-            object : GestureDetector.SimpleOnGestureListener() {
-                override fun onFling(
-                    e1: MotionEvent?, e2: MotionEvent,
-                    velocityX: Float, velocityY: Float
-                ): Boolean {
-                    val start = e1 ?: return false
-                    val dy = e2.y - start.y
-                    val dx = e2.x - start.x
-                    if (dy < -100f && abs(dy) > abs(dx) * 1.5f && velocityY < -300f) {
-                        startActivity(Intent(this@CalendarActivity, StatisticsWidgetActivity::class.java))
-                        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up)
-                        return true
-                    }
-                    return false
-                }
-
-                override fun onDown(e: MotionEvent) = true
-            })
-
-        rootLayout.setOnTouchListener { v, event ->
-            val consumed = detector.onTouchEvent(event)
-            if (!consumed) v.performClick()
-            consumed
-        }
-    }
-
-    private fun setupSwipeUpHint() {
-        val pill = findViewById<View>(R.id.swipe_up_hint_pill)
-        swipeUpAnimator = ObjectAnimator.ofFloat(pill, "translationY", 0f, -24f).apply {
-            duration = 600
-            repeatCount = ObjectAnimator.INFINITE
-            repeatMode = ObjectAnimator.REVERSE
-            interpolator = android.view.animation.AccelerateDecelerateInterpolator()
-        }
-        pill.postDelayed({ swipeUpAnimator.start() }, 500)
     }
 }

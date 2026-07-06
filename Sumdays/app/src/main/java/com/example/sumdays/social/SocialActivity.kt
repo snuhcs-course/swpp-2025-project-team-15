@@ -63,7 +63,7 @@ class SocialActivity : AppCompatActivity() {
         setupRecyclerView()
         setupSearch()
         observeViewModel()
-        viewModel.loadFriends()
+        viewModel.loadSocialList()
     }
     private fun initViewModel() {
         val repository = SocialRepository()
@@ -93,7 +93,7 @@ class SocialActivity : AppCompatActivity() {
             dialog.show(supportFragmentManager, "AddFriendDialog")
         }
         btnUpdate.setOnClickListener{
-            viewModel.loadFriends()
+            viewModel.loadSocialList()
         }
 
     }
@@ -130,6 +130,13 @@ class SocialActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
+        lifecycleScope.launch {
+            viewModel.receivedRequests.collect { requestsList ->
+                val count = requestsList.size
+                tvSocialRequests.text = "친구 요청 $count"
+            }
+        }
+
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 when (state) {
@@ -168,7 +175,7 @@ class SocialActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             viewModel.filteredFriends.collect { friends ->
-                socialAdapter.updateList(friends)
+                socialAdapter.updateList(friends.toList())
             }
         }
     }

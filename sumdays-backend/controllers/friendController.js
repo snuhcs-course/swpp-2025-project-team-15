@@ -4,8 +4,8 @@ const { success, fail } = require('../utils/response');
 
 async function getFriendInfo(friendId) {
   const [friendRows] = await pool.query(`
-    SELECT u.id, u.nickname, u.profile_image_url, u.created_at,
-           ui.count_diaries, ui.streak, ui.count_weekly_summaries, ui.last_diary_update_date
+    SELECT u.id, u.nickname, u.profile_image_url, ui.streak, ui.count_weekly_summaries,
+           ui.count_diaries, u.created_at, ui.last_diary_update_date
     FROM users u
     JOIN user_info ui ON u.id = ui.user_id
     WHERE u.id = ?

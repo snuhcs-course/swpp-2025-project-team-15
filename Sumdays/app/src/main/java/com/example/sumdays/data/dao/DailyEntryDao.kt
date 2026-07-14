@@ -79,7 +79,7 @@ interface DailyEntryDao {
     ) {
         _insertInitialEntry(date) // 1. 먼저 삽입 시도 (무시될 수 있음)
         // ★★★ photoUrls 전달 ★★★
-        _updateEntryDetails(date, diary, keywords, aiComment, emotionScore, emotionIcon, themeIcon, photoUrls, isAllowed = isAllowed ?: false) // 2. 업데이트
+        _updateEntryDetails(date, diary, keywords, aiComment, emotionScore, emotionIcon, themeIcon, photoUrls, isAllowed) // 2. 업데이트
     }
 
     @Query("DELETE FROM daily_entry")

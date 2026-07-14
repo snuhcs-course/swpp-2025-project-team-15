@@ -4,14 +4,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
 import com.example.sumdays.data.DailyEntry
-import com.example.sumdays.settings.prefs.ThemeState
+import com.example.sumdays.theme.ThemePrefs
+import com.example.sumdays.theme.ThemeRepository
 
 class DailyEntrySearchAdapter(
     private val onClick: (DailyEntry) -> Unit
@@ -69,31 +69,39 @@ class DailyEntrySearchAdapter(
             tvKeywords.text = if (entry.keywords.isNullOrBlank()) {
                 ""
             } else {
-                "키워드: ${entry.keywords}"
+                "키워드: ${transformDevidersSemicolonToComma(entry.keywords)}"
             }
             tvKeywords.visibility = if (tvKeywords.text.isNullOrBlank()) View.GONE else View.VISIBLE
 
             applyThemeModeSettings()
         }
 
-        private fun applyThemeModeSettings(){
-            ThemeState.isDarkMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
 
-            if (ThemeState.isDarkMode){
-                tvDate.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
-                tvIcons.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
-                tvPreview.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
-                tvKeywords.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
-            }
-            else{
-                tvDate.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
-                tvIcons.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
-                tvPreview.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
-                tvKeywords.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
+        private fun transformDevidersSemicolonToComma(keywords: String): String {
+            return keywords
+                .split(";").joinToString(", ") { it.trim() }
+        }
+
+        private fun applyThemeModeSettings(){
+            val themeRepo = ThemeRepository
+            val themeKey = ThemePrefs.getTheme(itemView.context)
+            val currentTheme = themeRepo.ownedThemes.get(themeKey)
+
+            val themePreviewImage = currentTheme!!.themePreviewImage
+            val primaryColor = currentTheme!!.themeTextColorSpecialA
+            val buttonColor = currentTheme!!.themeColorA
+            val backgroundColor = currentTheme!!.backgroundColor
+            val blockColor = currentTheme!!.themeColorA
+            val calendarBackgroundImage = currentTheme!!.calendarBackgroundImage
+            val memoImage = currentTheme!!.memoImage
+//            val foxIcon = currentTheme!!.foxIcon
+            tvDate.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
+            tvIcons.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
+            tvPreview.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
+            tvKeywords.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
             }
         }
 
-    }
 
 
     companion object {

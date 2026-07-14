@@ -4,22 +4,21 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import com.example.sumdays.R
 import com.example.sumdays.auth.SessionManager
 import com.example.sumdays.databinding.ActivityProfileAccountBinding
-import com.example.sumdays.network.*
-import com.example.sumdays.settings.prefs.UserStatsPrefs
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import com.example.sumdays.network.ApiClient
 import com.example.sumdays.network.ChangePasswordRequest
 import com.example.sumdays.network.ChangePasswordResponse
 import com.example.sumdays.network.UpdateNicknameRequest
 import com.example.sumdays.network.UpdateNicknameResponse
-import com.example.sumdays.settings.prefs.ThemeState
+import com.example.sumdays.settings.prefs.UserStatsPrefs
+import com.example.sumdays.theme.ThemePrefs
+import com.example.sumdays.theme.ThemeRepository
 import com.example.sumdays.utils.setupEdgeToEdge
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class AccountSettingsActivity : AppCompatActivity() {
 
@@ -47,20 +46,34 @@ class AccountSettingsActivity : AppCompatActivity() {
         setupEdgeToEdge(rootView)
     }
 
-    private fun applyThemeModeSettings(){
-        // Apply dark mode
-        ThemeState.isDarkMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+    private fun applyThemeModeSettings() {
+        val themeKey = ThemePrefs.getTheme(this)
+        val currentTheme = ThemeRepository.ownedThemes[themeKey] ?: return
 
-        if (ThemeState.isDarkMode){
-            binding.header.headerBackIcon.setImageResource(R.drawable.ic_arrow_back_white)
-            binding.updateNicknameButton.setTextColor(getColor(R.color.white))
-            binding.changePasswordButton.setTextColor(getColor(R.color.white))
-        }
-        else{
-            binding.header.headerBackIcon.setImageResource(R.drawable.ic_arrow_back_black)
-            binding.updateNicknameButton.setTextColor(getColor(R.color.white))
-            binding.changePasswordButton.setTextColor(getColor(R.color.white))
-        }
+        val primaryColor = currentTheme.themeColorA
+        val buttonColor = currentTheme.themeColorA
+        val backgroundColor = currentTheme.backgroundColor
+        val blockColor = currentTheme.themeColorA
+        val blockStyle = currentTheme.blockStyleA
+        val textColor = currentTheme.themeColorD
+
+        binding.root.setBackgroundResource(backgroundColor)
+
+        binding.newNicknameInputEditText.setBackgroundResource(blockStyle)
+        binding.currentPasswordInputEditText.setBackgroundResource(blockStyle)
+        binding.newPasswordInputEditText.setBackgroundResource(blockStyle)
+        binding.confirmPasswordInputEditText.setBackgroundResource(blockStyle)
+
+        binding.currentNicknameTextView.setTextColor(getColor(primaryColor))
+        binding.header.headerTitle.setTextColor(getColor(textColor))
+
+        binding.updateNicknameButton.setBackgroundColor(getColor(buttonColor))
+        binding.changePasswordButton.setBackgroundColor(getColor(buttonColor))
+
+        binding.updateNicknameButton.setTextColor(getColor(R.color.white))
+        binding.changePasswordButton.setTextColor(getColor(R.color.white))
+
+        binding.header.headerBackIcon.setColorFilter(getColor(textColor))
     }
 
     private fun setupHeaderListener() {

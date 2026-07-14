@@ -10,7 +10,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.sumdays.TestApplication
 import com.example.sumdays.data.AppDatabase
 import com.example.sumdays.data.style.StylePrompt
-import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.UserStyle
 import kotlinx.coroutines.runBlocking
 import org.junit.*
 import org.junit.runner.RunWith

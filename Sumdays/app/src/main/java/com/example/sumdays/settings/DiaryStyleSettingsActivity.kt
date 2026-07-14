@@ -2,27 +2,29 @@ package com.example.sumdays.settings
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
-import com.example.sumdays.databinding.ActivityProfileDiaryStyleBinding
-import com.example.sumdays.data.style.UserStyle
+import com.example.sumdays.data.UserStyle
 import com.example.sumdays.data.style.UserStyleViewModel
-import com.example.sumdays.settings.prefs.ThemeState
+import com.example.sumdays.databinding.ActivityProfileDiaryStyleBinding
 import com.example.sumdays.settings.prefs.UserStatsPrefs
 import com.example.sumdays.settings.ui.CenterScaleOnScrollListener
 import com.example.sumdays.settings.ui.HorizontalMarginItemDecoration
 import com.example.sumdays.settings.ui.StyleCardAdapter
+import com.example.sumdays.theme.ThemePrefs
+import com.example.sumdays.theme.ThemeRepository
 import com.example.sumdays.utils.setupEdgeToEdge
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
@@ -60,18 +62,33 @@ open class DiaryStyleSettingsActivity : AppCompatActivity(), CoroutineScope by M
         job.cancel()
     }
 
-    private fun applyThemeModeSettings(){
-        // Apply dark mode
-        ThemeState.isDarkMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+    private fun applyThemeModeSettings() {
+        val themeKey = ThemePrefs.getTheme(this)
+        val currentTheme = ThemeRepository.ownedThemes[themeKey] ?: return
 
-        if (ThemeState.isDarkMode){
-            binding.header.headerBackIcon.setImageResource(R.drawable.ic_arrow_back_white)
-            binding.selectButton.setTextColor(getColor(R.color.white))
-        }
-        else{
-            binding.header.headerBackIcon.setImageResource(R.drawable.ic_arrow_back_black)
-            binding.selectButton.setTextColor(getColor(R.color.white))
-        }
+        val primaryColor = currentTheme.themeColorA
+        val buttonColor = currentTheme.themeColorA
+        val backgroundColor = currentTheme.backgroundColor
+        val blockColor = currentTheme.themeColorA
+        val blockStyleA = currentTheme.blockStyleA
+        val blockStyleC = currentTheme.blockStyleC
+
+        // 전체 배경
+        binding.root.setBackgroundResource(backgroundColor)
+
+        // 카드 리스트 영역 배경
+        binding.styleRecycler.setBackgroundResource(backgroundColor)
+
+        // 선택 버튼
+        binding.selectButton.setBackgroundResource(blockStyleA)
+        binding.selectButton.setTextColor(getColor(R.color.white))
+
+        // 헤더
+        binding.header.headerTitle.setBackgroundResource(backgroundColor)
+        binding.header.headerBackIcon.setBackgroundResource(backgroundColor)
+
+        // 설명 문구
+        binding.descText.setTextColor(getColor(R.color.black))
     }
 
     protected open fun provideUserStatsPrefs(): UserStatsPrefs = UserStatsPrefs(this)

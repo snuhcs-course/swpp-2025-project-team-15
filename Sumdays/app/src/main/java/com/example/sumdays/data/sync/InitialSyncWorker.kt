@@ -1,27 +1,30 @@
 package com.example.sumdays.data.sync
 
+// --- 너의 엔티티 & DAO 관련 ---
+
+// --- 네트워크 ---
 import android.content.Context
 import android.util.Log
+import androidx.room.withTransaction
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import androidx.room.withTransaction
 import androidx.work.workDataOf
 import com.example.sumdays.auth.SessionManager
-import com.google.gson.Gson
-
-// --- 너의 엔티티 & DAO 관련 ---
+import com.example.sumdays.data.Memo
 import com.example.sumdays.data.AppDatabase
-import com.example.sumdays.daily.memo.Memo
 import com.example.sumdays.data.DailyEntry
 import com.example.sumdays.data.WeekSummaryEntity
 import com.example.sumdays.data.style.StylePrompt
-import com.example.sumdays.data.style.UserStyle
-import com.example.sumdays.statistics.*
-
-// --- 네트워크 ---
+import com.example.sumdays.data.UserStyle
 import com.example.sumdays.network.ApiClient
+import com.example.sumdays.data.EmotionAnalysis
+import com.example.sumdays.data.Highlight
+import com.example.sumdays.data.Insights
+import com.example.sumdays.data.SummaryDetails
+import com.example.sumdays.data.WeekSummary
+import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class InitialSyncWorker(
     context: Context,
@@ -127,6 +130,7 @@ class InitialSyncWorker(
                         emotionIcon = p.emotionIcon,
                         themeIcon = p.themeIcon,
                         photoUrls = p.photoUrls,
+                        isAllowed = p.is_allowd,
                         isEdited = false,
                         isDeleted = false
                     )
@@ -143,6 +147,7 @@ class InitialSyncWorker(
         emotionIcon = ${entry.emotionIcon}
         themeIcon = ${entry.themeIcon}
         photoUrls = ${entry.photoUrls}
+        isAllowed = ${entry.isAllowed}
         isEdited = ${entry.isEdited}
         isDeleted = ${entry.isDeleted}
     """.trimIndent())

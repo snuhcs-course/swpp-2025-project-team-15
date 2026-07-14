@@ -9,7 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
-import com.example.sumdays.daily.memo.Memo
+import com.example.sumdays.data.Memo
 import com.example.sumdays.daily.memo.MemoMergeAdapter
 import org.junit.Assert.*
 import org.junit.Test
@@ -172,7 +172,7 @@ class DailySumActivityTest {
         assertEquals(View.GONE, overlay.visibility)
         assertEquals(View.GONE, gifView.visibility)
 
-        val skipIcon = activity.findViewById<ImageButton>(R.id.skip_icon)
+        val skipIcon = activity.findViewById<ImageButton>(R.id.go_icon)
         skipIcon.performClick()   // 내부에서 showLoading(true) 호출
 
         // 코루틴이 어떻게 동작하든, showLoading(true)는 즉시 호출되므로

@@ -1,17 +1,16 @@
 package com.example.sumdays
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.sumdays.databinding.ActivityLoginBinding
 import com.example.sumdays.databinding.ActivityRegisterationBinding
-import com.example.sumdays.network.SignupResponse
-import com.example.sumdays.network.SignupRequest
-
 import com.example.sumdays.network.ApiClient
+import com.example.sumdays.network.SignupRequest
+import com.example.sumdays.network.SignupResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -72,6 +71,7 @@ class RegisterationActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<SignupResponse>, t: Throwable) {
                 Toast.makeText(this@RegisterationActivity, "네트워크 오류: ${t.message}", Toast.LENGTH_SHORT).show()
+                Log.d("network","${t.message}")
             }
         })
     }

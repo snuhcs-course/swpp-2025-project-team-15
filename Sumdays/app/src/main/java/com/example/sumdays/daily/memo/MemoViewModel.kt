@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.sumdays.data.Memo
+import com.example.sumdays.data.repository.MemoRepository
 import kotlinx.coroutines.launch
 
 // ViewModel은 액티비티의 생명주기를 넘어 데이터를 유지

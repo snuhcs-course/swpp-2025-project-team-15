@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
@@ -14,7 +13,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,10 +22,10 @@ import com.example.sumdays.data.AppDatabase
 import com.example.sumdays.data.repository.DailyEntryRepository
 import com.example.sumdays.search.DailyEntrySearchAdapter
 import com.example.sumdays.search.DailySearchViewModelFactory
-import com.example.sumdays.settings.prefs.ThemeState
+import com.example.sumdays.theme.ThemePrefs
+import com.example.sumdays.theme.ThemeRepository
 import com.example.sumdays.ui.component.NavBarController
 import com.example.sumdays.ui.component.NavSource
-import com.example.sumdays.utils.setupEdgeToEdge
 
 class SearchActivity : AppCompatActivity() {
 
@@ -36,6 +35,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var btnBack: ImageButton
     private lateinit var btnClear: ImageButton
     private lateinit var searchBox: LinearLayout
+    private lateinit var searchRoot: android.view.View
 
     private lateinit var adapter: DailyEntrySearchAdapter
     private lateinit var viewModel: DailySearchViewModel
@@ -52,14 +52,12 @@ class SearchActivity : AppCompatActivity() {
         btnBack = findViewById(R.id.btnBack)
         btnClear = findViewById(R.id.btnClear)
         searchBox = findViewById(R.id.searchBox)
+        searchRoot = findViewById(R.id.searchRoot)
 
         navBarController = NavBarController(this)
         navBarController.setNavigationBar(NavSource.SEARCH)
 
         applyThemeModeSettings()
-
-        val searchLayout = findViewById<View>(R.id.search_layout)
-        setupEdgeToEdge(searchLayout)
 
         // Room DB/DAO 가져오기
         val db = AppDatabase.getDatabase(this)
@@ -102,16 +100,33 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun applyThemeModeSettings() {
-        ThemeState.isDarkMode =
-            (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+        val themeKey = ThemePrefs.getTheme(this)
+        val currentTheme = ThemeRepository.ownedThemes[themeKey] ?: return
 
-        if (ThemeState.isDarkMode) {
-            btnBack.setImageResource(R.drawable.ic_arrow_back_white)
-            searchBox.setBackgroundResource(R.drawable.bg_search_round_white)
-        } else {
-            btnBack.setImageResource(R.drawable.ic_arrow_back_black)
-            searchBox.setBackgroundResource(R.drawable.bg_search_round_gray)
-        }
+        val primaryColor = currentTheme.themeTextColorSpecialA
+        val buttonColor = currentTheme.themeColorA
+        val backgroundColor = currentTheme.backgroundColor
+        val blockColor = currentTheme.themeColorA
+        val blockStyle = currentTheme.blockStyleA
+
+        // 화면 전체 배경
+        searchRoot.setBackgroundResource(backgroundColor)
+        // 검색창 배경
+        searchBox.setBackgroundResource(blockStyle)
+
+        // 검색 입력창 글자/힌트 색
+        etQuery.setTextColor(ContextCompat.getColor(this, primaryColor))
+        etQuery.setHintTextColor(ContextCompat.getColor(this, primaryColor))
+
+        // 빈 결과 텍스트
+        tvEmpty.setTextColor(ContextCompat.getColor(this, primaryColor))
+
+        // 검색 결과 리스트 배경
+        rvResults.setBackgroundResource(backgroundColor)
+
+        // 아이콘 색
+        btnBack.setColorFilter(ContextCompat.getColor(this, primaryColor))
+        btnClear.setColorFilter(ContextCompat.getColor(this, primaryColor))
     }
 
     private fun setButtonClickListener() {

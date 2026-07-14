@@ -97,6 +97,7 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.security:security-crypto:1.0.0")
     // Retrofit: 네트워크 통신 라이브러리
@@ -110,7 +111,7 @@ dependencies {
     // 코루틴 사용할 수 있게 해줌
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     // Room 관련 의존성 추가
-    val roomVersion = "2.6.1" // Room의 최신 안정화 버전으로 교체
+    val roomVersion = "2.8.4" // Room의 최신 안정화 버전으로 교체
     // Room 라이브러리
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.sqlite:sqlite-ktx:2.4.0")
@@ -141,6 +142,8 @@ dependencies {
     testImplementation("com.google.truth:truth:1.1.5")
     // assertThat 사용을 위해 필요
     testImplementation("androidx.work:work-testing:2.9.0")
+    // ucrop
+    implementation("com.github.yalantis:ucrop:2.2.11")
 }
 
 configurations.all {

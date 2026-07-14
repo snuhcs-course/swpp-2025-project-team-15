@@ -2,9 +2,12 @@ package com.example.sumdays.sync_test
 
 import com.example.sumdays.data.sync.*
 import com.example.sumdays.data.DailyEntry
-import com.example.sumdays.daily.memo.Memo
-import com.example.sumdays.data.style.UserStyle
-import com.example.sumdays.statistics.WeekSummary
+import com.example.sumdays.data.EmotionAnalysis
+import com.example.sumdays.data.Insights
+import com.example.sumdays.data.Memo
+import com.example.sumdays.data.SummaryDetails
+import com.example.sumdays.data.UserStyle
+import com.example.sumdays.data.WeekSummary
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -125,7 +128,7 @@ class UserSyncAllTest {
 
     // -------------------- Dummy Helper ------------------------
     private fun dummyEmotionAnalysis() =
-        com.example.sumdays.statistics.EmotionAnalysis(
+        EmotionAnalysis(
             distribution = emptyMap(),
             dominantEmoji = "",
             emotionScore = 0.0,
@@ -147,13 +150,13 @@ class UserSyncAllTest {
     )
 
     private fun dummyInsights() =
-        com.example.sumdays.statistics.Insights(
+        Insights(
             advice = "a",
             emotionCycle = "c"
         )
 
     private fun dummySummary() =
-        com.example.sumdays.statistics.SummaryDetails(
+        SummaryDetails(
             emergingTopics = emptyList(),
             overview = "",
             title = ""

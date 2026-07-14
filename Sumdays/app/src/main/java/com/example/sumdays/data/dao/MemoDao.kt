@@ -1,19 +1,24 @@
 package com.example.sumdays.data.dao
 
-import com.example.sumdays.daily.memo.Memo
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+import com.example.sumdays.data.Memo
 import kotlinx.coroutines.flow.Flow
-import androidx.room.*
 
 // Room의 DAO(Data Access Object) 인터페이스
 @Dao
 interface MemoDao {
 
     // insert 시 새로 생성된 메모이므로 isEdited = true, isDeleted = false
+    // 반환값: 새로 생성된 메모의 id (rowId)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRaw(memo: Memo)
+    suspend fun insertRaw(memo: Memo): Long
 
-    suspend fun insert(memo: Memo) {
-        insertRaw(memo.copy(isEdited = true, isDeleted = false))
+    suspend fun insert(memo: Memo): Long {
+        return insertRaw(memo.copy(isEdited = true, isDeleted = false))
     }
 
     // 특정 날짜의 메모만 조회 (삭제된 메모는 제외)

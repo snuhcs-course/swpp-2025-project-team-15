@@ -1,5 +1,6 @@
 const axios = require("axios");
 const PYTHON_SERVER_URL = process.env.PYTHON_AI_URL;
+const weekSummaryModel = require('../../db/models/weekSummaryModel');
 
 const MIN_DIARY_NUM = 3
 const MIN_WEEKSUMMARY_NUM = 2
@@ -13,7 +14,8 @@ const analyzeController = {
     */
     summarizeWeek: async (req, res) => {
         try {
-            const { diaries } = req.body;
+            const { startDate, endDate, diaries } = req.body;
+            const userId = req.user?.userId;
 
             if (!diaries || diaries.length < MIN_DIARY_NUM) {
                 return res.status(404).json({
@@ -40,7 +42,20 @@ const analyzeController = {
             // final response
             response.data.emotion_analysis.emotion_score = average_score
             response.data.emotion_analysis.distribution = distribution
-
+            const result = response.data;
+                
+            if (userId) {
+                await weekSummaryModel.upsertWeekSummary({
+                    userId,
+                    startDate,
+                    endDate,
+                    diaryCount: diaries.length,
+                    emotionAnalysis: result.emotion_analysis,
+                    highlights: result.highlights,
+                    insights: result.insights,
+                    summary: result.summary
+                });
+            }
 
             return res.status(200).json({
                 success: true,
@@ -122,11 +137,14 @@ const analyzeController = {
     // Controller method for daily diary analysis (Example: POST /api/ai/analyze)
     /* POST http://localhost:3000/api/ai/analyze
     POSTMAN raw json
-    {"diary":"오늘은 산책하면서 생각이 많았던 하루였다."}
+    {
+    "diary":"오늘은 산책하면서 생각이 많았던 하루였다.",
+    "persona": {"system_prompt": "너는 불필요한 위로보다 해결책을 제시하는 '이성적인 여우'야. [지침: 1. 일기의 내용을 요약하여 핵심 문제를 짚을 것. 2. 감정적인 공감보다는 내일 당장 실천할 수 있는 행동 1가지를 제안할 것. 3. 냉철하지만 무례하지 않은 말투를 유지할 것.]"}
+    }
     */
     analyze: async (req, res) => {
         try {
-            const { diary } = req.body;
+            const { diary, persona } = req.body;
 
             if (!diary) {
                 return res.status(400).json({
@@ -134,6 +152,13 @@ const analyzeController = {
                     message: "No diary input."
                 })
             }
+
+            // if (!persona) {
+            //     return res.status(400).json({
+            //         success: false,
+            //         message: "No Persona input."
+            //     });
+            // }
 
             const response = await axios.post(`${PYTHON_SERVER_URL}/analysis/diary`, { diary });
             

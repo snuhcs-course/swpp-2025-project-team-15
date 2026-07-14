@@ -23,6 +23,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import org.junit.Rule
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.TestApplication
+import com.example.sumdays.data.Memo
 
 // 실제 Android 런타임 환경에서 실행되도록 @RunWith(AndroidJUnit4::class) 사용
 @RunWith(AndroidJUnit4::class)
@@ -48,9 +49,27 @@ class MemoAdapterTest {
 
         // 테스트를 위한 초기 데이터 설정
         initialList = listOf(
-            Memo(id = 1, content = "첫 번째 메모 내용", timestamp = "오전 10:00", date = "2023-01-01", order = 1),
-            Memo(id = 2, content = "두 번째 메모 내용", timestamp = "오전 11:00", date = "2023-01-01", order = 2),
-            Memo(id = 3, content = "세 번째 메모 내용", timestamp = "오후 12:00", date = "2023-01-01", order = 3)
+            Memo(
+                id = 1,
+                content = "첫 번째 메모 내용",
+                timestamp = "오전 10:00",
+                date = "2023-01-01",
+                order = 1
+            ),
+            Memo(
+                id = 2,
+                content = "두 번째 메모 내용",
+                timestamp = "오전 11:00",
+                date = "2023-01-01",
+                order = 2
+            ),
+            Memo(
+                id = 3,
+                content = "세 번째 메모 내용",
+                timestamp = "오후 12:00",
+                date = "2023-01-01",
+                order = 3
+            )
         )
         // ListAdapter에 데이터 제출
         adapter.submitList(initialList)

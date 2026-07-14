@@ -4,6 +4,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
@@ -21,12 +23,24 @@
         android:launchMode="singleTask">
 
         <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity
             android:name=".RegisterationActivity"
             android:screenOrientation="portrait"
             android:exported="false"
             />
         <activity
             android:name=".LoginActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name="com.example.sumdays.social.diary.SocialCalendarActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name="com.example.sumdays.social.diary.SocialDailyReadActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
@@ -38,7 +52,7 @@
             android:name=".DailyWriteActivity"
             android:screenOrientation="portrait"
             android:exported="true"
-            android:windowSoftInputMode="adjustPan"
+            android:windowSoftInputMode="adjustNothing"
             android:theme="@style/Theme.First" />
         <activity
             android:name=".DailyReadActivity"
@@ -52,6 +66,11 @@
             android:exported="false" />
         <activity
             android:name=".SettingActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".ShopActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".CalendarActivity"
@@ -64,6 +83,10 @@
             android:exported="false" />
         <activity
             android:name=".StatisticsActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".StatisticsWidgetActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
@@ -91,6 +114,12 @@
         <activity android:name=".settings.ThemeSettingsActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
+        <activity
+            android:name=".settings.EditProfileActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity android:name=".social.SocialActivity"
+            android:exported="false" />
 
         <activity
             android:name=".settings.StyleExtractionActivity"
@@ -98,9 +127,10 @@
             android:label="스타일 추출"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait" />
+
         <!-- -->
 
-
+        <activity android:name=".social.SocialDetailActivity" />
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
@@ -123,6 +153,10 @@
                 <action android:name="com.example.sumdays.ACTION_REPLY" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".reminder.ReminderUndoReceiver"
+            android:enabled="true"
+            android:exported="false" />
 
 
     </application>

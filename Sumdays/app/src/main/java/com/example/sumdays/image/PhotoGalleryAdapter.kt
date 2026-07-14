@@ -1,18 +1,23 @@
 package com.example.sumdays.image
 
+import android.net.Uri
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.sumdays.R
+import com.example.sumdays.theme.ThemePrefs
+import com.example.sumdays.theme.ThemeRepository
 
 class PhotoGalleryAdapter(
     private val onPhotoClick: (String) -> Unit,
-    private val onPhotoLongClick: (Int) -> Unit,
+    private val onDeleteClick: (Int) -> Unit,
     private val onAddClick: () -> Unit
 ) : ListAdapter<GalleryItem, RecyclerView.ViewHolder>(GalleryDiffCallback()) {
 
@@ -30,69 +35,112 @@ class PhotoGalleryAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
-            VIEW_TYPE_PHOTO -> PhotoViewHolder(
-                inflater.inflate(R.layout.item_photo_gallery, parent, false)
-            )
-            VIEW_TYPE_ADD -> AddViewHolder(
-                inflater.inflate(R.layout.item_photo_gallery_add, parent, false)
-            )
+            VIEW_TYPE_PHOTO -> {
+                val view = inflater.inflate(R.layout.item_photo_gallery, parent, false)
+                PhotoViewHolder(view)
+            }
+            VIEW_TYPE_ADD -> {
+                val view = inflater.inflate(R.layout.item_photo_gallery_add, parent, false)
+                AddViewHolder(view)
+            }
             else -> throw IllegalArgumentException("Invalid view type: $viewType")
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = getItem(position)) {
-            is GalleryItem.Photo -> (holder as PhotoViewHolder).bind(
-                url = item.url,
-                position = position,
-                onClick = onPhotoClick,
-                onLongClick = onPhotoLongClick
-            )
-            is GalleryItem.Add -> (holder as AddViewHolder).bind(onAddClick)
+            is GalleryItem.Photo -> {
+                (holder as PhotoViewHolder).bind(
+                    url = item.url,
+                    position = position,
+                    onClick = onPhotoClick,
+                    onDeleteClick = onDeleteClick
+                )
+            }
+            is GalleryItem.Add -> {
+                (holder as AddViewHolder).bind(onAddClick)
+            }
         }
     }
 
     class PhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val cardView: CardView = itemView as CardView
         private val imageView: ImageView = itemView.findViewById(R.id.gallery_image)
+        private val deleteButton: ImageView = itemView.findViewById(R.id.btn_delete_image)
 
         fun bind(
             url: String,
             position: Int,
             onClick: (String) -> Unit,
-            onLongClick: (Int) -> Unit
+            onDeleteClick: (Int) -> Unit
         ) {
-            try {
-                // 1. Base64 이미지 시도
-                val imageBytes = Base64.decode(url, Base64.DEFAULT)
-                Glide.with(itemView.context)
-                    .load(imageBytes)
-                    .centerCrop()
-                    .error(android.R.drawable.ic_menu_report_image) // 디코딩 실패 시 아이콘 표시
-                    .into(imageView)
+            applyTheme()
 
-            } catch (e: IllegalArgumentException) {
-                // 2. Base64가 아니면 기존 방식(파일 경로/URL)으로 시도
-                // 이 부분이 실행될 때 파일이 없으면 FileNotFoundException이 로그에 찍힘
+            val isUriOrPath = url.startsWith("content://") ||
+                    url.startsWith("file://") ||
+                    url.startsWith("http://") ||
+                    url.startsWith("https://") ||
+                    url.startsWith("/")
+
+            if (isUriOrPath) {
                 Glide.with(itemView.context)
-                    .load(url)
+                    .load(Uri.parse(url))
                     .centerCrop()
-                    // ★ 중요: 파일이 없을 경우 에러 처리 (로그만 뜨고 앱은 안 죽게 됨)
-                    .error(android.R.drawable.ic_menu_report_image) // 깨진 이미지 아이콘
-                    .fallback(android.R.drawable.ic_menu_report_image)
+                    .error(android.R.drawable.ic_menu_report_image)
                     .into(imageView)
+            } else {
+                try {
+                    val imageBytes = Base64.decode(url, Base64.DEFAULT)
+                    Glide.with(itemView.context)
+                        .load(imageBytes)
+                        .centerCrop()
+                        .error(android.R.drawable.ic_menu_report_image)
+                        .into(imageView)
+                } catch (_: IllegalArgumentException) {
+                    Glide.with(itemView.context)
+                        .load(url)
+                        .centerCrop()
+                        .error(android.R.drawable.ic_menu_report_image)
+                        .into(imageView)
+                }
             }
 
-            itemView.setOnClickListener { onClick(url) }
-            itemView.setOnLongClickListener {
-                onLongClick(position)
-                true
-            }
+            imageView.setOnClickListener { onClick(url) }
+            deleteButton.setOnClickListener { onDeleteClick(position) }
+        }
+
+        private fun applyTheme() {
+            val context = itemView.context
+            val themeKey = ThemePrefs.getTheme(context)
+            val currentTheme = ThemeRepository.ownedThemes[themeKey] ?: return
+
+            val blockColor = ContextCompat.getColor(context, currentTheme.themeColorA)
+            val primaryColor = ContextCompat.getColor(context, currentTheme.themeTextColorSpecialA)
+
+            cardView.setCardBackgroundColor(blockColor)
+            deleteButton.setColorFilter(primaryColor)
         }
     }
 
     class AddViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val cardView: CardView = itemView as CardView
+        private val addIcon: ImageView = itemView.findViewById(R.id.add_icon)
+
         fun bind(onClick: () -> Unit) {
+            applyTheme()
             itemView.setOnClickListener { onClick() }
+        }
+
+        private fun applyTheme() {
+            val context = itemView.context
+            val themeKey = ThemePrefs.getTheme(context)
+            val currentTheme = ThemeRepository.ownedThemes[themeKey] ?: return
+
+            val blockColor = ContextCompat.getColor(context, currentTheme.themeColorA)
+            val primaryColor = ContextCompat.getColor(context, currentTheme.themeTextColorSpecialA)
+
+            cardView.setCardBackgroundColor(blockColor)
+            addIcon.setColorFilter(primaryColor)
         }
     }
 }

@@ -4,11 +4,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sumdays.R
-import androidx.core.content.ContextCompat
+import com.example.sumdays.data.Memo
 
 // Room 데이터 변경을 효율적으로 처리하는 ListAdapter로 변경
 class MemoAdapter : ListAdapter<Memo, MemoAdapter.MemoViewHolder>(MemoDiffCallback()) {
@@ -45,12 +46,9 @@ class MemoAdapter : ListAdapter<Memo, MemoAdapter.MemoViewHolder>(MemoDiffCallba
         holder.itemView.setOnClickListener {
             onItemClickListener?.onItemClick(currentMemo)
         }
-            // "text" 또는 기타 타입이면 회색 풍선 배경 설정
-            holder.content.setBackgroundResource(R.drawable.memo_background_grey)
-
             // 텍스트 색상 기본값으로 복원
-            holder.content.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.black))
-            holder.timestamp.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.darker_gray)) // 시간 텍스트도 복원
+//            holder.content.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.black))
+//            holder.timestamp.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.darker_gray)) // 시간 텍스트도 복원
     }
 
     // 아이템 위치를 직접 변경하는 함수

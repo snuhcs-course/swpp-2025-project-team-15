@@ -1,9 +1,8 @@
 package com.example.sumdays.data.viewModel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.example.sumdays.data.repository.WeekSummaryRepository
-import com.example.sumdays.statistics.WeekSummary
+import com.example.sumdays.data.WeekSummary
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -18,7 +17,6 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.assertNull
 

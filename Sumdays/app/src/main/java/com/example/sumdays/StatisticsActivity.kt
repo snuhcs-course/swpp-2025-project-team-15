@@ -2,6 +2,7 @@ package com.example.sumdays
 
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -11,25 +12,26 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sumdays.statistics.WeekStatsDetailActivity
-import com.example.sumdays.statistics.WeekSummary
-import com.example.sumdays.ui.TreeTiledDrawable
-import com.example.sumdays.utils.setupEdgeToEdge
-import androidx.lifecycle.ViewModelProvider
-import com.example.sumdays.data.viewModel.DailyEntryViewModel
-import androidx.activity.viewModels
-import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.example.sumdays.data.viewModel.DailyEntryViewModel
 import com.example.sumdays.data.viewModel.WeekSummaryViewModel
 import com.example.sumdays.data.viewModel.WeekSummaryViewModelFactory
-import kotlinx.coroutines.CoroutineScope
+import com.example.sumdays.statistics.FoxTreeBackground
+import com.example.sumdays.statistics.StreakPrefs
+import com.example.sumdays.statistics.WeekStatsDetailActivity
+import com.example.sumdays.data.WeekSummary
+import com.example.sumdays.ui.TreeTiledDrawable
+import com.example.sumdays.utils.setupEdgeToEdge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.threeten.bp.LocalDate
 
 class StatisticsActivity : AppCompatActivity() {
     private lateinit var viewModel: DailyEntryViewModel
@@ -42,8 +44,6 @@ class StatisticsActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var lm: LinearLayoutManager
     private lateinit var treeDrawable: TreeTiledDrawable
-    private lateinit var btnMoveToLatestLeaf: ImageButton
-    private lateinit var btnMoveToBottom: ImageButton
     private lateinit var tvStrikeCount: TextView
     private lateinit var tvLeafCount: TextView
     private lateinit var tvGrapeCount: TextView
@@ -51,19 +51,10 @@ class StatisticsActivity : AppCompatActivity() {
     private lateinit var loadingOverlay: View
     private lateinit var loadingGifView: ImageView
 
-    private var bgScrollY = 0f      // 배경 전환용
     private var treeScrollY = 0f    // 나무 줄기 타일용
-    private var segmentScroll = 8000f  // 어느 정도 스크롤하면 완전히 bg2로 변할지
-
-    private var backgrounds = listOf<Int>(
-        R.drawable.statistics_background_morning,
-        R.drawable.statistics_background_evening,
-        R.drawable.statistics_background_stratosphere,
-        R.drawable.statistics_background_space)
-
-    // 전체 스크롤 범위 = (배경 개수 - 1) * segmentScroll
-    private val maxScrollForTransition: Float
-        get() = segmentScroll * (backgrounds.size - 1)
+    private val backgrounds = FoxTreeBackground.backgrounds
+    private val backgroundBoundaries = FoxTreeBackground.boundaries
+    private val transitionBand = 6f // 크로스페이드 범위
 
     // 현재 어떤 구간(배경 i ↔ i+1)을 쓰고 있는지
     private var currentSegmentIndex: Int = -1
@@ -95,10 +86,7 @@ class StatisticsActivity : AppCompatActivity() {
             currentSegmentIndex = 0
         }
 
-
         recyclerView = findViewById(R.id.recyclerView)
-        btnMoveToLatestLeaf = findViewById(R.id.btn_move_to_latest_leaf)
-        btnMoveToBottom = findViewById(R.id.btn_move_to_bottom_leaf)
 
         // 1) 레이아웃 매니저: 바닥에서 시작
         lm = LinearLayoutManager(this, RecyclerView.VERTICAL, false).apply {
@@ -156,20 +144,8 @@ class StatisticsActivity : AppCompatActivity() {
                 if (scrollDistanceY > 0) {
                     recyclerView.scrollBy(0, -scrollDistanceY)
                 }
-            }
-
-            // 버튼 클릭 리스너: 스크롤 상하 이동
-            btnMoveToLatestLeaf.setOnClickListener {
-                recyclerView.post {
-                    recyclerView.scrollBy(0, -itemHeightPx * (currentDataCount + 10))
-                    recyclerView.scrollBy(0, itemHeightPx * 7)
-                }
-            }
-
-            btnMoveToBottom.setOnClickListener {
-                recyclerView.post {
-                    recyclerView.scrollBy(0, itemHeightPx * (currentDataCount + 10))
-                }
+                // 위치 기반 배경을 초기에 한 번 맞춰줌 (scrollBy가 0이어도 정확히 표시)
+                handleScrollForBackground(bg1, bg2, 0, recyclerView.width)
             }
         }
         loadingOverlay.post {
@@ -177,12 +153,11 @@ class StatisticsActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onResume() {
         super.onResume()
 
-        StreakPrefs.refreshOnOpen(this)              // 만료 체크
-        val streak = StreakPrefs.getStreak(this)     // 최신 streak 읽기
-        tvStrikeCount.text = "🔥: ${streak}"
+        StreakPrefs.refreshOnOpen(this)
     }
 
     private fun showLoading(isLoading: Boolean) {
@@ -227,76 +202,59 @@ class StatisticsActivity : AppCompatActivity() {
     }
 
     private fun updateStatisticsHeader() {
-
-        // 1. 연속 일기 작성 횟수 (스트라이크)
-        calculateAndDisplayStreak()
-
-        // 2. 나뭇잎(주간 요약) 개수
+        val streak = StreakPrefs.getStreak(this@StatisticsActivity)
         val leafCount = weekSummaries.size
-
-        // 3. 포도 개수
-        val grapeCount = leafCount/5
+        val grapeCount = leafCount / 5
 
         // UI 업데이트
+        tvStrikeCount.text = "🔥: ${streak}"
         tvLeafCount.text = "🍃: ${leafCount}"
         tvGrapeCount.text = "🍇: ${grapeCount}"
     }
 
-    private fun calculateAndDisplayStreak() {
-        // CoroutineScope를 사용하여 백그라운드 (IO 스레드)에서 DB 접근 및 계산 수행
-        CoroutineScope(Dispatchers.IO).launch {
-
-            // 1. Room에서 모든 작성 날짜(String)를 가져옵니다.
-            val allDates = viewModel.getAllWrittenDates()
-
-            // 2. Strike 횟수를 가져옵니다.
-            val streak = StreakPrefs.getStreak(this@StatisticsActivity)
-
-            // 3. Main 스레드에서 UI 업데이트
-            withContext(Dispatchers.Main) {
-                tvStrikeCount.text = "🔥: ${streak}"
-            }
-        }
-    }
-
 
     private fun handleScrollForBackground(bg1: ImageView, bg2: ImageView, dy: Int, rvWidth: Int) {
-        // ---------- 배경 전환용 스크롤 (위로 올릴수록 값 증가) ----------
-        // 위로 스크롤: dy < 0 → bgScrollY 증가
-        // 아래로 스크롤: dy > 0 → bgScrollY 감소
-        bgScrollY += -dy
-        bgScrollY = bgScrollY.coerceIn(0f, maxScrollForTransition)
-
-        if (backgrounds.size > 1) {
-            val progress = bgScrollY / segmentScroll      // 0 ~ (N-1)
-            val segmentIndex = progress.toInt().coerceIn(0, backgrounds.size - 2)
-            val localRawT = (progress - segmentIndex).coerceIn(0f, 1f)
-
-            if (segmentIndex != currentSegmentIndex) {
-                bg1.setImageResource(backgrounds[segmentIndex])
-                bg2.setImageResource(backgrounds[segmentIndex + 1])
-                currentSegmentIndex = segmentIndex
-            }
-
-            // 각 세그먼트 내에서만 "짧은 전환"
-            val transitionWidth = 0.2f
-            val start = 0.5f - transitionWidth / 2f
-            val end   = 0.5f + transitionWidth / 2f
-
-            val localSharpT = when {
-                localRawT <= start -> 0f
-                localRawT >= end   -> 1f
-                else -> (localRawT - start) / (end - start)
-            }
-
-            bg1.alpha = 1f - localSharpT
-            bg2.alpha = localSharpT
-        }
-
         // ---------- 나무 줄기 스크롤 (RecyclerView와 같은 방향) ----------
         // RecyclerView는 dy<0 이면 "위로 스크롤" → 아이템들이 아래로 이동
         treeScrollY += dy
         treeDrawable.setScroll(treeScrollY, rvWidth)
+
+        // ---------- 배경 전환: 화면에 보이는 "리프 인덱스"로부터 직접 계산 ----------
+        if (!::adapter.isInitialized || backgrounds.size < 2) return
+
+        val firstPos = lm.findFirstVisibleItemPosition()
+        if (firstPos == RecyclerView.NO_POSITION) return
+        val firstView = lm.findViewByPosition(firstPos) ?: return
+        val itemH = firstView.height.toFloat()
+        if (itemH <= 0f) return
+
+        // 화면 중앙에 오는 리프 인덱스(연속값). 위로 올라갈수록(우주 방향) 증가.
+        val centerY = recyclerView.height / 2f
+        val leafCoord =
+            adapter.leafIndexAt(firstPos) - ((centerY - firstView.top) / itemH - 0.5f)
+
+        // 경계마다 0→1 누적 → phase ∈ [0, backgrounds.size-1]
+        // 경계 ±(transitionBand/2) 구간에서만 부드럽게 섞이고, 그 밖은 단색.
+        val half = transitionBand / 2f
+        var phase = 0f
+        for (boundary in backgroundBoundaries) {
+            phase += when {
+                leafCoord <= boundary - half -> 0f
+                leafCoord >= boundary + half -> 1f
+                else -> (leafCoord - (boundary - half)) / transitionBand
+            }
+        }
+
+        val segmentIndex = phase.toInt().coerceIn(0, backgrounds.size - 2)
+        val localT = (phase - segmentIndex).coerceIn(0f, 1f)
+
+        if (segmentIndex != currentSegmentIndex) {
+            bg1.setImageResource(backgrounds[segmentIndex])
+            bg2.setImageResource(backgrounds[segmentIndex + 1])
+            currentSegmentIndex = segmentIndex
+        }
+        bg1.alpha = 1f - localT
+        bg2.alpha = localT
     }
 
 
@@ -361,6 +319,8 @@ class StatisticsActivity : AppCompatActivity() {
         }
 
         override fun getItemCount() = items.size
+
+        fun leafIndexAt(position: Int): Int = items.getOrNull(position)?.index ?: 0
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val v = LayoutInflater.from(parent.context)

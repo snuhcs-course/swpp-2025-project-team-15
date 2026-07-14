@@ -1,8 +1,8 @@
 package com.example.sumdays.data.repository
 
 import com.example.sumdays.data.dao.WeekSummaryDao
-import com.example.sumdays.data.WeekSummaryEntity
-import com.example.sumdays.statistics.WeekSummary
+import com.example.sumdays.data.WeekSummary
+
 
 class WeekSummaryRepository (
     private val dao: WeekSummaryDao
